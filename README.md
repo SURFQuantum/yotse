@@ -1,4 +1,7 @@
-QIA Opt
+QiaOpt
+
+This is a tool for enabling experiments using QIA software (in particular Netsquid). We do this by providing a set of pre-define functions that can be expand and combined for specific experiments or tests for example to perform parameters explorations and optimization. It can be used locally (laptop) or in HPC centers. It uses QCGPilotJob.
+
 Requirements:
 - multinode
 - allowed for different experiments
@@ -14,6 +17,6 @@ NLBlueprint:
 
 QIA 2.0:
 
-- This is a tool for enabling experiments using QIA software (in particular Netsquid). We do this by providing a set of pre-define functions that can be expand and combined for specific experiments or tests.
+
 - Unifying the structure of experiments: reproducible and comprehensive
 - Open source, easy to read
