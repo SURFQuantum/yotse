@@ -1,7 +1,9 @@
 import os
 import unittest
 import numpy as np
-from qiaopt.pre import Parameter, ExperimentalSystemSetup, Experiment
+from qiaopt.pre import Parameter, SystemSetup, Experiment
+
+DUMMY_FILE = "experiment.py"
 
 
 class TestParameters(unittest.TestCase):
@@ -50,25 +52,34 @@ class TestParameters(unittest.TestCase):
 
 
 class TestSystemSetup(unittest.TestCase):
-    """Test the ExperimentalSystemSetup class."""
+    """Test the SystemSetup class."""
 
     def test_invalid_directory(self):
         invalid_directory = '/invalid/directory'
-        with self.assertRaises(ValueError):
-            ExperimentalSystemSetup(invalid_directory, 'experiment.py', {'arg1': 0.1, 'arg2': 'value2'})
-        # test correct setup
-        ExperimentalSystemSetup(os.getcwd(), 'experiment.py', {'arg1': 0.1, 'arg2': 'value2'}
-)
+        with open(DUMMY_FILE, "wt") as f:
+            f.write("This is a dummy experiment file for test_pre.")
 
+        with self.assertRaises(ValueError):
+            SystemSetup(invalid_directory, DUMMY_FILE, {'arg1': 0.1, 'arg2': 'value2'})
+        # test correct setup
+        SystemSetup(os.getcwd(), DUMMY_FILE, {'arg1': 0.1, 'arg2': 'value2'}
+                    )
+
+        os.remove(DUMMY_FILE)
 
 class TestExperiment(unittest.TestCase):
     """Test the Experiment class."""
 
-    def create_default_experiment(self, parameters=None, optimization_steps=None):
+    @staticmethod
+    def create_default_experiment(parameters=None, optimization_steps=None):
+        with open(DUMMY_FILE, "wt") as f:
+            f.write("This is a dummy experiment file for test_pre.")
+
         return Experiment(experiment_name='default_exp',
-                          system_setup=ExperimentalSystemSetup(os.getcwd(),
-                                                               'experiment.py',
-                                                               {'arg1': 0.1, 'arg2': 'value2'}),
+                          system_setup=SystemSetup(
+                              directory=os.getcwd(),
+                              program_name=DUMMY_FILE,
+                              command_line_arguments={'arg1': 0.1, 'arg2': 'value2'}),
                           parameters=parameters,
                           optimization_steps=optimization_steps)
 
@@ -79,6 +90,8 @@ class TestExperiment(unittest.TestCase):
         test_exp.add_parameter(test_param)
         self.assertEqual(len(test_exp.parameters), 1)
 
+        os.remove(DUMMY_FILE)
+
     def test_add_optimization_step(self):
         test_exp = self.create_default_experiment()
         self.assertEqual(len(test_exp.optimization_steps), 0)
@@ -88,6 +101,8 @@ class TestExperiment(unittest.TestCase):
         self.assertEqual(len(test_opt.optimization_steps), 2)
         self.assertEqual(test_opt.optimization_steps[-1], ('GD', 3))
 
+        os.remove(DUMMY_FILE)
+
 
 if __name__ == '__main__':
-    unittest.main()
+        unittest.main()

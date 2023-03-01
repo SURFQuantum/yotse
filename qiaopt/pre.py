@@ -77,7 +77,7 @@ class Parameter:
             raise ValueError(f"Invalid distribution specified: {self.distribution}")
 
 
-class ExperimentalSystemSetup:
+class SystemSetup:
     """Defines a class for the setup of the system parameters.
     Parameters
     ----------
@@ -85,17 +85,44 @@ class ExperimentalSystemSetup:
         Path of the working directory.
     program_name : str
         Name of the script that should be used for the experiment.
-    command_line_arguments : dict
-        Dictionaries containing as keys the reference of the line argument and as values their value.
-
+    command_line_arguments : dict (optional)
+        Dictionaries containing as keys the reference of the line argument and as values their value. Defaults to an
+        empty dictionary.
+    analysis_script : str (optional)
+        Name of the script that is used to analyse the output of the program script. Defaults to None.
+    files_needed : list (optional)
+        List of files that are needed to run the experiment and should be copied to the run location.
+        Defaults to ["*.py"].
     """
-    def __init__(self, directory, program_name, command_line_arguments):
+    def __init__(self, directory, program_name, command_line_arguments={}, analysis_script=None, files_needed=["*.py"]):
         if not os.path.isdir(directory):
             raise ValueError(f"Invalid directory path: {directory}")
+        if not os.path.isfile(program_name):
+            raise ValueError(f"Invalid program_name: {program_name} is not a file.")
+        if analysis_script is not None and not os.path.isfile(analysis_script):
+            raise ValueError(f"Invalid analysis_script: {analysis_script} is not a file.")
 
         self.directory = directory
         self.program_name = program_name
-        self.line_arguments = command_line_arguments
+        self.cmdline_arguments = command_line_arguments
+        self.analysis_script = analysis_script
+        self.files_needed = files_needed
+
+
+class OptimizationStep:
+    """BaseClass for Optimization steps.
+    Parameters
+    ----------
+    name : str
+        Name of the Optimization step.
+    parameters : dict
+        Dictionary containing all necessary parameters for the optimization step with their names as keys.
+
+    """
+
+    def __init__(self, name, parameters):
+        self.name = name
+        self.parameters = parameters
 
 
 class Experiment:
@@ -105,7 +132,7 @@ class Experiment:
     ----------
     experiment_name : str
         Descriptive name for the experiment
-    system_setup : ExperimentalSystemSetup
+    system_setup : SystemSetup
         Instance of the ExperimentalSystemSetup class that contains the setup of the experimental system.
     parameters : list[Parameter] (optional)
         List of Parameter instances that define the parameters to be varied in the experiment. Defaults to None.
