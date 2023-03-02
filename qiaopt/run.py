@@ -1,11 +1,14 @@
-#!/usr/bin/env
+""" Defines the run function"""
 from tools import collectresults
 from tools import optimization
 from tools import createpoints
 from tools import submit
 
-def run(parameters, general):
-	points = createpoints(parameters)
+def run(experiment):
+	for parameter in experiment.parameters:
+		parameter.generate_initial_data_points()
+	# create param points combinations!
+	#points = combination
 	submit(points, general)
 	data = collectresults()
 
