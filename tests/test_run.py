@@ -50,8 +50,11 @@ class TestCore(unittest.TestCase):
         test_points = [1,2,3,4]
         test_core.experiment.data_points = test_points
         job_ids = test_core.submit()
+
         self.assertEqual(len(test_points), len(job_ids))  
-        path = test_core.experiment.system_setup.directory
+        
+        path = test_core.experiment.system_setup.working_directory
+        extension = test_core.experiment.system_setup.output_extension
         files = [f for f in os.listdir(path) if f.endswith('.csv')]
         self.assertEqual(len(job_ids), len(files)) 
         for f in os.listdir(path):

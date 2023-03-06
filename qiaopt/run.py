@@ -52,24 +52,23 @@ class Core:
 	def run(self):
 		print("Starting default run: submit, collect, create")
 		self.submit()
-		self.collectdata(self.experiment.system_setup.directory) 
+		directory = self.experiment.system_setup.working_directory
+		self.collectdata(directory) 
 		self.create_points_based_on_method()
 		print("Finished run")
 
 	def submit(self):
 		manager = LocalManager()
-		#extension = self.experiment.extension
-		extension = "csv"
-		directory = self.experiment.system_setup.directory
-		stdout = "output"
+		extension = self.experiment.system_setup.output_extension
+		directory = self.experiment.system_setup.working_directory
+		stdout = self.experiment.system_setup.stdout
 		
 		jobs = Jobs()
 		for i, item in enumerate(self.experiment.data_points):
 			jobs.add(
 				name = self.experiment.name + str(i), 
 				exec = self.experiment.system_setup.executor,
-                args = qcgpilot_commandline(self.experiment),  
-				#stdout = self.experiment.stdout + str(i) + "." + extension,
+                args = qcgpilot_commandline(self.experiment),
 				stdout = stdout + str(i) + "." + extension,
 				wd = directory,
 			)
@@ -83,8 +82,8 @@ class Core:
 	def collectdata(self, directory):
 		extension = "csv"
 		print(directory)
-		#directory = self.experiment.system_setup.directory
-		#extension = self.experiment.extension
+		directory = self.experiment.system_setup.working_directory
+		extension = self.experiment.system_setup.output_extension
 		files = getfiles(directory,extension)
 		#filesextension = getfiles2(directory,extension)
 		data = filestolist(files)
