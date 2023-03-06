@@ -153,11 +153,12 @@ class Experiment:
     Parameters
     ----------
     experiment_name : str
-        Descriptive name for the experiment
+        Descriptive name for the experiment.
     system_setup : SystemSetup
-        Instance of the ExperimentalSystemSetup class that contains the setup of the experimental system.
-    parameters : tuple[Parameter] (optional)
-        Tuple of Parameter instances that define the parameters to be varied in the experiment. Defaults to None.
+        Instance of the SystemSetup class that contains the setup of the experimental system.
+    parameters : list[Parameter] (optional)
+        List of Parameter instances that define the parameters to be varied in the experiment.
+        Defaults to an empty list.
         Note: If one wants to first optimize over a subset of parameters then set the remaining parameters as inactive
         `for param not in params_to_opt_over: param.parameter_active = False`. To later also optimize over the other
         subset just set them to active again.
@@ -171,18 +172,14 @@ class Experiment:
         The current optimization step number.
     """
 
-    def __init__(self, experiment_name, system_setup, parameters=None, opt_info_list=[]):
+    def __init__(self, experiment_name: str, system_setup: SystemSetup, parameters=None, opt_info_list=None):
         self.name = experiment_name
         self.system_setup = system_setup
-        self.parameters = []
-        if parameters is not None:
-            assert isinstance(parameters, tuple)  # tuple for immutability to not get into issues with param ordering
-            self.parameters = parameters
-        if opt_info_list:
-            assert isinstance(opt_info_list, list)
-            for item in opt_info_list:
+        self.parameters = parameters or []
+        if opt_info_list is not None:
+            for item in list(opt_info_list):
                 assert isinstance(item, OptimizationInfo)
-        self.optimization_information_list = opt_info_list
+        self.optimization_information_list = list(opt_info_list) or []
         self.data_points = []
         self._current_optimization_step = None  # TODO: what would this mean if we have various different kinds of opts?
 
