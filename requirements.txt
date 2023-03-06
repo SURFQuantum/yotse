@@ -2,3 +2,4 @@ numpy
 qcg-pilotjob
 matplotlib
 pygad
+pandas
