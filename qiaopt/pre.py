@@ -1,6 +1,7 @@
 """Defines classes and functions for pre step."""
 import os
 import numpy as np
+import itertools
 
 
 class Parameter:
@@ -55,6 +56,10 @@ class Parameter:
 
         self.generate_initial_data_points()
 
+    @property
+    def is_active(self):
+        return self.parameter_active
+
     def generate_initial_data_points(self):
         """Generate initial data points based on the specified distribution and range."""
         if self.distribution == "linear":
@@ -90,11 +95,14 @@ class SystemSetup:
         empty dictionary.
     analysis_script : str (optional)
         Name of the script that is used to analyse the output of the program script. Defaults to None.
+    executor : str (optional)
+        Executor to be passed when submitting jobs. Defaults to 'python'.
     files_needed : list (optional)
         List of files that are needed to run the experiment and should be copied to the run location.
         Defaults to ["*.py"].
     """
-    def __init__(self, directory, program_name, command_line_arguments={}, analysis_script=None, files_needed=["*.py"]):
+    def __init__(self, directory: str, program_name: str, command_line_arguments={}, analysis_script=None,
+                 executor="python", files_needed=["*.py"]):
         if not os.path.isdir(directory):
             raise ValueError(f"Invalid directory path: {directory}")
         if not os.path.isfile(program_name):
@@ -106,23 +114,28 @@ class SystemSetup:
         self.program_name = program_name
         self.cmdline_arguments = command_line_arguments
         self.analysis_script = analysis_script
+        self.executor = executor
         self.files_needed = files_needed
 
+    def cmdline_dict_to_list(self):
+        """Convert the dictionary of commandline arguments to a list for QCGPilot."""
+        return [item for key_value_pair in self.cmdline_arguments.items() for item in key_value_pair]
 
-class OptimizationStep:
-    """BaseClass for Optimization steps.
+
+class OptimizationInfo:
+    """Class that is optional as input to the Experiment, if the run is supposed to execute an optimization it will
+    look here for the parameters.
     Parameters
     ----------
     name : str
-        Name of the Optimization step.
-    parameters : dict
-        Dictionary containing all necessary parameters for the optimization step with their names as keys.
-
+        Name of the optimization algorithm to be used, e.g. "GA" (genetic algorithm), "GD" (gradient descent).
+    opt_parameters : dict
+        Dictionary containing all necessary parameters for the optimization.
     """
 
-    def __init__(self, name, parameters):
+    def __init__(self, name, opt_parameters):
         self.name = name
-        self.parameters = parameters
+        self.parameters = opt_parameters
 
 
 class Experiment:
@@ -136,10 +149,12 @@ class Experiment:
         Instance of the ExperimentalSystemSetup class that contains the setup of the experimental system.
     parameters : list[Parameter] (optional)
         List of Parameter instances that define the parameters to be varied in the experiment. Defaults to None.
-    optimization_steps : list (optional)
-         List of tuples (optimization_type, number_steps) describing the different optimization steps to be executed
-         in sequence. For example (("GA",10), ("GD",3)) to perform 10 steps of genetic algorith ("GA") followed by 3
-         steps of gradient descent ("GD"). Defaults to None.
+        Note: If one wants to first optimize over a subset of parameters then set the remaining parameters as inactive
+        `for param not in params_to_opt_over: param.parameter_active = False`. To later also optimize over the other
+        subset just set them to active again.
+    opt_info_list : list (optional)
+         List of :obj:OptimizationInfo describing the different optimization algorithms to be used and their parameters.
+         Defaults to an empty list.
 
     Attributes
     ----------
@@ -147,18 +162,25 @@ class Experiment:
         The current optimization step number.
     """
 
-    def __init__(self, experiment_name, system_setup, parameters=None, optimization_steps=None):
+    def __init__(self, experiment_name, system_setup, parameters=None, opt_info_list=[]):
         self.name = experiment_name
         self.system_setup = system_setup
         self.parameters = []
         if parameters is not None:
             self.parameters = parameters
-        self.optimization_steps = []
-        if optimization_steps is not None:
-            assert isinstance(optimization_steps, list)
-            self.optimization_steps = optimization_steps
+        if opt_info_list:
+            assert isinstance(opt_info_list, list)
+            for item in opt_info_list:
+                assert isinstance(item, OptimizationInfo)
+        self.optimization_information_list = opt_info_list
+        self.data_points = []
+        self._current_optimization_step = None  # TODO: what would this mean if we have various different kinds of opts?
 
-        self._current_optimization_step = None
+    def create_datapoint_c_product(self):  # TODO: better name?
+        """Create initial set of points as Cartesian product of all active parameters.
+
+        Overwrite if other combination is needed."""
+        self.data_points = itertools.product([param.data_points for param in self.parameters if param.is_active])
 
     @property
     def current_optimization_step(self):
@@ -176,12 +198,12 @@ class Experiment:
         assert isinstance(parameter, Parameter)
         self.parameters.append(parameter)
 
-    def add_optimization_step(self, optimization_step):
-        """Adds an optimization step to the experiment.
+    def add_optimization_info(self, optimization_info):
+        """Adds OptimizationInfo to the experiment.
 
         Parameters
         ----------
-        optimization_step : OptimizationStep
+        optimization_info : OptimizationStep
             The optimization step to add to the experiment.
         """
-        self.optimization_steps.append(optimization_step)
+        self.optimization_information_list.append(optimization_info)

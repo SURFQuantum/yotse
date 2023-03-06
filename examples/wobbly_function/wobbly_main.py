@@ -10,6 +10,7 @@ def wobbly_pre():
                                  program_name='wobbly_function.py',
                                  command_line_arguments={"--filebasename": 'wobbly_example'},
                                  analysis_script="analyse_function_output.py",
+                                 executor="python",
                                  files_needed=["*.py"]),
         parameters=[
             Parameter(
@@ -33,14 +34,16 @@ def wobbly_pre():
                 data_type="continuous"
             )
         ],
-        optimization_steps=[(OptimizationStep(
-            name="GA",
-            parameters={
-                "order": "cr",
-                "number_best_candidates": "10",
-                "global_scale_factor": "1.0",
-                "population_size": "20",
-                "probability_mutation": "0.5",
-                "probability_crossover": "0.5"}), 2)]
+        opt_info_list=[
+            OptimizationStep(
+                name="GA",
+                parameters={
+                    "order": "cr",
+                    "number_best_candidates": "10",
+                    "global_scale_factor": "1.0",
+                    "population_size": "20",
+                    "probability_mutation": "0.5",
+                    "probability_crossover": "0.5"
+                })]
     )
     return wobbly_experiment

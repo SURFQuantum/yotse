@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     current_path = os.getcwd()
     new_path = current_path + '/output'
-    for f in os.listdir('.'):
+    for f in os.listdir('..'):
         ext = os.path.splitext(f)[-1].lower()
         if ext == '.csv':
             shutil.move(current_path + '/' + f, new_path + '/' + f)

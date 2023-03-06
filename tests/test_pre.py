@@ -1,7 +1,7 @@
 import os
 import unittest
 import numpy as np
-from qiaopt.pre import Parameter, SystemSetup, Experiment
+from qiaopt.pre import Parameter, SystemSetup, Experiment, OptimizationInfo
 
 DUMMY_FILE = "experiment.py"
 
@@ -54,24 +54,49 @@ class TestParameters(unittest.TestCase):
 class TestSystemSetup(unittest.TestCase):
     """Test the SystemSetup class."""
 
-    def test_invalid_directory(self):
+    def test_invalid_directory_or_files(self):
         invalid_directory = '/invalid/directory'
         with open(DUMMY_FILE, "wt") as f:
             f.write("This is a dummy experiment file for test_pre.")
 
         with self.assertRaises(ValueError):
-            SystemSetup(invalid_directory, DUMMY_FILE, {'arg1': 0.1, 'arg2': 'value2'})
+            SystemSetup(invalid_directory, DUMMY_FILE, {'--arg1': 0.1, '--arg2': 'value2'})
+        with self.assertRaises(ValueError):
+            SystemSetup(os.getcwd(), DUMMY_FILE, analysis_script='non_existent_file.sh')
         # test correct setup
-        SystemSetup(os.getcwd(), DUMMY_FILE, {'arg1': 0.1, 'arg2': 'value2'}
+        SystemSetup(os.getcwd(), DUMMY_FILE, {'--arg1': 0.1, '--arg2': 'value2'}
                     )
-
         os.remove(DUMMY_FILE)
+    
+    def test_init(self):
+        with open(DUMMY_FILE, "wt") as f:
+            f.write("This is a dummy experiment file for test_pre.")
+
+        test_system = SystemSetup(directory=os.getcwd(), program_name=DUMMY_FILE,
+                                  command_line_arguments={'--arg1': 0.1, '--arg2': 'value2'},
+                                  executor='bash', files_needed=['*.sh', 'important_text.txt', 'generic_readme.md'])
+        assert test_system.directory == os.getcwd()
+        assert test_system.program_name == DUMMY_FILE
+        assert test_system.cmdline_arguments == {'--arg1': 0.1, '--arg2': 'value2'}
+        assert test_system.analysis_script is None
+        assert test_system.executor == 'bash'
+        assert test_system.files_needed == ['*.sh', 'important_text.txt', 'generic_readme.md']
+        os.remove(DUMMY_FILE)
+
+    def test_cmdline_to_list(self):
+        """Test if the dict of cmdline args is correctly converted to a list."""
+        with open(DUMMY_FILE, "wt") as f:
+            f.write("This is a dummy experiment file for test_pre.")
+        test_setup = SystemSetup(os.getcwd(), DUMMY_FILE, {'--arg1': 0.1, '--arg2': 'value2', '--arg3': False})
+        assert test_setup.cmdline_dict_to_list() == ['--arg1', 0.1, '--arg2', 'value2', '--arg3', False]
+        os.remove(DUMMY_FILE)
+
 
 class TestExperiment(unittest.TestCase):
     """Test the Experiment class."""
 
     @staticmethod
-    def create_default_experiment(parameters=None, optimization_steps=None):
+    def create_default_experiment(parameters=None, optimization_info=[]):
         with open(DUMMY_FILE, "wt") as f:
             f.write("This is a dummy experiment file for test_pre.")
 
@@ -81,7 +106,7 @@ class TestExperiment(unittest.TestCase):
                               program_name=DUMMY_FILE,
                               command_line_arguments={'arg1': 0.1, 'arg2': 'value2'}),
                           parameters=parameters,
-                          optimization_steps=optimization_steps)
+                          opt_info_list=optimization_info)
 
     def test_add_parameter(self):
         test_exp = self.create_default_experiment()
@@ -92,14 +117,15 @@ class TestExperiment(unittest.TestCase):
 
         os.remove(DUMMY_FILE)
 
-    def test_add_optimization_step(self):
+    def test_add_optimization_information(self):
         test_exp = self.create_default_experiment()
-        self.assertEqual(len(test_exp.optimization_steps), 0)
+        self.assertEqual(len(test_exp.optimization_information_list), 0)
 
-        test_opt = self.create_default_experiment(optimization_steps=[('GA', 5)])
-        test_opt.add_optimization_step(('GD', 3))
-        self.assertEqual(len(test_opt.optimization_steps), 2)
-        self.assertEqual(test_opt.optimization_steps[-1], ('GD', 3))
+        test_opt = self.create_default_experiment(optimization_info=[OptimizationInfo(name='GA',
+                                                                                      opt_parameters={'pop_size': 5})])
+        test_opt.add_optimization_info(OptimizationInfo(name='GD', opt_parameters={}))
+        self.assertEqual(len(test_opt.optimization_information_list), 2)
+        self.assertEqual(test_opt.optimization_information_list[-1].name, 'GD')
 
         os.remove(DUMMY_FILE)
 
