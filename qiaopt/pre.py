@@ -37,7 +37,7 @@ class Parameter:
     data_points : list
         Data points to be explored for this parameter.
     """
-    def __init__(self, name: str, parameter_range: list, number_points: int, distribution: str, constraints: list,
+    def __init__(self, name: str, parameter_range: list, number_points: int, distribution: str, constraints=None,
                  weights=None, parameter_active=True, custom_distribution=None, data_type="continuous"):
         self.name = name
         self.range = parameter_range
@@ -147,8 +147,8 @@ class Experiment:
         Descriptive name for the experiment
     system_setup : SystemSetup
         Instance of the ExperimentalSystemSetup class that contains the setup of the experimental system.
-    parameters : list[Parameter] (optional)
-        List of Parameter instances that define the parameters to be varied in the experiment. Defaults to None.
+    parameters : tuple[Parameter] (optional)
+        Tuple of Parameter instances that define the parameters to be varied in the experiment. Defaults to None.
         Note: If one wants to first optimize over a subset of parameters then set the remaining parameters as inactive
         `for param not in params_to_opt_over: param.parameter_active = False`. To later also optimize over the other
         subset just set them to active again.
@@ -167,6 +167,7 @@ class Experiment:
         self.system_setup = system_setup
         self.parameters = []
         if parameters is not None:
+            assert isinstance(parameters, tuple)  # tuple for immutability to not get into issues with param ordering
             self.parameters = parameters
         if opt_info_list:
             assert isinstance(opt_info_list, list)
@@ -180,7 +181,7 @@ class Experiment:
         """Create initial set of points as Cartesian product of all active parameters.
 
         Overwrite if other combination is needed."""
-        self.data_points = itertools.product([param.data_points for param in self.parameters if param.is_active])
+        self.data_points = list(itertools.product(*[param.data_points for param in self.parameters if param.is_active]))
 
     @property
     def current_optimization_step(self):

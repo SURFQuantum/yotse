@@ -1,6 +1,7 @@
 import os
 import unittest
 import numpy as np
+import itertools
 from qiaopt.pre import Parameter, SystemSetup, Experiment, OptimizationInfo
 
 DUMMY_FILE = "experiment.py"
@@ -54,10 +55,16 @@ class TestParameters(unittest.TestCase):
 class TestSystemSetup(unittest.TestCase):
     """Test the SystemSetup class."""
 
-    def test_invalid_directory_or_files(self):
-        invalid_directory = '/invalid/directory'
+    def setUp(self) -> None:
         with open(DUMMY_FILE, "wt") as f:
             f.write("This is a dummy experiment file for test_pre.")
+
+    def tearDown(self) -> None:
+        os.remove(DUMMY_FILE)
+
+    def test_invalid_directory_or_files(self):
+        """Test if an invalid directory will correctly be caught."""
+        invalid_directory = '/invalid/directory'
 
         with self.assertRaises(ValueError):
             SystemSetup(invalid_directory, DUMMY_FILE, {'--arg1': 0.1, '--arg2': 'value2'})
@@ -66,12 +73,8 @@ class TestSystemSetup(unittest.TestCase):
         # test correct setup
         SystemSetup(os.getcwd(), DUMMY_FILE, {'--arg1': 0.1, '--arg2': 'value2'}
                     )
-        os.remove(DUMMY_FILE)
     
     def test_init(self):
-        with open(DUMMY_FILE, "wt") as f:
-            f.write("This is a dummy experiment file for test_pre.")
-
         test_system = SystemSetup(directory=os.getcwd(), program_name=DUMMY_FILE,
                                   command_line_arguments={'--arg1': 0.1, '--arg2': 'value2'},
                                   executor='bash', files_needed=['*.sh', 'important_text.txt', 'generic_readme.md'])
@@ -81,25 +84,26 @@ class TestSystemSetup(unittest.TestCase):
         assert test_system.analysis_script is None
         assert test_system.executor == 'bash'
         assert test_system.files_needed == ['*.sh', 'important_text.txt', 'generic_readme.md']
-        os.remove(DUMMY_FILE)
 
     def test_cmdline_to_list(self):
         """Test if the dict of cmdline args is correctly converted to a list."""
-        with open(DUMMY_FILE, "wt") as f:
-            f.write("This is a dummy experiment file for test_pre.")
+
         test_setup = SystemSetup(os.getcwd(), DUMMY_FILE, {'--arg1': 0.1, '--arg2': 'value2', '--arg3': False})
         assert test_setup.cmdline_dict_to_list() == ['--arg1', 0.1, '--arg2', 'value2', '--arg3', False]
-        os.remove(DUMMY_FILE)
 
 
 class TestExperiment(unittest.TestCase):
     """Test the Experiment class."""
-
-    @staticmethod
-    def create_default_experiment(parameters=None, optimization_info=[]):
+    def setUp(self) -> None:
         with open(DUMMY_FILE, "wt") as f:
             f.write("This is a dummy experiment file for test_pre.")
 
+    def tearDown(self) -> None:
+        os.remove(DUMMY_FILE)
+
+    @staticmethod
+    def create_default_experiment(parameters=None, optimization_info=[]):
+        """Helper function to set up a default experiment for the tests."""
         return Experiment(experiment_name='default_exp',
                           system_setup=SystemSetup(
                               directory=os.getcwd(),
@@ -108,16 +112,50 @@ class TestExperiment(unittest.TestCase):
                           parameters=parameters,
                           opt_info_list=optimization_info)
 
+    def test_c_product(self):
+        """Test whether Cartesian product is correctly formed from active Parameters."""
+        test_exp = self.create_default_experiment()
+        test_exp.add_parameter(Parameter(name='active_param1',
+                                         parameter_range=[1, 3],
+                                         number_points=3,
+                                         distribution="linear",
+                                         parameter_active=True))
+        test_exp.add_parameter(Parameter(name='inactive_param',
+                                         parameter_range=[11, 13],
+                                         number_points=3,
+                                         distribution="linear",
+                                         parameter_active=False))
+        test_exp.add_parameter(Parameter(name='active_param2',
+                                         parameter_range=[21, 23],
+                                         number_points=3,
+                                         distribution="linear",
+                                         parameter_active=True))
+        test_exp.create_datapoint_c_product()
+        assert test_exp.data_points == list(itertools.product([1., 2., 3.], [21., 22., 23.]))
+        # now activate 'inactive_param' and regenerate points
+        test_exp.parameters[1].parameter_active = True
+        assert test_exp.parameters[1].is_active
+        test_exp.create_datapoint_c_product()
+        assert test_exp.data_points == list(itertools.product([1., 2., 3.], [11., 12., 13.], [21., 22., 23.]))
+        # now deactivate 'active_param1' and 'active_param2' and regenerate points
+        test_exp.parameters[0].parameter_active = False
+        test_exp.parameters[2].parameter_active = False
+        test_exp.create_datapoint_c_product()
+        assert test_exp.parameters[0].is_active is False
+        assert test_exp.parameters[2].is_active is False
+        assert test_exp.data_points == list(itertools.product([11., 12., 13.]))
+        print(test_exp.data_points)
+
     def test_add_parameter(self):
+        """Test adding Parameters to an Experiment."""
         test_exp = self.create_default_experiment()
         self.assertEqual(len(test_exp.parameters), 0)
         test_param = TestParameters.create_default_param()
         test_exp.add_parameter(test_param)
         self.assertEqual(len(test_exp.parameters), 1)
 
-        os.remove(DUMMY_FILE)
-
     def test_add_optimization_information(self):
+        """Test adding OptimizationInfo to an Experiment."""
         test_exp = self.create_default_experiment()
         self.assertEqual(len(test_exp.optimization_information_list), 0)
 
@@ -127,8 +165,6 @@ class TestExperiment(unittest.TestCase):
         self.assertEqual(len(test_opt.optimization_information_list), 2)
         self.assertEqual(test_opt.optimization_information_list[-1].name, 'GD')
 
-        os.remove(DUMMY_FILE)
-
 
 if __name__ == '__main__':
-        unittest.main()
+    unittest.main()
