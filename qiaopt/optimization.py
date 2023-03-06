@@ -75,7 +75,6 @@ class GAOpt(GenericOptimization):
     def execute(self):
         """
         Execute optimization
-        :num_generations: Number of generations
         :return: Solution and the corresponding function value
         """
         x = self.data[0]
