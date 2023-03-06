@@ -7,8 +7,8 @@ def costfunction(x,y, var):
 
 
 if __name__ == "__main__":
-    var = float(sys.argv[1])
-    print("f x y")
+    var = float(sys.argv[2])
+    print("# f x y")
     xvalues = np.linspace(0,1, 10)
     yvalues = np.linspace(0,1, 10)
     for x in xvalues:
