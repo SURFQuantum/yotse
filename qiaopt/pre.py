@@ -176,10 +176,11 @@ class Experiment:
         self.name = experiment_name
         self.system_setup = system_setup
         self.parameters = parameters or []
+        self.optimization_information_list = []
         if opt_info_list is not None:
-            for item in list(opt_info_list):
+            for item in opt_info_list:
                 assert isinstance(item, OptimizationInfo)
-        self.optimization_information_list = list(opt_info_list) or []
+            self.optimization_information_list = list(opt_info_list)
         self.data_points = []
         self._current_optimization_step = None  # TODO: what would this mean if we have various different kinds of opts?
 
