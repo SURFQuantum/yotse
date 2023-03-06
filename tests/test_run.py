@@ -21,7 +21,7 @@ class TestCore(unittest.TestCase):
         return Experiment(experiment_name='default_exp',
                           system_setup=SystemSetup(
         
-                              directory=os.getcwd(),
+                              working_directory=os.getcwd(),
                               program_name=DUMMY_FILE,
                               command_line_arguments={'arg1': 1.0}),
                           parameters=parameters,

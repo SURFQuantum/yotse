@@ -8,7 +8,7 @@ import os
 import shutil
 
 if __name__ == "__main__":
-    # Create directory
+    # Create working_directory
     parser = ArgumentParser()
     parser.add_argument('--step', required=False, type=str,
                         help='Optimization step')

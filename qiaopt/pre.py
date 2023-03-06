@@ -86,7 +86,7 @@ class SystemSetup:
     """Defines a class for the setup of the system parameters.
     Parameters
     ----------
-    directory : str
+    working_directory : str
         Path of the working directory.
     program_name : str
         Name of the script that should be used for the experiment.
@@ -99,23 +99,32 @@ class SystemSetup:
         Executor to be passed when submitting jobs. Defaults to 'python'.
     files_needed : list (optional)
         List of files that are needed to run the experiment and should be copied to the run location.
-        Defaults to ["*.py"].
+        Defaults to ("*.py",).
+    stdout : str (optional)
+        Name of the file that the standard output (stdout) of the script should be written to. Defaults to None.
+    output_directory: str (optional)
+        Path of the directory the output should be stored in. Defaults to working_directory.
+    output_extension: str (optional)
+        Extension of the output files to be picked up by the analysis_script, e.g 'csv' or 'json'. Defaults to 'csv'.
     """
-    def __init__(self, directory: str, program_name: str, command_line_arguments={}, analysis_script=None,
-                 executor="python", files_needed=["*.py"]):
-        if not os.path.isdir(directory):
-            raise ValueError(f"Invalid directory path: {directory}")
-        if not os.path.isfile(program_name):
+    def __init__(self, working_directory: str, program_name: str, command_line_arguments=None, analysis_script=None,
+                 executor="python", files_needed=("*.py",), stdout=None, output_directory=None, output_extension='csv'):
+        if not os.path.exists(working_directory):
+            raise ValueError(f"Invalid working_directory path: {working_directory}")
+        if not os.path.exists(program_name):
             raise ValueError(f"Invalid program_name: {program_name} is not a file.")
-        if analysis_script is not None and not os.path.isfile(analysis_script):
+        if analysis_script is not None and not os.path.exists(analysis_script):
             raise ValueError(f"Invalid analysis_script: {analysis_script} is not a file.")
 
-        self.directory = directory
+        self.working_directory = working_directory
         self.program_name = program_name
-        self.cmdline_arguments = command_line_arguments
+        self.cmdline_arguments = command_line_arguments or {}
         self.analysis_script = analysis_script
         self.executor = executor
         self.files_needed = files_needed
+        self.stdout = stdout
+        self.output_directory = output_directory or working_directory
+        self.output_extension = output_extension
 
     def cmdline_dict_to_list(self):
         """Convert the dictionary of commandline arguments to a list for QCGPilot."""

@@ -1,12 +1,12 @@
 """Example script for execution of a wobbly_function.py experiment."""
 import os
-from qiaopt.pre import Experiment, SystemSetup, Parameter, OptimizationStep
+from qiaopt.pre import Experiment, SystemSetup, Parameter, OptimizationInfo
 
 
 def wobbly_pre():
     wobbly_experiment = Experiment(
         experiment_name="wobbly_example",
-        system_setup=SystemSetup(directory=os.getcwd(),
+        system_setup=SystemSetup(working_directory=os.getcwd(),
                                  program_name='wobbly_function.py',
                                  command_line_arguments={"--filebasename": 'wobbly_example'},
                                  analysis_script="analyse_function_output.py",
@@ -35,9 +35,9 @@ def wobbly_pre():
             )
         ],
         opt_info_list=[
-            OptimizationStep(
+            OptimizationInfo(
                 name="GA",
-                parameters={
+                opt_parameters={
                     "order": "cr",
                     "number_best_candidates": "10",
                     "global_scale_factor": "1.0",
