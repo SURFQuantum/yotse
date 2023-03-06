@@ -52,23 +52,22 @@ class Core:
 	def run(self):
 		print("Starting default run: submit, collect, create")
 		self.submit()
-		self.collectdata() 
+		self.collectdata(self.experiment.system_setup.directory) 
 		self.create_points_based_on_method()
+		print("Finished run")
 
 	def submit(self):
 		manager = LocalManager()
 		#extension = self.experiment.extension
-		#directory = self.experiment.directory
 		extension = "csv"
-		directory = os.getcwd()
+		directory = self.experiment.system_setup.directory
 		stdout = "output"
 		
 		jobs = Jobs()
 		for i, item in enumerate(self.experiment.data_points):
 			jobs.add(
 				name = self.experiment.name + str(i), 
-				#exec = self.experiment.executor,
-				exec = "python3",
+				exec = self.experiment.system_setup.executor,
                 args = qcgpilot_commandline(self.experiment),  
 				#stdout = self.experiment.stdout + str(i) + "." + extension,
 				stdout = stdout + str(i) + "." + extension,
@@ -76,14 +75,14 @@ class Core:
 			)
 		job_ids = manager.submit(jobs)
 		manager.wait4(job_ids)
-		manager.cleanup()
 		manager.finish()
+		manager.cleanup()
 		return job_ids
 
 
-	def collectdata(self):
+	def collectdata(self, directory):
 		extension = "csv"
-		directory = os.getcwd()
+		print(directory)
 		#directory = self.experiment.system_setup.directory
 		#extension = self.experiment.extension
 		files = getfiles(directory,extension)
@@ -100,3 +99,15 @@ class Core:
 class Executor(Core):
 	def run():
 		pass
+
+
+#class myproblem(Executor):
+#	def run:
+		#
+#		submit()
+
+
+#exp = Expreiment o
+#exec = myprobem()
+# for i in exp.opt
+
