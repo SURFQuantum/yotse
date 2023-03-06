@@ -102,7 +102,7 @@ class TestExperiment(unittest.TestCase):
         os.remove(DUMMY_FILE)
 
     @staticmethod
-    def create_default_experiment(parameters=None, optimization_info=[]):
+    def create_default_experiment(parameters=None, optimization_info=None):
         """Helper function to set up a default experiment for the tests."""
         return Experiment(experiment_name='default_exp',
                           system_setup=SystemSetup(
@@ -144,7 +144,6 @@ class TestExperiment(unittest.TestCase):
         assert test_exp.parameters[0].is_active is False
         assert test_exp.parameters[2].is_active is False
         assert test_exp.data_points == list(itertools.product([11., 12., 13.]))
-        print(test_exp.data_points)
 
     def test_add_parameter(self):
         """Test adding Parameters to an Experiment."""
