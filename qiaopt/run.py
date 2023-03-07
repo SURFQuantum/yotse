@@ -32,7 +32,6 @@ def getfiles(directory, extension):
 
 def filestolist(files):
 	data = []
-	print(files)
 	for file in files:
 		#if extension == "csv":
 		filedata = pd.read_csv(file)
@@ -51,10 +50,10 @@ class Core:
 
 	def run(self):
 		print("Starting default run: submit, collect, create")
-		self.submit()
+		jobs= self.submit()
 		directory = self.experiment.system_setup.working_directory
-		self.collectdata(directory) 
-		self.create_points_based_on_method()
+		data = self.collectdata(directory) 
+		self.create_points_based_on_method(data)
 		print("Finished run")
 
 	def submit(self):
@@ -81,7 +80,6 @@ class Core:
 
 	def collectdata(self, directory):
 		extension = "csv"
-		print(directory)
 		directory = self.experiment.system_setup.working_directory
 		extension = self.experiment.system_setup.output_extension
 		files = getfiles(directory,extension)
@@ -89,24 +87,13 @@ class Core:
 		data = filestolist(files)
 		return data
 
-	def create_points_based_on_method(self):
-		#call optimization(experiments)
-		parameters = [5,5,5]
-		return parameters
+	def create_points_based_on_method(self, data):
+		# do somethign with data 
+		new_points = data
+		return new_points
 
 
 class Executor(Core):
 	def run():
 		pass
-
-
-#class myproblem(Executor):
-#	def run:
-		#
-#		submit()
-
-
-#exp = Expreiment o
-#exec = myprobem()
-# for i in exp.opt
 
