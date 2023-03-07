@@ -2,6 +2,7 @@ PYTHON3         = python3
 TEST_DIR        = tests
 SOURCE_DIR       = qiaopt
 REQUIREMENTS    = requirements.txt
+MINCOV       	= 90
 
 all: install test
 
@@ -16,6 +17,11 @@ lint:
 test:
 	@echo -e "\n*** Running unit tests for $(SOURCE_DIR)"
 	@$(PYTHON3) -m pytest --verbose $(TEST_DIR)
+
+test-cov:
+	@echo -e "\n*** Running unit tests for $(SOURCE_DIR) including coverage"
+	@$(PYTHON3) -m pytest --verbose --cov=${SOURCE_DIR} $(TEST_DIR)
+
 
 clean:
 	@find . -name "*.pyc" -delete

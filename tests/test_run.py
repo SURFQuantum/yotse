@@ -17,6 +17,14 @@ else:
 
 class TestCore(unittest.TestCase):
     """Test the Core class."""
+
+    def tearDown(self) -> None:
+        for i in range(4):
+            os.remove(f'output{i}.csv')
+        dirs = [f for f in os.listdir(self.path) if (f.startswith(".qcg"))]
+        for d in dirs:
+            shutil.rmtree(self.path + "/" + d)
+
     @staticmethod
     def create_default_param(name="bright_state_parameter", parameter_range=[.1, .9], number_points=9,
                              distribution="linear", constraints=[None], custom_distribution=None):
@@ -123,20 +131,18 @@ class TestCore(unittest.TestCase):
         test_points = [1,2,3,4]
         test_core.experiment.data_points = test_points
         job_ids = test_core.submit()
-        path = test_core.experiment.system_setup.working_directory
-        data = test_core.collectdata(path)
-        dirs = [f for f in os.listdir(path) if (f.startswith(".qcg"))]
-        for d in dirs:
-            shutil.rmtree(path + "/" + d)
+        self.path = test_core.experiment.system_setup.working_directory  # path for tearDown
+        data = test_core.collectdata(self.path)
         new_points = test_core.create_points_based_on_method(data)
         self.assertIsInstance(new_points, list, list)
         #TODO check type of new_points.. what typr do we want?
-    
+
     def test_core_run(self):
         test_core = TestCore.create_default_core()
         test_points = [1,2,3,4]
         test_core.experiment.data_points = test_points
         test_core.run()
+        self.path = test_core.experiment.system_setup.working_directory  # path for tearDown
 
 
 if __name__ == '__main__':

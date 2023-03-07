@@ -3,3 +3,5 @@ qcg-pilotjob
 matplotlib
 pygad
 pandas
+pytest
+pytest-cov
