@@ -16,7 +16,7 @@ class GenericOptimization:
     MAXIMUM = 0
     MINIMUM = 1
 
-    def __init__(self, logging_level=1, extrema=MINIMUM):
+    def __init__(self, function, data, logging_level=1, extrema=MINIMUM):
         """
         Default constructor
         :param logging_level: Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything
@@ -25,6 +25,11 @@ class GenericOptimization:
         """
         self.logging_level = 1
         self.extrema = extrema
+        self.function = function
+        self.data = data
+
+    def get_function(self):
+        return self.function
 
     @abstractmethod
     def execute(self):
@@ -46,12 +51,10 @@ class GAOpt(GenericOptimization):
         :param function: Fitness/objective function
         :param data: 2D data in a form of list [[], []]
         """
-        super().__init__(1, self.MINIMUM)
-        self.function = function
-        self.data = data
+        super().__init__(function, data, 1, self.MINIMUM)
         self.num_generations = num_generations
 
-    def _fitness_func(self, solution, solution_idx):
+    def _objective_func(self, solution, solution_idx):
         """
         Fitness function to be called from PyGAD
         :param solution: List of solutions
@@ -104,7 +107,7 @@ class GAOpt(GenericOptimization):
                                mutation_by_replacement=True,
                                mutation_num_genes=1,
                                # mutation_type=None,
-                               fitness_func=self._fitness_func)
+                               fitness_func=self._objective_func)
 
         ga_instance.run()
 
@@ -112,8 +115,9 @@ class GAOpt(GenericOptimization):
         if self.logging_level >= 2:
             ga_instance.plot_fitness()
 
+        solution, solution_fitness, solution_idx = ga_instance.best_solution(ga_instance.last_generation_fitness)
+
         if self.logging_level >= 1:
-            solution, solution_fitness, solution_idx = ga_instance.best_solution(ga_instance.last_generation_fitness)
             print('\n')
             print('Solution:     ', solution)
             print('Fitness value: {solution_fitness}'.format(solution_fitness=solution_fitness))
@@ -141,6 +145,28 @@ class Optimizer:
 
         return solution, func_value
 
+    def construct_points(self, solution, num_points, delta_x, delta_y):
+        """
+        Constructs new set of values around the solution
+        :param solution: List of solutions ([x, y])
+        :param num_points: Number of points to construct
+        :param delta_x: Offset for the 'x' variable in the solution
+        :param delta_y: Offset for the 'y' variable in the solution
+        :return: List of 'x' values, list of 'y' values and corresponding function values
+        """
+        step_x = 2 * delta_x / (num_points - 1)
+        step_y = 2 * delta_y / (num_points - 1)
+
+        x = solution[0]
+        y = solution[1]
+
+        range_x = np.arange(x - delta_x, x + delta_x + step_x, step_x)
+        range_y = np.arange(y - delta_y, y + delta_y + step_y, step_y)
+
+        c = [self.optimizer.get_function()([x_loc, y_loc]) for x_loc, y_loc in zip(range_x, range_y)]
+
+        return range_x, range_y, c
+
 
 def plot(x, y, z):
     ax = plt.figure().add_subplot(projection='3d')
@@ -158,19 +184,23 @@ def plot(x, y, z):
 
 
 class Test:
-    def __init__(self, func_type='paraboloid', var_range=[1.2, 1.2]):
-        self.x = list(np.arange(-var_range[0], var_range[1], 0.01))
-        self.y = list(np.arange(-var_range[0], var_range[1], 0.01))
+    def __init__(self, func_type='paraboloid', var_range=[1., 1.]):
+        self.x = list(np.arange(-var_range[0], var_range[1], 0.25))
+        self.y = list(np.arange(-var_range[0], var_range[1], 0.25))
 
         if func_type == 'paraboloid':
             self.function = self.paraboloid
         elif func_type == 'sixhump':
             self.function = self.sixhump
+        elif func_type == 'rosenbrock':
+            self.function = self.rosenbrock
+        else:
+            raise NotImplementedError('Unknown function type: {}'.format(func_type))
 
     def paraboloid(self, var):
         """
         A simple paraboloid function. Has one minimum:
-        f(x1,x2)=0; (x1,x2)=(0, 0)
+        f(x1,x2)=0.0; (x1,x2)=(0.0, 0.0)
         :param var: List of x and y variables
         :return: Value of the function
         """
@@ -190,11 +220,33 @@ class Test:
         return ((4 - 2.1 * x_loc**2 + (x_loc**4) / 3.) * x_loc**2 + x_loc * y_loc
                 + (-4 + 4 * y_loc**2) * y_loc**2)
 
+    def rosenbrock(self, var):
+        """
+        The Rosenbrock function. Has one minimum:
+        f(x1,x2)=0.0; (x1,x2)=(1.0, 1.0)
+        :param var: List of x and y variables
+        :return: Value of the function
+        """
+        x_loc = var[0]
+        y_loc = var[1]
+        return (1 - x_loc)**2 + 100 * (y_loc - x_loc**2)**2
+
     def run(self):
         ga_opt = GAOpt(self.function, [self.x, self.y], 100)
         opt = Optimizer(ga_opt)
 
-        opt.optimize()
+        # cg_opt = CGOpt(self.function, [self.x, self.y], 100)
+        # opt = Optimizer(cg_opt)
+
+        solution, func_values = opt.optimize()
+
+        x_new, y_new, func_new = opt.construct_points(solution,
+                                                      num_points=5,
+                                                      delta_x=0.5,
+                                                      delta_y=0.5)
+        print('New values x:   ', x_new)
+        print('New values y:   ', y_new)
+        print('New values func:', func_new)
 
         x, y = np.meshgrid(self.x, self.y)
         c = self.function([x, y])
@@ -203,5 +255,5 @@ class Test:
 
 if __name__ == "__main__":
     # Execute test
-    test = Test('sixhump')
+    test = Test('paraboloid')
     test.run()
