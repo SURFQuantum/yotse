@@ -9,7 +9,10 @@ from qiaopt.run import Core, Executor
 from qiaopt.pre import Experiment, SystemSetup, Parameter
 
 
-DUMMY_FILE = "myfunction.py"
+if os.getcwd()[-5:] == "tests":
+    DUMMY_FILE = "myfunction.py"
+else:
+    DUMMY_FILE = "tests/myfunction.py"
 
 
 class TestCore(unittest.TestCase):
@@ -114,8 +117,6 @@ class TestCore(unittest.TestCase):
     #     self.assertEqual(len(data), 3)
     #     TODO check elements are lists, check length  
     #     path = os.getcwd()
-      
-
 
     def test_core_create_points_based_on_method(self):
         test_core = TestCore.create_default_core()
@@ -136,6 +137,7 @@ class TestCore(unittest.TestCase):
         test_points = [1,2,3,4]
         test_core.experiment.data_points = test_points
         test_core.run()
-        
+
+
 if __name__ == '__main__':
-        unittest.main()
+    unittest.main()
