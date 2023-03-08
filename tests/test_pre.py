@@ -73,7 +73,7 @@ class TestSystemSetup(unittest.TestCase):
         # test correct setup
         SystemSetup(os.getcwd(), DUMMY_FILE, {'--arg1': 0.1, '--arg2': 'value2'}
                     )
-    
+
     def test_init(self):
         test_system = SystemSetup(working_directory=os.getcwd(), program_name=DUMMY_FILE,
                                   command_line_arguments={'--arg1': 0.1, '--arg2': 'value2'},
