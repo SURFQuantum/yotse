@@ -1,5 +1,5 @@
 import sys
-import numpy as np 
+import numpy as np
 
 
 def costfunction(x, y, var):
@@ -10,8 +10,8 @@ def costfunction(x, y, var):
 if __name__ == "__main__":
     var = float(sys.argv[2])
     print("# f x y")
-    xvalues = np.linspace(0,1, 10)
-    yvalues = np.linspace(0,1, 10)
+    xvalues = np.linspace(0, 1, 10)
+    yvalues = np.linspace(0, 1, 10)
     for x in xvalues:
         for y in yvalues:
             print(costfunction(x, y, var), x, y)
