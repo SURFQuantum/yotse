@@ -125,6 +125,123 @@ class GAOpt(GenericOptimization):
         return solution, solution_fitness
 
 
+class CGOpt(GenericOptimization):
+    """
+    Genetic algorithm
+    """
+    def __init__(self, function, data, num_iterations=100):
+        """
+        Default constructor
+        :param function: Fitness/objective function
+        :param data: 2D data in a form of list [[], []]
+        """
+        super().__init__(function, data, 1, self.MINIMUM)
+        self.num_iterations = num_iterations
+
+    def _objective_func(self, solution):
+        """
+        Fitness function to be called from PyGAD
+        :param solution: List of solutions
+        :param solution_idx: Index of solution
+        :return: Fitness value
+        """
+        x, y = solution
+        # x_fixed, y_fixed = args
+
+        # Invert function to find the minimum, if needed
+        factor = 1.
+        if self.extrema == self.MAXIMUM:
+            factor = -1.
+
+        obj = factor * self.function([x, y])
+
+        # err = []
+        # for n in range(0, len(x_fixed)):
+        #     err.append(np.abs(obj - self.function([x_fixed[n], y_fixed[n]])))
+        #
+        # error = np.sum(err)
+        # print(x, y, error)
+
+        return obj
+
+        # # Invert function to find the minimum, if needed
+        # factor = 1.
+        # if self.extrema == self.MINIMUM:
+        #     factor = -1.
+        #
+        # fitness = factor * self.function([x, y])
+        #
+        # if self.logging_level >= 3:
+        #     print(solution, solution_idx, fitness)
+        #
+        # return obj
+
+    def execute(self):
+        """
+        Execute optimization
+        :return: Solution and the corresponding function value
+        """
+        x = self.data[0]
+        y = self.data[1]
+
+        function_inputs = np.array([x, y]).T
+
+        # gene_space_min_x = np.min(x)
+        # gene_space_max_x = np.max(x)
+        # gene_space_min_y = np.min(y)
+        # gene_space_max_y = np.max(y)
+        #
+        # ga_instance = pygad.GA(num_generations=self.num_generations,
+        #                        num_parents_mating=5,
+        #                        initial_population=function_inputs,
+        #                        sol_per_pop=10,
+        #                        num_genes=len(function_inputs),
+        #                        gene_type=float,
+        #                        parent_selection_type='sss',
+        #                        gene_space=[
+        #                            {"low": gene_space_min_x, "high": gene_space_max_x},
+        #                            {"low": gene_space_min_y, "high": gene_space_max_y}
+        #                        ],
+        #                        keep_parents=-1,
+        #                        mutation_by_replacement=True,
+        #                        mutation_num_genes=1,
+        #                        # mutation_type=None,
+        #                        fitness_func=self._objective_func)
+        #
+        # ga_instance.run()
+
+        # print(function_inputs)
+
+        min_x = np.min(x)
+        max_x = np.max(x)
+        min_y = np.min(y)
+        max_y = np.max(y)
+        x0 = [min_x, min_y]
+
+        res = scipy.optimize.minimize(self._objective_func, x0,
+                                      # args=[x, y],
+                                      bounds=[(min_x, max_x), (min_y, max_y)],
+                                      method='trust-constr',
+                                      options={'maxiter': self.num_iterations})
+        # res = scipy.optimize.minimize(self.function, x0, method='L-BFGS-B',
+        #                               # bounds=bnds,
+        #                               options={'maxiter': self.num_iterations})
+        # res = scipy.optimize.fminbound(self.function, x, y)
+
+        # # Report convergence
+        # if self.logging_level >= 2:
+        #     ga_instance.plot_fitness()
+        #
+        if self.logging_level >= 1:
+            print('\n')
+            print('Solution:     ', res.x)
+            print('Fitness value: {fun}'.format(fun=res.fun))
+
+        return None, None
+
+        # return solution, solution_fitness
+
+
 class Optimizer:
     """
     Optimizer class
