@@ -89,7 +89,7 @@ def files_to_list(files):
     data = []
     for file in files:
         # if extension == "csv":
-        filedata = pd.read_csv(file)
+        filedata = pd.read_csv(file, delim_whitespace=True)
         data.append(filedata)
     return data
 
