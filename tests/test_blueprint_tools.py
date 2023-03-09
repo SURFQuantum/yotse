@@ -15,7 +15,7 @@ class TestOptimizationDirs(unittest.TestCase):
         if not os.path.exists('src'):
             os.mkdir('src')
         self.experiment_name = 'test_experiment'
-        self.system_setup = SystemSetup(working_directory=os.getcwd()+'/src', program_name=DUMMY_FILE)
+        self.system_setup = SystemSetup(source_directory=os.getcwd() + '/src', program_name=DUMMY_FILE)
         self.parameters = []
         self.opt_info_list = []
         self.experiment = Experiment(self.experiment_name, self.system_setup, self.parameters, self.opt_info_list)
@@ -62,7 +62,7 @@ class TestOptimizationDirs(unittest.TestCase):
         self.experiment.system_setup.output_directory = output_dir42
         change_to_optimization_dir(self.experiment)
         exit_from_working_dir(self.experiment)
-        self.assertEqual(os.getcwd(), self.experiment.system_setup.working_directory)
+        self.assertEqual(os.getcwd(), self.experiment.system_setup.source_directory)
         os.removedirs(output_dir42)
         print("ending in dir:", os.getcwd())
 

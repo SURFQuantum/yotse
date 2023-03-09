@@ -86,8 +86,8 @@ class SystemSetup:
     """Defines a class for the setup of the system parameters.
     Parameters
     ----------
-    working_directory : str
-        Path of the working directory.
+    source_directory : str
+        Path of the source directory.
     program_name : str
         Name of the script that should be used for the experiment.
     command_line_arguments : dict (optional)
@@ -100,31 +100,38 @@ class SystemSetup:
     files_needed : list (optional)
         List of files that are needed to run the experiment and should be copied to the run location.
         Defaults to ("*.py",).
-    stdout : str (optional)
-        Name of the file that the standard output (stdout) of the script should be written to. Defaults to None.
     output_directory: str (optional)
-        Path of the directory the output should be stored in. Defaults to working_directory.
+        Name of the directory the output should be stored in. Defaults to 'output'.
     output_extension: str (optional)
         Extension of the output files to be picked up by the analysis_script, e.g 'csv' or 'json'. Defaults to 'csv'.
+
+    Attributes:
+    ----------
+    stdout_basename : str
+        Basename of the file that the standard output steam (stdout) of the script should be written to.
+        The final filename will be of the form '<stdout_basename><unique_job_identifier>.txt'. O
+    working_directory : str
+        Name of the current working directory to be passed to QCGPilotJob.
     """
-    def __init__(self, working_directory: str, program_name: str, command_line_arguments=None, analysis_script=None,
-                 executor="python", files_needed=("*.py",), stdout=None, output_directory=None, output_extension='csv'):
-        if not os.path.exists(working_directory):
-            raise ValueError(f"Invalid working_directory path: {working_directory}")
+    def __init__(self, source_directory: str, program_name: str, command_line_arguments=None, analysis_script=None,
+                 executor="python", files_needed=("*.py",), output_directory=None, output_extension='csv'):
+        if not os.path.exists(source_directory):
+            raise ValueError(f"Invalid source_directory path: {source_directory}")
         if not os.path.exists(program_name):
             raise ValueError(f"Invalid program_name: {program_name} is not a file.")
         if analysis_script is not None and not os.path.exists(analysis_script):
             raise ValueError(f"Invalid analysis_script: {analysis_script} is not a file.")
 
-        self.working_directory = working_directory
+        self.source_directory = source_directory
         self.program_name = program_name
         self.cmdline_arguments = command_line_arguments or {}
         self.analysis_script = analysis_script
         self.executor = executor
         self.files_needed = files_needed
-        self.stdout = stdout
-        self.output_directory = output_directory or working_directory
+        self.output_directory = output_directory or 'output'
         self.output_extension = output_extension
+        self.stdout_basename = 'stdout'
+        self.working_directory = None
 
     def cmdline_dict_to_list(self):
         """Convert the dictionary of commandline arguments to a list for QCGPilot."""

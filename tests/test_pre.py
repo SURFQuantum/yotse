@@ -63,8 +63,8 @@ class TestSystemSetup(unittest.TestCase):
         os.remove(DUMMY_FILE)
 
     def test_invalid_directory_or_files(self):
-        """Test if an invalid working_directory will correctly be caught."""
-        invalid_directory = '/invalid/working_directory'
+        """Test if an invalid source_directory will correctly be caught."""
+        invalid_directory = '/invalid/source_directory'
 
         with self.assertRaises(ValueError):
             SystemSetup(invalid_directory, DUMMY_FILE, {'--arg1': 0.1, '--arg2': 'value2'})
@@ -75,10 +75,10 @@ class TestSystemSetup(unittest.TestCase):
                     )
 
     def test_init(self):
-        test_system = SystemSetup(working_directory=os.getcwd(), program_name=DUMMY_FILE,
+        test_system = SystemSetup(source_directory=os.getcwd(), program_name=DUMMY_FILE,
                                   command_line_arguments={'--arg1': 0.1, '--arg2': 'value2'},
                                   executor='bash', files_needed=['*.sh', 'important_text.txt', 'generic_readme.md'])
-        assert test_system.working_directory == os.getcwd()
+        assert test_system.source_directory == os.getcwd()
         assert test_system.program_name == DUMMY_FILE
         assert test_system.cmdline_arguments == {'--arg1': 0.1, '--arg2': 'value2'}
         assert test_system.analysis_script is None
@@ -106,7 +106,7 @@ class TestExperiment(unittest.TestCase):
         """Helper function to set up a default experiment for the tests."""
         return Experiment(experiment_name='default_exp',
                           system_setup=SystemSetup(
-                              working_directory=os.getcwd(),
+                              source_directory=os.getcwd(),
                               program_name=DUMMY_FILE,
                               command_line_arguments={'arg1': 0.1, 'arg2': 'value2'}),
                           parameters=parameters,

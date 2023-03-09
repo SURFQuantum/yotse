@@ -4,7 +4,7 @@ from datetime import datetime
 
 def setup_optimization_dir(experiment, step):
     """Create the directory for this optimization step"""
-    output_directory = os.path.join(experiment.system_setup.working_directory.split('/src')[0], 'output')
+    output_directory = os.path.join(experiment.system_setup.source_directory.split('/src')[0], 'output')
     if step == 0:
         # for first step create timestamped project directory
         timestamp_str = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
@@ -18,7 +18,7 @@ def setup_optimization_dir(experiment, step):
     # this solution avoids the if check but could produce folders with different time stamps for different
     # opt steps, which is worse!
 
-    # output_directory = os.path.join(experiment.system_setup.working_directory.split('/src')[0], 'output')
+    # output_directory = os.path.join(experiment.system_setup.source_directory.split('/src')[0], 'output')
     # timestamp_str = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
     # step_output_dir = os.path.join(output_directory, f"{experiment.name}_{timestamp_str}", f"step{step}", "output")
     # os.makedirs(step_output_dir, exist_ok=True)
@@ -32,4 +32,4 @@ def change_to_optimization_dir(experiment):
 
 def exit_from_working_dir(experiment):
     """Change the current working directory back to the original working directory"""
-    os.chdir(experiment.system_setup.working_directory)
+    os.chdir(experiment.system_setup.source_directory)
