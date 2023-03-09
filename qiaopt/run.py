@@ -107,6 +107,31 @@ class Core:
     def __init__(self, experiment):
         self.experiment = experiment
 
+    def set_basic_directory_structure_for_step(self, step_number: int) -> None:
+        """
+        Creates a new directory for the given step number and updates the experiment's output directory accordingly.
+
+        Parameters
+        ----------
+        step_number : int
+            The number of the current step.
+        """
+        def step_dir_name(step_no: int) -> str:
+            return f'output_step{step_no}'
+
+        os.mkdir(step_dir_name(step_number))
+
+        if step_number == 0:
+            self.experiment.system_setup.output_directory = \
+                os.path.join(self.experiment.system_setup.output_directory, step_dir_name(step_number))
+        else:
+            parent_dir = os.path.dirname(self.experiment.system_setup.output_directory)
+            base_dir_name = os.path.basename(self.experiment.system_setup.output_directory)
+            new_dir_name = step_dir_name(step_number)
+            new_output_directory = os.path.join(parent_dir,
+                                                base_dir_name.replace(step_dir_name(step_number-1), new_dir_name))
+            self.experiment.system_setup.output_directory = new_output_directory
+
     def run(self):
         """ Submits jobs to the LocalManager, collects the output, creates new data points, and finishes the run."""
         print("Starting default run: submit, collect, create")
