@@ -282,17 +282,6 @@ class Optimizer:
         combined_ranges = [[param_x.data_points[i], param_y.data_points[i]]
                            for i in range(0, len(param_x.data_points))]
 
-        # # re-use pre.Parameter()
-        # range_x = np.arange(x - delta_x, x + delta_x + step_x, step_x)
-        # range_y = np.arange(y - delta_y, y + delta_y + step_y, step_y)
-        #
-        # f = [self.optimizer.get_function()([x_loc, y_loc]) for x_loc, y_loc in zip(range_x, range_y)]
-        #
-        # combined_ranges = [[range_x[i], range_y[i]] for i in range(0, len(range_x))]
-
-        # px, py = np.meshgrid(param_x.data_points, param_y.data_points)
-        # print(px, py)
-
         return combined_ranges, f
 
 
@@ -376,18 +365,16 @@ class Test:
 
         solution, func_values = opt.optimize()
 
-        # solution = [0., 0.]
         xy_new, func_new = opt.construct_points(solution,
                                                 num_points=5,
                                                 delta_x=0.5,
                                                 delta_y=0.5)
         print('New values [x, y]:   ', xy_new)
-        # print('New values y:   ', y_new)
         print('New values func:', func_new)
 
         x, y = np.meshgrid(self.x, self.y)
         c = self.function([x, y])
-        # plot(x, y, c)
+        plot(x, y, c)
 
 
 if __name__ == "__main__":
