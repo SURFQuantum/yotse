@@ -6,7 +6,7 @@ import inspect
 import pygad
 import scipy
 
-from pre import Parameter
+from qiaopt.pre import Parameter
 
 
 class GenericOptimization:
@@ -25,7 +25,7 @@ class GenericOptimization:
         :param extrema: Define what type of problem to solve. 'extrema' can be equal to either MINIMUM or MAXIMUM. The
                         optimization algorithm will look for minimum and maximum values respectively.
         """
-        self.logging_level = 1
+        self.logging_level = 0
         self.extrema = extrema
         self.function = function
         self.data = data
@@ -88,7 +88,6 @@ class GAOpt(GenericOptimization):
 
         function_inputs = np.array([x, y]).T
 
-        print(x, y)
         ga_instance = pygad.GA(num_generations=self.num_generations,
                                num_parents_mating=5,
                                initial_population=function_inputs,
@@ -337,7 +336,7 @@ class Test:
         """
         x_loc = var[0]
         y_loc = var[1]
-        return ((4 - 2.1 * x_loc**2 + (x_loc**4) / 3.) * x_loc**2 + x_loc * y_loc + (-4 + 4 * y_loc**2) * y_loc**2)
+        return (4 - 2.1 * x_loc ** 2 + (x_loc ** 4) / 3.) * x_loc**2 + x_loc * y_loc + (-4 + 4 * y_loc ** 2) * y_loc**2
 
     def rosenbrock(self, var):
         """
