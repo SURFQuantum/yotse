@@ -6,6 +6,8 @@ import inspect
 import pygad
 import scipy
 
+from pre import Parameter
+
 
 class GenericOptimization:
     """
@@ -86,11 +88,7 @@ class GAOpt(GenericOptimization):
 
         function_inputs = np.array([x, y]).T
 
-        # gene_space_min_x = np.min(x)
-        # gene_space_max_x = np.max(x)
-        # gene_space_min_y = np.min(y)
-        # gene_space_max_y = np.max(y)
-
+        print(x, y)
         ga_instance = pygad.GA(num_generations=self.num_generations,
                                num_parents_mating=5,
                                initial_population=function_inputs,
@@ -98,10 +96,6 @@ class GAOpt(GenericOptimization):
                                num_genes=len(function_inputs),
                                gene_type=float,
                                parent_selection_type='sss',
-                               # gene_space=[
-                               #     {"low": gene_space_min_x, "high": gene_space_max_x},
-                               #     {"low": gene_space_min_y, "high": gene_space_max_y}
-                               # ],
                                gene_space=[x, y],
                                keep_parents=-1,
                                mutation_by_replacement=True,
@@ -269,7 +263,7 @@ class Optimizer:
         :param num_points: Number of points to construct
         :param delta_x: Offset for the 'x' variable in the solution
         :param delta_y: Offset for the 'y' variable in the solution
-        :return: List of 'x' values, list of 'y' values and corresponding function values
+        :return: List of ['x', 'y'] values and the corresponding list of function values ['f']
         """
         step_x = 2 * delta_x / (num_points - 1)
         step_y = 2 * delta_y / (num_points - 1)
@@ -277,12 +271,29 @@ class Optimizer:
         x = solution[0]
         y = solution[1]
 
-        range_x = np.arange(x - delta_x, x + delta_x + step_x, step_x)
-        range_y = np.arange(y - delta_y, y + delta_y + step_y, step_y)
+        distribution_x = 'linear'
+        distribution_y = 'linear'
+        param_x = Parameter('x', [x - delta_x, x + delta_x], num_points, distribution_x)
+        param_y = Parameter('y', [y - delta_y, y + delta_y], num_points, distribution_y)
 
-        c = [self.optimizer.get_function()([x_loc, y_loc]) for x_loc, y_loc in zip(range_x, range_y)]
+        f = [self.optimizer.get_function()([x_loc, y_loc])
+             for x_loc, y_loc in zip(param_x.data_points, param_y.data_points)]
 
-        return range_x, range_y, c
+        combined_ranges = [[param_x.data_points[i], param_y.data_points[i]]
+                           for i in range(0, len(param_x.data_points))]
+
+        # # re-use pre.Parameter()
+        # range_x = np.arange(x - delta_x, x + delta_x + step_x, step_x)
+        # range_y = np.arange(y - delta_y, y + delta_y + step_y, step_y)
+        #
+        # f = [self.optimizer.get_function()([x_loc, y_loc]) for x_loc, y_loc in zip(range_x, range_y)]
+        #
+        # combined_ranges = [[range_x[i], range_y[i]] for i in range(0, len(range_x))]
+
+        # px, py = np.meshgrid(param_x.data_points, param_y.data_points)
+        # print(px, py)
+
+        return combined_ranges, f
 
 
 def plot(x, y, z):
@@ -301,9 +312,10 @@ def plot(x, y, z):
 
 
 class Test:
-    def __init__(self, func_type='paraboloid', var_range=[1., 1.]):
-        self.x = list(np.arange(-var_range[0], var_range[1], 0.25))
-        self.y = list(np.arange(-var_range[0], var_range[1], 0.25))
+    def __init__(self, func_type='paraboloid', var_range=[1.2, 1.2]):
+        var_step = 0.2
+        self.x = list(np.arange(-var_range[0], var_range[1], var_step))
+        self.y = list(np.arange(-var_range[0], var_range[1], var_step))
 
         if func_type == 'paraboloid':
             self.function = self.paraboloid
@@ -311,6 +323,8 @@ class Test:
             self.function = self.sixhump
         elif func_type == 'rosenbrock':
             self.function = self.rosenbrock
+        elif func_type == 'rastrigin':
+            self.function = self.rastrigin
         else:
             raise NotImplementedError('Unknown function type: {}'.format(func_type))
 
@@ -348,6 +362,12 @@ class Test:
         y_loc = var[1]
         return (1 - x_loc)**2 + 100 * (y_loc - x_loc**2)**2
 
+    def rastrigin(self, var):
+        x_loc = var[0]
+        y_loc = var[1]
+        return (x_loc ** 2 - 10 * np.cos(2 * np.pi * x_loc)) + \
+            (y_loc ** 2 - 10 * np.cos(2 * np.pi * y_loc)) + 20
+
     def run(self):
         ga_opt = GAOpt(self.function, [self.x, self.y], 100)
         opt = Optimizer(ga_opt)
@@ -357,20 +377,21 @@ class Test:
 
         solution, func_values = opt.optimize()
 
-        x_new, y_new, func_new = opt.construct_points(solution,
-                                                      num_points=5,
-                                                      delta_x=0.5,
-                                                      delta_y=0.5)
-        print('New values x:   ', x_new)
-        print('New values y:   ', y_new)
+        # solution = [0., 0.]
+        xy_new, func_new = opt.construct_points(solution,
+                                                num_points=5,
+                                                delta_x=0.5,
+                                                delta_y=0.5)
+        print('New values [x, y]:   ', xy_new)
+        # print('New values y:   ', y_new)
         print('New values func:', func_new)
 
         x, y = np.meshgrid(self.x, self.y)
         c = self.function([x, y])
-        plot(x, y, c)
+        # plot(x, y, c)
 
 
 if __name__ == "__main__":
     # Execute test
-    test = Test('paraboloid')
+    test = Test('rastrigin')
     test.run()
