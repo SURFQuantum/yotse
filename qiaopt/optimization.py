@@ -178,7 +178,7 @@ class CGOpt(GenericOptimization):
         x = self.data[0]
         y = self.data[1]
 
-        function_inputs = np.array([x, y]).T
+        # function_inputs = np.array([x, y]).T
 
         # gene_space_min_x = np.min(x)
         # gene_space_max_x = np.max(x)
@@ -348,8 +348,7 @@ class Test:
         """
         x_loc = var[0]
         y_loc = var[1]
-        return ((4 - 2.1 * x_loc**2 + (x_loc**4) / 3.) * x_loc**2 + x_loc * y_loc
-                + (-4 + 4 * y_loc**2) * y_loc**2)
+        return ((4 - 2.1 * x_loc**2 + (x_loc**4) / 3.) * x_loc**2 + x_loc * y_loc + (-4 + 4 * y_loc**2) * y_loc**2)
 
     def rosenbrock(self, var):
         """

@@ -1,9 +1,11 @@
 """ Defines the run"""
 import os
 # import glob
+# import shutil
 import pandas as pd
 from qcg.pilotjob.api.manager import LocalManager
 from qcg.pilotjob.api.job import Jobs
+from qiaopt.pre import Experiment
 
 
 def create_points(parameters):
@@ -64,12 +66,8 @@ def getfiles(directory, extension):
     list
         A list of files in the given directory with the specified extension.
     """
-    dir_path = directory
-    files = []
-    for file in os.listdir(dir_path):
-        if file.endswith(extension):
-            files.append(file)
-    return files
+    # todo : this collects before all jobs are done in the test
+    return [file for file in os.listdir(directory) if file.endswith(extension)]
 
 
 def files_to_list(files):
@@ -86,12 +84,57 @@ def files_to_list(files):
     list
         A list of pandas dataframes, each representing the contents of a CSV file.
     """
-    data = []
-    for file in files:
-        # if extension == "csv":
-        filedata = pd.read_csv(file, delim_whitespace=True)
-        data.append(filedata)
-    return data
+    # todo check if extension is csv?
+    return [pd.read_csv(file, delim_whitespace=True) for file in files]
+
+
+def set_basic_directory_structure_for_job(experiment: Experiment, step_number: int, job_number: int) -> None:
+    """
+    Creates a new directory for the given step number and updates the experiment's working directory accordingly.
+
+    The basic directory structure is as follows
+    source_dir
+        - output_dir
+            - step_{i}
+                analysis_script.py
+                analysis_output.csv
+                - job_{j}
+                    output_of_your_script.extension
+                    stdout{j}.txt
+
+    Parameters
+    ----------
+    experiment : Experiment
+        The :obj:Experiment that is being run.
+    step_number : int
+        The number of the current step.
+    job_number : int
+        The number of the current job.
+    """
+    source_dir = experiment.system_setup.source_directory
+    output_dir = experiment.system_setup.output_directory
+    new_working_dir = os.path.join(source_dir, output_dir, f'step{step_number}', f'job{job_number}')
+
+    if not os.path.exists:
+        os.makedirs(new_working_dir)
+
+    experiment.system_setup.working_directory = new_working_dir
+
+# TODO: old and maybe no longer needed
+# def move_output_to_output_directory(self):
+#     output_dir = self.experiment.system_setup.output_directory
+#     files_list = getfiles(directory=output_dir, extension=self.experiment.system_setup.output_extension)
+#     for file in files_list:
+#         shutil.move(file, output_dir)
+#
+#
+# def move_stdout_to_log_dir(self):
+#     def is_stdout_file(file, basename):
+#         return os.path.basename(file).endswith('txt') and os.path.basename(file).startswith(basename)
+#     file_list = [file for file in os.listdir(self.experiment.system_setup.source_directory)
+#                  if is_stdout_file(file, self.experiment.system_setup.stdout_basename)]
+#     for file in file_list:
+#         shutil.move(file, log_dir)
 
 
 class Core:
@@ -107,36 +150,11 @@ class Core:
     def __init__(self, experiment):
         self.experiment = experiment
 
-    def set_basic_directory_structure_for_step(self, step_number: int) -> None:
-        """
-        Creates a new directory for the given step number and updates the experiment's output directory accordingly.
-
-        Parameters
-        ----------
-        step_number : int
-            The number of the current step.
-        """
-        def step_dir_name(step_no: int) -> str:
-            return f'output_step{step_no}'
-
-        os.mkdir(step_dir_name(step_number))
-
-        if step_number == 0:
-            self.experiment.system_setup.output_directory = \
-                os.path.join(self.experiment.system_setup.output_directory, step_dir_name(step_number))
-        else:
-            parent_dir = os.path.dirname(self.experiment.system_setup.output_directory)
-            base_dir_name = os.path.basename(self.experiment.system_setup.output_directory)
-            new_dir_name = step_dir_name(step_number)
-            new_output_directory = os.path.join(parent_dir,
-                                                base_dir_name.replace(step_dir_name(step_number-1), new_dir_name))
-            self.experiment.system_setup.output_directory = new_output_directory
-
     def run(self):
         """ Submits jobs to the LocalManager, collects the output, creates new data points, and finishes the run."""
         print("Starting default run: submit, collect, create")
         self.submit()
-        directory = self.experiment.system_setup.working_directory
+        directory = self.experiment.system_setup.source_directory
         data = self.collect_data(directory)
         self.create_points_based_on_method(data)
         print("Finished run")
@@ -151,18 +169,17 @@ class Core:
             A list of job IDs submitted to the LocalManager.
         """
         manager = LocalManager()
-        extension = self.experiment.system_setup.output_extension
-        directory = self.experiment.system_setup.working_directory
-        stdout = self.experiment.system_setup.stdout
+        stdout = self.experiment.system_setup.stdout_basename
 
         jobs = Jobs()
         for i, item in enumerate(self.experiment.data_points):
+            set_basic_directory_structure_for_job(experiment=self.experiment, step_number=0, job_number=i)
             jobs.add(
                 name=self.experiment.name + str(i),
                 exec=self.experiment.system_setup.executor,
                 args=qcgpilot_commandline(self.experiment),
-                stdout=stdout + str(i) + "." + extension,
-                wd=directory,
+                stdout=stdout + str(i) + ".txt",
+                wd=self.experiment.system_setup.working_directory,
             )
         job_ids = manager.submit(jobs)
         manager.wait4(job_ids)
@@ -185,7 +202,7 @@ class Core:
             A list of pandas dataframes, each containing the data from an output file.
 
         """
-        directory = self.experiment.system_setup.working_directory
+        directory = self.experiment.system_setup.source_directory
         extension = self.experiment.system_setup.output_extension
         files = getfiles(directory, extension)
         # filesextension = getfiles2(directory,extension)
