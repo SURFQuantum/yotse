@@ -39,7 +39,7 @@ def qcgpilot_commandline(experiment):
      list
          A list of strings representing the command line arguments for the QCG-PilotJob executor.
      """
-    cmdline = [experiment.system_setup.program_name]
+    cmdline = [os.path.join(experiment.system_setup.source_directory, experiment.system_setup.program_name)]
     for key, value in experiment.system_setup.cmdline_arguments.items():
         cmdline.append(key)
         cmdline.append(str(value))
@@ -64,10 +64,9 @@ def getfiles(directory, extension):
     Returns:
     --------
     list
-        A list of files in the given directory with the specified extension.
+        A list of files (and their actual location) in the given directory with the specified extension.
     """
-    # todo : this collects before all jobs are done in the test
-    return [file for file in os.listdir(directory) if file.endswith(extension)]
+    return [os.path.join(directory, file) for file in os.listdir(directory) if file.endswith(extension)]
 
 
 def files_to_list(files):
@@ -115,7 +114,7 @@ def set_basic_directory_structure_for_job(experiment: Experiment, step_number: i
     output_dir = experiment.system_setup.output_directory
     new_working_dir = os.path.join(source_dir, output_dir, f'step{step_number}', f'job{job_number}')
 
-    if not os.path.exists:
+    if not os.path.exists(new_working_dir):
         os.makedirs(new_working_dir)
 
     experiment.system_setup.working_directory = new_working_dir
@@ -154,8 +153,7 @@ class Core:
         """ Submits jobs to the LocalManager, collects the output, creates new data points, and finishes the run."""
         print("Starting default run: submit, collect, create")
         self.submit()
-        directory = self.experiment.system_setup.source_directory
-        data = self.collect_data(directory)
+        data = self.collect_data()
         self.create_points_based_on_method(data)
         print("Finished run")
 
@@ -187,14 +185,10 @@ class Core:
         manager.cleanup()
         return job_ids
 
-    def collect_data(self, directory):
+    def collect_data(self):
         """
-        Collects data from output files in the given directory.
+        Collects data from output files of the current step of the experiment.
 
-        Parameters
-        ----------
-        directory : str
-            Path to the directory containing the output files.
 
         Returns
         -------
@@ -202,9 +196,11 @@ class Core:
             A list of pandas dataframes, each containing the data from an output file.
 
         """
-        directory = self.experiment.system_setup.source_directory
+        output_directory_current_step = os.path.join(self.experiment.system_setup.working_directory, '..')
         extension = self.experiment.system_setup.output_extension
-        files = getfiles(directory, extension)
+        files = []
+        for job_dir in [x[0] for x in os.walk(output_directory_current_step)]:
+            files.extend(getfiles(job_dir, extension))
         # filesextension = getfiles2(directory,extension)
         data = files_to_list(files)
         return data

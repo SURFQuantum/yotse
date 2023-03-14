@@ -63,12 +63,13 @@ class TestCore(unittest.TestCase):
 
         self.assertEqual(len(test_points), len(job_ids))
 
+        # count no of jobs
         self.path = test_core.experiment.system_setup.source_directory
-        files = [f for f in os.listdir(self.path) if (f.endswith('.txt') and os.path.basename(f).startswith('stdout'))]
-        self.assertEqual(len(job_ids), len(files))
-
+        output_path = os.path.join(test_core.experiment.system_setup.working_directory, '..')
+        job_dirs = [d for d in os.listdir(output_path)]
+        self.assertEqual(len(job_ids), len(job_dirs))
+        # check if jobs were finishes successfully
         service_dirs = [f for f in os.listdir(self.path) if (f.startswith(".qcgpjm-service"))]
-        print("directories are", service_dirs)
         with open(self.path + "/" + service_dirs[0] + "/" + "final_status.json", "r") as f:
             data = json.load(f)
         jobs_finished = data['JobStats']['FinishedJobs']
@@ -83,7 +84,7 @@ class TestCore(unittest.TestCase):
         test_core.submit()
 
         self.path = test_core.experiment.system_setup.source_directory
-        data = test_core.collect_data(self.path)
+        data = test_core.collect_data()
         self.assertEqual(len(data), len(test_points))
         self.assertEqual(len(data[0]), 100)
 
@@ -118,7 +119,7 @@ class TestCore(unittest.TestCase):
         test_core.experiment.data_points = test_points
         test_core.submit()
         self.path = test_core.experiment.system_setup.source_directory  # path for tearDown
-        data = test_core.collect_data(self.path)
+        data = test_core.collect_data()
         new_points = test_core.create_points_based_on_method(data)
         self.assertIsInstance(new_points, list, list)
         # TODO check type of new_points.. what type do we want?
