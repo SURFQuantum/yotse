@@ -157,7 +157,7 @@ class Core:
         self.create_points_based_on_method(data)
         print("Finished run")
 
-    def submit(self):
+    def submit(self, step_number=0):
         """
         Submits jobs to the LocalManager.
 
@@ -171,7 +171,7 @@ class Core:
 
         jobs = Jobs()
         for i, item in enumerate(self.experiment.data_points):
-            set_basic_directory_structure_for_job(experiment=self.experiment, step_number=0, job_number=i)
+            set_basic_directory_structure_for_job(experiment=self.experiment, step_number=step_number, job_number=i)
             jobs.add(
                 name=self.experiment.name + str(i),
                 exec=self.experiment.system_setup.executor,

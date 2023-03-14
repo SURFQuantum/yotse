@@ -1,8 +1,10 @@
 PYTHON3         = python3
 TEST_DIR        = tests
-SOURCE_DIR       = qiaopt
+SOURCE_DIR     	= qiaopt
 REQUIREMENTS    = requirements.txt
 MINCOV       	= 90
+EXAMPLES     	= examples
+RUN_EXAMPLES  	= ${EXAMPLES}/run_examples.py
 
 all: install test
 
@@ -21,6 +23,11 @@ test:
 test-cov:
 	@echo -e "\n*** Running unit tests for $(SOURCE_DIR) including coverage"
 	@$(PYTHON3) -m pytest --verbose --cov=${SOURCE_DIR} $(TEST_DIR)
+
+example:
+	@echo -e "\n*** Running examples of $(SOURCE_DIR)"
+	@$(PYTHON3) $(RUN_EXAMPLES) > /dev/null && echo "Examples OK!"
+
 
 
 clean:
