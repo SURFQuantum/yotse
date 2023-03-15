@@ -21,9 +21,8 @@ if __name__ == "__main__":
             with open(os.path.join(d, 'wobbly_example.csv'), newline='') as csvfile:
                 reader = csv.reader(csvfile, delimiter=' ')
                 for row in reader:
-                    print(row)
                     new_row = row
-                    with open('output.csv', 'w', newline='') as output_file:
+                    with open('output.csv', 'a', newline='') as output_file:
                         writer = csv.writer(output_file, delimiter=' ')
                         writer.writerow(new_row)
                         output_file.close()
