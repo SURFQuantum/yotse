@@ -5,3 +5,4 @@ pygad
 pandas
 pytest
 pytest-cov
+scikit-learn
