@@ -4,10 +4,9 @@ import numpy as np
 from datetime import datetime
 
 
-def costfunction(x, y, var):
-    f = x**2 + y**2 + var*np.sin(x)
-    return f
-
+# def costfunction(x, y, var):
+#     f = x**2 + y**2 + var*np.sin(x)
+#     return f
 
 if __name__ == "__main__":
     var = float(sys.argv[2])
@@ -21,7 +20,9 @@ if __name__ == "__main__":
 
     for x in xvalues:
         for y in yvalues:
-            print(costfunction(x, y, var), x, y)
+            #print(costfunction(x, y, var), x, y)
             with open(filename, 'a') as file:
                 writer = csv.writer(file, delimiter=' ')
-                writer.writerow([costfunction(x, y, var), x, y])
+            #    writer.writerow([costfunction(x, y, var), x, y])
+                writer.writerow([x, y])
+

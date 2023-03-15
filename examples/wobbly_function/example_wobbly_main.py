@@ -1,5 +1,6 @@
 """Example script for execution of a wobbly_function.py experiment."""
 import os
+import shutil
 from qiaopt.pre import Experiment, SystemSetup, Parameter, OptimizationInfo
 from qiaopt.run import Executor
 from qiaopt.optimization import Optimizer, GAOpt
@@ -51,50 +52,23 @@ def wobbly_pre():
     return wobbly_experiment
 
 
-class WobblyExecutor(Executor):
-
-    def __init__(self, experiment):
-        super().__init__(experiment)
-        opt_info = self.experiment.optimization_information_list[0]
-        self.refinement_x = opt_info.parameters['refinement_x']
-        self.refinement_y = opt_info.parameters['refinement_y']
-        self.num_points = opt_info.parameters['num_points']
-        if opt_info.name == 'GA':
-            num_generation = opt_info.parameters['num_generations']
-            self.optimization_alg = GAOpt(function=self.cost_function,
-                                          data=None,
-                                          num_generations=opt_info.parameters['num_generations'],
-                                          logging_level=opt_info.parameters['logging_level'])
-        else:
-            print('Error! Unknown optimization algorithm.')
-            exit(1)
-
-        self.optimizer = Optimizer(self.optimization_alg)
-
-    @staticmethod
-    def cost_function(x, y):
-        return x**2 - y**2
-
-    def create_points_based_on_method(self, data):
-        # ga_opt = GAOpt(function=self.cost_function, data=data, num_generations=100)
-        # optimizer = Optimizer(ga_opt)
-        self.optimization_alg.data = data
-        print("data", data)
-        solution, func_values = self.optimizer.optimize()
-
-        xy_new, func_new = self.optimizer.construct_points(solution,
-                                                           num_points=self.num_points,
-                                                           refinement_x=self.refinement_x,
-                                                           refinement_y=self.refinement_y)
-        # TODO: missing is the possibility to pass parameters to the GAOpt
-        return xy_new
+def cost_function(x, y):
+    return x**2 + y**2
 
 
 def main():
     num_opt_steps = 10
-    wobbly_example = WobblyExecutor(experiment=wobbly_pre())
+    #wobbly_example = WobblyExecutor(experiment=wobbly_pre())
+    wobbly_example = Executor(experiment=wobbly_pre())
+    wobbly_example.cost_function = cost_function
     for i in range(num_opt_steps):
         wobbly_example.run(step=i)
+
+    # remove files and directories
+    shutil.rmtree('output')
+    dirs = [f for f in os.listdir(os.getcwd()) if (f.startswith(".qcg"))]
+    for d in dirs:
+        shutil.rmtree(os.path.join(os.getcwd(), d))
 
 
 if __name__ == "__main__":

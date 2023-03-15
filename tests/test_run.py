@@ -2,8 +2,13 @@ import os
 import shutil
 import unittest
 import json
+import numpy
+
+import pandas
+
 from qiaopt.run import Core
 from qiaopt.pre import Experiment, SystemSetup, Parameter
+from qiaopt.optimization import GAOpt, Optimizer
 
 
 if os.getcwd()[-5:] == "tests":
@@ -21,10 +26,10 @@ class TestCore(unittest.TestCase):
         [os.remove(f'stdout{i}.txt') for i in range(4) if os.path.exists(f'stdout{i}.txt')]
         if self.path is not None:
             [os.remove(f) for f in os.listdir(self.path) if f.endswith('.csv')]
-            shutil.rmtree(self.path + '/output')
+            shutil.rmtree(os.path.join(self.path, 'output'))
             dirs = [f for f in os.listdir(self.path) if (f.startswith(".qcg"))]
             for d in dirs:
-                shutil.rmtree(self.path + "/" + d)
+                shutil.rmtree(os.path.join(self.path, d))
             self.path = None
 
     @staticmethod
@@ -46,14 +51,12 @@ class TestCore(unittest.TestCase):
     @staticmethod
     def create_default_core():
         test_param = TestCore.create_default_param()
-        test_experiment = TestCore.create_default_experiment(parameters=test_param)
+        test_experiment = TestCore.create_default_experiment(parameters=[test_param])
         return Core(test_experiment)
 
     def test_core_experiment(self):
-        test_param = TestCore.create_default_param()
-        test_experiment = TestCore.create_default_experiment(parameters=test_param)
         test_core = TestCore.create_default_core()
-        self.assertEqual(type(test_core.experiment), type(test_experiment))
+        self.assertTrue(isinstance(test_core.experiment, Experiment))
 
     def test_core_submit(self):
         test_core = TestCore.create_default_core()
@@ -85,8 +88,9 @@ class TestCore(unittest.TestCase):
 
         self.path = test_core.experiment.system_setup.source_directory
         data = test_core.collect_data()
-        self.assertEqual(len(data), len(test_points))
-        self.assertEqual(len(data[0]), 100)
+        self.assertEqual(len(data), len(test_points)*100)
+        self.assertTrue(isinstance(data, pandas.DataFrame))
+        # todo: fix parsing args and check that data has at least n_args columns
 
     # def test_core_multiple_collect_data(self):
     #     test_core = TestCore.create_default_core()
@@ -115,14 +119,22 @@ class TestCore(unittest.TestCase):
 
     def test_core_create_points_based_on_method(self):
         test_core = TestCore.create_default_core()
-        test_points = [1, 2, 3, 4]
-        test_core.experiment.data_points = test_points
-        test_core.submit()
-        self.path = test_core.experiment.system_setup.source_directory  # path for tearDown
-        data = test_core.collect_data()
-        new_points = test_core.create_points_based_on_method(data)
+
+        def mock_function(x, y):
+            return x**2 + y**2
+
+        mock_data = numpy.random.rand(2, 100)
+        mock_df = pandas.DataFrame(data=mock_data)
+
+        ga_opt = GAOpt(function=mock_function, num_generations=10)
+        opt = Optimizer(ga_opt)
+        test_core.optimizer = opt
+        test_core.optimization_alg = ga_opt
+
+        new_points = test_core.create_points_based_on_method(data=mock_df)
         self.assertIsInstance(new_points, list, list)
         # TODO check type of new_points.. what type do we want?
+
 
     def test_core_run(self):
         test_core = TestCore.create_default_core()

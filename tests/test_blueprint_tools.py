@@ -64,7 +64,7 @@ class TestOptimizationDirs(unittest.TestCase):
         exit_from_working_dir(self.experiment)
         self.assertEqual(os.getcwd(), self.experiment.system_setup.source_directory)
         os.removedirs(output_dir42)
-        print("ending in dir:", os.getcwd())
+        print("ending in directory:", os.getcwd())
 
 
 if __name__ == '__main__':

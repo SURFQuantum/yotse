@@ -18,7 +18,7 @@ class GenericOptimization:
     MAXIMUM = 0
     MINIMUM = 1
 
-    def __init__(self, function, data, logging_level=1, extrema=MINIMUM):
+    def __init__(self, function, logging_level=1, extrema=MINIMUM):
         """
         Default constructor
         :param logging_level: Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything
@@ -28,7 +28,7 @@ class GenericOptimization:
         self.logging_level = logging_level
         self.extrema = extrema
         self.function = function
-        self.data = data
+        self.data = None
 
     def get_function(self):
         return self.function
@@ -47,13 +47,13 @@ class GAOpt(GenericOptimization):
     """
     Genetic algorithm
     """
-    def __init__(self, function, data, num_generations=100, logging_level=1):
+    def __init__(self, function, num_generations=100, logging_level=1):
         """
         Default constructor
         :param function: Fitness/objective function
         :param data: 2D data in a form of list [[], []]
         """
-        super().__init__(function, data, logging_level, self.MINIMUM)
+        super().__init__(function, logging_level, self.MINIMUM)
         self.num_generations = num_generations
 
     def _objective_func(self, solution, solution_idx):
@@ -70,8 +70,7 @@ class GAOpt(GenericOptimization):
         factor = 1.
         if self.extrema == self.MINIMUM:
             factor = -1.
-
-        fitness = factor * self.function([x, y])
+        fitness = factor * self.function(x, y)
 
         if self.logging_level >= 3:
             print(solution, solution_idx, fitness)
@@ -83,8 +82,9 @@ class GAOpt(GenericOptimization):
         Execute optimization
         :return: Solution and the corresponding function value
         """
-        x = self.data[0]
-        y = self.data[1]
+
+        x = list(self.data.iloc[:, 1])
+        y = list(self.data.iloc[:, 2])
 
         function_inputs = np.array([x, y]).T
 
@@ -283,7 +283,7 @@ class Optimizer:
         param_x = Parameter('x', [x - delta_x, x + delta_x], num_points, distribution_x)
         param_y = Parameter('y', [y - delta_y, y + delta_y], num_points, distribution_y)
 
-        f = [self.optimizer.get_function()([x_loc, y_loc])
+        f = [self.optimizer.get_function()(x_loc, y_loc)
              for x_loc, y_loc in zip(param_x.data_points, param_y.data_points)]
 
         combined_ranges = [[param_x.data_points[i], param_y.data_points[i]]

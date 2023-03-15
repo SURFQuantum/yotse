@@ -202,13 +202,20 @@ class Experiment:
         self.data_points = []
         # set initial datapoints
         self.create_datapoint_c_product()
+        self.cost_function = None
         self._current_optimization_step = None  # TODO: what would this mean if we have various different kinds of opts?
 
     def create_datapoint_c_product(self):  # TODO: better name?
         """Create initial set of points as Cartesian product of all active parameters.
 
         Overwrite if other combination is needed."""
-        self.data_points = list(itertools.product(*[param.data_points for param in self.parameters if param.is_active]))
+        if self.parameters:
+            assert isinstance(self.parameters, list)
+            for param in self.parameters:
+                if not isinstance(param, Parameter):
+                    raise ValueError(f"One of the parameters is not of correct type 'Parameter', but is {type(param)}")
+            self.data_points = list(itertools.product(*[param.data_points for param in self.parameters
+                                                        if param.is_active]))
 
     @property
     def current_optimization_step(self):

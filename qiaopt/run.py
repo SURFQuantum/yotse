@@ -1,11 +1,10 @@
 """ Defines the run"""
 import os
-# import glob
-# import shutil
 import pandas as pd
-from qcg.pilotjob.api.manager import LocalManager
-from qcg.pilotjob.api.job import Jobs
 from qiaopt.pre import Experiment
+from qiaopt.optimization import Optimizer, GAOpt
+from qcg.pilotjob.api.job import Jobs
+from qcg.pilotjob.api.manager import LocalManager
 
 
 def create_points(parameters):
@@ -25,7 +24,7 @@ def create_points(parameters):
     return [3, 4, 5]
 
 
-def qcgpilot_commandline(experiment):
+def qcgpilot_commandline(experiment, datapoint_item):
     """
      Creates a command line for the QCG-PilotJob executor based on the experiment configuration.
 
@@ -40,6 +39,16 @@ def qcgpilot_commandline(experiment):
          A list of strings representing the command line arguments for the QCG-PilotJob executor.
      """
     cmdline = [os.path.join(experiment.system_setup.source_directory, experiment.system_setup.program_name)]
+    # add parameters
+    for p, param in enumerate(experiment.parameters):
+        if param.is_active:
+            cmdline.append(f"--{param.name}")
+            if len(experiment.parameters) == 1:
+                # single parameter
+                cmdline.append(datapoint_item)
+            else:
+                cmdline.append(datapoint_item[p])
+    # add fixed cmdline arguments
     for key, value in experiment.system_setup.cmdline_arguments.items():
         cmdline.append(key)
         cmdline.append(str(value))
@@ -80,7 +89,8 @@ def files_to_list(files):
         A list of pandas dataframes, each representing the contents of a CSV file.
     """
     # todo check if extension is csv?
-    return [pd.read_csv(file, delim_whitespace=True) for file in files]
+    dfs = [pd.read_csv(file, delimiter=' ') for file in files]
+    return pd.concat(dfs, ignore_index=True)
 
 
 def set_basic_directory_structure_for_job(experiment: Experiment, step_number: int, job_number: int) -> None:
@@ -150,6 +160,26 @@ class Core:
 
     def __init__(self, experiment):
         self.experiment = experiment
+        if self.experiment.optimization_information_list:
+            if len([opt for opt in self.experiment.optimization_information_list if opt.is_active]) > 1:
+                raise RuntimeError('Multiple active optimization steps. Please set all but one to active=False')
+            opt_info = self.experiment.optimization_information_list[0]
+            self.refinement_x = opt_info.parameters['refinement_x']
+            self.refinement_y = opt_info.parameters['refinement_y']
+            self.num_points = opt_info.parameters['num_points']
+            if opt_info.name == 'GA':
+                num_generation = opt_info.parameters['num_generations']
+                self.optimization_alg = GAOpt(function=self.experiment.cost_function,
+                                              data=None,
+                                              num_generations=opt_info.parameters['num_generations'],
+                                              logging_level=opt_info.parameters['logging_level'])
+            else:
+                raise ValueError('Unknown optimization algorithm.')
+
+            self.optimizer = Optimizer(self.optimization_alg)
+        else:
+            self.optimization_alg = None
+            self.optimizer = None
 
     def run(self, step=0):
         """ Submits jobs to the LocalManager, collects the output, creates new data points, and finishes the run."""
@@ -180,7 +210,7 @@ class Core:
             jobs.add(
                 name=self.experiment.name + str(i),
                 exec=self.experiment.system_setup.executor,
-                args=qcgpilot_commandline(self.experiment),
+                args=qcgpilot_commandline(self.experiment, datapoint_item=item),
                 stdout=stdout + str(i) + ".txt",
                 wd=self.experiment.system_setup.working_directory,
             )
@@ -212,16 +242,22 @@ class Core:
             A list of pandas dataframes, each containing the data from an output file.
 
         """
-        output_directory_current_step = os.path.join(self.experiment.system_setup.working_directory, '..')
-        extension = self.experiment.system_setup.output_extension
-        files = []
-        for job_dir in [x[0] for x in os.walk(output_directory_current_step)]:
-            files.extend(get_files_by_extension(job_dir, extension))
-        data = files_to_list(files)
+        if self.experiment.system_setup.analysis_script is None:
+            # no analysis script: extract data from output files in job dirs and combine to single dataframe
+            output_directory_current_step = os.path.join(self.experiment.system_setup.working_directory, '..')
+            extension = self.experiment.system_setup.output_extension
+            files = []
+            for job_dir in [x[0] for x in os.walk(output_directory_current_step)
+                            if x[0] != output_directory_current_step]:
+                files.extend(get_files_by_extension(job_dir, extension))
+            data = files_to_list(files)
+        else:
+            # analysis script is given and will output file 'output.csv' with format 'cost_fun param0 param1 ...'
+            data = pd.read_csv(os.path.join(self.experiment.system_setup.current_step_directory, 'output.csv'),
+                               delimiter=' ')
         return data
 
-    @staticmethod
-    def create_points_based_on_method(data):
+    def create_points_based_on_method(self, data):
         """
         Applies a method to process the collected data and create new data points.
 
@@ -236,9 +272,18 @@ class Core:
             A list of new data points created based on the input data.
 
         """
-        # do something with data
-        new_points = data
-        return new_points
+
+        if self.optimization_alg is not None:
+            self.optimization_alg.data = data
+            solution, func_values = self.optimizer.optimize()
+
+            xy_new, func_new = self.optimizer.construct_points(solution,
+                                                               num_points=self.num_points,
+                                                               refinement_x=self.refinement_x,
+                                                               refinement_y=self.refinement_y)
+            return xy_new
+        else:
+            return
 
 
 class Executor(Core):
