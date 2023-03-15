@@ -28,7 +28,5 @@ example:
 	@echo -e "\n*** Running examples of $(SOURCE_DIR)"
 	@$(PYTHON3) $(RUN_EXAMPLES) > /dev/null && echo "Examples OK!"
 
-
-
 clean:
 	@find . -name "*.pyc" -delete

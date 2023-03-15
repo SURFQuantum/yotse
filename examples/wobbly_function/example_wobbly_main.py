@@ -1,7 +1,7 @@
 """Example script for execution of a wobbly_function.py experiment."""
 import os
 from qiaopt.pre import Experiment, SystemSetup, Parameter, OptimizationInfo
-from qiaopt.run import Core, set_basic_directory_structure_for_job, qcgpilot_commandline
+from qiaopt.run import Executor, set_basic_directory_structure_for_job, qcgpilot_commandline
 from qiaopt.optimization import Optimizer, GAOpt
 from qcg.pilotjob.api.manager import LocalManager
 from qcg.pilotjob.api.job import Jobs
@@ -53,13 +53,14 @@ def wobbly_pre():
     return wobbly_experiment
 
 
-class WobblyCore(Core):
+class WobblyExecutor(Executor):
+
+    @staticmethod
+    def cost_function(x, y):
+        return x**2 - y**2
 
     def create_points_based_on_method(self, data):
-        def wobbly_cost_fun(x, y):
-            return x**2 - y**2
-
-        ga_opt = GAOpt(function=wobbly_cost_fun, data=data, num_generations=100)
+        ga_opt = GAOpt(function=self.cost_function, data=data, num_generations=100)
         optimizer = Optimizer(ga_opt)
         solution, func_values = optimizer.optimize()
         xy_new, func_new = optimizer.construct_points(solution,
@@ -69,55 +70,12 @@ class WobblyCore(Core):
         # TODO: missing is the possibility to pass parameters to the GAOpt
         return xy_new
 
-    def submit(self, step_number=0):
-        """
-        Submits jobs to the LocalManager.
-
-        Returns:
-        --------
-        list
-            A list of job IDs submitted to the LocalManager.
-        """
-        manager = LocalManager()
-        stdout = self.experiment.system_setup.stdout_basename
-
-        jobs = Jobs()
-        for i, item in enumerate(self.experiment.data_points):
-            set_basic_directory_structure_for_job(experiment=self.experiment, step_number=step_number, job_number=i)
-            jobs.add(
-                name=self.experiment.name + str(i),
-                exec=self.experiment.system_setup.executor,
-                args=qcgpilot_commandline(self.experiment),
-                stdout=stdout + str(i) + ".txt",
-                wd=self.experiment.system_setup.working_directory,
-            )
-            # analysis_job
-            # Todo: do we want to standardize this call as well?
-            # eg. in the parent function include if analysis_script is not None: add_analysis_job()
-            jobs.add(
-                name=self.experiment.name + str(i) + "analysis",
-                exec=self.experiment.system_setup.executor,
-                args=[os.path.join(self.experiment.system_setup.source_directory,
-                                   self.experiment.system_setup.analysis_script)],
-                stdout=stdout + str(i) + "analysis.txt",
-                wd=self.experiment.system_setup.working_directory,
-            )
-        job_ids = manager.submit(jobs)
-        manager.wait4(job_ids)
-        manager.finish()
-        manager.cleanup()
-        return job_ids
-
-    def run(self):
-        for step in range(10):
-            self.submit(step)
-            data = self.collect_data()
-            self.create_points_based_on_method(data)
-
 
 def main():
-    wobbly_example = WobblyCore(experiment=wobbly_pre())
-    wobbly_example.run()
+    num_opt_steps = 10
+    wobbly_example = WobblyExecutor(experiment=wobbly_pre())
+    for i in range(num_opt_steps):
+        wobbly_example.run(step=i)
 
 
 if __name__ == "__main__":

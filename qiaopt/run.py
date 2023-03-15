@@ -149,10 +149,10 @@ class Core:
     def __init__(self, experiment):
         self.experiment = experiment
 
-    def run(self):
+    def run(self, step=0):
         """ Submits jobs to the LocalManager, collects the output, creates new data points, and finishes the run."""
-        print("Starting default run: submit, collect, create")
-        self.submit()
+        print(f"Starting default run of step{step}: submit, collect, create")
+        self.submit(step_number=step)
         data = self.collect_data()
         self.create_points_based_on_method(data)
         print("Finished run")
@@ -178,6 +178,16 @@ class Core:
                 args=qcgpilot_commandline(self.experiment),
                 stdout=stdout + str(i) + ".txt",
                 wd=self.experiment.system_setup.working_directory,
+            )
+        if self.experiment.system_setup.analysis_script is not None:
+            jobs.add(
+                name=self.experiment.name + f"step{step_number}_analysis",
+                exec=self.experiment.system_setup.executor,
+                args=[os.path.join(self.experiment.system_setup.source_directory,
+                                   self.experiment.system_setup.analysis_script)],
+                stdout=stdout + f"step{step_number}_analysis.txt",
+                wd=os.path.join(self.experiment.system_setup.working_directory, '..'),
+                after=jobs.job_names()
             )
         job_ids = manager.submit(jobs)
         manager.wait4(job_ids)
@@ -227,5 +237,5 @@ class Core:
 
 
 class Executor(Core):
-    def run(self):
-        pass
+    def run(self, step=0):
+        super().run(step)
