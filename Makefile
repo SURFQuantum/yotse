@@ -30,3 +30,8 @@ example:
 
 clean:
 	@find . -name "*.pyc" -delete
+
+verify: clean install lint test-cov example _verified
+
+_verified:
+	@echo "$(SOURCE_DIR) is verified :)"

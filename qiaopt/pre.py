@@ -133,6 +133,13 @@ class SystemSetup:
         self.stdout_basename = 'stdout'
         self.working_directory = None
 
+    @property
+    def current_step_directory(self):
+        if self.working_directory is not None:
+            return os.path.join(self.working_directory, '..')
+        else:
+            raise RuntimeError(f"Could not get current step directory. Working directory is {self.working_directory}")
+
     def cmdline_dict_to_list(self):
         """Convert the dictionary of commandline arguments to a list for QCGPilot."""
         return [item for key_value_pair in self.cmdline_arguments.items() for item in key_value_pair]
@@ -147,11 +154,15 @@ class OptimizationInfo:
         Name of the optimization algorithm to be used, e.g. "GA" (genetic algorithm), "GD" (gradient descent).
     opt_parameters : dict
         Dictionary containing all necessary parameters for the optimization.
+    is_active : bool
+        Whether this is the currently active optimization algorithm. Can be used to perform sequential optimization with
+        different optimization algorithms that can all be defined in a single Experiment.
     """
 
-    def __init__(self, name, opt_parameters):
+    def __init__(self, name, opt_parameters, is_active):
         self.name = name
         self.parameters = opt_parameters
+        self.is_active = is_active
 
 
 class Experiment:
@@ -189,6 +200,8 @@ class Experiment:
                 assert isinstance(item, OptimizationInfo)
             self.optimization_information_list = list(opt_info_list)
         self.data_points = []
+        # set initial datapoints
+        self.create_datapoint_c_product()
         self._current_optimization_step = None  # TODO: what would this mean if we have various different kinds of opts?
 
     def create_datapoint_c_product(self):  # TODO: better name?

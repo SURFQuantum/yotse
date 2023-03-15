@@ -1,10 +1,8 @@
 """Example script for execution of a wobbly_function.py experiment."""
 import os
 from qiaopt.pre import Experiment, SystemSetup, Parameter, OptimizationInfo
-from qiaopt.run import Executor, set_basic_directory_structure_for_job, qcgpilot_commandline
+from qiaopt.run import Executor
 from qiaopt.optimization import Optimizer, GAOpt
-from qcg.pilotjob.api.manager import LocalManager
-from qcg.pilotjob.api.job import Jobs
 
 
 def wobbly_pre():
@@ -42,31 +40,52 @@ def wobbly_pre():
             OptimizationInfo(
                 name="GA",
                 opt_parameters={
-                    "order": "cr",
-                    "number_best_candidates": "10",
-                    "global_scale_factor": "1.0",
-                    "population_size": "20",
-                    "probability_mutation": "0.5",
-                    "probability_crossover": "0.5"
-                })]
+                    "num_generations": 100,     # number of iterations of the algorithm
+                    "num_points": 5,            # number of points to re-create
+                    "refinement_x": 0.5,        # in %
+                    "refinement_y": 0.5,        # in %
+                    "logging_level": 1,
+                },
+                is_active=True)]
     )
     return wobbly_experiment
 
 
 class WobblyExecutor(Executor):
 
+    def __init__(self, experiment):
+        super().__init__(experiment)
+        opt_info = self.experiment.optimization_information_list[0]
+        self.refinement_x = opt_info.parameters['refinement_x']
+        self.refinement_y = opt_info.parameters['refinement_y']
+        self.num_points = opt_info.parameters['num_points']
+        if opt_info.name == 'GA':
+            num_generation = opt_info.parameters['num_generations']
+            self.optimization_alg = GAOpt(function=self.cost_function,
+                                          data=None,
+                                          num_generations=opt_info.parameters['num_generations'],
+                                          logging_level=opt_info.parameters['logging_level'])
+        else:
+            print('Error! Unknown optimization algorithm.')
+            exit(1)
+
+        self.optimizer = Optimizer(self.optimization_alg)
+
     @staticmethod
     def cost_function(x, y):
         return x**2 - y**2
 
     def create_points_based_on_method(self, data):
-        ga_opt = GAOpt(function=self.cost_function, data=data, num_generations=100)
-        optimizer = Optimizer(ga_opt)
-        solution, func_values = optimizer.optimize()
-        xy_new, func_new = optimizer.construct_points(solution,
-                                                      num_points=5,
-                                                      delta_x=0.5,
-                                                      delta_y=0.5)
+        # ga_opt = GAOpt(function=self.cost_function, data=data, num_generations=100)
+        # optimizer = Optimizer(ga_opt)
+        self.optimization_alg.data = data
+        print("data", data)
+        solution, func_values = self.optimizer.optimize()
+
+        xy_new, func_new = self.optimizer.construct_points(solution,
+                                                           num_points=self.num_points,
+                                                           refinement_x=self.refinement_x,
+                                                           refinement_y=self.refinement_y)
         # TODO: missing is the possibility to pass parameters to the GAOpt
         return xy_new
 

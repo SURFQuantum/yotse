@@ -46,11 +46,7 @@ def qcgpilot_commandline(experiment):
     return cmdline
 
 
-# def getfiles2(directory, extension):
-#     all_filenames = [i for i in glob.glob('{}.{}'.format(directory, extension))]
-
-
-def getfiles(directory, extension):
+def get_files_by_extension(directory, extension):
     """
     Returns a list of files in the given directory with the specified extension.
 
@@ -116,13 +112,19 @@ def set_basic_directory_structure_for_job(experiment: Experiment, step_number: i
 
     if not os.path.exists(new_working_dir):
         os.makedirs(new_working_dir)
-
     experiment.system_setup.working_directory = new_working_dir
+
+
+# def copy_job_output_from_job_dir_to_step_dir(experiment, extension):
+#     step_dir = experiment.system_setup.current_step_directory
+#     for i, item in enumerate(experiment.data_points):
+#         pass
+
 
 # TODO: old and maybe no longer needed
 # def move_output_to_output_directory(self):
 #     output_dir = self.experiment.system_setup.output_directory
-#     files_list = getfiles(directory=output_dir, extension=self.experiment.system_setup.output_extension)
+#     files_list = get_files_by_extension(directory=output_dir, extension=self.experiment.system_setup.output_extension)
 #     for file in files_list:
 #         shutil.move(file, output_dir)
 #
@@ -151,7 +153,7 @@ class Core:
 
     def run(self, step=0):
         """ Submits jobs to the LocalManager, collects the output, creates new data points, and finishes the run."""
-        print(f"Starting default run of step{step}: submit, collect, create")
+        print(f"Starting default run of {self.experiment.name} (step{step}): submit, collect, create")
         self.submit(step_number=step)
         data = self.collect_data()
         self.create_points_based_on_method(data)
@@ -170,6 +172,9 @@ class Core:
         stdout = self.experiment.system_setup.stdout_basename
 
         jobs = Jobs()
+        if not self.experiment.data_points:
+            raise RuntimeError(f"Can not submit jobs for Experiment {self.experiment.name}: No datapoints available.")
+
         for i, item in enumerate(self.experiment.data_points):
             set_basic_directory_structure_for_job(experiment=self.experiment, step_number=step_number, job_number=i)
             jobs.add(
@@ -180,13 +185,14 @@ class Core:
                 wd=self.experiment.system_setup.working_directory,
             )
         if self.experiment.system_setup.analysis_script is not None:
+            # add analysis job with correct dependency
             jobs.add(
                 name=self.experiment.name + f"step{step_number}_analysis",
                 exec=self.experiment.system_setup.executor,
                 args=[os.path.join(self.experiment.system_setup.source_directory,
                                    self.experiment.system_setup.analysis_script)],
                 stdout=stdout + f"step{step_number}_analysis.txt",
-                wd=os.path.join(self.experiment.system_setup.working_directory, '..'),
+                wd=self.experiment.system_setup.current_step_directory,
                 after=jobs.job_names()
             )
         job_ids = manager.submit(jobs)
@@ -210,8 +216,7 @@ class Core:
         extension = self.experiment.system_setup.output_extension
         files = []
         for job_dir in [x[0] for x in os.walk(output_directory_current_step)]:
-            files.extend(getfiles(job_dir, extension))
-        # filesextension = getfiles2(directory,extension)
+            files.extend(get_files_by_extension(job_dir, extension))
         data = files_to_list(files)
         return data
 
@@ -237,5 +242,8 @@ class Core:
 
 
 class Executor(Core):
+    def __init__(self, experiment):
+        super().__init__(experiment)
+
     def run(self, step=0):
         super().run(step)

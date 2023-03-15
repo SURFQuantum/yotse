@@ -25,7 +25,7 @@ class GenericOptimization:
         :param extrema: Define what type of problem to solve. 'extrema' can be equal to either MINIMUM or MAXIMUM. The
                         optimization algorithm will look for minimum and maximum values respectively.
         """
-        self.logging_level = 0
+        self.logging_level = logging_level
         self.extrema = extrema
         self.function = function
         self.data = data
@@ -47,13 +47,13 @@ class GAOpt(GenericOptimization):
     """
     Genetic algorithm
     """
-    def __init__(self, function, data, num_generations=100):
+    def __init__(self, function, data, num_generations=100, logging_level=1):
         """
         Default constructor
         :param function: Fitness/objective function
         :param data: 2D data in a form of list [[], []]
         """
-        super().__init__(function, data, 1, self.MINIMUM)
+        super().__init__(function, data, logging_level, self.MINIMUM)
         self.num_generations = num_generations
 
     def _objective_func(self, solution, solution_idx):
@@ -255,20 +255,28 @@ class Optimizer:
 
         return solution, func_value
 
-    def construct_points(self, solution, num_points, delta_x, delta_y):
+    def construct_points(self, solution, num_points, refinement_x, refinement_y):
         """
         Constructs new set of values around the solution
         :param solution: List of solutions ([x, y])
         :param num_points: Number of points to construct
-        :param delta_x: Offset for the 'x' variable in the solution
-        :param delta_y: Offset for the 'y' variable in the solution
+        :param refinement_x: Refinement window for the 'x' variable in % from the (max-min)/2 range
+        :param refinement_y: Refinement window for the 'y' variable in % from the (max-min)/2 range
         :return: List of ['x', 'y'] values and the corresponding list of function values ['f']
         """
-        step_x = 2 * delta_x / (num_points - 1)
-        step_y = 2 * delta_y / (num_points - 1)
-
         x = solution[0]
         y = solution[1]
+
+        min_x = np.min(x)
+        max_x = np.max(x)
+        min_y = np.min(y)
+        max_y = np.max(y)
+
+        delta_x = refinement_x * (max_x - min_x) * 0.5
+        delta_y = refinement_y * (max_y - min_y) * 0.5
+
+        # step_x = 2 * delta_x / (num_points - 1)
+        # step_y = 2 * delta_y / (num_points - 1)
 
         distribution_x = 'linear'
         distribution_y = 'linear'

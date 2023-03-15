@@ -31,5 +31,5 @@ if __name__ == "__main__":
     # Store the output in a file
     csv_filename = args.filebasename + ".csv"
     with open(csv_filename, mode='w') as csv_file:
-        csv_writer = csv.writer(csv_file, delimiter=',')
+        csv_writer = csv.writer(csv_file, delimiter=' ')
         csv_writer.writerow([output_value] + parameter_values)

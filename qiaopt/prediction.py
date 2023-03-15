@@ -37,7 +37,7 @@ class Predict:
 
         print('poly_features:', poly_features)
         plt.scatter(x, f, color='black')
-        predicted_values = [self.model.coef_ * i + self.model.intercept_ for i in x]
+        # predicted_values = [self.model.coef_ * i + self.model.intercept_ for i in x]
         y_predicted = self.model.predict(poly_features)
         print('poly_features:', poly_features)
         print('y_predicted:', y_predicted)

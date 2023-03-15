@@ -1,7 +1,6 @@
 import unittest
 import numpy as np
 from qiaopt.optimization import GAOpt, Optimizer
-from qiaopt.pre import Experiment, SystemSetup, Parameter
 
 
 class TestGAOpt(unittest.TestCase):
