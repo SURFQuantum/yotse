@@ -1,6 +1,8 @@
+import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_cost_function():
+
+def plot_cost_function(x, y, z):
     ax = plt.figure().add_subplot(projection='3d')
     ax.plot_surface(x, y, z, edgecolor='royalblue', lw=0.5, rstride=8, cstride=8,
                     alpha=0.3)
@@ -14,15 +16,16 @@ def plot_cost_function():
 
     plt.show()
 
-    def plot_opt_steps(experiment):
-        data = collect_all_data()
 
-        ax = plt.figure().add_subplot(projection='3d')
-        ax.plot_surface(x, y, z, edgecolor='royalblue', lw=0.5, rstride=8, cstride=8,
-                        alpha=0.3)
+def plot_opt_steps(experiment, x, y, z):
+    # data = collect_all_data()
 
-        # To be fixed
-        plt.xlabel(experiment.parameters[0].name)
-        plt.ylabel(experiment.parameters[1].name)
+    ax = plt.figure().add_subplot(projection='3d')
+    ax.plot_surface(x, y, z, edgecolor='royalblue', lw=0.5, rstride=8, cstride=8,
+                    alpha=0.3)
 
-        plt.show()
+    # To be fixed
+    plt.xlabel(experiment.parameters[0].name)
+    plt.ylabel(experiment.parameters[1].name)
+
+    plt.show()

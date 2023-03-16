@@ -54,7 +54,7 @@ class TestGAOpt(unittest.TestCase):
         self.x = list(np.arange(-var_range[0], var_range[1], var_step))
         self.y = list(np.arange(-var_range[0], var_range[1], var_step))
 
-        ga_opt = GAOpt(function, d[self.x, self.y], 100)
+        ga_opt = GAOpt(function, [self.x, self.y], 100)
         opt = Optimizer(ga_opt)
 
         return opt.optimize()

@@ -168,9 +168,7 @@ class Core:
             self.refinement_y = opt_info.parameters['refinement_y']
             self.num_points = opt_info.parameters['num_points']
             if opt_info.name == 'GA':
-                num_generation = opt_info.parameters['num_generations']
                 self.optimization_alg = GAOpt(function=self.experiment.cost_function,
-                                              data=None,
                                               num_generations=opt_info.parameters['num_generations'],
                                               logging_level=opt_info.parameters['logging_level'])
             else:
@@ -276,7 +274,6 @@ class Core:
         if self.optimization_alg is not None:
             self.optimization_alg.data = data
             solution, func_values = self.optimizer.optimize()
-
             xy_new, func_new = self.optimizer.construct_points(solution,
                                                                num_points=self.num_points,
                                                                refinement_x=self.refinement_x,

@@ -121,20 +121,27 @@ class TestCore(unittest.TestCase):
         test_core = TestCore.create_default_core()
 
         def mock_function(x, y):
-            return x**2 + y**2
+            return x**2 + y - y**2 + y**3 - x**5
 
-        mock_data = numpy.random.rand(2, 100)
+        mock_data = numpy.random.rand(5, 100)
+        # todo why does increasing the num columns increase the number of solutions?
         mock_df = pandas.DataFrame(data=mock_data)
 
         ga_opt = GAOpt(function=mock_function, num_generations=10)
         opt = Optimizer(ga_opt)
         test_core.optimizer = opt
         test_core.optimization_alg = ga_opt
+        test_core.refinement_x = .01
+        test_core.refinement_y = .01
+        test_core.num_points = 5
 
         new_points = test_core.create_points_based_on_method(data=mock_df)
+        print(new_points)
         self.assertIsInstance(new_points, list, list)
-        # TODO check type of new_points.. what type do we want?
-
+        self.assertEqual(len(new_points), test_core.num_points)
+        s = set([tuple(x) for x in new_points])
+        self.assertEqual(len(s), test_core.num_points)
+        # todo: why is there output only one set of points copied n times?
 
     def test_core_run(self):
         test_core = TestCore.create_default_core()

@@ -20,9 +20,6 @@ if __name__ == "__main__":
 
     for x in xvalues:
         for y in yvalues:
-            #print(costfunction(x, y, var), x, y)
             with open(filename, 'a') as file:
                 writer = csv.writer(file, delimiter=' ')
-            #    writer.writerow([costfunction(x, y, var), x, y])
                 writer.writerow([x, y])
-
