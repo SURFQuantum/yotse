@@ -121,9 +121,9 @@ class TestCore(unittest.TestCase):
         test_core = TestCore.create_default_core()
 
         def mock_function(x, y):
-            return x**2 + y - y**2 + y**3 - x**5
+            return x**2 + y**2
 
-        mock_data = numpy.random.rand(5, 100)
+        mock_data = numpy.random.rand(100, 2)
         # todo why does increasing the num columns increase the number of solutions?
         mock_df = pandas.DataFrame(data=mock_data)
 

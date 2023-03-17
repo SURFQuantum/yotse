@@ -14,7 +14,7 @@ install:
 
 lint:
 	@echo -e "\n*** Checking that $(SOURCE_DIR) conforms to PEP8 coding style"
-	@$(PYTHON3) -m flake8 ${SOURCE_DIR} ${TEST_DIR}
+	@$(PYTHON3) -m flake8 ${SOURCE_DIR} ${TEST_DIR} ${EXAMPLES}
 
 test:
 	@echo -e "\n*** Running unit tests for $(SOURCE_DIR)"

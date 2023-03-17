@@ -32,4 +32,3 @@ if __name__ == "__main__":
                         writer.writerow(list(reader)[1])
                         output_file.close()
                 csvfile.close()
-

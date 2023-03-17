@@ -3,7 +3,6 @@ import os
 import shutil
 from qiaopt.pre import Experiment, SystemSetup, Parameter, OptimizationInfo
 from qiaopt.run import Executor
-from qiaopt.optimization import Optimizer, GAOpt
 
 
 def wobbly_pre():
@@ -52,15 +51,15 @@ def wobbly_pre():
     return wobbly_experiment
 
 
-def cost_function(x, y):
-    return x**2 + y**2
-
-
 def main():
+    def cost_function(x, y):
+        return x ** 2 + y ** 2
+
     num_opt_steps = 10
-    #wobbly_example = WobblyExecutor(experiment=wobbly_pre())
-    wobbly_example = Executor(experiment=wobbly_pre())
-    wobbly_example.cost_function = cost_function
+    experiment = wobbly_pre()
+    experiment.cost_function = cost_function
+    wobbly_example = Executor(experiment=experiment)
+
     for i in range(num_opt_steps):
         wobbly_example.run(step=i)
 

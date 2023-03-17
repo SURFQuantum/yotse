@@ -3,6 +3,7 @@ import numpy as np
 from abc import ABCMeta, abstractmethod
 import inspect
 
+import pandas
 import pygad
 import scipy
 
@@ -83,8 +84,8 @@ class GAOpt(GenericOptimization):
         :return: Solution and the corresponding function value
         """
 
-        x = list(self.data.iloc[:, 1])
-        y = list(self.data.iloc[:, 2])
+        x = list(self.data.iloc[:, 0])
+        y = list(self.data.iloc[:, 1])
 
         function_inputs = np.array([x, y]).T
 
@@ -264,8 +265,8 @@ class Optimizer:
         :param refinement_y: Refinement window for the 'y' variable in % from the (max-min)/2 range
         :return: List of ['x', 'y'] values and the corresponding list of function values ['f']
         """
-        x = solution[0]
-        y = solution[1]
+        x = self.optimizer.data.iloc[:, 0]
+        y = self.optimizer.data.iloc[:, 0]
 
         min_x = np.min(x)
         max_x = np.max(x)
@@ -280,8 +281,8 @@ class Optimizer:
 
         distribution_x = 'linear'
         distribution_y = 'linear'
-        param_x = Parameter('x', [x - delta_x, x + delta_x], num_points, distribution_x)
-        param_y = Parameter('y', [y - delta_y, y + delta_y], num_points, distribution_y)
+        param_x = Parameter('x', [solution[0] - delta_x, solution[0] + delta_x], num_points, distribution_x)
+        param_y = Parameter('y', [solution[1] - delta_y, solution[1] + delta_y], num_points, distribution_y)
 
         f = [self.optimizer.get_function()(x_loc, y_loc)
              for x_loc, y_loc in zip(param_x.data_points, param_y.data_points)]

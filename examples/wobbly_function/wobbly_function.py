@@ -32,6 +32,6 @@ if __name__ == "__main__":
     csv_filename = args.filebasename + ".csv"
     with open(csv_filename, mode='w') as csv_file:
         csv_writer = csv.writer(csv_file, delimiter=' ')
-        csv_writer.writerow(['f(x,y)', 'x', 'y'])
-        csv_writer.writerow([output_value] + parameter_values)
+        csv_writer.writerow(['x', 'y'])
+        csv_writer.writerow(parameter_values)
         csv_file.close()
