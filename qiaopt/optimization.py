@@ -255,9 +255,10 @@ class Optimizer:
 
         return solution, func_value
 
-    def construct_points(self, solution, num_points, refinement_x, refinement_y):
+    def construct_points(self, orig_data, solution, num_points, refinement_x, refinement_y):
         """
         Constructs new set of values around the solution
+        :param orig_data: Original data set
         :param solution: List of solutions ([x, y])
         :param num_points: Number of points to construct
         :param refinement_x: Refinement window for the 'x' variable in % from the (max-min)/2 range
@@ -267,10 +268,10 @@ class Optimizer:
         x = self.optimizer.data.iloc[:, 0]
         y = self.optimizer.data.iloc[:, 0]
 
-        min_x = np.min(x)
-        max_x = np.max(x)
-        min_y = np.min(y)
-        max_y = np.max(y)
+        min_x = np.min(orig_data[0])
+        max_x = np.max(orig_data[0])
+        min_y = np.min(orig_data[1])
+        max_y = np.max(orig_data[1])
 
         delta_x = refinement_x * (max_x - min_x) * 0.5
         delta_y = refinement_y * (max_y - min_y) * 0.5
@@ -372,7 +373,8 @@ class Test:
 
         solution, func_values = opt.optimize()
 
-        xy_new, func_new = opt.construct_points(solution,
+        xy_new, func_new = opt.construct_points([self.x, self.y],
+                                                solution,
                                                 num_points=5,
                                                 delta_x=0.5,
                                                 delta_y=0.5)
