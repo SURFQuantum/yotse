@@ -3,7 +3,6 @@ import numpy as np
 from abc import ABCMeta, abstractmethod
 import inspect
 
-import pandas
 import pygad
 import scipy
 
