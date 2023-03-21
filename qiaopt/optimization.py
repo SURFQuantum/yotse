@@ -6,8 +6,6 @@ import inspect
 import pygad
 import scipy
 
-from qiaopt.pre import Parameter
-
 
 class GenericOptimization:
     """
@@ -63,14 +61,11 @@ class GAOpt(GenericOptimization):
         :param solution_idx: Index of solution
         :return: Fitness value
         """
-        x = solution[0]
-        y = solution[1]
-
         # Invert function to find the minimum, if needed
         factor = 1.
         if self.extrema == self.MINIMUM:
             factor = -1.
-        fitness = factor * self.function(x, y)
+        fitness = factor * self.function(*solution)
 
         if self.logging_level >= 3:
             print(solution, solution_idx, fitness)
@@ -82,11 +77,9 @@ class GAOpt(GenericOptimization):
         Execute optimization
         :return: Solution and the corresponding function value
         """
+        cost_function_input = [list(self.data[column]) for column in self.data]
 
-        x = list(self.data.iloc[:, 0])
-        y = list(self.data.iloc[:, 1])
-
-        function_inputs = np.array([x, y]).T
+        function_inputs = np.array(cost_function_input).T
 
         ga_instance = pygad.GA(num_generations=self.num_generations,
                                num_parents_mating=5,
@@ -95,7 +88,7 @@ class GAOpt(GenericOptimization):
                                num_genes=len(function_inputs),
                                gene_type=float,
                                parent_selection_type='sss',
-                               gene_space=[x, y],
+                               gene_space=cost_function_input,
                                keep_parents=-1,
                                mutation_by_replacement=True,
                                mutation_num_genes=1,
@@ -110,12 +103,14 @@ class GAOpt(GenericOptimization):
 
         solution, solution_fitness, solution_idx = ga_instance.best_solution(ga_instance.last_generation_fitness)
 
+        # original_params_of_solution = self.
+
         if self.logging_level >= 1:
             print('\n')
             print('Solution:     ', solution)
             print('Fitness value: {solution_fitness}'.format(solution_fitness=solution_fitness))
 
-        return solution, solution_fitness
+        return solution, solution_fitness, solution_idx
 
 
 class CGOpt(GenericOptimization):
@@ -239,58 +234,47 @@ class Optimizer:
     """
     Optimizer class
     """
-    def __init__(self, optimizer):
+    def __init__(self, optimization_algorithm):
         """
         Default constructor
-        :param optimizer: Object of optimizer
+        :param optimization_algorithm: Object of GenericOptimization
         """
-        self.optimizer = optimizer
+        assert isinstance(optimization_algorithm, GenericOptimization)
+        self.optimization_algorithm = optimization_algorithm
 
     def optimize(self):
         """
         Optimization step
         :return: Solution and the corresponding function value
         """
-        solution, func_value = self.optimizer.execute()
+        solution, solution_fitness, solution_index = self.optimization_algorithm.execute()
 
-        return solution, func_value
+        return solution, solution_fitness, solution_index
 
-    def construct_points(self, orig_data, solution, num_points, refinement_x, refinement_y):
+    @staticmethod
+    def construct_points(experiment, solution_index, num_points, refinement_factors):
         """
         Constructs new set of values around the solution
-        :param orig_data: Original data set
-        :param solution: List of solutions ([x, y])
+        :param solution_index: index of the solution
         :param num_points: Number of points to construct
-        :param refinement_x: Refinement window for the 'x' variable in % from the (max-min)/2 range
-        :param refinement_y: Refinement window for the 'y' variable in % from the (max-min)/2 range
-        :return: List of ['x', 'y'] values and the corresponding list of function values ['f']
+        :param refinement_factors: List of refinement window for all variables in % of the (max-min)/2 range
+        :return: List of ['x', 'y', '..'] values and the corresponding list of function values ['f']
         """
-        x = self.optimizer.data.iloc[:, 0]
-        y = self.optimizer.data.iloc[:, 0]
-
-        min_x = np.min(orig_data[0])
-        max_x = np.max(orig_data[0])
-        min_y = np.min(orig_data[1])
-        max_y = np.max(orig_data[1])
-
-        delta_x = refinement_x * (max_x - min_x) * 0.5
-        delta_y = refinement_y * (max_y - min_y) * 0.5
-
-        # step_x = 2 * delta_x / (num_points - 1)
-        # step_y = 2 * delta_y / (num_points - 1)
-
-        distribution_x = 'linear'
-        distribution_y = 'linear'
-        param_x = Parameter('x', [solution[0] - delta_x, solution[0] + delta_x], num_points, distribution_x)
-        param_y = Parameter('y', [solution[1] - delta_y, solution[1] + delta_y], num_points, distribution_y)
-
-        f = [self.optimizer.get_function()(x_loc, y_loc)
-             for x_loc, y_loc in zip(param_x.data_points, param_y.data_points)]
-
-        combined_ranges = [[param_x.data_points[i], param_y.data_points[i]]
-                           for i in range(0, len(param_x.data_points))]
-
-        return combined_ranges, f
+        # todo make absolutely sure the index of the solution corresponds with the job number
+        opt_input_datapoint = experiment.data_points[solution_index]  # (x, y, z)
+        i = 0
+        for p, param in enumerate(experiment.parameters):
+            if param.is_active:
+                # calculate new ranges for each active param
+                delta_param = refinement_factors[p] * (param.range[1] - param.range[0]) * .5
+                opt_range = opt_input_datapoint[i] - delta_param, opt_input_datapoint[i] + delta_param
+                i += 1
+                # write updated parameter range to each active param
+                param.range = opt_range
+                # create new points on each active param
+                param.generate_data_points(num_points=num_points)
+        # 7 call create points on the experiment
+        experiment.create_datapoint_c_product()
 
 
 def plot(x, y, z):
@@ -325,7 +309,8 @@ class Test:
         else:
             raise NotImplementedError('Unknown function type: {}'.format(func_type))
 
-    def paraboloid(self, var):
+    @staticmethod
+    def paraboloid(var):
         """
         A simple paraboloid function. Has one minimum:
         f(x1,x2)=0.0; (x1,x2)=(0.0, 0.0)
@@ -336,7 +321,8 @@ class Test:
         y_loc = var[1]
         return x_loc ** 2 + y_loc ** 2
 
-    def sixhump(self, var):
+    @staticmethod
+    def sixhump(var):
         """
         The six-hump camel back function. Has two minimums:
         f(x1,x2)=-1.0316; (x1,x2)=(-0.0898,0.7126), (0.0898,-0.7126)
@@ -347,7 +333,8 @@ class Test:
         y_loc = var[1]
         return (4 - 2.1 * x_loc ** 2 + (x_loc ** 4) / 3.) * x_loc**2 + x_loc * y_loc + (-4 + 4 * y_loc ** 2) * y_loc**2
 
-    def rosenbrock(self, var):
+    @staticmethod
+    def rosenbrock(var):
         """
         The Rosenbrock function. Has one minimum:
         f(x1,x2)=0.0; (x1,x2)=(1.0, 1.0)
@@ -358,28 +345,30 @@ class Test:
         y_loc = var[1]
         return (1 - x_loc)**2 + 100 * (y_loc - x_loc**2)**2
 
-    def rastrigin(self, var):
+    @staticmethod
+    def rastrigin(var):
         x_loc = var[0]
         y_loc = var[1]
         return (x_loc ** 2 - 10 * np.cos(2 * np.pi * x_loc)) + \
             (y_loc ** 2 - 10 * np.cos(2 * np.pi * y_loc)) + 20
 
     def run(self):
-        ga_opt = GAOpt(self.function, [self.x, self.y], 100)
+        ga_opt = GAOpt(self.function, 100)
         opt = Optimizer(ga_opt)
 
         # cg_opt = CGOpt(self.function, [self.x, self.y], 100)
         # opt = Optimizer(cg_opt)
 
-        solution, func_values = opt.optimize()
+        solution, solution_fitness, solution_index = opt.optimize()
 
-        xy_new, func_new = opt.construct_points([self.x, self.y],
-                                                solution,
-                                                num_points=5,
-                                                delta_x=0.5,
-                                                delta_y=0.5)
-        print('New values [x, y]:   ', xy_new)
-        print('New values func:', func_new)
+        # todo: this is now deprecated
+        # xy_new, func_new = opt.construct_points([self.x, self.y],
+        #                                         solution,
+        #                                         num_points=5,
+        #                                         delta_x=0.5,
+        #                                         delta_y=0.5)
+        # print('New values [x, y]:   ', xy_new)
+        # print('New values func:', func_new)
 
         x, y = np.meshgrid(self.x, self.y)
         c = self.function([x, y])

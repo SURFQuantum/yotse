@@ -51,9 +51,17 @@ def wobbly_pre():
     return wobbly_experiment
 
 
+def remove_files_after_run():
+    # remove files and directories
+    shutil.rmtree('output')
+    dirs = [f for f in os.listdir(os.getcwd()) if (f.startswith(".qcg"))]
+    for d in dirs:
+        shutil.rmtree(os.path.join(os.getcwd(), d))
+
+
 def main():
-    def cost_function(x, y):
-        return x ** 2 + y ** 2
+    def cost_function(f):
+        return f
 
     num_opt_steps = 10
     experiment = wobbly_pre()
@@ -63,13 +71,8 @@ def main():
     for i in range(num_opt_steps):
         wobbly_example.run(step=i)
 
-    # remove files and directories
-    shutil.rmtree('output')
-    dirs = [f for f in os.listdir(os.getcwd()) if (f.startswith(".qcg"))]
-    for d in dirs:
-        shutil.rmtree(os.path.join(os.getcwd(), d))
+    remove_files_after_run()
 
 
 if __name__ == "__main__":
     main()
-    # add clean up function that removes qcg folders (see test-run.py)

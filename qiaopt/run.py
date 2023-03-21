@@ -125,29 +125,6 @@ def set_basic_directory_structure_for_job(experiment: Experiment, step_number: i
     experiment.system_setup.working_directory = new_working_dir
 
 
-# def copy_job_output_from_job_dir_to_step_dir(experiment, extension):
-#     step_dir = experiment.system_setup.current_step_directory
-#     for i, item in enumerate(experiment.data_points):
-#         pass
-
-
-# TODO: old and maybe no longer needed
-# def move_output_to_output_directory(self):
-#     output_dir = self.experiment.system_setup.output_directory
-#     files_list = get_files_by_extension(directory=output_dir, extension=self.experiment.system_setup.output_extension)
-#     for file in files_list:
-#         shutil.move(file, output_dir)
-#
-#
-# def move_stdout_to_log_dir(self):
-#     def is_stdout_file(file, basename):
-#         return os.path.basename(file).endswith('txt') and os.path.basename(file).startswith(basename)
-#     file_list = [file for file in os.listdir(self.experiment.system_setup.source_directory)
-#                  if is_stdout_file(file, self.experiment.system_setup.stdout_basename)]
-#     for file in file_list:
-#         shutil.move(file, log_dir)
-
-
 class Core:
     """
     Defines the default run function for the executor.
@@ -164,8 +141,8 @@ class Core:
             if len([opt for opt in self.experiment.optimization_information_list if opt.is_active]) > 1:
                 raise RuntimeError('Multiple active optimization steps. Please set all but one to active=False')
             opt_info = self.experiment.optimization_information_list[0]
-            self.refinement_x = opt_info.parameters['refinement_x']
-            self.refinement_y = opt_info.parameters['refinement_y']
+            self.refinement_factors = [opt_info.parameters['refinement_x'], opt_info.parameters['refinement_y']]
+            assert self.refinement_factors
             self.num_points = opt_info.parameters['num_points']
             if opt_info.name == 'GA':
                 self.optimization_alg = GAOpt(function=self.experiment.cost_function,
@@ -173,8 +150,7 @@ class Core:
                                               logging_level=opt_info.parameters['logging_level'])
             else:
                 raise ValueError('Unknown optimization algorithm.')
-
-            self.optimizer = Optimizer(self.optimization_alg)
+            self.optimizer = Optimizer(optimization_algorithm=self.optimization_alg)
         else:
             self.optimization_alg = None
             self.optimizer = None
@@ -272,15 +248,15 @@ class Core:
         """
 
         if self.optimization_alg is not None:
+            print("opt is", self.optimization_alg)
             self.optimization_alg.data = data
-            solution, func_values = self.optimizer.optimize()
-            xy_new, func_new = self.optimizer.construct_points(solution,
-                                                               num_points=self.num_points,
-                                                               refinement_x=self.refinement_x,
-                                                               refinement_y=self.refinement_y)
-            return xy_new
-        else:
-            return
+            if self.optimization_alg.function is None:
+                raise RuntimeError("Optimization attempted to create new points without a cost function.")
+            solution, solution_fitness, solution_index = self.optimizer.optimize()
+            self.optimizer.construct_points(experiment=self.experiment,
+                                            solution_index=solution_index,
+                                            num_points=self.num_points,
+                                            refinement_factors=self.refinement_factors)
 
 
 class Executor(Core):

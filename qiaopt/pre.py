@@ -60,26 +60,35 @@ class Parameter:
     def is_active(self):
         return self.parameter_active
 
-    def generate_initial_data_points(self):
-        """Generate initial data points based on the specified distribution and range."""
+    def generate_data_points(self, num_points):
+        """Generate set of n=num_points data points based on the specified distribution and range of this parameter.
+
+         Parameters
+         ----------
+         num_points : int
+            Number of datapoints to generate.
+        """
         if self.distribution == "linear":
-            self.data_points = np.linspace(self.range[0], self.range[1], self.number_points).tolist()
+            self.data_points = np.linspace(self.range[0], self.range[1], num_points).tolist()
         elif self.distribution == "uniform":
-            self.data_points = np.random.uniform(self.range[0], self.range[1], self.number_points).tolist()
+            self.data_points = np.random.uniform(self.range[0], self.range[1], num_points).tolist()
         elif self.distribution == "normal":
             self.data_points = np.random.normal((self.range[0] + self.range[1]) / 2,
-                                                abs(self.range[1] - self.range[0]) / 3, self.number_points).tolist()
+                                                abs(self.range[1] - self.range[0]) / 3, num_points).tolist()
         elif self.distribution == "log":
-            self.data_points = np.logspace(np.log10(self.range[0]), np.log10(self.range[1]),
-                                           self.number_points).tolist()
+            self.data_points = np.logspace(np.log10(self.range[0]), np.log10(self.range[1]), num_points).tolist()
         elif self.distribution == "custom" and self.custom_distribution is not None:
-            self.data_points = self.custom_distribution(self.range[0], self.range[1], self.number_points)
-            if len(self.data_points) != self.number_points:
+            self.data_points = self.custom_distribution(self.range[0], self.range[1], num_points)
+            if len(self.data_points) != num_points:
                 raise ValueError(f'Custom distribution returned invalid number of points {len(self.data_points)}.')
             assert min(self.data_points) >= self.range[0]
             assert max(self.data_points) <= self.range[1]
         else:
             raise ValueError(f"Invalid distribution specified: {self.distribution}")
+
+    def generate_initial_data_points(self):
+        """Generate initial data points based on the specified distribution and range."""
+        self.generate_data_points(num_points=self.number_points)
 
 
 class SystemSetup:

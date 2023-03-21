@@ -49,9 +49,9 @@ class TestCore(unittest.TestCase):
                           opt_info_list=opt_info_list)
 
     @staticmethod
-    def create_default_core():
-        test_param = TestCore.create_default_param()
-        test_experiment = TestCore.create_default_experiment(parameters=[test_param])
+    def create_default_core(num_params=1):
+        test_param = [TestCore.create_default_param() for _ in range(num_params)]
+        test_experiment = TestCore.create_default_experiment(parameters=test_param)
         return Core(test_experiment)
 
     def test_core_experiment(self):
@@ -118,7 +118,7 @@ class TestCore(unittest.TestCase):
     #     path = os.getcwd()
 
     def test_core_create_points_based_on_method(self):
-        test_core = TestCore.create_default_core()
+        test_core = TestCore.create_default_core(num_params=2)
 
         def mock_function(x, y):
             return x**2 + y**2
@@ -131,17 +131,18 @@ class TestCore(unittest.TestCase):
         opt = Optimizer(ga_opt)
         test_core.optimizer = opt
         test_core.optimization_alg = ga_opt
-        test_core.refinement_x = .01
-        test_core.refinement_y = .01
+        test_core.refinement_factors = [1, 1]
         test_core.num_points = 5
 
-        new_points = test_core.create_points_based_on_method(data=mock_df)
-        print(new_points)
-        self.assertIsInstance(new_points, list, list)
-        self.assertEqual(len(new_points), test_core.num_points)
+        test_core.create_points_based_on_method(data=mock_df)
+        new_points = test_core.experiment.data_points
+        self.assertIsInstance(new_points, list, list)               # correct type
+        self.assertEqual(len(new_points), test_core.num_points**2)  # correct num points
         s = set([tuple(x) for x in new_points])
-        self.assertEqual(len(s), test_core.num_points)
-        # todo: why is there output only one set of points copied n times?
+        self.assertEqual(len(s), test_core.num_points**2)           # unique points
+        for point in new_points:
+            self.assertEqual(len(point), 2)                         # each point has two param values
+        # todo: currently the number of points is num_points**num_params, is this what we want?
 
     def test_core_run(self):
         test_core = TestCore.create_default_core()

@@ -56,7 +56,7 @@ class TestGAOpt(unittest.TestCase):
         return opt.optimize()
 
     def test_optimize_paraboloid(self):
-        solution, func_values = self._setup_and_execute(self._paraboloid)
+        solution, solution_fitness, solution_index = self._setup_and_execute(self._paraboloid)
         x_true = 0.0
         y_true = 0.0
 
@@ -64,7 +64,8 @@ class TestGAOpt(unittest.TestCase):
         self.assertTrue(np.abs(solution[1] - y_true) <= 1e-12)
 
     def test_optimize_sixhump(self):
-        solution, func_values = self._setup_and_execute(self._sixhump, var_range=[0.8, 0.8], var_step=0.01)
+        solution, solution_fitness, solution_index = self._setup_and_execute(self._sixhump,
+                                                                             var_range=[0.8, 0.8], var_step=0.01)
         x_true = -0.0898
         y_true = 0.7126
 
@@ -77,7 +78,7 @@ class TestGAOpt(unittest.TestCase):
         self.assertTrue(np.abs(solution[1] - y_true) <= 1e-2)
 
     def test_optimize_rosenbrock(self):
-        solution, func_values = self._setup_and_execute(self._rosenbrock)
+        solution, solution_fitness, solution_index = self._setup_and_execute(self._rosenbrock)
         x_true = 1.0
         y_true = 1.0
 
@@ -85,7 +86,7 @@ class TestGAOpt(unittest.TestCase):
         self.assertTrue(np.abs(solution[1] - y_true) <= 1e-12)
 
     def test_optimize_rastrigin(self):
-        solution, func_values = self._setup_and_execute(self._rastrigin)
+        solution, solution_fitness, solution_index = self._setup_and_execute(self._rastrigin)
         x_true = 0.0
         y_true = 0.0
 
