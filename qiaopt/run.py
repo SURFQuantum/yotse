@@ -133,6 +133,17 @@ class Core:
     -----------
     experiment: Experiment
         The experiment to run.
+
+    Attributes:
+    -----------
+    optimization_alg : GenericOptimization
+        Specific subclass of GenericOptimization that implements the optimization algorithm.
+    optimizer : Optimizer
+       Object of Optimizer responsible to execute the optimization process.
+    num_points : int
+        Number of new points for each Parameter to create in each optimization step, specified in the OptimizationInfo.
+    refinement_factors : list
+        Refinement factors for each of the Parameters specified in the experiment.
     """
 
     def __init__(self, experiment):
@@ -142,7 +153,7 @@ class Core:
                 raise RuntimeError('Multiple active optimization steps. Please set all but one to active=False')
             opt_info = self.experiment.optimization_information_list[0]
             self.refinement_factors = [opt_info.parameters['refinement_x'], opt_info.parameters['refinement_y']]
-            assert self.refinement_factors
+            assert len(self.refinement_factors) == len(self.experiment.parameters)
             self.num_points = opt_info.parameters['num_points']
             if opt_info.name == 'GA':
                 self.optimization_alg = GAOpt(function=self.experiment.cost_function,
@@ -155,10 +166,17 @@ class Core:
             self.optimization_alg = None
             self.optimizer = None
 
-    def run(self, step=0):
-        """ Submits jobs to the LocalManager, collects the output, creates new data points, and finishes the run."""
-        print(f"Starting default run of {self.experiment.name} (step{step}): submit, collect, create")
-        self.submit(step_number=step)
+    def run(self, step_number=0):
+        """ Submits jobs to the LocalManager, collects the output, creates new data points, and finishes the run.
+
+        Parameters:
+        -----------
+        step_number : int (optional)
+            Step number to submit to QCGPilot. Should be used for e.g. running different optimization steps.
+            Defaults to 0.
+        """
+        print(f"Starting default run of {self.experiment.name} (step{step_number}): submit, collect, create")
+        self.submit(step_number=step_number)
         data = self.collect_data()
         self.create_points_based_on_method(data)
         print("Finished run")
@@ -167,9 +185,15 @@ class Core:
         """
         Submits jobs to the LocalManager.
 
+        Parameters:
+        ----------
+        step_number : int (optional)
+            Step number to submit to QCGPilot. Should be used for e.g. running different optimization steps.
+            Defaults to 0.
+
         Returns:
         --------
-        list
+        job_ids : list
             A list of job IDs submitted to the LocalManager.
         """
         manager = LocalManager()
@@ -212,8 +236,9 @@ class Core:
 
         Returns
         -------
-        list
+        data : list
             A list of pandas dataframes, each containing the data from an output file.
+            # todo : this is no longer true and should be checked in a test!
 
         """
         if self.experiment.system_setup.analysis_script is None:
@@ -233,18 +258,14 @@ class Core:
 
     def create_points_based_on_method(self, data):
         """
-        Applies a method to process the collected data and create new data points.
+        Applies a method to process the collected data and create new data points from it which is then directly
+        written into the experiments attributes.
 
         Parameters
         ----------
         data : list
             A list of pandas dataframes containing the collected data.
-
-        Returns
-        -------
-        list
-            A list of new data points created based on the input data.
-
+            # todo: this is no longer true?
         """
 
         if self.optimization_alg is not None:

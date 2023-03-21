@@ -27,10 +27,9 @@ class Parameter:
     custom_distribution : function
         Custom distribution function that takes as arguments (min_value: float, max_value: float, number_points: int)
         and returns a list of float points.
-
-    #TODO: keep those?
     data_type: str (optional)
         Type of variable: discrete or continuous, defaults to continuous.
+        # todo: other data_types not implemented yet.
 
     Attributes
     ----------
@@ -52,6 +51,8 @@ class Parameter:
             raise ValueError(f"Custom distribution supplied but distribution set to {distribution}!")
         self.distribution = distribution
         self.custom_distribution = custom_distribution
+        if data_type != "continuous":
+            raise NotImplementedError("data_type!='continuous' not implemented yet.")
         self.data_type = data_type
 
         self.generate_initial_data_points()
@@ -144,6 +145,7 @@ class SystemSetup:
 
     @property
     def current_step_directory(self):
+        """Returns the path of the current optimization step."""
         if self.working_directory is not None:
             return os.path.join(self.working_directory, '..')
         else:
@@ -214,7 +216,7 @@ class Experiment:
         self.cost_function = None
         self._current_optimization_step = None  # TODO: what would this mean if we have various different kinds of opts?
 
-    def create_datapoint_c_product(self):  # TODO: better name?
+    def create_datapoint_c_product(self):
         """Create initial set of points as Cartesian product of all active parameters.
 
         Overwrite if other combination is needed."""

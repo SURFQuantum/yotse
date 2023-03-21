@@ -19,9 +19,18 @@ class GenericOptimization:
     def __init__(self, function, logging_level=1, extrema=MINIMUM):
         """
         Default constructor
-        :param logging_level: Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything
-        :param extrema: Define what type of problem to solve. 'extrema' can be equal to either MINIMUM or MAXIMUM. The
-                        optimization algorithm will look for minimum and maximum values respectively.
+
+        Parameters:
+        ----------
+        function : function
+            Cost function used for optimization.
+        logging_level : int (optional)
+            Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything.
+            Defaults to 1.
+        extrema: str (optional)
+            Define what type of problem to solve. 'extrema' can be equal to either MINIMUM or MAXIMUM. The
+            optimization algorithm will look for minimum and maximum values respectively.
+            Defaults to MINIMUM.
         """
         self.logging_level = logging_level
         self.extrema = extrema
@@ -29,13 +38,18 @@ class GenericOptimization:
         self.data = None
 
     def get_function(self):
+        """Returns the cost function."""
         return self.function
 
     @abstractmethod
     def execute(self):
         """
-        Execute method should be implemented in every derived class
-        :return: Solution and the corresponding function value
+        Execute method should be implemented in every derived class.
+
+        Returns:
+        -------
+        solution, solution_fitness, solution_idx
+            Solution its fitness and its index in the list of cost function solutions.
         """
         raise NotImplementedError('The \'{}\' method is not implemented'.format(inspect.currentframe().f_code.co_name))
         # return None, None
@@ -47,9 +61,16 @@ class GAOpt(GenericOptimization):
     """
     def __init__(self, function, num_generations=100, logging_level=1):
         """
-        Default constructor
-        :param function: Fitness/objective function
-        :param data: 2D data in a form of list [[], []]
+        Parameters:
+        ----------
+        function : function
+            Fitness/objective/cost function.
+        num_generations : int (optional)
+            Number of generations in the genetic algorithm.
+            Defaults to 100.
+        logging_level : int (optional)
+            Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything.
+            Defaults to 1.
         """
         super().__init__(function, logging_level, self.MINIMUM)
         self.num_generations = num_generations
@@ -57,9 +78,17 @@ class GAOpt(GenericOptimization):
     def _objective_func(self, solution, solution_idx):
         """
         Fitness function to be called from PyGAD
-        :param solution: List of solutions
-        :param solution_idx: Index of solution
-        :return: Fitness value
+
+        Parameters:
+        ----------
+        solution : list
+            List of solutions.
+        solution_idx : int
+            Index of solution.
+
+        Returns:
+        -------
+            Fitness value.
         """
         # Invert function to find the minimum, if needed
         factor = 1.
@@ -74,8 +103,12 @@ class GAOpt(GenericOptimization):
 
     def execute(self):
         """
-        Execute optimization
-        :return: Solution and the corresponding function value
+        Execute optimization.
+
+        Returns:
+        -------
+        solution, solution_fitness, solution_idx
+            Solution its fitness and its index in the list of cost function solutions.
         """
         cost_function_input = [list(self.data[column]) for column in self.data]
 
@@ -115,23 +148,38 @@ class GAOpt(GenericOptimization):
 
 class CGOpt(GenericOptimization):
     """
-    Genetic algorithm
+    CG algorithm
+    #todo: fill this with more info
     """
-    def __init__(self, function, data, num_iterations=100):
+    def __init__(self, function, num_iterations=100, logging_level=1):
         """
         Default constructor
-        :param function: Fitness/objective function
-        :param data: 2D data in a form of list [[], []]
+
+        Parameters:
+        ----------
+        function : function
+            Fitness/objective/cost function.
+        num_iterations : int (optional)
+            Number of iterations.
+            Defaults to 100.
+        logging_level : int (optional)
+            Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything.
+            Defaults to 1.
         """
-        super().__init__(function, data, 1, self.MINIMUM)
+        super().__init__(function, logging_level, self.MINIMUM)
         self.num_iterations = num_iterations
 
     def _objective_func(self, solution):
         """
         Fitness function to be called from PyGAD
-        :param solution: List of solutions
-        :param solution_idx: Index of solution
-        :return: Fitness value
+        Parameters:
+        ----------
+        solution : list
+            List of solutions.
+
+        Returns:
+        -------
+            Fitness value.
         """
         x, y = solution
         # x_fixed, y_fixed = args
@@ -166,8 +214,12 @@ class CGOpt(GenericOptimization):
 
     def execute(self):
         """
-        Execute optimization
-        :return: Solution and the corresponding function value
+        Execute optimization.
+
+        Returns:
+        -------
+        solution, solution_fitness, solution_idx
+            Solution its fitness and its index in the list of cost function solutions.
         """
         x = self.data[0]
         y = self.data[1]
@@ -225,7 +277,7 @@ class CGOpt(GenericOptimization):
             print('Solution:     ', res.x)
             print('Fitness value: {fun}'.format(fun=res.fun))
 
-        return None, None
+        return None, None, None
 
         # return solution, solution_fitness
 
@@ -236,8 +288,12 @@ class Optimizer:
     """
     def __init__(self, optimization_algorithm):
         """
-        Default constructor
-        :param optimization_algorithm: Object of GenericOptimization
+        Default constructor.
+
+        Parameters:
+        ----------
+        optimization_algorithm: Object of GenericOptimization
+            Optimization algorithm to be executed by this optimizer.
         """
         assert isinstance(optimization_algorithm, GenericOptimization)
         self.optimization_algorithm = optimization_algorithm
@@ -245,7 +301,11 @@ class Optimizer:
     def optimize(self):
         """
         Optimization step
-        :return: Solution and the corresponding function value
+
+        Returns:
+        -------
+        solution, solution_fitness, solution_idx
+            Solution its fitness and its index in the list of cost function solutions.
         """
         solution, solution_fitness, solution_index = self.optimization_algorithm.execute()
 
@@ -254,11 +314,18 @@ class Optimizer:
     @staticmethod
     def construct_points(experiment, solution_index, num_points, refinement_factors):
         """
-        Constructs new set of values around the solution
-        :param solution_index: index of the solution
-        :param num_points: Number of points to construct
-        :param refinement_factors: List of refinement window for all variables in % of the (max-min)/2 range
-        :return: List of ['x', 'y', '..'] values and the corresponding list of function values ['f']
+        Constructs new set of values around the solution and write them to the experiment.
+
+        Parameters:
+        ----------
+        experiment : Experiment
+            Object of Experiment that the points should be constructed for.
+        solution_index : int
+            Index of the solution in the list of cost function solutions.
+        num_points : int
+            Number of points to construct for each parameter.
+        refinement_factors : list
+            Refinement windows for all variables in % of the (max-min)/2 range.
         """
         # todo make absolutely sure the index of the solution corresponds with the job number
         opt_input_datapoint = experiment.data_points[solution_index]  # (x, y, z)
@@ -278,6 +345,7 @@ class Optimizer:
 
 
 def plot(x, y, z):
+    """Plot points x,y,z."""
     ax = plt.figure().add_subplot(projection='3d')
     ax.plot_surface(x, y, z, edgecolor='royalblue', lw=0.5, rstride=8, cstride=8,
                     alpha=0.3)
