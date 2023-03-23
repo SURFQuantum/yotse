@@ -9,10 +9,16 @@ from argparse import ArgumentParser
 
 
 def function(x, y):
-    """Returns wobbly function value f(x,y) = (x^2 + y^2) * sin(x^2 + y^2)."""
+    """Returns wobbly function value f(x,y) = (x^2 + y^2) + sin(x^2 + y^2)."""
 
     radius_squared = x ** 2 + y ** 2
     return radius_squared + np.sin(radius_squared)
+
+
+def ackley_function_2d(x, y):
+    """Returns function value of the 2d ackley function."""
+    f = -20 * np.exp(-.2 * np.sqrt(.5 * (x**2 + y**2))) - np.exp(.5*(np.cos(2*np.pi*x) + np.cos(2*np.pi*y))) + np.e + 20
+    return f
 
 
 if __name__ == "__main__":
@@ -26,7 +32,8 @@ if __name__ == "__main__":
     parameter_values = [args.x, args.y]
 
     # Run the "simulation"
-    output_value = function(x=args.x, y=args.y)
+    # output_value = function(x=args.x, y=args.y)
+    output_value = ackley_function_2d(x=args.x, y=args.y)
     print(f"Output of wobbly_function with input {args.x},{args.y} is {output_value}.")
 
     # Store the output value of the wobbly function in a file

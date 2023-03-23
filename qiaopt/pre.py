@@ -94,7 +94,8 @@ class Parameter:
 
 class SystemSetup:
     """Defines a class for the setup of the system parameters.
-    Parameters
+
+    Parameters:
     ----------
     source_directory : str
         Path of the source directory.

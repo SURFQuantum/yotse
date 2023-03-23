@@ -131,7 +131,7 @@ class TestCore(unittest.TestCase):
         opt = Optimizer(ga_opt)
         test_core.optimizer = opt
         test_core.optimization_alg = ga_opt
-        test_core.refinement_factors = [1, 1]
+        test_core.refinement_factors = [.5, .5]
         test_core.num_points = 5
 
         test_core.create_points_based_on_method(data=mock_df)

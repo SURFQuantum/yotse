@@ -127,6 +127,7 @@ class GAOpt(GenericOptimization):
                                mutation_num_genes=1,
                                # mutation_type=None,
                                fitness_func=self._objective_func)
+        # todo: some of these params are redundant, while others definitely should be exposed to user
 
         ga_instance.run()
 
@@ -135,8 +136,9 @@ class GAOpt(GenericOptimization):
             ga_instance.plot_fitness()
 
         solution, solution_fitness, solution_idx = ga_instance.best_solution(ga_instance.last_generation_fitness)
-
-        # original_params_of_solution = self.
+        # todo: somehow this solution_idx is always 0, as a workaround we now manually determine the actual index from
+        # its location in the input, needs to be verified what happens if solution is not unique?
+        solution_idx = cost_function_input[0].index(solution[0])
 
         if self.logging_level >= 1:
             print('\n')
@@ -340,7 +342,7 @@ class Optimizer:
                 param.range = opt_range
                 # create new points on each active param
                 param.generate_data_points(num_points=num_points)
-        # 7 call create points on the experiment
+        # call create points on the experiment
         experiment.create_datapoint_c_product()
 
 

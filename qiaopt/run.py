@@ -269,7 +269,6 @@ class Core:
         """
 
         if self.optimization_alg is not None:
-            print("opt is", self.optimization_alg)
             self.optimization_alg.data = data
             if self.optimization_alg.function is None:
                 raise RuntimeError("Optimization attempted to create new points without a cost function.")

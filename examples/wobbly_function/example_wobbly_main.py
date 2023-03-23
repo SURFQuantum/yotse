@@ -18,7 +18,7 @@ def wobbly_pre():
             Parameter(
                 name="x",
                 parameter_range=[-4, 4],
-                number_points=2,
+                number_points=10,
                 distribution="uniform",
                 constraints=[],
                 weights=None,
@@ -40,8 +40,8 @@ def wobbly_pre():
             OptimizationInfo(
                 name="GA",
                 opt_parameters={
-                    "num_generations": 100,     # number of iterations of the algorithm
-                    "num_points": 5,            # number of points to re-create
+                    "num_generations": 10,     # number of iterations of the algorithm
+                    "num_points": 10,            # number of points per param to re-create
                     "refinement_x": 0.5,        # in %
                     "refinement_y": 0.5,        # in %
                     "logging_level": 1,
@@ -63,12 +63,11 @@ def main():
     def cost_function(f):
         return f
 
-    num_opt_steps = 10
     experiment = wobbly_pre()
     experiment.cost_function = cost_function
     wobbly_example = Executor(experiment=experiment)
 
-    for i in range(num_opt_steps):
+    for i in range(experiment.optimization_information_list[0].parameters["num_generations"]):
         wobbly_example.run(step=i)
 
     remove_files_after_run()

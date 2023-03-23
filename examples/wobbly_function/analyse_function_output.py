@@ -14,13 +14,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     current_path = os.getcwd()
-    sorted_dir = sorted(os.listdir(current_path))
-    for d, directory in enumerate(sorted_dir):
+    # ensure that output.csv is ordered by job_id
+    for job_id in range(len(os.listdir(current_path))):
+        directory = f'job{job_id}'
         if os.path.isdir(directory):
             print(os.path.join(directory, 'wobbly_example.csv'))
             with open(os.path.join(directory, 'wobbly_example.csv'), newline='') as csvfile:
                 reader = csv.reader(csvfile, delimiter=' ')
-                if d == 0:
+                if job_id == 0:
                     with open('output.csv', 'w', newline='') as output_file:
                         writer = csv.writer(output_file, delimiter=' ')
                         for row in reader:
