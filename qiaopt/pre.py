@@ -264,7 +264,7 @@ class Experiment:
             assert isinstance(self.parameters, list)
             for param in self.parameters:
                 if not isinstance(param, Parameter):
-                    raise ValueError(f"One of the parameters is not of correct param_type 'Parameter', but is {type(param)}")
+                    raise ValueError(f"One of the parameters is not of correct type 'Parameter', but is {type(param)}")
             self.data_points = list(itertools.product(*[param.data_points for param in self.parameters
                                                         if param.is_active]))
 
