@@ -35,7 +35,7 @@ class TestCore(unittest.TestCase):
     @staticmethod
     def create_default_param(name="bright_state_parameter", parameter_range=[.1, .9], number_points=9,
                              distribution="linear", constraints=[None], custom_distribution=None):
-        return Parameter(name=name, parameter_range=parameter_range, number_points=number_points,
+        return Parameter(name=name, param_range=parameter_range, number_points=number_points,
                          distribution=distribution, constraints=constraints, custom_distribution=custom_distribution)
 
     @staticmethod
