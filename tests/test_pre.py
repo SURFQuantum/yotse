@@ -11,9 +11,11 @@ class TestParameters(unittest.TestCase):
     """Test the parameters class."""
     @staticmethod
     def create_default_param(name="bright_state_parameter", parameter_range=[.1, .9], number_points=9,
-                             distribution="linear", constraints=[None], custom_distribution=None):
-        return Parameter(name=name, parameter_range=parameter_range, number_points=number_points,
-                         distribution=distribution, constraints=constraints, custom_distribution=custom_distribution)
+                             distribution="linear", constraints=[None], custom_distribution=None,
+                             param_type="continuous"):
+        return Parameter(name=name, param_range=parameter_range, number_points=number_points,
+                         distribution=distribution, constraints=constraints, custom_distribution=custom_distribution,
+                         param_type=param_type)
 
     def test_initialization(self):
         test_parameter = self.create_default_param()
@@ -29,27 +31,35 @@ class TestParameters(unittest.TestCase):
         def mock_distribution(min_value, max_value, number_points):
             return [.1, .5, .8]
 
-        with self.assertRaises(ValueError):
-            self.create_default_param(custom_distribution=mock_distribution)
-        with self.assertRaises(ValueError):
-            self.create_default_param(distribution='custom')
-        with self.assertRaises(ValueError):
-            self.create_default_param(distribution='custom', custom_distribution=mock_distribution)
-        custom_param = self.create_default_param(number_points=3, distribution='custom',
-                                                 custom_distribution=mock_distribution)
-        self.assertListEqual(custom_param.data_points, [.1, .5, .8])
+        for param_type in ["continuous", "discrete"]:
+            with self.assertRaises(ValueError):
+                self.create_default_param(custom_distribution=mock_distribution, param_type=param_type)
+            with self.assertRaises(ValueError):
+                self.create_default_param(distribution='custom', param_type=param_type)
+            with self.assertRaises(ValueError):
+                self.create_default_param(distribution='custom', custom_distribution=mock_distribution,
+                                          param_type=param_type)
+            custom_param = self.create_default_param(number_points=3, distribution='custom',
+                                                     custom_distribution=mock_distribution,
+                                                     param_type=param_type)
+            self.assertListEqual(custom_param.data_points, [.1, .5, .8])
+            with self.assertRaises(ValueError):
+                self.create_default_param(param_type="something")
 
     def test_initial_data_points_within_range(self):
-        linear_param = self.create_default_param(distribution='linear')
-        self.assertEqual(len(linear_param.data_points), linear_param.number_points)
-        self.assertAlmostEqual(linear_param.data_points[0], linear_param.range[0])
-        self.assertAlmostEqual(linear_param.data_points[-1], linear_param.range[1])
+        for param_type in ["continuous", "discrete"]:
+            linear_param = self.create_default_param(distribution='linear', param_type=param_type,
+                                                     parameter_range=[1., 9.])
+            self.assertEqual(len(linear_param.data_points), linear_param.number_points)
+            self.assertAlmostEqual(linear_param.data_points[0], linear_param.range[0])
+            self.assertAlmostEqual(linear_param.data_points[-1], linear_param.range[1])
 
-        for dist in ['uniform', 'normal', 'log']:
-            dist_param = self.create_default_param(distribution=dist)
-            self.assertEqual(len(dist_param.data_points), dist_param.number_points)
-            self.assertGreaterEqual(max(dist_param.data_points), dist_param.range[0])
-            self.assertLessEqual(min(dist_param.data_points), dist_param.range[1])
+            for dist in ['uniform', 'normal', 'log']:
+                dist_param = self.create_default_param(distribution=dist, param_type=param_type,
+                                                       parameter_range=[1., 9.])
+                self.assertEqual(len(dist_param.data_points), dist_param.number_points)
+                self.assertGreaterEqual(max(dist_param.data_points), dist_param.range[0])
+                self.assertLessEqual(min(dist_param.data_points), dist_param.range[1])
 
 
 class TestSystemSetup(unittest.TestCase):
@@ -116,17 +126,17 @@ class TestExperiment(unittest.TestCase):
         """Test whether Cartesian product is correctly formed from active Parameters."""
         test_exp = self.create_default_experiment()
         test_exp.add_parameter(Parameter(name='active_param1',
-                                         parameter_range=[1, 3],
+                                         param_range=[1, 3],
                                          number_points=3,
                                          distribution="linear",
                                          parameter_active=True))
         test_exp.add_parameter(Parameter(name='inactive_param',
-                                         parameter_range=[11, 13],
+                                         param_range=[11, 13],
                                          number_points=3,
                                          distribution="linear",
                                          parameter_active=False))
         test_exp.add_parameter(Parameter(name='active_param2',
-                                         parameter_range=[21, 23],
+                                         param_range=[21, 23],
                                          number_points=3,
                                          distribution="linear",
                                          parameter_active=True))

@@ -10,13 +10,13 @@ class Parameter:
     ----------
     name : str
         Name of the parameter.
-    parameter_range : list(min, max)
+    param_range : list(min, max)
         List with the min and max value of the parameter; min and max are floats.
     number_points: int
         Number of points to be explored.
     distribution : str
         Type of distribution of the points. Currently supports 'linear', 'uniform', 'normal', 'log' or 'custom'.
-        If 'custom' is specified then parameter custom_distribution must be set.
+        If 'custom' is specified then parameter custom_distribution is required.
     constraints : list (optional)
         List of constraints, defaults to None.
     weights : list (optional)
@@ -24,22 +24,28 @@ class Parameter:
     parameter_active: bool (optional)
         Whether this parameter should be used a varied parameter in this optimization step. Can be used to perform
         sequential optimization of different parameters with only one pre-step. Defaults to True.
-    custom_distribution : function
+    custom_distribution : function (optional if distribution!='custom')
         Custom distribution function that takes as arguments (min_value: float, max_value: float, number_points: int)
         and returns a list of float points.
-    data_type: str (optional)
-        Type of variable: discrete or continuous, defaults to continuous.
-        # todo: other data_types not implemented yet.
+        Defaults to None.
+    param_type: str (optional)
+        Type of parameter: 'discrete' or 'continuous'.
+         Defaults to 'continuous'.
+    scale_factor : float (optional)
+        Scale factor to apply to the parameter when generating new points.
+        Defaults to 1.0.
+    # todo : check if this is what we intend to do actually?
 
     Attributes
     ----------
     data_points : list
         Data points to be explored for this parameter.
     """
-    def __init__(self, name: str, parameter_range: list, number_points: int, distribution: str, constraints=None,
-                 weights=None, parameter_active=True, custom_distribution=None, data_type="continuous"):
+    def __init__(self, name: str, param_range: list, number_points: int, distribution: str, constraints=None,
+                 weights=None, parameter_active=True, custom_distribution=None, param_type="continuous",
+                 scale_factor=1.):
         self.name = name
-        self.range = parameter_range
+        self.range = param_range
         self.range[0] = float(self.range[0])
         self.range[1] = float(self.range[1])
         self.number_points = number_points
@@ -51,9 +57,10 @@ class Parameter:
             raise ValueError(f"Custom distribution supplied but distribution set to {distribution}!")
         self.distribution = distribution
         self.custom_distribution = custom_distribution
-        if data_type != "continuous":
-            raise NotImplementedError("data_type!='continuous' not implemented yet.")
-        self.data_type = data_type
+        self.param_type = param_type
+        if scale_factor != 1.:
+            raise NotImplementedError("scale_factor not implemented yet.")
+        self.scale_factor = scale_factor
 
         self.generate_initial_data_points()
 
@@ -62,30 +69,62 @@ class Parameter:
         return self.parameter_active
 
     def generate_data_points(self, num_points):
-        """Generate set of n=num_points data points based on the specified distribution and range of this parameter.
+        """Generate set of n=num_points data points based on the specified distribution, range and param_type of
+        this parameter.
 
          Parameters
          ----------
          num_points : int
             Number of datapoints to generate.
+
+        Note:
+        - data_points are not sorted.
+        - data_points are not guaranteed to be unique.
+        # todo : should they be?
         """
-        if self.distribution == "linear":
-            self.data_points = np.linspace(self.range[0], self.range[1], num_points).tolist()
-        elif self.distribution == "uniform":
-            self.data_points = np.random.uniform(self.range[0], self.range[1], num_points).tolist()
-        elif self.distribution == "normal":
-            self.data_points = np.random.normal((self.range[0] + self.range[1]) / 2,
-                                                abs(self.range[1] - self.range[0]) / 3, num_points).tolist()
-        elif self.distribution == "log":
-            self.data_points = np.logspace(np.log10(self.range[0]), np.log10(self.range[1]), num_points).tolist()
-        elif self.distribution == "custom" and self.custom_distribution is not None:
-            self.data_points = self.custom_distribution(self.range[0], self.range[1], num_points)
-            if len(self.data_points) != num_points:
-                raise ValueError(f'Custom distribution returned invalid number of points {len(self.data_points)}.')
-            assert min(self.data_points) >= self.range[0]
-            assert max(self.data_points) <= self.range[1]
+        if self.param_type == "continuous":
+            if self.distribution == "linear":
+                self.data_points = np.linspace(self.range[0], self.range[1], num_points).tolist()
+            elif self.distribution == "uniform":
+                self.data_points = np.random.uniform(self.range[0], self.range[1], num_points).tolist()
+            elif self.distribution == "normal":
+                self.data_points = np.random.normal((self.range[0] + self.range[1]) / 2,
+                                                    abs(self.range[1] - self.range[0]) / 3, num_points).tolist()
+            elif self.distribution == "log":
+                self.data_points = np.logspace(np.log10(self.range[0]), np.log10(self.range[1]), num_points).tolist()
+            elif self.distribution == "custom" and self.custom_distribution is not None:
+                self.data_points = self.custom_distribution(self.range[0], self.range[1], num_points)
+                if len(self.data_points) != num_points:
+                    raise ValueError(f'Custom distribution returned invalid number of points {len(self.data_points)}.')
+                assert min(self.data_points) >= self.range[0]
+                assert max(self.data_points) <= self.range[1]
+            else:
+                raise ValueError(f"Invalid distribution specified: {self.distribution} for continuous parameter.")
+        elif self.param_type == "discrete":
+            if self.distribution == "linear":
+                self.data_points = np.linspace(self.range[0], self.range[1], num_points, dtype=int).tolist()
+            elif self.distribution == "uniform":
+                self.data_points = np.random.randint(self.range[0], self.range[1] + 1, num_points).tolist()
+            elif self.distribution == "normal":
+                self.data_points = np.random.normal((self.range[0] + self.range[1]) / 2,
+                                                    abs(self.range[1] - self.range[0]) / 3, num_points)
+                # for discrete normal distribution round floats to the nearest int
+                self.data_points = np.round(self.data_points).astype(int).tolist()
+            elif self.distribution == "log":
+                # self.data_points = np.unique(
+                #     np.geomspace(self.range[0], self.range[1], num_points, dtype=int)).tolist()
+                self.data_points = np.logspace(np.log10(self.range[0]), np.log10(self.range[1]), num_points,
+                                               dtype=int).tolist()
+            elif self.distribution == "custom" and self.custom_distribution is not None:
+                self.data_points = self.custom_distribution(self.range[0], self.range[1], num_points)
+                if len(self.data_points) != num_points:
+                    raise ValueError(
+                        f'Custom distribution returned invalid number of points {len(self.data_points)}.')
+                assert all([self.range[0] <= p <= self.range[1] for p in self.data_points])
+            else:
+                raise ValueError(f"Invalid distribution specified: {self.distribution} for discrete parameter.")
         else:
-            raise ValueError(f"Invalid distribution specified: {self.distribution}")
+            raise ValueError(f"Invalid parameter type specified: {self.param_type}")
 
     def generate_initial_data_points(self):
         """Generate initial data points based on the specified distribution and range."""

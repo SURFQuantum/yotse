@@ -17,23 +17,23 @@ def wobbly_pre():
         parameters=[
             Parameter(
                 name="x",
-                parameter_range=[-4, 4],
+                param_range=[-4, 4],
                 number_points=10,
                 distribution="uniform",
                 constraints=[],
                 weights=None,
                 parameter_active=True,
-                data_type="continuous"
+                param_type="continuous"
             ),
             Parameter(
                 name="y",
-                parameter_range=[-3, 3],
+                param_range=[-3, 3],
                 number_points=10,
                 distribution="uniform",
                 constraints=[],
                 weights=None,
                 parameter_active=True,
-                data_type="continuous"
+                param_type="continuous"
             )
         ],
         opt_info_list=[
