@@ -1,9 +1,10 @@
-numpy
-qcg-pilotjob
+flake8
 matplotlib
-pygad
+numpy
 pandas
+pygad
 pytest
 pytest-cov
+qcg-pilotjob
 scikit-learn
-flake8
+scipy

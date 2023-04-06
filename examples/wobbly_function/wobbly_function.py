@@ -36,9 +36,9 @@ if __name__ == "__main__":
     output_value = ackley_function_2d(x=args.x, y=args.y)
     print(f"Output of wobbly_function with input {args.x},{args.y} is {output_value}.")
 
-    # Store the output value of the wobbly function in a file
+    # Store the output value of the wobbly function in a file together with respective input values
     csv_filename = args.filebasename + ".csv"
     with open(csv_filename, mode='w') as csv_file:
-        csv_writer = csv.writer(csv_file, delimiter=',')
-        csv_writer.writerow(['f(x,y)'])
-        csv_writer.writerow([output_value])
+        csv_writer = csv.writer(csv_file, delimiter=' ')
+        csv_writer.writerow(['f(x,y)', 'x', 'y'])
+        csv_writer.writerow([output_value, args.x, args.y])

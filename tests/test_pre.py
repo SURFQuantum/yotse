@@ -11,7 +11,7 @@ class TestParameters(unittest.TestCase):
     """Test the parameters class."""
     @staticmethod
     def create_default_param(name="bright_state_parameter", parameter_range=[.1, .9], number_points=9,
-                             distribution="linear", constraints=[None], custom_distribution=None,
+                             distribution="linear", constraints={}, custom_distribution=None,
                              param_type="continuous"):
         return Parameter(name=name, param_range=parameter_range, number_points=number_points,
                          distribution=distribution, constraints=constraints, custom_distribution=custom_distribution,
@@ -92,7 +92,7 @@ class TestSystemSetup(unittest.TestCase):
         assert test_system.program_name == DUMMY_FILE
         assert test_system.cmdline_arguments == {'--arg1': 0.1, '--arg2': 'value2'}
         assert test_system.analysis_script is None
-        assert test_system.executor == 'bash'
+        assert test_system.job_args["exec"] == 'bash'
         assert test_system.files_needed == ['*.sh', 'important_text.txt', 'generic_readme.md']
 
     def test_cmdline_to_list(self):

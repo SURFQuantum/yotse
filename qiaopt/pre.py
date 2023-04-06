@@ -41,7 +41,7 @@ class Parameter:
     data_points : list
         Data points to be explored for this parameter.
     """
-    def __init__(self, name: str, param_range: list, number_points: int, distribution: str, constraints=None,
+    def __init__(self, name: str, param_range: list, number_points: int, distribution: str, constraints={},
                  weights=None, parameter_active=True, custom_distribution=None, param_type="continuous",
                  scale_factor=1.):
         self.name = name
@@ -50,7 +50,12 @@ class Parameter:
         self.range[1] = float(self.range[1])
         self.number_points = number_points
         self.weights = weights
+        if weights is not None:
+            raise NotImplementedError("weights not implemented...yet.")
         self.constraints = constraints
+        if constraints != {}:
+            raise NotImplementedError("constraints not implemented..yet")
+            # todo: note in principle all the functionality is here already just needs to be uncommented and tested
         self.parameter_active = parameter_active
         self.data_points = []
         if custom_distribution is not None and distribution != 'custom':
@@ -154,6 +159,8 @@ class SystemSetup:
         Name of the directory the output should be stored in. Defaults to 'output'.
     output_extension: str (optional)
         Extension of the output files to be picked up by the analysis_script, e.g 'csv' or 'json'. Defaults to 'csv'.
+    venv : str (optional)
+        Path to the virtual environment that should be initialized before the QCGPilot job is started.
 
     Attributes:
     ----------
@@ -164,7 +171,7 @@ class SystemSetup:
         Name of the current working directory to be passed to QCGPilotJob.
     """
     def __init__(self, source_directory: str, program_name: str, command_line_arguments=None, analysis_script=None,
-                 executor="python", files_needed=("*.py",), output_directory=None, output_extension='csv'):
+                 executor="python", files_needed=("*.py",), output_directory=None, output_extension='csv', venv=None):
         if not os.path.exists(source_directory):
             raise ValueError(f"Invalid source_directory path: {source_directory}")
         if not os.path.exists(program_name):
@@ -176,12 +183,14 @@ class SystemSetup:
         self.program_name = program_name
         self.cmdline_arguments = command_line_arguments or {}
         self.analysis_script = analysis_script
-        self.executor = executor
+        self.job_args = {"exec": executor}
         self.files_needed = files_needed
         self.output_directory = output_directory or 'output'
         self.output_extension = output_extension
         self.stdout_basename = 'stdout'
         self.working_directory = None
+        if venv is not None:
+            self.job_args["venv"] = venv
 
     @property
     def current_step_directory(self):
@@ -248,7 +257,8 @@ class Experiment:
         self.optimization_information_list = []
         if opt_info_list is not None:
             for item in opt_info_list:
-                assert isinstance(item, OptimizationInfo)
+                if not isinstance(item, OptimizationInfo):
+                    raise ValueError(f"Items in opt_info_list should be of type OptimizationInfo not {type(item)}.")
             self.optimization_information_list = list(opt_info_list)
         self.data_points = []
         # set initial datapoints
@@ -261,7 +271,7 @@ class Experiment:
 
         Overwrite if other combination is needed."""
         if self.parameters:
-            assert isinstance(self.parameters, list)
+            assert isinstance(self.parameters, list), "Parameters are not list."
             for param in self.parameters:
                 if not isinstance(param, Parameter):
                     raise ValueError(f"One of the parameters is not of correct type 'Parameter', but is {type(param)}")
@@ -281,7 +291,8 @@ class Experiment:
         parameter : Parameter
             The parameter to add to the experiment.
         """
-        assert isinstance(parameter, Parameter)
+        if not isinstance(parameter, Parameter):
+            raise ValueError("Can not add parameter that is not of type Parameter.")
         self.parameters.append(parameter)
 
     def add_optimization_info(self, optimization_info):

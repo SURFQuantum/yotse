@@ -1,41 +1,41 @@
-import matplotlib.pyplot as plt
-import numpy as np
-from abc import ABCMeta, abstractmethod
-import inspect
-
-import pygad
 import scipy
+import inspect
+import numpy as np
+from qiaopt.ga import ModGA
+from abc import ABCMeta, abstractmethod
 
 
 class GenericOptimization:
     """
-    Base class for optimization algorithms
+    Base class for optimization algorithms.
+
+    Parameters:
+    ----------
+    function : function
+        Cost function used for optimization.
+    refinement_factors : list (optional)
+        Refinement factors for all parameters. If specified must be list of length = #params.
+        Defaults to None.
+    logging_level : int (optional)
+        Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything.
+        Defaults to 1.
+    extrema: str (optional)
+        Define what type of problem to solve. 'extrema' can be equal to either MINIMUM or MAXIMUM. The
+        optimization algorithm will look for minimum and maximum values respectively.
+        Defaults to MINIMUM.
     """
     __metaclass__ = ABCMeta
 
     MAXIMUM = 0
     MINIMUM = 1
 
-    def __init__(self, function, logging_level=1, extrema=MINIMUM):
-        """
-        Default constructor
-
-        Parameters:
-        ----------
-        function : function
-            Cost function used for optimization.
-        logging_level : int (optional)
-            Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything.
-            Defaults to 1.
-        extrema: str (optional)
-            Define what type of problem to solve. 'extrema' can be equal to either MINIMUM or MAXIMUM. The
-            optimization algorithm will look for minimum and maximum values respectively.
-            Defaults to MINIMUM.
-        """
+    def __init__(self, function, refinement_factors=None, logging_level=1, extrema=MINIMUM, evolutionary=False):
         self.logging_level = logging_level
         self.extrema = extrema
         self.function = function
+        self.refinement_factors = refinement_factors
         self.data = None
+        self.can_create_points_evolutionary = evolutionary
 
     def get_function(self):
         """Returns the cost function."""
@@ -46,24 +46,52 @@ class GenericOptimization:
         """
         Execute method should be implemented in every derived class.
 
+        """
+        raise NotImplementedError('The \'{}\' method is not implemented'.format(inspect.currentframe().f_code.co_name))
+
+    def get_best_solution(self):
+        """
+        Get the best solution. Should be implemented in every derived class.
+
         Returns:
         -------
         solution, solution_fitness, solution_idx
-            Solution its fitness and its index in the list of cost function solutions.
+            Solution its fitness and its index in the list of data points.
         """
         raise NotImplementedError('The \'{}\' method is not implemented'.format(inspect.currentframe().f_code.co_name))
-        # return None, None
+
+    @abstractmethod
+    def get_new_points(self):
+        """
+        Get new points. Should be implemented in every evolutional algorithm.
+
+        Returns:
+        -------
+        new_points : list of tuples
+            New points for the next iteration of the optimization.
+        """
+        # todo: test output type here in tests
+        raise NotImplementedError('The \'{}\' method is not implemented'.format(inspect.currentframe().f_code.co_name))
+
+    @abstractmethod
+    def overwrite_internal_data_points(self, data_points):
+        """
+        Overwrite the internal set of data points with one externally generated. E.g. when manually passing new points
+        to an evolutionary optimization algorithm.
+        """
+        raise NotImplementedError('The \'{}\' method is not implemented'.format(inspect.currentframe().f_code.co_name))
 
 
 class GAOpt(GenericOptimization):
     """
     Genetic algorithm
     """
-    def __init__(self, function, num_generations=100, logging_level=1):
+    def __init__(self, initial_population, num_generations, num_parents_mating, fitness_func, gene_type,
+                 mutation_probability, refinement_factors=None, logging_level=1, enforce_uniqueness=False):
         """
         Parameters:
         ----------
-        function : function
+        fitness_func : function
             Fitness/objective/cost function.
         num_generations : int (optional)
             Number of generations in the genetic algorithm.
@@ -72,8 +100,25 @@ class GAOpt(GenericOptimization):
             Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything.
             Defaults to 1.
         """
-        super().__init__(function, logging_level, self.MINIMUM)
-        self.num_generations = num_generations
+        super().__init__(function=fitness_func, refinement_factors=refinement_factors, logging_level=logging_level,
+                         extrema=self.MINIMUM, evolutionary=True)
+        # Note: number of new points is determined by initial population
+        # todo: there are more pygad params that we could expose here: e.g.
+        # gene_space to limit space in which new genes are formed = constraints
+        self.ga_instance = ModGA(num_generations=num_generations,
+                                 num_parents_mating=num_parents_mating,
+                                 fitness_func=self._objective_func,
+                                 # gene_type=gene_type,
+                                 # todo gene_type and _space are exactly data_type and constraints of the params,
+                                 #  how to we parse them here?
+                                 # gene_space=gene_space,
+                                 # num_genes=num_genes,
+                                 mutation_probability=mutation_probability,
+                                 initial_population=initial_population,
+                                 save_best_solutions=True,
+                                 allow_duplicate_genes=True,
+                                 )
+        # todo : why if save_solutions=True the optimization doesn't converge anymore?
 
     def _objective_func(self, solution, solution_idx):
         """
@@ -94,7 +139,8 @@ class GAOpt(GenericOptimization):
         factor = 1.
         if self.extrema == self.MINIMUM:
             factor = -1.
-        fitness = factor * self.function(*solution)
+
+        fitness = factor * self.function(solution, solution_idx)
 
         if self.logging_level >= 3:
             print(solution, solution_idx, fitness)
@@ -104,48 +150,46 @@ class GAOpt(GenericOptimization):
     def execute(self):
         """
         Execute optimization.
+        """
+        self.ga_instance.run_single_generation()
+
+        # Report convergence
+        if self.logging_level >= 2:
+            self.ga_instance.plot_fitness()
+
+    def get_best_solution(self):
+        """
+        Get the best solution. We don't yet know the fitness for the solution (because we have not run the simulation
+        for those values yet), so just return the point.
 
         Returns:
         -------
         solution, solution_fitness, solution_idx
             Solution its fitness and its index in the list of cost function solutions.
         """
-        cost_function_input = [list(self.data[column]) for column in self.data]
+        if self.ga_instance is None:
+            raise ValueError("GA instance not initialized.")
+        best_solution = self.ga_instance.best_solutions.tolist()[-1]
+        # solution_idx = self.ga_instance.population.tolist().index(best_solution)
+        return best_solution, None, None
+        # todo: this could also instead return solution and fitness of the best solution one generation back?
 
-        function_inputs = np.array(cost_function_input).T
+    def get_new_points(self):
+        """
+        Get new points from the GA (aka return the next population).
 
-        ga_instance = pygad.GA(num_generations=self.num_generations,
-                               num_parents_mating=5,
-                               initial_population=function_inputs,
-                               sol_per_pop=10,
-                               num_genes=len(function_inputs),
-                               gene_type=float,
-                               parent_selection_type='sss',
-                               gene_space=cost_function_input,
-                               keep_parents=-1,
-                               mutation_by_replacement=True,
-                               mutation_num_genes=1,
-                               # mutation_type=None,
-                               fitness_func=self._objective_func)
-        # todo: some of these params are redundant, while others definitely should be exposed to user
+        Returns:
+        -------
+        new_points : list of tuples
+            New points for the next iteration of the optimization.
+        """
+        new_points = self.ga_instance.population.tolist()
+        return [tuple(point) for point in new_points]
 
-        ga_instance.run()
-
-        # Report convergence
-        if self.logging_level >= 2:
-            ga_instance.plot_fitness()
-
-        solution, solution_fitness, solution_idx = ga_instance.best_solution(ga_instance.last_generation_fitness)
-        # todo: somehow this solution_idx is always 0, as a workaround we now manually determine the actual index from
-        # its location in the input, needs to be verified what happens if solution is not unique?
-        solution_idx = cost_function_input[0].index(solution[0])
-
-        if self.logging_level >= 1:
-            print('\n')
-            print('Solution:     ', solution)
-            print('Fitness value: {solution_fitness}'.format(solution_fitness=solution_fitness))
-
-        return solution, solution_fitness, solution_idx
+    def overwrite_internal_data_points(self, data_points):
+        # convert list of tuples into np.array
+        data_array = np.array(data_points)
+        self.ga_instance.population = data_array
 
 
 class CGOpt(GenericOptimization):
@@ -299,22 +343,16 @@ class Optimizer:
         """
         assert isinstance(optimization_algorithm, GenericOptimization)
         self.optimization_algorithm = optimization_algorithm
+        self._is_executed = False
 
     def optimize(self):
         """
         Optimization step
-
-        Returns:
-        -------
-        solution, solution_fitness, solution_idx
-            Solution its fitness and its index in the list of cost function solutions.
         """
-        solution, solution_fitness, solution_index = self.optimization_algorithm.execute()
+        self.optimization_algorithm.execute()
+        self._is_executed = True
 
-        return solution, solution_fitness, solution_index
-
-    @staticmethod
-    def construct_points(experiment, solution_index, num_points, refinement_factors):
+    def construct_points(self, experiment, evolutionary, points_per_param=None):
         """
         Constructs new set of values around the solution and write them to the experiment.
 
@@ -322,130 +360,56 @@ class Optimizer:
         ----------
         experiment : Experiment
             Object of Experiment that the points should be constructed for.
+        evolutionary : bool
+            True if the optimization algorithm is evolutionary and generates a new set of points.
+            False if the optimization algorithm generates a best point and points should be constructed around it.
         solution_index : int
             Index of the solution in the list of cost function solutions.
-        num_points : int
-            Number of points to construct for each parameter.
         refinement_factors : list
             Refinement windows for all variables in % of the (max-min)/2 range.
+        points_per_param : int (optional)
+            Number of points to construct for each parameter. If None then for each parameter the initially specified
+            number of points `Parameter.number_points` will be created. Only used when `evolutionary=False`.
+            Defaults to None.
         """
-        # todo make absolutely sure the index of the solution corresponds with the job number
-        opt_input_datapoint = experiment.data_points[solution_index]  # (x, y, z)
-        i = 0
-        for p, param in enumerate(experiment.parameters):
-            if param.is_active:
-                # calculate new ranges for each active param
-                delta_param = refinement_factors[p] * (param.range[1] - param.range[0]) * .5
-                opt_range = opt_input_datapoint[i] - delta_param, opt_input_datapoint[i] + delta_param
-                i += 1
-                # write updated parameter range to each active param
-                param.range = opt_range
-                # create new points on each active param
-                param.generate_data_points(num_points=num_points)
-        # call create points on the experiment
-        experiment.create_datapoint_c_product()
-
-
-def plot(x, y, z):
-    """Plot points x,y,z."""
-    ax = plt.figure().add_subplot(projection='3d')
-    ax.plot_surface(x, y, z, edgecolor='royalblue', lw=0.5, rstride=8, cstride=8,
-                    alpha=0.3)
-
-    ax.contour(x, y, z, zdir='z', offset=np.min(z), cmap='coolwarm')
-    ax.contour(x, y, z, zdir='x', offset=np.min(x), cmap='coolwarm')
-    ax.contour(x, y, z, zdir='y', offset=np.max(y), cmap='coolwarm')
-
-    plt.xlabel('x')
-    plt.ylabel('y')
-
-    plt.show()
-
-
-class Test:
-    def __init__(self, func_type='paraboloid', var_range=[1.2, 1.2]):
-        var_step = 0.2
-        self.x = list(np.arange(-var_range[0], var_range[1], var_step))
-        self.y = list(np.arange(-var_range[0], var_range[1], var_step))
-
-        if func_type == 'paraboloid':
-            self.function = self.paraboloid
-        elif func_type == 'sixhump':
-            self.function = self.sixhump
-        elif func_type == 'rosenbrock':
-            self.function = self.rosenbrock
-        elif func_type == 'rastrigin':
-            self.function = self.rastrigin
+        if not self._is_executed:
+            raise RuntimeError("construct_points was called before the optimization was executed.")
+        if evolutionary:
+            if not self.optimization_algorithm.can_create_points_evolutionary:
+                raise RuntimeError("trying to construct_points evolutionary for an algorithm that does not support it.")
+            experiment.data_points = self.optimization_algorithm.get_new_points()
         else:
-            raise NotImplementedError('Unknown function type: {}'.format(func_type))
+            solution, solution_fitness, solution_index = self.optimization_algorithm.get_best_solution()
 
-    @staticmethod
-    def paraboloid(var):
-        """
-        A simple paraboloid function. Has one minimum:
-        f(x1,x2)=0.0; (x1,x2)=(0.0, 0.0)
-        :param var: List of x and y variables
-        :return: Value of the function
-        """
-        x_loc = var[0]
-        y_loc = var[1]
-        return x_loc ** 2 + y_loc ** 2
+            if self.optimization_algorithm.logging_level >= 1:
+                print('\n')
+                print('Solution:     ', solution)
+                print(f'Fitness value: {solution_fitness}')
+            ref_factors = self.optimization_algorithm.refinement_factors
+            if len(ref_factors) != len(experiment.parameters):
+                raise ValueError(f"Length of refinement factors {len(ref_factors)} "
+                                 f"should be the same as number of parameters {len(experiment.parameters)}.")
 
-    @staticmethod
-    def sixhump(var):
-        """
-        The six-hump camel back function. Has two minimums:
-        f(x1,x2)=-1.0316; (x1,x2)=(-0.0898,0.7126), (0.0898,-0.7126)
-        :param var: List of x and y variables
-        :return: Value of the function
-        """
-        x_loc = var[0]
-        y_loc = var[1]
-        return (4 - 2.1 * x_loc ** 2 + (x_loc ** 4) / 3.) * x_loc**2 + x_loc * y_loc + (-4 + 4 * y_loc ** 2) * y_loc**2
-
-    @staticmethod
-    def rosenbrock(var):
-        """
-        The Rosenbrock function. Has one minimum:
-        f(x1,x2)=0.0; (x1,x2)=(1.0, 1.0)
-        :param var: List of x and y variables
-        :return: Value of the function
-        """
-        x_loc = var[0]
-        y_loc = var[1]
-        return (1 - x_loc)**2 + 100 * (y_loc - x_loc**2)**2
-
-    @staticmethod
-    def rastrigin(var):
-        x_loc = var[0]
-        y_loc = var[1]
-        return (x_loc ** 2 - 10 * np.cos(2 * np.pi * x_loc)) + \
-            (y_loc ** 2 - 10 * np.cos(2 * np.pi * y_loc)) + 20
-
-    def run(self):
-        ga_opt = GAOpt(self.function, 100)
-        opt = Optimizer(ga_opt)
-
-        # cg_opt = CGOpt(self.function, [self.x, self.y], 100)
-        # opt = Optimizer(cg_opt)
-
-        solution, solution_fitness, solution_index = opt.optimize()
-
-        # todo: this is now deprecated
-        # xy_new, func_new = opt.construct_points([self.x, self.y],
-        #                                         solution,
-        #                                         num_points=5,
-        #                                         delta_x=0.5,
-        #                                         delta_y=0.5)
-        # print('New values [x, y]:   ', xy_new)
-        # print('New values func:', func_new)
-
-        x, y = np.meshgrid(self.x, self.y)
-        c = self.function([x, y])
-        plot(x, y, c)
-
-
-if __name__ == "__main__":
-    # Execute test
-    test = Test('rastrigin')
-    test.run()
+            # todo make absolutely sure the index of the solution corresponds with the job number
+            # opt_input_datapoint = experiment.data_points[solution_index]  # (x, y, z)
+            opt_input_datapoint = solution
+            i = 0
+            for p, param in enumerate(experiment.parameters):
+                if param.is_active:
+                    # calculate new ranges for each active param
+                    delta_param = ref_factors[p] * (param.range[1] - param.range[0]) * .5
+                    opt_range = opt_input_datapoint[i] - delta_param, opt_input_datapoint[i] + delta_param
+                    i += 1
+                    # write updated parameter range to each active param
+                    param.range = opt_range
+                    # create new points on each active param
+                    if points_per_param is not None:
+                        # generate same amount of points for each param
+                        param.generate_data_points(num_points=points_per_param)
+                    else:
+                        # generate different amounts of points for each param
+                        param.generate_data_points(num_points=param.number_points)
+            # call create points on the experiment
+            experiment.create_datapoint_c_product()
+            self.optimization_algorithm.overwrite_internal_data_points(experiment.data_points)
+            self._is_executed = False

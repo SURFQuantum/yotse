@@ -1,5 +1,6 @@
 """Example script for execution of a wobbly_function.py experiment."""
 import os
+import matplotlib
 import shutil
 from qiaopt.pre import Experiment, SystemSetup, Parameter, OptimizationInfo
 from qiaopt.run import Executor
@@ -20,7 +21,7 @@ def wobbly_pre():
                 param_range=[-4, 4],
                 number_points=10,
                 distribution="uniform",
-                constraints=[],
+                constraints={},
                 weights=None,
                 parameter_active=True,
                 param_type="continuous"
@@ -30,7 +31,8 @@ def wobbly_pre():
                 param_range=[-3, 3],
                 number_points=10,
                 distribution="uniform",
-                constraints=[],
+                # constraints={'low': -4, 'high': 4, 'step': .001},
+                constraints={},
                 weights=None,
                 parameter_active=True,
                 param_type="continuous"
@@ -40,10 +42,12 @@ def wobbly_pre():
             OptimizationInfo(
                 name="GA",
                 opt_parameters={
-                    "num_generations": 10,     # number of iterations of the algorithm
-                    "num_points": 10,            # number of points per param to re-create
-                    "refinement_x": 0.5,        # in %
-                    "refinement_y": 0.5,        # in %
+                    "num_generations": 20,     # number of iterations of the algorithm
+                    # "num_points": 10,            # number of points per param to re-create , now determined by initial
+                    "num_parents_mating": 5,
+                    "gene_type": float,
+                    "mutation_probability": .2,
+                    "refinement_factors": [.5, .5],
                     "logging_level": 1,
                 },
                 is_active=True)]
@@ -68,8 +72,16 @@ def main():
     wobbly_example = Executor(experiment=experiment)
 
     for i in range(experiment.optimization_information_list[0].parameters["num_generations"]):
+        assert wobbly_example.optimization_alg.ga_instance.generations_completed == i   # sanity check
         wobbly_example.run(step=i)
+        # todo: for some unknown reason the code below errors out after 10-14 steps
+        # wobbly_example.run(step=i, evolutionary_point_generation=False)
 
+    solution = wobbly_example.suggest_best_solution()
+    print("Solution: ", solution)
+    matplotlib.use('Qt5Agg')
+    # wobbly_example.optimization_alg.ga_instance.plot_new_solution_rate()
+    wobbly_example.optimization_alg.ga_instance.plot_fitness()
     remove_files_after_run()
 
 

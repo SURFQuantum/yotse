@@ -21,6 +21,8 @@ if __name__ == "__main__":
             print(os.path.join(directory, 'wobbly_example.csv'))
             with open(os.path.join(directory, 'wobbly_example.csv'), newline='') as csvfile:
                 reader = csv.reader(csvfile, delimiter=' ')
+                # the function we are interested in optimizing is the output of the wobbly_function, in other words:
+                # the cost C = f(x,y) and we can just copy the values of the jobs without applying any function
                 if job_id == 0:
                     with open('output.csv', 'w', newline='') as output_file:
                         writer = csv.writer(output_file, delimiter=' ')
