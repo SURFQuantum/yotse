@@ -72,7 +72,6 @@ def file_list_to_single_df(files):
     df : pandas.Dataframe
         Pandas dataframe containing the combined contents of all the CSV files.
     """
-    # todo check if extension is csv?
     dfs = [pd.read_csv(file, delimiter=' ') for file in files]
     return pd.concat(dfs, ignore_index=True)
 
@@ -137,7 +136,7 @@ class Core:
             self.optimizer = Optimizer(optimization_algorithm=self.optimization_alg)
         else:
             self.optimizer = None
-        self.input_cost_dict = {}
+        self.input_param_cost_df = None
 
     def run(self, step_number=0, evolutionary_point_generation=None):
         """ Submits jobs to the LocalManager, collects the output, creates new data points, and finishes the run.
@@ -148,7 +147,6 @@ class Core:
             Step number to submit to QCGPilot. Should be used for e.g. running different optimization steps.
             Defaults to 0.
         """
-        # todo : write proper test for this
         print(f"Starting default run of {self.experiment.name} (step{step_number}): submit, collect, create.")
         self.submit(step_number=step_number)
         data = self.collect_data()
@@ -255,7 +253,7 @@ class Core:
             if evolutionary is None:
                 evolutionary = self.optimization_alg.can_create_points_evolutionary
 
-            self.update_internal_dict(data=data)
+            self.update_internal_cost_data(data=data)
 
             if self.optimization_alg.function is None:
                 raise RuntimeError("Optimization attempted to create new points without a cost function.")
@@ -263,36 +261,40 @@ class Core:
             self.optimizer.construct_points(experiment=self.experiment,
                                             evolutionary=evolutionary)
 
-    def input_params_to_cost_value(self, solution, solution_idx):
-        """Return value of cost function for given set of input parameter values
+    def input_params_to_cost_value(self, ga_instance, solution, solution_idx):
+        """Return value of cost function for given set of input parameter values and their index in the set of points.
 
         Parameters:
         ----------
         solution : list
             Set of input parameter values of shape [param_1, param_2, .., param_n].
         solution_idx : int
-            Index to conform with pygad convention.
+            Index of the solution within the set of points.
         """
-        for key in self.input_cost_dict.keys():
-            # adjust for representation error
-            if all(math.isclose(solution[i], key[i]) for i in range(len(solution))):
-                solution = key
-        return self.input_cost_dict[tuple(solution)]
+        row = self.input_param_cost_df.iloc[solution_idx]
+        if all(math.isclose(row[i + 1], solution[i]) for i in range(len(solution))):
+            return row[0]
+        else:
+            raise ValueError(f"Solution {solution} was not found in internal dataframe.")
 
-    def update_internal_dict(self, data):
-        """Update internal dictionary mapping input parameters to the associated cost from input data.
+    def update_internal_cost_data(self, data):
+        """Update internal dataframe mapping input parameters to the associated cost from input data.
+        It also checks that the ordering of the entries is the same as the data_points of the experiment.
 
         Parameters:
         ----------
         data : pandas.Dataframe
             A pandas dataframe containing the collected data in the format cost_value init_param_1 ... init_param_n.
         """
-        # from data update input_cost_dict
-        keys = list(data.columns[1:])  # extract the key column names
-        new_dict = data.set_index(keys).iloc[:, 0].to_dict()
-        if len(new_dict.keys()) != data.shape[0]:
-            raise Warning("Some entries in data were not unique, so values might have been lost.")
-        self.input_cost_dict = new_dict
+        # check ordering of data versus initial datapoints to avoid mistakes when fetching corresponding cost by index
+        if len(data) != len(self.experiment.data_points):
+            raise ValueError("Data has a different number of rows than the list of datapoints.")
+        for i, values in enumerate(self.experiment.data_points):
+            row = data.iloc[i]
+            if any(not math.isclose(row[j + 1], values[j]) for j in range(len(values))):
+                raise ValueError(f"Position of {values} is different between data and original data_points")
+
+        self.input_param_cost_df = data
 
     def suggest_best_solution(self):
         return self.optimization_alg.get_best_solution()
@@ -314,9 +316,9 @@ class Core:
             # if None in ref_factors or len(ref_factors) != len([p for p in self.experiment.parameters if p.is_active]):
             #     raise ValueError("When using refinement factors they must be specified for all active parameters.")
 
-            # todo : uncomment this and arg in call to GAOpt to add constraints
+            # todo : this would implement constraints, param type could be subsumed into this maybe by giving 'step'=1?
             # constraints = [param.constraints for param in self.experiment.parameters if param.is_active]
-
+            #
             # param_types = [int if param.param_type == "discrete" else float for param in self.experiment.parameters
             #                if param.is_active]
             # if len(set(param_types)) == 1:

@@ -41,7 +41,7 @@ class Parameter:
     data_points : list
         Data points to be explored for this parameter.
     """
-    def __init__(self, name: str, param_range: list, number_points: int, distribution: str, constraints={},
+    def __init__(self, name: str, param_range: list, number_points: int, distribution: str, constraints=None,
                  weights=None, parameter_active=True, custom_distribution=None, param_type="continuous",
                  scale_factor=1.):
         self.name = name
@@ -53,7 +53,7 @@ class Parameter:
         if weights is not None:
             raise NotImplementedError("weights not implemented...yet.")
         self.constraints = constraints
-        if constraints != {}:
+        if constraints is not None:
             raise NotImplementedError("constraints not implemented..yet")
             # todo: note in principle all the functionality is here already just needs to be uncommented and tested
         self.parameter_active = parameter_active

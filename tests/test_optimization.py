@@ -7,7 +7,7 @@ from qiaopt.optimization import GAOpt, Optimizer
 class TestGAOpt(unittest.TestCase):
 
     @staticmethod
-    def _paraboloid(solution, sol_index):
+    def _paraboloid(ga_instance, solution, sol_index):
         """
         A simple paraboloid function. Has one global minimum:
         f(x1,x2)=0.0; (x1,x2)=(0.0, 0.0)
@@ -20,7 +20,7 @@ class TestGAOpt(unittest.TestCase):
         return x_loc ** 2 + y_loc ** 2
 
     @staticmethod
-    def _sixhump(solution, sol_index):
+    def _sixhump(ga_instance, solution, sol_index):
         """
         The six-hump camel back function. Has two global minimums:
         f(x1,x2)=-1.0316; (x1,x2)=(-0.0898,0.7126), (0.0898,-0.7126)
@@ -33,7 +33,7 @@ class TestGAOpt(unittest.TestCase):
         return (4 - 2.1 * x_loc ** 2 + (x_loc ** 4) / 3.) * x_loc**2 + x_loc * y_loc + (-4 + 4 * y_loc ** 2) * y_loc**2
 
     @staticmethod
-    def _rosenbrock(solution, sol_index):
+    def _rosenbrock(ga_instance, solution, sol_index):
         """
         The Rosenbrock function. Has one global minimum:
         f(x1,x2)=0.0; (x1,x2)=(1.0, 1.0)
@@ -46,7 +46,7 @@ class TestGAOpt(unittest.TestCase):
         return (1 - x_loc)**2 + 100 * (y_loc - x_loc**2)**2
 
     @staticmethod
-    def _rastrigin(solution, sol_index):
+    def _rastrigin(ga_instance, solution, sol_index):
         """
         The Rastrigin function. Has one global minimum:
         f(x1,x2)=0.0; (x1,x2)=(0.0, 0.0)

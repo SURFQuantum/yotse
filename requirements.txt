@@ -2,7 +2,7 @@ flake8
 matplotlib
 numpy
 pandas
-pygad
+pygad>=3.0.0,<4.0.0
 pytest
 pytest-cov
 qcg-pilotjob

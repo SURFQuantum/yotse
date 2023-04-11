@@ -4,6 +4,8 @@ import math
 import pandas
 import shutil
 import unittest
+from unittest.mock import Mock
+from pygad import GA
 
 from qiaopt.run import Core
 from qiaopt.pre import Experiment, SystemSetup, Parameter
@@ -33,7 +35,7 @@ class TestCore(unittest.TestCase):
 
     @staticmethod
     def create_default_param(name="bright_state_parameter", parameter_range=[.1, .9], number_points=9,
-                             distribution="linear", constraints={}, custom_distribution=None):
+                             distribution="linear", constraints=None, custom_distribution=None):
         return Parameter(name=name, param_range=parameter_range, number_points=number_points,
                          distribution=distribution, constraints=constraints, custom_distribution=custom_distribution)
 
@@ -163,71 +165,89 @@ class TestCore(unittest.TestCase):
         os.removedirs(os.path.join(test_path, 'step1'))
         os.removedirs(os.path.join(test_path, 'step2'))
 
-    def test_core_create_points_based_on_optimization(self):
-        test_core = TestCore.create_default_core(num_params=2)
+    def test_core_create_points(self):
+        """Test create_points_based_on_optimization."""
 
-        def mock_function(solution, sol_idx):
+        def mock_function(ga_instance, solution, solution_idx):
             return solution[0]**2 + solution[1]**2
 
-        initial_num_points = len(test_core.experiment.data_points)
-
         for evolutionary in [None, True, False]:
+            print(evolutionary)
+            test_core = TestCore.create_default_core(num_params=2)
+            initial_num_points = len(test_core.experiment.data_points)
             ga_opt = GAOpt(initial_population=test_core.experiment.data_points,
                            num_generations=100,
-                           num_parents_mating=20,
+                           num_parents_mating=9,
                            fitness_func=mock_function,
                            gene_type=float,
-                           # num_genes=len(test_core.experiment.parameters),
-                           mutation_probability=.4,
-                           refinement_factors=[.1, .5])
+                           gene_space={'low': .1, 'high': .9},
+                           mutation_probability=.02,                            # todo: this line break it
+                           crossover_probability=.7,
+                           refinement_factors=[.1, .5],
+                           allow_duplicate_genes=False,
+                           )
             # self.assertTrue(ga_opt.ga_instance.allow_duplicate_genes is False)
             opt = Optimizer(ga_opt)
             test_core.optimizer = opt
             test_core.optimization_alg = ga_opt
             test_core._opt_is_evolutionary = True
 
-            print("evol", evolutionary)
             x_list = [x for x, y in ga_opt.ga_instance.population]
             y_list = [y for x, y in ga_opt.ga_instance.population]
-            c_list = [mock_function(sol, 0) for sol in ga_opt.ga_instance.population]
+            c_list = [mock_function(ga_instance=test_core.optimization_alg.ga_instance,
+                                    solution=sol, solution_idx=0) for sol in ga_opt.ga_instance.population]
             data = pandas.DataFrame({'f': c_list, 'x': x_list, 'y': y_list})
 
             test_core.create_points_based_on_optimization(data=data, evolutionary=evolutionary)
+            self.assertEqual(test_core.optimization_alg.ga_instance.generations_completed, 1)
             new_points = test_core.experiment.data_points
             self.assertIsInstance(new_points, list, list)                   # correct type
             self.assertEqual(len(new_points), initial_num_points)           # correct num points
             [self.assertEqual(len(point), 2) for point in new_points]       # each point has two param values
             s = set([tuple(x) for x in new_points])
             self.assertEqual(len(s), initial_num_points)                    # all points are unique
+            for point in new_points:
+                self.assertTrue(all(.1 <= x <= .9 for x in point))          # each point is within constraint
             best_solution, _, _ = test_core.optimization_alg.get_best_solution()
             assert all(math.isclose(.1, x) for x in best_solution)
-            # todo: pick remaining points and iterate around them to create unique points of same pop_size
 
     def test_internal_dict(self):
-        """Combined test for input_params_to_cost_value and update_internal_dict."""
+        """Combined test for input_params_to_cost_value and update_internal_cost_data."""
         test_df = pandas.DataFrame({'f': [1, 2, 3], 'x': [4, 5, 6], 'y': [7, 8, 9]})
+        test_points = [[4, 7], [5, 8], [6, 9]]
         test_df2 = pandas.DataFrame({'f': [.01, .02, .03], 'x': [.04, .05, .06], 'y': [.07, .08, .09]})
-        test_dict = {(4, 7): 1, (5, 8): 2, (6, 9): 3}
-        test_dict2 = {(.04, .07): .01, (.05, .08): .02, (.06, .09): .03}
-        non_unique_df = pandas.DataFrame({'f': [1, 2, 1], 'x': [1, 1, 2], 'y': [1, 1, 2]})
+        test_points2 = [[.04, .07], [.05, .08], [.06, .09]]
+        test_df2_unprecise = pandas.DataFrame({'f': [.01, .02, .03],
+                                               'x': [.04, 0.04999999999, .06],
+                                               'y': [.07, 0.07999999999, .09]})
         test_core = self.create_default_core()
-        # test update_internal_dict
-        self.assertEqual(test_core.input_cost_dict, {})
-        test_core.update_internal_dict(data=test_df)
-        self.assertEqual(test_core.input_cost_dict, test_dict)
-        test_core.update_internal_dict(test_df2)
-        self.assertEqual(test_core.input_cost_dict, test_dict2)
-        # test input_params_to_cost_value
-        self.assertEqual(test_core.input_params_to_cost_value([0.05, 0.08], 0), 0.02)
-        # test float representation error
-        self.assertEqual(test_core.input_params_to_cost_value([0.04999999999, 0.07999999999], 0), 0.02)
-        with self.assertRaises(KeyError):
-            test_core.input_params_to_cost_value([0.049, 0.079], 0)
+        ga_instance = Mock(spec=GA)
+        # test update_internal_cost_data
+        self.assertEqual(test_core.input_param_cost_df, None)
+        with self.assertRaises(ValueError):
+            # update data will disagree with data_points in experiment
+            test_core.update_internal_cost_data(data=test_df)
+        with self.assertRaises(ValueError):
+            # length of update data will disagree
+            test_core.experiment.data_points = test_points[:2]
+            test_core.update_internal_cost_data(data=test_df)
 
-        # non-unique data
-        with self.assertRaises(Warning):
-            # non-unique inputs with different costs: one solution gets lost -> raise Warning
-            test_core.update_internal_dict(non_unique_df)
+        test_core.experiment.data_points = test_points
+        test_core.update_internal_cost_data(data=test_df)
+        self.assertTrue(test_core.input_param_cost_df.equals(test_df))
+        test_core.experiment.data_points = test_points2
+        test_core.update_internal_cost_data(test_df2)
+        self.assertTrue(test_core.input_param_cost_df.equals(test_df2))
+        # test float representation errors
+        test_core.update_internal_cost_data(test_df2_unprecise)
+        self.assertTrue(test_core.input_param_cost_df.equals(test_df2_unprecise))
+
+        # test input_params_to_cost_value
+        self.assertEqual(test_core.input_params_to_cost_value(ga_instance, [0.05, 0.08], 1), 0.02)
+        # test float representation error
+        self.assertEqual(test_core.input_params_to_cost_value(ga_instance, [0.04999999999, 0.07999999999], 1), 0.02)
+        with self.assertRaises(ValueError):
+            test_core.input_params_to_cost_value(ga_instance, [0.049, 0.079], 0)
 
     def test_core_run(self):
         test_core = TestCore.create_default_core()

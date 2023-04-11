@@ -84,43 +84,53 @@ class GenericOptimization:
 
 class GAOpt(GenericOptimization):
     """
-    Genetic algorithm
+    Genetic algorithm.
+
+    Parameters:
+    ----------
+    fitness_func : function
+        Fitness/objective/cost function.
+    initial_population:
+        Initial population of data points to start the optimization with.
+    num_generations : int
+        Number of generations in the genetic algorithm.
+    num_parents_mating : int
+        Number of solutions to be selected as parents in the genetic algorithm.
+    refinement_factors : list (optional)
+        Refinement factors for each active parameter in the optimization in range [0.,1.] to be used for manual
+        grid point generation.
+        Defaults to None.
+    logging_level : int (optional)
+        Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything.
+        Defaults to 1.
+    allow_duplicate_genes : Bool (optional)
+        If True, then a solution/chromosome may have duplicate gene values.
+        If False, then each gene will have a unique value in its solution.
+        Defaults to False.
+    pygad_kwargs : (optional)
+        Optional pygad arguments to be passed to `pygad.GA`.
+        See https://pygad.readthedocs.io/en/latest/README_pygad_ReadTheDocs.html#pygad-ga-class for documentation.
     """
-    def __init__(self, initial_population, num_generations, num_parents_mating, fitness_func, gene_type,
-                 mutation_probability, refinement_factors=None, logging_level=1, enforce_uniqueness=False):
-        """
-        Parameters:
-        ----------
-        fitness_func : function
-            Fitness/objective/cost function.
-        num_generations : int (optional)
-            Number of generations in the genetic algorithm.
-            Defaults to 100.
-        logging_level : int (optional)
-            Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything.
-            Defaults to 1.
-        """
+    def __init__(self, fitness_func, initial_population, num_generations, num_parents_mating, refinement_factors=None,
+                 logging_level=1, allow_duplicate_genes=False, **pygad_kwargs):
         super().__init__(function=fitness_func, refinement_factors=refinement_factors, logging_level=logging_level,
                          extrema=self.MINIMUM, evolutionary=True)
         # Note: number of new points is determined by initial population
-        # todo: there are more pygad params that we could expose here: e.g.
         # gene_space to limit space in which new genes are formed = constraints
-        self.ga_instance = ModGA(num_generations=num_generations,
-                                 num_parents_mating=num_parents_mating,
-                                 fitness_func=self._objective_func,
-                                 # gene_type=gene_type,
-                                 # todo gene_type and _space are exactly data_type and constraints of the params,
-                                 #  how to we parse them here?
-                                 # gene_space=gene_space,
-                                 # num_genes=num_genes,
-                                 mutation_probability=mutation_probability,
+        self.ga_instance = ModGA(fitness_func=self._objective_func,
                                  initial_population=initial_population,
+                                 num_generations=num_generations,
+                                 num_parents_mating=num_parents_mating,
+                                 # todo : gene_type/_space are exactly data_type/constraints of the params, see run.py
+                                 # gene_type=gene_type,
+                                 # gene_space=gene_space,
                                  save_best_solutions=True,
-                                 allow_duplicate_genes=True,
+                                 allow_duplicate_genes=allow_duplicate_genes,
+                                 **pygad_kwargs
                                  )
         # todo : why if save_solutions=True the optimization doesn't converge anymore?
 
-    def _objective_func(self, solution, solution_idx):
+    def _objective_func(self, ga_instance, solution, solution_idx):
         """
         Fitness function to be called from PyGAD
 
@@ -140,7 +150,7 @@ class GAOpt(GenericOptimization):
         if self.extrema == self.MINIMUM:
             factor = -1.
 
-        fitness = factor * self.function(solution, solution_idx)
+        fitness = factor * self.function(ga_instance, solution, solution_idx)
 
         if self.logging_level >= 3:
             print(solution, solution_idx, fitness)

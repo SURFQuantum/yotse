@@ -11,7 +11,7 @@ class TestParameters(unittest.TestCase):
     """Test the parameters class."""
     @staticmethod
     def create_default_param(name="bright_state_parameter", parameter_range=[.1, .9], number_points=9,
-                             distribution="linear", constraints={}, custom_distribution=None,
+                             distribution="linear", constraints=None, custom_distribution=None,
                              param_type="continuous"):
         return Parameter(name=name, param_range=parameter_range, number_points=number_points,
                          distribution=distribution, constraints=constraints, custom_distribution=custom_distribution,
