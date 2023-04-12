@@ -1,7 +1,7 @@
 """Defines classes and functions for pre step."""
 import os
-import numpy as np
 import itertools
+import numpy as np
 
 
 class Parameter:
@@ -56,6 +56,7 @@ class Parameter:
         if constraints is not None:
             raise NotImplementedError("constraints not implemented..yet")
             # todo: note in principle all the functionality is here already just needs to be uncommented and tested
+            # todo: the problem is that pygad does not support this feature somehow, also not uniqueness of solutions
         self.parameter_active = parameter_active
         self.data_points = []
         if custom_distribution is not None and distribution != 'custom':
@@ -73,7 +74,7 @@ class Parameter:
     def is_active(self):
         return self.parameter_active
 
-    def generate_data_points(self, num_points):
+    def generate_data_points(self, num_points: int) -> None:
         """Generate set of n=num_points data points based on the specified distribution, range and param_type of
         this parameter.
 
@@ -131,7 +132,7 @@ class Parameter:
         else:
             raise ValueError(f"Invalid parameter type specified: {self.param_type}")
 
-    def generate_initial_data_points(self):
+    def generate_initial_data_points(self) -> None:
         """Generate initial data points based on the specified distribution and range."""
         self.generate_data_points(num_points=self.number_points)
 
@@ -193,14 +194,14 @@ class SystemSetup:
             self.job_args["venv"] = venv
 
     @property
-    def current_step_directory(self):
+    def current_step_directory(self) -> str:
         """Returns the path of the current optimization step."""
         if self.working_directory is not None:
-            return os.path.join(self.working_directory, '..')
+            return os.path.realpath(os.path.join(self.working_directory, '..'))
         else:
             raise RuntimeError(f"Could not get current step directory. Working directory is {self.working_directory}")
 
-    def cmdline_dict_to_list(self):
+    def cmdline_dict_to_list(self) -> list:
         """Convert the dictionary of commandline arguments to a list for QCGPilot."""
         return [item for key_value_pair in self.cmdline_arguments.items() for item in key_value_pair]
 
@@ -266,7 +267,7 @@ class Experiment:
         self.cost_function = None
         self._current_optimization_step = None  # TODO: what would this mean if we have various different kinds of opts?
 
-    def create_datapoint_c_product(self):
+    def create_datapoint_c_product(self) -> None:
         """Create initial set of points as Cartesian product of all active parameters.
 
         Overwrite if other combination is needed."""
@@ -274,16 +275,17 @@ class Experiment:
             assert isinstance(self.parameters, list), "Parameters are not list."
             for param in self.parameters:
                 if not isinstance(param, Parameter):
-                    raise ValueError(f"One of the parameters is not of correct type 'Parameter', but is {type(param)}")
+                    raise TypeError(f"One of the parameters is not of correct type 'Parameter', but is {type(param)}")
             self.data_points = list(itertools.product(*[param.data_points for param in self.parameters
                                                         if param.is_active]))
 
     @property
-    def current_optimization_step(self):
+    def current_optimization_step(self) -> int:
         """Returns the current optimization step."""
+        raise NotImplementedError("Keeping track of the current optimization step not implemented...yet.")
         return self._current_optimization_step
 
-    def add_parameter(self, parameter):
+    def add_parameter(self, parameter: Parameter) -> None:
         """Adds a parameter to the experiment.
 
         Parameters
@@ -292,15 +294,17 @@ class Experiment:
             The parameter to add to the experiment.
         """
         if not isinstance(parameter, Parameter):
-            raise ValueError("Can not add parameter that is not of type Parameter.")
+            raise TypeError("Can not add parameter that is not of type Parameter.")
         self.parameters.append(parameter)
 
-    def add_optimization_info(self, optimization_info):
+    def add_optimization_info(self, optimization_info: OptimizationInfo) -> None:
         """Adds OptimizationInfo to the experiment.
 
         Parameters
         ----------
-        optimization_info : OptimizationStep
+        optimization_info : OptimizationInfo
             The optimization step to add to the experiment.
         """
+        if not isinstance(optimization_info, OptimizationInfo):
+            raise TypeError("Can not add parameter that is not of type Parameter.")
         self.optimization_information_list.append(optimization_info)

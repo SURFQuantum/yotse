@@ -1,14 +1,16 @@
 """ Defines the run"""
 import os
 import math
-import pandas as pd
+import pandas
+
 from qiaopt.pre import Experiment
-from qiaopt.optimization import Optimizer, GAOpt
+from qiaopt.optimization import Optimizer, GAOpt, GenericOptimization
+
 from qcg.pilotjob.api.job import Jobs
 from qcg.pilotjob.api.manager import LocalManager
 
 
-def qcgpilot_commandline(experiment, datapoint_item):
+def qcgpilot_commandline(experiment: Experiment, datapoint_item: list) -> list:
     """
      Creates a command line for the QCG-PilotJob executor based on the experiment configuration.
 
@@ -16,6 +18,8 @@ def qcgpilot_commandline(experiment, datapoint_item):
      -----------
      experiment: Experiment
          The experiment to configure the command line for.
+    datapoint_item : list or float #todo : fix this so it always gets a list?
+        Datapoint containing the specific values for each parameter e.g. (x1, y2, z1).
 
      Returns:
      --------
@@ -39,7 +43,7 @@ def qcgpilot_commandline(experiment, datapoint_item):
     return cmdline
 
 
-def get_files_by_extension(directory, extension):
+def get_files_by_extension(directory: str, extension: str) -> list:
     """
     Returns a list of files in the given directory with the specified extension.
 
@@ -58,7 +62,7 @@ def get_files_by_extension(directory, extension):
     return [os.path.join(directory, file) for file in os.listdir(directory) if file.endswith(extension)]
 
 
-def file_list_to_single_df(files):
+def file_list_to_single_df(files: list) -> pandas.DataFrame:
     """
     Reads CSV files from a list and combines their content in a single dataframe.
 
@@ -72,8 +76,8 @@ def file_list_to_single_df(files):
     df : pandas.Dataframe
         Pandas dataframe containing the combined contents of all the CSV files.
     """
-    dfs = [pd.read_csv(file, delimiter=' ') for file in files]
-    return pd.concat(dfs, ignore_index=True)
+    dfs = [pandas.read_csv(file, delimiter=' ') for file in files]
+    return pandas.concat(dfs, ignore_index=True)
 
 
 def set_basic_directory_structure_for_job(experiment: Experiment, step_number: int, job_number: int) -> None:
@@ -83,11 +87,12 @@ def set_basic_directory_structure_for_job(experiment: Experiment, step_number: i
     The basic directory structure is as follows
     source_dir
         - output_dir
+            your_run_script.py
+            analysis_script.py
             - step_{i}
-                analysis_script.py
-                analysis_output.csv
+                 analysis_output.csv
                 - job_{j}
-                    output_of_your_script.extension
+                    output_of_your_run_script.extension
                     stdout{j}.txt
 
     Parameters
@@ -129,7 +134,7 @@ class Core:
         Refinement factors for each of the Parameters specified in the experiment.
     """
 
-    def __init__(self, experiment):
+    def __init__(self, experiment: Experiment):
         self.experiment = experiment
         self.optimization_alg = self.set_optimization_algorithm()
         if self.optimization_alg is not None:
@@ -138,7 +143,7 @@ class Core:
             self.optimizer = None
         self.input_param_cost_df = None
 
-    def run(self, step_number=0, evolutionary_point_generation=None):
+    def run(self, step_number=0, evolutionary_point_generation=None) -> None:
         """ Submits jobs to the LocalManager, collects the output, creates new data points, and finishes the run.
 
         Parameters:
@@ -146,6 +151,8 @@ class Core:
         step_number : int (optional)
             Step number to submit to QCGPilot. Should be used for e.g. running different optimization steps.
             Defaults to 0.
+        evolutionary_point_generation
+            # todo : fill in docstring
         """
         print(f"Starting default run of {self.experiment.name} (step{step_number}): submit, collect, create.")
         self.submit(step_number=step_number)
@@ -153,7 +160,7 @@ class Core:
         self.create_points_based_on_optimization(data=data, evolutionary=evolutionary_point_generation)
         print(f"Finished run of {self.experiment.name} (step{step_number}).")
 
-    def submit(self, step_number=0):
+    def submit(self, step_number=0) -> list:
         """
         Submits jobs to the LocalManager.
 
@@ -201,7 +208,7 @@ class Core:
         manager.cleanup()
         return job_ids
 
-    def collect_data(self):
+    def collect_data(self) -> pandas.DataFrame:
         """
         Collects data from output files of the current step of the experiment and saves it into a dict that can be
         accessed through `input_params_to_cost_value()`.
@@ -231,23 +238,23 @@ class Core:
             # todo : This is unsorted, is that a problem?
         else:
             # analysis script is given and will output file 'output.csv' with format 'cost_fun param0 param1 ...'
-            data = pd.read_csv(os.path.join(self.experiment.system_setup.current_step_directory, 'output.csv'),
-                               delim_whitespace=True)
+            data = pandas.read_csv(os.path.join(self.experiment.system_setup.current_step_directory, 'output.csv'),
+                                   delim_whitespace=True)
         return data
 
-    def create_points_based_on_optimization(self, data, evolutionary=None):
+    def create_points_based_on_optimization(self, data: pandas.DataFrame, evolutionary=None) -> None:
         """
         Applies an optimization algorithm to process the collected data and create new data points from it which is then
         directly written into the experiments attributes.
 
         Parameters:
         ----------
+        data : pandas.Dataframe
+            A pandas dataframe containing the collected data in the format cost_value init_param_1 ... init_param_n.
         evolutionary : bool (optional)
             Overwrite the type of construction to be used for the new points. If evolutionary=None the optimization
             algorithm determines whether the point creation is evolutionary or based on the best solution.
             Defaults to None.
-        data : pandas.Dataframe
-            A pandas dataframe containing the collected data in the format cost_value init_param_1 ... init_param_n.
         """
         if self.optimization_alg is not None:
             if evolutionary is None:
@@ -261,7 +268,7 @@ class Core:
             self.optimizer.construct_points(experiment=self.experiment,
                                             evolutionary=evolutionary)
 
-    def input_params_to_cost_value(self, ga_instance, solution, solution_idx):
+    def input_params_to_cost_value(self, ga_instance, solution, solution_idx) -> float:
         """Return value of cost function for given set of input parameter values and their index in the set of points.
 
         Parameters:
@@ -277,7 +284,7 @@ class Core:
         else:
             raise ValueError(f"Solution {solution} was not found in internal dataframe.")
 
-    def update_internal_cost_data(self, data):
+    def update_internal_cost_data(self, data: pandas.DataFrame) -> None:
         """Update internal dataframe mapping input parameters to the associated cost from input data.
         It also checks that the ordering of the entries is the same as the data_points of the experiment.
 
@@ -296,10 +303,10 @@ class Core:
 
         self.input_param_cost_df = data
 
-    def suggest_best_solution(self):
+    def suggest_best_solution(self) -> list:
         return self.optimization_alg.get_best_solution()
 
-    def set_optimization_algorithm(self):
+    def set_optimization_algorithm(self) -> GenericOptimization:
         """Sets the optimization algorithm for the run by translating information in the optimization_info.
 
         Returns:
@@ -339,8 +346,8 @@ class Core:
 
 
 class Executor(Core):
-    def __init__(self, experiment):
+    def __init__(self, experiment: Experiment):
         super().__init__(experiment)
 
-    def run(self, step=0, evolutionary_point_generation=None):
+    def run(self, step=0, evolutionary_point_generation=None) -> None:
         super().run(step, evolutionary_point_generation)

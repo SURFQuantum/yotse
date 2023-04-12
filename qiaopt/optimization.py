@@ -1,8 +1,10 @@
 import scipy
 import inspect
 import numpy as np
-from qiaopt.ga import ModGA
 from abc import ABCMeta, abstractmethod
+
+from qiaopt.ga import ModGA
+from qiaopt.pre import Experiment
 
 
 class GenericOptimization:
@@ -42,14 +44,14 @@ class GenericOptimization:
         return self.function
 
     @abstractmethod
-    def execute(self):
+    def execute(self) -> None:
         """
         Execute method should be implemented in every derived class.
 
         """
         raise NotImplementedError('The \'{}\' method is not implemented'.format(inspect.currentframe().f_code.co_name))
 
-    def get_best_solution(self):
+    def get_best_solution(self) -> (list, float, int):
         """
         Get the best solution. Should be implemented in every derived class.
 
@@ -61,7 +63,7 @@ class GenericOptimization:
         raise NotImplementedError('The \'{}\' method is not implemented'.format(inspect.currentframe().f_code.co_name))
 
     @abstractmethod
-    def get_new_points(self):
+    def get_new_points(self) -> list:
         """
         Get new points. Should be implemented in every evolutional algorithm.
 
@@ -74,10 +76,15 @@ class GenericOptimization:
         raise NotImplementedError('The \'{}\' method is not implemented'.format(inspect.currentframe().f_code.co_name))
 
     @abstractmethod
-    def overwrite_internal_data_points(self, data_points):
+    def overwrite_internal_data_points(self, data_points: list):
         """
         Overwrite the internal set of data points with one externally generated. E.g. when manually passing new points
         to an evolutionary optimization algorithm.
+
+        Parameters:
+        ----------
+        data_points : list
+            List containing all new data points that should be passed to the optimization.
         """
         raise NotImplementedError('The \'{}\' method is not implemented'.format(inspect.currentframe().f_code.co_name))
 
@@ -90,7 +97,7 @@ class GAOpt(GenericOptimization):
     ----------
     fitness_func : function
         Fitness/objective/cost function.
-    initial_population:
+    initial_population: list
         Initial population of data points to start the optimization with.
     num_generations : int
         Number of generations in the genetic algorithm.
@@ -111,8 +118,8 @@ class GAOpt(GenericOptimization):
         Optional pygad arguments to be passed to `pygad.GA`.
         See https://pygad.readthedocs.io/en/latest/README_pygad_ReadTheDocs.html#pygad-ga-class for documentation.
     """
-    def __init__(self, fitness_func, initial_population, num_generations, num_parents_mating, refinement_factors=None,
-                 logging_level=1, allow_duplicate_genes=False, **pygad_kwargs):
+    def __init__(self, fitness_func, initial_population: list, num_generations: int, num_parents_mating: int,
+                 refinement_factors=None, logging_level=1, allow_duplicate_genes=False, **pygad_kwargs):
         super().__init__(function=fitness_func, refinement_factors=refinement_factors, logging_level=logging_level,
                          extrema=self.MINIMUM, evolutionary=True)
         # Note: number of new points is determined by initial population
@@ -126,16 +133,19 @@ class GAOpt(GenericOptimization):
                                  # gene_space=gene_space,
                                  save_best_solutions=True,
                                  allow_duplicate_genes=allow_duplicate_genes,
+                                 mutation_by_replacement=True,
                                  **pygad_kwargs
                                  )
         # todo : why if save_solutions=True the optimization doesn't converge anymore?
 
-    def _objective_func(self, ga_instance, solution, solution_idx):
+    def _objective_func(self, ga_instance, solution, solution_idx) -> float:
         """
         Fitness function to be called from PyGAD
 
         Parameters:
         ----------
+        ga_instance :
+            # todo : add docstring
         solution : list
             List of solutions.
         solution_idx : int
@@ -157,9 +167,9 @@ class GAOpt(GenericOptimization):
 
         return fitness
 
-    def execute(self):
+    def execute(self) -> None:
         """
-        Execute optimization.
+        Execute single step in the genetic algorithm.
         """
         self.ga_instance.run_single_generation()
 
@@ -167,7 +177,7 @@ class GAOpt(GenericOptimization):
         if self.logging_level >= 2:
             self.ga_instance.plot_fitness()
 
-    def get_best_solution(self):
+    def get_best_solution(self) -> (list, None, None):
         """
         Get the best solution. We don't yet know the fitness for the solution (because we have not run the simulation
         for those values yet), so just return the point.
@@ -184,7 +194,7 @@ class GAOpt(GenericOptimization):
         return best_solution, None, None
         # todo: this could also instead return solution and fitness of the best solution one generation back?
 
-    def get_new_points(self):
+    def get_new_points(self) -> list:
         """
         Get new points from the GA (aka return the next population).
 
@@ -196,7 +206,7 @@ class GAOpt(GenericOptimization):
         new_points = self.ga_instance.population.tolist()
         return [tuple(point) for point in new_points]
 
-    def overwrite_internal_data_points(self, data_points):
+    def overwrite_internal_data_points(self, data_points: list) -> None:
         # convert list of tuples into np.array
         data_array = np.array(data_points)
         self.ga_instance.population = data_array
@@ -342,7 +352,7 @@ class Optimizer:
     """
     Optimizer class
     """
-    def __init__(self, optimization_algorithm):
+    def __init__(self, optimization_algorithm: GenericOptimization):
         """
         Default constructor.
 
@@ -351,18 +361,19 @@ class Optimizer:
         optimization_algorithm: Object of GenericOptimization
             Optimization algorithm to be executed by this optimizer.
         """
-        assert isinstance(optimization_algorithm, GenericOptimization)
+        if not isinstance(optimization_algorithm, GenericOptimization):
+            raise ValueError("Optimization algorithm must be subclass of GenericOptimization.")
         self.optimization_algorithm = optimization_algorithm
         self._is_executed = False
 
-    def optimize(self):
+    def optimize(self) -> None:
         """
         Optimization step
         """
         self.optimization_algorithm.execute()
         self._is_executed = True
 
-    def construct_points(self, experiment, evolutionary, points_per_param=None):
+    def construct_points(self, experiment: Experiment, evolutionary: bool, points_per_param=None) -> None:
         """
         Constructs new set of values around the solution and write them to the experiment.
 
@@ -373,10 +384,6 @@ class Optimizer:
         evolutionary : bool
             True if the optimization algorithm is evolutionary and generates a new set of points.
             False if the optimization algorithm generates a best point and points should be constructed around it.
-        solution_index : int
-            Index of the solution in the list of cost function solutions.
-        refinement_factors : list
-            Refinement windows for all variables in % of the (max-min)/2 range.
         points_per_param : int (optional)
             Number of points to construct for each parameter. If None then for each parameter the initially specified
             number of points `Parameter.number_points` will be created. Only used when `evolutionary=False`.
