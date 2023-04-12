@@ -81,10 +81,11 @@ class TestSetupOptimizationDir(unittest.TestCase):
 class TestUpdateYamlFiles(unittest.TestCase):
     def setUp(self):
         self.tmp_dir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(self.tmp_dir, 'src'))
 
     def create_test_paramfile(self):
         # Create a YAML file with initial parameters
-        self.param_file = os.path.join(self.tmp_dir, 'params.yaml')
+        self.param_file = os.path.join(self.tmp_dir, 'src', 'params.yaml')
         with open(self.param_file, 'w') as f:
             params = {
                 'num_repeaters': 1,
@@ -97,7 +98,7 @@ class TestUpdateYamlFiles(unittest.TestCase):
 
     def create_test_configfile(self):
         # Create a YAML config file with an INCLUDE statement
-        self.config_file = os.path.join(self.tmp_dir, 'config.yaml')
+        self.config_file = os.path.join(self.tmp_dir, 'src', 'config.yaml')
         with open(self.config_file, 'w') as f:
             config = {
                 'network': 'blueprint_network',
@@ -215,12 +216,86 @@ class TestUpdateYamlFiles(unittest.TestCase):
         # Remove the temporary directory and its contents
         shutil.rmtree(self.tmp_dir)
 
-
-class TestCreateSeparateFiles(unittest.TestCase):
     def test_create_separate_files_for_job(self):
-        is_implemented = False
-        self.assertTrue(is_implemented)
-        create_separate_files_for_job()
+        self.create_test_configfile()
+        self.create_test_paramfile()
+
+        # Create a mock experiment object
+        experiment = MagicMock()
+        experiment.system_setup.source_directory = os.path.join(self.tmp_dir, 'src')
+        experiment.system_setup.output_directory = 'output'
+        experiment.system_setup.cmdline_arguments = {'paramfile': 'params.yaml',
+                                                     'configfile': 'config.yaml',
+                                                     '--n_runs': 100}
+        experiment.system_setup.program_name = 'my_program'
+        experiment.name = 'blueprint_experiment'
+        param1 = MagicMock()
+        param1.name = 'num_repeaters'
+        param1.is_active = True
+        param2 = MagicMock()
+        param2.name = 'visibility'
+        param2.is_active = True
+        experiment.parameters = [param1, param2]
+        timestamp_str = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+
+        test_datapoint_item = [3, 0.9]
+
+        setup_optimization_dir(experiment=experiment, step_number=0, job_number=0)  # this is tested above
+        new_cmdline = create_separate_files_for_job(experiment=experiment, datapoint_item=test_datapoint_item,
+                                                    step_number=0, job_number=0)
+
+        expected_program_name = os.path.join(experiment.system_setup.source_directory,
+                                             experiment.system_setup.program_name)
+        expected_config_path = os.path.join(self.tmp_dir, experiment.system_setup.output_directory,
+                                            f'{experiment.name}_{timestamp_str}/step0/job0/config_step0_job0.yaml')
+        expected_param_path = os.path.join(self.tmp_dir, experiment.system_setup.output_directory,
+                                           f'{experiment.name}_{timestamp_str}/step0/job0/params_step0_job0.yaml')
+        expected_cmdline = [expected_program_name, expected_config_path, "--paramfile", expected_param_path,
+                            '--n_runs', str(100)]
+
+        self.assertEqual(new_cmdline, expected_cmdline)
+        # todo : check if the !include here needs an absolute path or if it should just be the filename
+        expected_config = {
+            'network': 'blueprint_network',
+            'some_params': {
+                '&some_params': {
+                    'INCLUDE': f'!include {expected_param_path}'
+                },
+                '&node_type': {
+                    'type': 'some_node'
+                },
+                '&repeater': {
+                    '<<': '*node_type',
+                    'properties': {
+                        'end_node': False,
+                        'num_positions': 2,
+                        'port_names': [
+                            'A',  # classical communication A side
+                            'B',  # classical communication B side
+                            'ENT_A',  # entanglement generation A side
+                            'ENT_B',  # entanglement generation B side
+                        ],
+                        '<<': '*some_params'
+                    }
+                }
+            }
+        }
+
+        with open(expected_config_path, 'r') as f:
+            config = yaml.safe_load(f)
+        self.assertEqual(config, expected_config)
+
+        expected_params = {
+            'num_repeaters': 3,
+            'det_efficiency': 1.0,
+            'visibility': 0.9,
+            'dark_count_prob': 0.0,
+            'emission_probability': 1.0
+        }
+
+        with open(expected_param_path, 'r') as f:
+            param = yaml.safe_load(f)
+        self.assertEqual(param, expected_params)
 
 
 if __name__ == '__main__':

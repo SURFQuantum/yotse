@@ -115,16 +115,16 @@ def create_separate_files_for_job(experiment: Experiment, datapoint_item: list, 
 
     # Copy paramfile_name to working_directory
     paramfile_base_name, paramfile_ext = os.path.splitext(paramfile_name)
-    paramfile_new_name = paramfile_base_name + '_' + job_name + '_' + step_name + paramfile_ext
+    paramfile_new_name = paramfile_base_name + '_' + step_name + '_' + job_name + paramfile_ext
     paramfile_source_path = os.path.join(source_directory, paramfile_name)
-    paramfile_dest_path = os.path.join(working_directory, job_name, paramfile_new_name)
+    paramfile_dest_path = os.path.join(working_directory, paramfile_new_name)
     shutil.copy(paramfile_source_path, paramfile_dest_path)
 
     # Copy configfile_name to working_directory
     configfile_base_name, configfile_ext = os.path.splitext(configfile_name)
-    configfile_new_name = configfile_base_name + '_' + job_name + '_' + step_name + configfile_ext
+    configfile_new_name = configfile_base_name + '_' + step_name + '_' + job_name + configfile_ext
     configfile_source_path = os.path.join(source_directory, configfile_name)
-    configfile_dest_path = os.path.join(working_directory, job_name, configfile_new_name)
+    configfile_dest_path = os.path.join(working_directory, configfile_new_name)
     shutil.copy(configfile_source_path, configfile_dest_path)
 
     # 2 - take the data_point for the current step + the active parameters/cmdlineargs and then overwrite those
@@ -137,11 +137,13 @@ def create_separate_files_for_job(experiment: Experiment, datapoint_item: list, 
                 param_list.append((param.name, datapoint_item))
             else:
                 param_list.append((param.name, datapoint_item[p]))
+    if len(param_list) != len(datapoint_item):
+        raise RuntimeError("Datapoint has different length then list of parameters to be changes in paramfile.")
     update_yaml_params(param_list=param_list, paramfile_name=paramfile_dest_path)
 
     # 3 - overwrite the name of the paramfile inside the configfile with the new paramfile name
     replace_include_param_file(configfile_name=configfile_dest_path, paramfile_name=paramfile_dest_path)
-    # 4 - overwrite the old_cmdline such that it no longer contains the varied params, but instead the correct paths to
+    # 4 - construct new cmdline such that it no longer contains the varied params, but instead the correct paths to
     # the new param and config files
     cmdline = [os.path.join(experiment.system_setup.source_directory, experiment.system_setup.program_name)]
     cmdline.append(configfile_dest_path)
