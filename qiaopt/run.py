@@ -80,39 +80,6 @@ def file_list_to_single_df(files: list) -> pandas.DataFrame:
     return pandas.concat(dfs, ignore_index=True)
 
 
-def set_basic_directory_structure_for_job(experiment: Experiment, step_number: int, job_number: int) -> None:
-    """
-    Creates a new directory for the given step number and updates the experiment's working directory accordingly.
-
-    The basic directory structure is as follows
-    source_dir
-        - output_dir
-            your_run_script.py
-            analysis_script.py
-            - step_{i}
-                 analysis_output.csv
-                - job_{j}
-                    output_of_your_run_script.extension
-                    stdout{j}.txt
-
-    Parameters
-    ----------
-    experiment : Experiment
-        The :obj:Experiment that is being run.
-    step_number : int
-        The number of the current step.
-    job_number : int
-        The number of the current job.
-    """
-    source_dir = experiment.system_setup.source_directory
-    output_dir = experiment.system_setup.output_directory
-    new_working_dir = os.path.join(source_dir, output_dir, f'step{step_number}', f'job{job_number}')
-
-    if not os.path.exists(new_working_dir):
-        os.makedirs(new_working_dir)
-    experiment.system_setup.working_directory = new_working_dir
-
-
 class Core:
     """
     Defines the default run function for the executor.
@@ -183,11 +150,12 @@ class Core:
             raise RuntimeError(f"Can not submit jobs for Experiment {self.experiment.name}: No datapoints available.")
 
         for i, item in enumerate(self.experiment.data_points):
-            set_basic_directory_structure_for_job(experiment=self.experiment, step_number=step_number, job_number=i)
+            cmdline = self.pre_submission_setup_per_job(datapoint_item=item, step_number=step_number, job_number=i)
             jobs.add(
                 name=self.experiment.name + str(i),
-                args=qcgpilot_commandline(self.experiment, datapoint_item=item),
+                args=cmdline,
                 stdout=stdout + str(i) + ".txt",
+                stderr=stdout + str(i) + ".err",
                 wd=self.experiment.system_setup.working_directory,
                 **self.experiment.system_setup.job_args
             )
@@ -198,6 +166,7 @@ class Core:
                 args=[os.path.join(self.experiment.system_setup.source_directory,
                                    self.experiment.system_setup.analysis_script)],
                 stdout=stdout + f"step{step_number}_analysis.txt",
+                stderr=stdout + f"step{step_number}_analysis.err",
                 wd=self.experiment.system_setup.current_step_directory,
                 after=jobs.job_names(),
                 **self.experiment.system_setup.job_args
@@ -305,6 +274,62 @@ class Core:
 
     def suggest_best_solution(self) -> list:
         return self.optimization_alg.get_best_solution()
+
+    def pre_submission_setup_per_job(self, datapoint_item: list, step_number: int, job_number: int) -> list:
+        """Sets up the basic directory structure for a job and returns the QCG-Pilot command line list for it.
+
+        Parameters:
+        ----------
+        datapoint_item : list
+            Single item of data points for the job as a list.
+        step_number : int
+            The number of the step in the experiment.
+        job_number: int
+            The number of the job within the step.
+
+        Returns:
+        -------
+        qcg_cmdline_list : list
+            The list of command line arguments for the QCG-Pilot job submission.
+
+        Note: Overwrite this function if you need other directory structure or pre-submission functionality.
+
+        """
+        self.set_basic_directory_structure_for_job(self.experiment, step_number, job_number)
+        return qcgpilot_commandline(self.experiment, datapoint_item=datapoint_item)
+
+    @staticmethod
+    def set_basic_directory_structure_for_job(experiment: Experiment, step_number: int, job_number: int) -> None:
+        """
+        Creates a new directory for the given step number and updates the experiment's working directory accordingly.
+
+        The basic directory structure is as follows
+        source_dir
+            - output_dir
+                your_run_script.py
+                analysis_script.py
+                - step_{i}
+                     analysis_output.csv
+                    - job_{j}
+                        output_of_your_run_script.extension
+                        stdout{j}.txt
+
+        Parameters:
+        ----------
+        experiment : Experiment
+            The :obj:Experiment that is being run.
+        step_number : int
+            The number of the current step.
+        job_number : int
+            The number of the current job.
+        """
+        source_dir = experiment.system_setup.source_directory
+        output_dir = experiment.system_setup.output_directory
+        new_working_dir = os.path.join(source_dir, output_dir, f'step{step_number}', f'job{job_number}')
+
+        if not os.path.exists(new_working_dir):
+            os.makedirs(new_working_dir)
+        experiment.system_setup.working_directory = new_working_dir
 
     def set_optimization_algorithm(self) -> GenericOptimization:
         """Sets the optimization algorithm for the run by translating information in the optimization_info.

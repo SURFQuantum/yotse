@@ -2,13 +2,32 @@ import os
 import yaml
 import shutil
 from datetime import datetime
+from ruamel.yaml import YAML
+from ruamel.yaml.nodes import ScalarNode
 
 from qiaopt.pre import Experiment
 
 
-def setup_optimization_dir(experiment, step_number, job_number):
-    """Create the directory for this optimization step.
-    The structure will be as follows (for m optimization steps and n jobs)
+def setup_optimization_dir(experiment: Experiment, step_number: int, job_number: int) -> None:
+    """Create the directory structure for an optimization step.
+
+    Parameters:
+    ----------
+    experiment : Experiment
+        The Experiment object for which the directory structure should be set up/
+    step_number : int
+        The number of the current optimization step.
+    job_number: int
+        The number of the job within the optimization step.
+
+    Note:
+    -----
+    This function creates the directory structure for an optimization step within an experiment. The structure
+    includes a `src` directory containing several files related to the optimization, and an `output` directory
+    containing directories for each step and job. The function does not return anything, but modifies the file system
+    to create the necessary directories.
+
+    The directory structure for the optimization step is as follows (for m optimization steps and n jobs):
     > src
         - unified_script.py
         - processing_function.py
@@ -49,7 +68,17 @@ def setup_optimization_dir(experiment, step_number, job_number):
     experiment.system_setup.working_directory = new_working_dir
 
 
-def update_yaml_params(param_list, paramfile_name):
+def update_yaml_params(param_list: list, paramfile_name: str) -> None:
+    """Update parameter values in a YAML file and save the updated file.
+
+    Parameters:
+    ----------
+    param_list : List[Tuple[str, Any]]
+        A list of tuples containing parameter names and their updated values.
+    paramfile_name : str
+        The name of the YAML file containing the parameters to update.
+    """
+
     # Load the YAML file
     with open(paramfile_name, 'r') as f:
         params = yaml.safe_load(f)
@@ -66,29 +95,83 @@ def update_yaml_params(param_list, paramfile_name):
         yaml.dump(params, f, default_flow_style=False)
 
 
-def replace_include_param_file(configfile_name, paramfile_name):
+def represent_scalar_node(dumper: yaml.Dumper, data: yaml.ScalarNode) -> str:
+    """Represent a ScalarNode object as a scalar value in a YAML file.
+
+    Parameters:
+    ----------
+    dumper : yaml.Dumper
+        The YAML dumper object being used to write the file.
+    data : yaml.ScalarNode
+        The ScalarNode object being represented.
+
+    Returns:
+    -------
+    scalar : str
+        The scalar value of the ScalarNode object.
+    """
+    return dumper.represent_scalar(data.tag, data.value)
+
+
+def replace_include_param_file(configfile_name: str, paramfile_name: str) -> None:
+    """Replace the INCLUDE keyword in a YAML config file with a reference to a parameter file.
+
+    Parameters:
+    ----------
+    configfile_name : str
+        The name of the YAML configuration file to modify.
+    paramfile_name : str
+        The name of the parameter file to include in the configuration file.
+
+    Note:
+    -----
+    This function replaces an INCLUDE keyword in a YAML configuration file with a reference to a parameter file.
+    It loads the YAML config file, searches recursively for an INCLUDE keyword, and replaces it with a reference
+    to the specified parameter file. If the INCLUDE keyword is not found, an error is raised.
+    """
+    yaml = YAML(typ='rt')
+    yaml.indent(mapping=2, sequence=4, offset=2)
+    yaml.representer.add_representer(ScalarNode, represent_scalar_node)
+
     # Load the YAML config file
     with open(configfile_name, 'r') as f:
-        old_config = yaml.safe_load(f)
+        old_config = yaml.load(f)
 
     # Find the line with the INCLUDE keyword recursively
-    def replace_include(config, replace_str):
-        found = False
-        if isinstance(config, dict):
-            for key, value in config.items():
-                if key == 'INCLUDE':
-                    config[key] = replace_str
-                    found = True
-                elif isinstance(value, dict):
-                    found_in_nested, config[key] = replace_include(value, replace_str)
-                    found = found or found_in_nested
-                elif isinstance(value, list):
-                    for i in range(len(value)):
-                        found_in_nested, config[key][i] = replace_include(value[i], replace_str)
-                        found = found or found_in_nested
-        return found, config
+    def replace_include(config: dict, replace_str: str, found: bool = False) -> bool:
+        """Recursively search a dictionary or list for an INCLUDE keyword and replace it with a reference to a parameter
+         file.
 
-    found_include, new_config = replace_include(config=old_config, replace_str=f"!include {paramfile_name}")
+        Parameters:
+        ----------
+        config : dict or list
+            The dictionary or list to search for an INCLUDE keyword.
+        replace_str : str
+            The name of the parameter file to include in place of the INCLUDE keyword.
+        found : bool, optional
+            A boolean flag indicating whether an INCLUDE keyword has already been found and replaced. Defaults to False.
+
+        Returns:
+        -------
+        found : bool
+            True if an INCLUDE keyword was found and replaced in the dictionary or list, False otherwise.
+        """
+        if isinstance(config, dict):
+            for key, value in list(config.items()):
+                if key != 'INCLUDE':
+                    found = replace_include(value, replace_str, found)
+                elif key == 'INCLUDE' and not found:
+                    config[key] = ScalarNode(tag='!include', value=replace_str, style=None)
+                    found = True
+                elif key == 'INCLUDE' and found:
+                    del config[key]
+        elif isinstance(config, list):
+            for i in range(len(config)):
+                found = replace_include(config[i], replace_str, found)
+
+        return found
+
+    found_include = replace_include(old_config, paramfile_name)
 
     # Check if the INCLUDE keyword was found
     if not found_include:
@@ -96,19 +179,49 @@ def replace_include_param_file(configfile_name, paramfile_name):
 
     # Save the updated YAML config file
     with open(configfile_name, 'w') as f:
-        yaml.dump(new_config, f, default_flow_style=False)
+        yaml.dump(old_config, f)
 
 
-def create_separate_files_for_job(experiment: Experiment, datapoint_item: list, step_number: int, job_number: int):
-    """Create a separate parameter and matching config file for this job and get ready for execution."""
+def create_separate_files_for_job(experiment: Experiment, datapoint_item: list, step_number: int,
+                                  job_number: int) -> list:
+    """Create separate parameter and configuration files for a job and prepare for execution.
+
+    Parameters:
+    ----------
+    experiment : Experiment
+        The experiment object containing information about the experiment.
+    datapoint_item : list
+        A single item of data points for the job, represented as a list.
+    step_number : int
+        The number of the step in the experiment.
+    job_number: int
+        The number of the job within the step.
+
+    Returns:
+    -------
+    job_cmdline : list
+        The command line arguments for running the job.
+
+    Note:
+    -----
+    This function creates separate parameter and configuration files for a job based on the provided experiment,
+    datapoint item, step number, and job number. It prepares the job for execution by setting up the necessary files
+    and returning the command line arguments for running the job. The function returns the command line arguments
+     as a list for use with QCG-Pilotjob.
+
+    The created files will be saved in the experiment's directory, under a subdirectory for the step and job.
+    The parameter file will have a name like "params_stepY_jobX.yaml" and the configuration file will have a name like
+     "config_stepY_jobX.yaml", where "X" is the job number and "Y" the step number.
+    """
     # this should execute after the directory for the specific job is set up by setup_optimization_dir
     # 1 - copy the original param and config file to the created dir
     source_directory = experiment.system_setup.source_directory
     working_directory = experiment.system_setup.working_directory
-    old_cmdline_args = experiment.system_setup.cmdline_arguments
+    old_cmdline_args = experiment.system_setup.cmdline_arguments.copy()
     paramfile_name = old_cmdline_args['paramfile']
-    del old_cmdline_args['paramfile']
     configfile_name = old_cmdline_args['configfile']
+    # delete unnecessary args from dict copy
+    del old_cmdline_args['paramfile']
     del old_cmdline_args['configfile']
     job_name = f'job{job_number}'
     step_name = f'step{step_number}'

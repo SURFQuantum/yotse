@@ -5,6 +5,7 @@ pandas
 pygad>=3.0.0,<4.0.0
 pytest
 pytest-cov
-qcg-pilotjob
+PyQt5
+qcg-pilotjob>=0.14.0,<0.15.0
 scikit-learn
 scipy

@@ -103,8 +103,9 @@ class TestCore(unittest.TestCase):
         # count no of jobs
         self.path = test_core.experiment.system_setup.source_directory
         output_path = os.path.join(test_core.experiment.system_setup.working_directory, '..')
-        job_dirs = [d for d in os.listdir(output_path)]
-        self.assertEqual(len(job_ids), len(job_dirs))
+        job_dirs = [d for d in os.listdir(output_path) if os.path.isdir(os.path.join(output_path, d))]
+        self.assertEqual(len(job_ids) - 1, len(job_dirs))                    # for the analysis job no dir is created
+        self.assertEqual(len(job_dirs) + 2, len([d for d in os.listdir(output_path)]))      # but 2 files are created
         # check if jobs were finishes successfully
         service_dirs = [f for f in os.listdir(self.path) if (f.startswith(".qcgpjm-service"))]
         with open(self.path + "/" + service_dirs[0] + "/" + "final_status.json", "r") as f:

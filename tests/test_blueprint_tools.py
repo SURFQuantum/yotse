@@ -5,9 +5,12 @@ import tempfile
 import unittest
 from datetime import datetime
 from unittest.mock import MagicMock
+from ruamel.yaml import YAML
+from ruamel.yaml.nodes import ScalarNode
+from io import StringIO
 
 from qiaopt.blueprint_tools import setup_optimization_dir, update_yaml_params, replace_include_param_file, \
-    create_separate_files_for_job
+    create_separate_files_for_job, represent_scalar_node
 
 
 class TestSetupOptimizationDir(unittest.TestCase):
@@ -153,30 +156,19 @@ class TestUpdateYamlFiles(unittest.TestCase):
         }
         self.assertEqual(params, expected_params)
 
-    def test_replace_include_param_file(self):
-        self.create_test_configfile()
-        new_param_file_name = 'new_custom_params.yaml'
-
-        # Call the function to replace the INCLUDE statement
-        replace_include_param_file(self.config_file, new_param_file_name)
-
-        # Load the updated YAML config file
-        with open(self.config_file, 'r') as f:
-            config = yaml.safe_load(f)
-
-        # Check if the INCLUDE statement is replaced correctly
-        expected_config = {
+    @staticmethod
+    def expected_config(paramfile_name):
+        # Note: modifying the dict changes the order, so the expected dict is slightly reordered
+        return {
             'network': 'blueprint_network',
             'some_params': {
-                '&some_params': {
-                    'INCLUDE': f'!include {new_param_file_name}'
-                },
                 '&node_type': {
                     'type': 'some_node'
                 },
                 '&repeater': {
                     '<<': '*node_type',
                     'properties': {
+                        '<<': '*some_params',
                         'end_node': False,
                         'num_positions': 2,
                         'port_names': [
@@ -185,12 +177,40 @@ class TestUpdateYamlFiles(unittest.TestCase):
                             'ENT_A',  # entanglement generation A side
                             'ENT_B',  # entanglement generation B side
                         ],
-                        '<<': '*some_params'
                     }
-                }
+                },
+                '&some_params': {
+                    'INCLUDE': ScalarNode(tag='!include', value=paramfile_name, style=None)
+                },
             }
         }
-        self.assertEqual(config, expected_config)
+
+    def test_replace_include_param_file(self):
+        yaml = YAML(typ='rt')
+        yaml.indent(mapping=2, sequence=4, offset=2)
+        yaml.representer.add_representer(ScalarNode, represent_scalar_node)
+        self.create_test_configfile()
+        new_param_file_name = 'new_custom_params.yaml'
+
+        # Call the function to replace the INCLUDE statement
+        replace_include_param_file(self.config_file, new_param_file_name)
+
+        # Load the updated YAML config file
+        with open(self.config_file, 'r') as f:
+            config = yaml.load(f)
+
+        # Check if the INCLUDE statement is replaced correctly
+        expected_config = self.expected_config(new_param_file_name)
+
+        # Serialize both dictionaries to strings
+        config_str = StringIO()
+        yaml.dump(config, config_str)
+
+        expected_config_str = StringIO()
+        yaml.dump(expected_config, expected_config_str)
+
+        # Compare the serialized strings
+        self.assertEqual(config_str.getvalue(), expected_config_str.getvalue())
 
     def test_include_not_found(self):
         # Create a YAML config file WITHOUT an INCLUDE statement
@@ -217,6 +237,9 @@ class TestUpdateYamlFiles(unittest.TestCase):
         shutil.rmtree(self.tmp_dir)
 
     def test_create_separate_files_for_job(self):
+        yaml = YAML(typ='rt')
+        yaml.indent(mapping=2, sequence=4, offset=2)
+        yaml.representer.add_representer(ScalarNode, represent_scalar_node)
         self.create_test_configfile()
         self.create_test_paramfile()
 
@@ -254,36 +277,21 @@ class TestUpdateYamlFiles(unittest.TestCase):
                             '--n_runs', str(100)]
 
         self.assertEqual(new_cmdline, expected_cmdline)
-        # todo : check if the !include here needs an absolute path or if it should just be the filename
-        expected_config = {
-            'network': 'blueprint_network',
-            'some_params': {
-                '&some_params': {
-                    'INCLUDE': f'!include {expected_param_path}'
-                },
-                '&node_type': {
-                    'type': 'some_node'
-                },
-                '&repeater': {
-                    '<<': '*node_type',
-                    'properties': {
-                        'end_node': False,
-                        'num_positions': 2,
-                        'port_names': [
-                            'A',  # classical communication A side
-                            'B',  # classical communication B side
-                            'ENT_A',  # entanglement generation A side
-                            'ENT_B',  # entanglement generation B side
-                        ],
-                        '<<': '*some_params'
-                    }
-                }
-            }
-        }
+        # Note: modifying the dict changes the order, so the expected dict is slightly reordered
+        expected_config = self.expected_config(expected_param_path)
 
         with open(expected_config_path, 'r') as f:
-            config = yaml.safe_load(f)
-        self.assertEqual(config, expected_config)
+            config = yaml.load(f)
+
+        # Serialize both dictionaries to strings
+        config_str = StringIO()
+        yaml.dump(config, config_str)
+
+        expected_config_str = StringIO()
+        yaml.dump(expected_config, expected_config_str)
+
+        # Compare the serialized strings
+        self.assertEqual(config_str.getvalue(), expected_config_str.getvalue())
 
         expected_params = {
             'num_repeaters': 3,
@@ -294,7 +302,7 @@ class TestUpdateYamlFiles(unittest.TestCase):
         }
 
         with open(expected_param_path, 'r') as f:
-            param = yaml.safe_load(f)
+            param = yaml.load(f)
         self.assertEqual(param, expected_params)
 
 
