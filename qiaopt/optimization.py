@@ -103,6 +103,11 @@ class GAOpt(GenericOptimization):
         Number of generations in the genetic algorithm.
     num_parents_mating : int
         Number of solutions to be selected as parents in the genetic algorithm.
+    gene_space : dict or list (optional)
+        Dictionary with constraints. Keys can be 'low', 'high' and 'step'. Alternatively list with acceptable values or
+        list of dicts. If only single object is passed it will be applied for all input parameters, otherwise a
+        separate list or dict has to be supplied for each parameter.
+        Defaults to None.
     refinement_factors : list (optional)
         Refinement factors for each active parameter in the optimization in range [0.,1.] to be used for manual
         grid point generation.
@@ -119,7 +124,8 @@ class GAOpt(GenericOptimization):
         See https://pygad.readthedocs.io/en/latest/README_pygad_ReadTheDocs.html#pygad-ga-class for documentation.
     """
     def __init__(self, fitness_func, initial_population: list, num_generations: int, num_parents_mating: int,
-                 refinement_factors=None, logging_level=1, allow_duplicate_genes=False, **pygad_kwargs):
+                 gene_space: dict = None, refinement_factors=None, logging_level=1, allow_duplicate_genes=False,
+                 **pygad_kwargs):
         super().__init__(function=fitness_func, refinement_factors=refinement_factors, logging_level=logging_level,
                          extrema=self.MINIMUM, evolutionary=True)
         # Note: number of new points is determined by initial population
@@ -130,12 +136,13 @@ class GAOpt(GenericOptimization):
                                  num_parents_mating=num_parents_mating,
                                  # todo : gene_type/_space are exactly data_type/constraints of the params, see run.py
                                  # gene_type=gene_type,
-                                 # gene_space=gene_space,
+                                 gene_space=gene_space,
                                  save_best_solutions=True,
                                  allow_duplicate_genes=allow_duplicate_genes,
                                  mutation_by_replacement=True,
                                  **pygad_kwargs
                                  )
+        self.constraints = gene_space
         # todo : why if save_solutions=True the optimization doesn't converge anymore?
 
     def _objective_func(self, ga_instance, solution, solution_idx) -> float:
@@ -204,6 +211,18 @@ class GAOpt(GenericOptimization):
             New points for the next iteration of the optimization.
         """
         new_points = self.ga_instance.population.tolist()
+        # todo : this check should be redundant and could be removed
+        if self.constraints is not None:
+            # double check constraints are kept
+            for point in new_points:
+                for index, value in enumerate(point):
+                    if isinstance(self.constraints, list):
+                        if self.constraints[index] is not None:
+                            assert self.constraints[index]['low'] <= value <= self.constraints[index]['high']
+                    elif isinstance(self.constraints, dict):
+                        assert self.constraints['low'] <= value <= self.constraints['high']
+                    else:
+                        raise TypeError(f"Unacceptable type {type} for constraints.")
         return [tuple(point) for point in new_points]
 
     def overwrite_internal_data_points(self, data_points: list) -> None:

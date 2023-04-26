@@ -70,7 +70,7 @@ class TestGAOpt(unittest.TestCase):
                        num_generations=100,
                        num_parents_mating=10,
                        fitness_func=function,
-                       gene_type=float,
+                       # gene_type=float,
                        mutation_probability=.1,)
         opt = Optimizer(ga_opt)
 
@@ -118,6 +118,9 @@ class TestGAOpt(unittest.TestCase):
 
         self.assertTrue(np.abs(solution[0] - x_true) <= 1e-12)
         self.assertTrue(np.abs(solution[1] - y_true) <= 1e-12)
+
+    # todo : write test for constraint: check that in different cases (e.g. multiple params, single param /
+    #  starting params within/outside constraints) all points created are always inside constrains (multiple iterations)
 
 
 if __name__ == '__main__':

@@ -13,6 +13,8 @@ from netsquid_simulationtools.repchain_data_process import process_data_duration
 from netsquid_netconf.netconf import Loader
 from netsquid_nv.nv_parameter_set import compute_dephasing_prob_from_nodephasing_number, _gaussian_dephasing_fn
 
+from example_blueprint_main import blueprint_input
+
 PLATFORM_TO_COHERENCE_TIME = {"nv": "carbon_T2",
                               "ti": "coherence_time",
                               "abstract": "T2"}
@@ -37,22 +39,23 @@ TO_PROB_NO_ERROR_FUNCTION = {"detector_efficiency": lambda x: x,
                              }
 
 
-def parameter_cost(row, baseline_parameters):
-    """Computes cost of parameters in `row` w.r.t. parameters in baseline_parameters.
+def parameter_cost(row: pd.Series, baseline_parameters: dict) -> float:
+    """Computes the cost of parameters in `row` with respect to the baseline_parameters.
 
-    Parameters
-    ----------
-    row : :class:`pandas.DataFrame` row
-        Contains values of parameters for which cost will be computed
-    baseline_parameters : dict
-        Dictionary where the keys are names of optimized hardware parameters and the values are their baseline values.
+       Parameters
+       ----------
+       row : pd.Series
+           A pandas Series object containing the values of parameters for which the cost will be computed.
+       baseline_parameters : dict
+           A dictionary where the keys are the names of optimized hardware parameters and the values are their baseline
+            values.
 
-    Returns
-    -------
-    parameter_cost : float
-        Hardware parameter cost.
+       Returns
+       -------
+       float
+           The hardware parameter cost.
 
-    """
+       """
     parameter_cost = 0
     baseline_prob_no_error_dict = {}
     prob_no_error_dict = {}
@@ -71,7 +74,8 @@ def parameter_cost(row, baseline_parameters):
     return parameter_cost
 
 
-def total_cost_squared_difference(row, fidelity_threshold, rate_threshold, baseline_parameters):
+def total_cost_squared_difference(row: pd.Series, fidelity_threshold: float, rate_threshold: float,
+                                  baseline_parameters: dict) -> float:
     """Computes total cost, which includes hardware parameter cost and penalties for not meeting target metrics.
 
     A square difference penalty is used, ensuring that the penalty is higher the furthest away from the target a
@@ -101,39 +105,56 @@ def total_cost_squared_difference(row, fidelity_threshold, rate_threshold, basel
     return total_cost
 
 
-def parse_from_input_file(filename="input_file.ini"):
-    """Gets list of parameters that were optimized over from input file.
+# def parse_from_input_file(filename: str = "input_file.ini") -> list:
+#     """Gets list of parameters that were optimized over from input file.
+#
+#     Parameters
+#     ----------
+#     filename : str, optional
+#         Name of the input file used in the optimization. Defaults to "input_file.ini".
+#
+#     Returns
+#     -------
+#     parameter_names : list
+#         List of names of the parameters that were optimized over.
+#
+#     """
+#     parameter_names = []
+#     parameters = False
+#     with open(filename, "r") as f:
+#         lines = [line.strip() for line in f.readlines()]
+#     for line in lines:
+#         variable = line.split(":")[0].strip()
+#         if variable == 'Parameter':
+#             parameters = True
+#         if parameters:
+#             if variable == 'name':
+#                 name = str(line.split(":")[1].strip())
+#                 parameter_names.append(name)
+#         if parameters and line.rstrip() == 'end':
+#             parameters = False
+#
+#     return parameter_names
+
+
+def parse_parameters_from_experiment(experiment) -> list:
+    """Gets list of parameters that were optimized over from the experiment object.
 
     Parameters
     ----------
-    filename : str, optional
-        Name of the input file used in the optimization. Defaults to "input_file.ini".
+    experiment : qiaopt.pre.Experiment
+        Instance of the experiment class containing the optimized parameters.
 
     Returns
     -------
     parameter_names : list
-        List of names of the parameters that were optimized over.
-
+        Names of the parameters that were optimized over in the input experiment.
     """
-    parameter_names = []
-    parameters = False
-    with open(filename, "r") as f:
-        lines = [line.strip() for line in f.readlines()]
-    for line in lines:
-        variable = line.split(":")[0].strip()
-        if variable == 'Parameter':
-            parameters = True
-        if parameters:
-            if variable == 'name':
-                name = str(line.split(":")[1].strip())
-                parameter_names.append(name)
-        if parameters and line.rstrip() == 'end':
-            parameters = False
-
+    parameter_names = [param.name for param in experiment.parameters if param.is_active]
     return parameter_names
 
 
-def get_baseline_parameters(baseline_parameter_file, parameter_list):
+def get_baseline_parameters(baseline_parameter_file: str, parameter_list: list) -> dict:
     """Identifies baseline values of the parameters in `parameter_list`, i.e. the parameters that were optimized over.
     Removes tunable parameters, as those are not relevant for computing the cost.
 
@@ -165,15 +186,16 @@ def get_baseline_parameters(baseline_parameter_file, parameter_list):
     return baseline_parameters
 
 
-def process_data(parameter_list, raw_data_dir="raw_data"):
-    """Process raw simulation data.
+def process_data(parameter_list: list, root_dir: str = ".") -> pd.DataFrame:
+    """Process raw simulation data keeping the same order as the jobs were submitted in.
 
     Parameters
     ----------
     parameter_list : list
         List with names of optimized parameters.
-    raw_data_dir : str
-        Path to directory cointaining raw data. Default to "raw_data"
+    root_dir : str
+        Path to the root directory where subdirectories with simulation data are located.
+        Defaults to the current directory.
 
     Returns
     -------
@@ -182,44 +204,59 @@ def process_data(parameter_list, raw_data_dir="raw_data"):
 
     """
     processed_data = pd.DataFrame()
-    for filename in os.listdir(raw_data_dir):
-        if filename[-len(".pickle"):] == ".pickle":
-            new_data = pickle.load(open("{}/{}".format("raw_data", filename), "rb"))
-            # manually write varied param to dataframe
-            for param in parameter_list:
-                new_data.copy_baseline_parameter_to_column(name=param)
-            # overwrite varied parameters
-            new_data._reset_varied_parameters()
-            new_data._varied_parameters = parameter_list
 
-            new_processed_data = process_repchain_dataframe_holder(
-                repchain_dataframe_holder=new_data,
-                processing_functions=[process_data_duration, process_data_teleportation_fidelity])
-            processed_data = processed_data.append(new_processed_data)
+    job_dirs = [d for d in os.listdir(root_dir) if os.path.isdir(os.path.join(root_dir, d)) and d.startswith('job')]
+    job_dirs.sort(key=lambda x: int(x[3:]))  # Sort job directories by job number
+
+    for job_dir in job_dirs:
+        print(job_dir)
+        current_job_dir = os.path.join(root_dir, job_dir)
+        raw_data_subfolder = 'raw_data'  # Replace this with the correct subfolder name
+        subfolder_path = os.path.join(current_job_dir, raw_data_subfolder)
+
+        for _, _, subfolder_files in os.walk(subfolder_path):
+            for filename in subfolder_files:
+                if filename.endswith(".pickle"):
+                    file_path = os.path.join(subfolder_path, filename)
+                    print(f"Loading pickle file: {file_path}")  # Add this line to print the file path
+                    new_data = pickle.load(open(file_path, "rb"))
+                    # manually write varied param to dataframe
+                    for param in parameter_list:
+                        new_data.copy_baseline_parameter_to_column(name=param)
+                    # overwrite varied parameters
+                    new_data._reset_varied_parameters()
+                    new_data._varied_parameters = parameter_list
+
+                    new_processed_data = process_repchain_dataframe_holder(
+                        repchain_dataframe_holder=new_data,
+                        processing_functions=[process_data_duration, process_data_teleportation_fidelity])
+                    processed_data = processed_data.append(new_processed_data)
     return processed_data
 
 
 if __name__ == "__main__":
     # Replace this by the name of the baseline parameter file you used
     # This name should be in the format "platform_baseline_params.yaml"
-    baseline_parameter_file = "nv_baseline_params.yaml"
+    baseline_parameter_file = blueprint_input().system_setup.cmdline_arguments["paramfile"]
+    # baseline_parameter_file = "nv_baseline_params.yaml"
 
-    parameter_list = parse_from_input_file()
+    param_list = parse_parameters_from_experiment(experiment=blueprint_input())
+    # param_list = parse_from_input_file()
     platform = baseline_parameter_file.split("_baseline")[0]
-    baseline_parameters = get_baseline_parameters(baseline_parameter_file, parameter_list)
+    baseline_parameters = get_baseline_parameters(baseline_parameter_file, param_list)
     fid_threshold = 0.8717
     rate_threshold = 0.1
 
-    processed_data = process_data(parameter_list)
-    # sort data by first scan_param
-    processed_data.sort_values(by=parameter_list[0], inplace=True)
+    processed_data = process_data(param_list)
+    # sort data by first scan_param # todo : find out why, because for our code we want to preserve job order
+    # processed_data.sort_values(by=param_list[0], inplace=True)
     # save processed data
-    processed_data.to_csv("output.csv", index=False)
+    processed_data.to_csv("full_output.csv", index=False)
 
     # get output data ready for stopos
     # this means getting the cost in the first column, and the values of the optimized parameters in the other columns
 
-    csv_output = pd.read_csv("output.csv")
+    csv_output = pd.read_csv("full_output.csv")
     output_for_stopos = pd.DataFrame(csv_output["teleportation_fidelity_average"],
                                      columns=['teleportation_fidelity_average'])
     output_for_stopos["rate"] = 1 / csv_output["duration_per_success"]
@@ -229,11 +266,11 @@ if __name__ == "__main__":
         csv_output["cutoff_time"] = csv_output["cutoff_time"] / csv_output[PLATFORM_TO_COHERENCE_TIME[platform]]
     except KeyError:
         pass
-    for parameter in parameter_list:
+    for parameter in param_list:
         output_for_stopos[parameter] = csv_output[parameter]
     output_for_stopos.insert(0, "cost", output_for_stopos.apply(
         lambda row: total_cost_squared_difference(row, fid_threshold, rate_threshold, baseline_parameters), axis=1))
 
     output_for_stopos.drop("teleportation_fidelity_average", inplace=True, axis=1)
     output_for_stopos.drop("rate", inplace=True, axis=1)
-    output_for_stopos.to_csv("csv_output.csv", index=False, header=False)
+    output_for_stopos.to_csv("output.csv", index=False, sep=' ')

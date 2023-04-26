@@ -218,8 +218,8 @@ def create_separate_files_for_job(experiment: Experiment, datapoint_item: list, 
     source_directory = experiment.system_setup.source_directory
     working_directory = experiment.system_setup.working_directory
     old_cmdline_args = experiment.system_setup.cmdline_arguments.copy()
-    paramfile_name = old_cmdline_args['paramfile']
-    configfile_name = old_cmdline_args['configfile']
+    paramfile_name = os.path.basename(old_cmdline_args['paramfile'])
+    configfile_name = os.path.basename(old_cmdline_args['configfile'])
     # delete unnecessary args from dict copy
     del old_cmdline_args['paramfile']
     del old_cmdline_args['configfile']

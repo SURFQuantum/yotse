@@ -616,17 +616,18 @@ def innsbruck_visibility_and_coin_probs(t_coin, improvement_factor_visibility, i
     return vis, coin_prob_ph_ph, coin_prob_ph_dc, coin_prob_dc_dc
 
 
-def _translate_smart_stopos_blueprint(param_file):
-    # load sim parameters from file
-    with open(param_file, "r") as stream:
-        sim_params = yaml.load(stream, Loader=Loader)
-
-    if "cutoff_time" in sim_params and sim_params["cutoff_time"] is not None:
-        sim_params["cutoff_time"] = sim_params["cutoff_time"] * sim_params["carbon_T2"]
-
-    # dump to yaml to be picked up by netconf
-    with open(args.paramfile, "w") as stream:
-        yaml.dump(sim_params, stream)
+# todo: now replaced by `qiaopt.pre.Parameter.depends_on`
+# def _translate_smart_stopos_blueprint(param_file):
+#     # load sim parameters from file
+#     with open(param_file, "r") as stream:
+#         sim_params = yaml.load(stream, Loader=Loader)
+#
+#     if "cutoff_time" in sim_params and sim_params["cutoff_time"] is not None:
+#         sim_params["cutoff_time"] = sim_params["cutoff_time"] * sim_params["carbon_T2"]
+#
+#     # dump to yaml to be picked up by netconf
+#     with open(args.paramfile, "w") as stream:
+#         yaml.dump(sim_params, stream)
 
 
 if __name__ == "__main__":
@@ -643,7 +644,7 @@ if __name__ == "__main__":
                         help="Plot the simulation results. Currently not available.")
 
     args, unknown = parser.parse_known_args()
-    _translate_smart_stopos_blueprint(args.paramfile)
+    # _translate_smart_stopos_blueprint(args.paramfile)
     repchain_df_holder, varied_param = run_unified_simulation_state(configfile=args.configfile,
                                                                     paramfile=args.paramfile,
                                                                     n_runs=args.n_runs,

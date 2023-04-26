@@ -12,10 +12,10 @@ class TestParameters(unittest.TestCase):
     @staticmethod
     def create_default_param(name="bright_state_parameter", parameter_range=[.1, .9], number_points=9,
                              distribution="linear", constraints=None, custom_distribution=None,
-                             param_type="continuous"):
+                             param_type="continuous", parameter_active=True, depends_on=None):
         return Parameter(name=name, param_range=parameter_range, number_points=number_points,
                          distribution=distribution, constraints=constraints, custom_distribution=custom_distribution,
-                         param_type=param_type)
+                         param_type=param_type, parameter_active=parameter_active, depends_on=depends_on)
 
     def test_initialization(self):
         test_parameter = self.create_default_param()
@@ -61,6 +61,41 @@ class TestParameters(unittest.TestCase):
                 self.assertGreaterEqual(max(dist_param.data_points), dist_param.range[0])
                 self.assertLessEqual(min(dist_param.data_points), dist_param.range[1])
 
+    def test_generate_data_points(self):
+        test_parameter = self.create_default_param(number_points=5)
+        test_parameter.generate_data_points(num_points=3)
+        self.assertEqual(len(test_parameter.data_points), 3)
+        np.testing.assert_almost_equal(test_parameter.data_points, [.1, .5, .9])
+
+    def test_generate_dependent_data_points(self):
+        def linear_dep(x, y):
+            return x * y
+
+        param1 = self.create_default_param(name="param1", number_points=4, distribution="linear",
+                                           parameter_range=[1, 4])
+        param2 = self.create_default_param(name="param2", number_points=4, distribution="linear",
+                                           parameter_range=[1, 4], depends_on={'name': "param1",
+                                                                               'function': linear_dep})
+        param_list = [param1, param2]
+        param2.generate_dependent_data_points(param_list)
+        self.assertListEqual(param2.data_points, [1, 4, 9, 16])
+
+        def fancy_dep(x, y):
+            return 2*x**y
+
+        param3 = self.create_default_param(name="param3", number_points=4, distribution="linear",
+                                           parameter_range=[1, 4], depends_on={'name': "param1",
+                                                                               'function': fancy_dep})
+        param_list = [param1, param3]
+        param3.generate_dependent_data_points(param_list)
+        self.assertListEqual(param3.data_points, [2, 8, 54, 512])
+
+    def test_is_active_property(self):
+        active_param = self.create_default_param(parameter_active=True)
+        inactive_param = self.create_default_param(parameter_active=False)
+        self.assertTrue(active_param.is_active)
+        self.assertFalse(inactive_param.is_active)
+
 
 class TestSystemSetup(unittest.TestCase):
     """Test the SystemSetup class."""
@@ -87,13 +122,15 @@ class TestSystemSetup(unittest.TestCase):
     def test_init(self):
         test_system = SystemSetup(source_directory=os.getcwd(), program_name=DUMMY_FILE,
                                   command_line_arguments={'--arg1': 0.1, '--arg2': 'value2'},
-                                  executor='bash', files_needed=['*.sh', 'important_text.txt', 'generic_readme.md'])
+                                  executor='bash',
+                                  # files_needed=['*.sh', 'important_text.txt', 'generic_readme.md']
+                                  )
         assert test_system.source_directory == os.getcwd()
-        assert test_system.program_name == DUMMY_FILE
+        assert test_system.program_name == os.path.join(os.getcwd(), DUMMY_FILE)
         assert test_system.cmdline_arguments == {'--arg1': 0.1, '--arg2': 'value2'}
         assert test_system.analysis_script is None
         assert test_system.job_args["exec"] == 'bash'
-        assert test_system.files_needed == ['*.sh', 'important_text.txt', 'generic_readme.md']
+        # assert test_system.files_needed == ['*.sh', 'important_text.txt', 'generic_readme.md']
 
     def test_cmdline_to_list(self):
         """Test if the dict of cmdline args is correctly converted to a list."""

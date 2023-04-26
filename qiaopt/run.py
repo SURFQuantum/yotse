@@ -179,15 +179,10 @@ class Core:
 
     def collect_data(self) -> pandas.DataFrame:
         """
-        Collects data from output files of the current step of the experiment and saves it into a dict that can be
-        accessed through `input_params_to_cost_value()`.
-
-        The new goal here should be to construct a lookup table from output.csv (or the output of the scripts)
-        which as the keys has tuples of the input parameters and as its value the cost associated with that combination
-        of parameters
-        aka: output.csv                     ----> self.input_cost_map : dict
-        C a b c .... x                          {(1, 5, 3, ..., .1) : .7,
-        .7 1 5 3 .. .1                           (...) : ..}
+        Collects data from output.csv (or the output of the scripts) and combines it into a dataframe which has as
+        first column the associated cost and as the other columns the input parameters (order the same way is input to
+        the experiment).
+        The rows of the dataframe follow the same ordering as the jobs.
 
         Returns:
         -------
@@ -204,7 +199,7 @@ class Core:
                             if x[0] != output_directory_current_step]:
                 files.extend(get_files_by_extension(job_dir, extension))
             data = file_list_to_single_df(files)
-            # todo : This is unsorted, is that a problem?
+            # todo : This is unsorted, is that a problem? yes. sort this by job no.
         else:
             # analysis script is given and will output file 'output.csv' with format 'cost_fun param0 param1 ...'
             data = pandas.read_csv(os.path.join(self.experiment.system_setup.current_step_directory, 'output.csv'),
@@ -348,9 +343,12 @@ class Core:
             # if None in ref_factors or len(ref_factors) != len([p for p in self.experiment.parameters if p.is_active]):
             #     raise ValueError("When using refinement factors they must be specified for all active parameters.")
 
-            # todo : this would implement constraints, param type could be subsumed into this maybe by giving 'step'=1?
-            # constraints = [param.constraints for param in self.experiment.parameters if param.is_active]
-            #
+            # Note: param_type could be subsumed into this maybe by giving 'step'=1?
+            constraints = [param.constraints for param in self.experiment.parameters if param.is_active]
+            # check if there are no constraints
+            if all(x is None for x in constraints):
+                constraints = None
+            # todo: add more tests that check what happens if only some constraints are None etc.
             # param_types = [int if param.param_type == "discrete" else float for param in self.experiment.parameters
             #                if param.is_active]
             # if len(set(param_types)) == 1:
@@ -360,7 +358,7 @@ class Core:
                 optimization_alg = GAOpt(initial_population=self.experiment.data_points,
                                          fitness_func=self.input_params_to_cost_value,
                                          # gene_type=param_types,
-                                         # gene_space=constraints,
+                                         gene_space=constraints,
                                          **opt_info.parameters)
             else:
                 raise ValueError('Unknown optimization algorithm.')

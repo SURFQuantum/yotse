@@ -17,8 +17,9 @@ class Parameter:
     distribution : str
         Type of distribution of the points. Currently supports 'linear', 'uniform', 'normal', 'log' or 'custom'.
         If 'custom' is specified then parameter custom_distribution is required.
-    constraints : list (optional)
-        List of constraints, defaults to None.
+    constraints : dict or list(optional)
+        Dictionary with constraints. Keys can be 'low', 'high' and 'step'. Alternatively list with acceptable values.
+        Defaults to None.
     weights : list (optional)
         List of weights for the parameters, defaults to None.
     parameter_active: bool (optional)
@@ -35,6 +36,10 @@ class Parameter:
         Scale factor to apply to the parameter when generating new points.
         Defaults to 1.0.
     # todo : check if this is what we intend to do actually?
+    depends_on : dict (optional)
+        Dictionary containing the two keys 'name' and 'function', specifying the parameter name it depends on and a
+        function of the form function(parameter_value: float, parameter_it_depends_on_value: float) -> float.
+        Defaults to None.
 
     Attributes
     ----------
@@ -43,7 +48,7 @@ class Parameter:
     """
     def __init__(self, name: str, param_range: list, number_points: int, distribution: str, constraints=None,
                  weights=None, parameter_active=True, custom_distribution=None, param_type="continuous",
-                 scale_factor=1.):
+                 scale_factor=1., depends_on=None):
         self.name = name
         self.range = param_range
         self.range[0] = float(self.range[0])
@@ -53,10 +58,6 @@ class Parameter:
         if weights is not None:
             raise NotImplementedError("weights not implemented...yet.")
         self.constraints = constraints
-        if constraints is not None:
-            raise NotImplementedError("constraints not implemented..yet")
-            # todo: note in principle all the functionality is here already just needs to be uncommented and tested
-            # todo: the problem is that pygad does not support this feature somehow, also not uniqueness of solutions
         self.parameter_active = parameter_active
         self.data_points = []
         if custom_distribution is not None and distribution != 'custom':
@@ -67,6 +68,7 @@ class Parameter:
         if scale_factor != 1.:
             raise NotImplementedError("scale_factor not implemented yet.")
         self.scale_factor = scale_factor
+        self.depends_on = depends_on
 
         self.generate_initial_data_points()
 
@@ -75,18 +77,19 @@ class Parameter:
         return self.parameter_active
 
     def generate_data_points(self, num_points: int) -> None:
-        """Generate set of n=num_points data points based on the specified distribution, range and param_type of
+        """
+        Generate set of n=num_points data points based on the specified distribution, range, and param_type of
         this parameter.
 
-         Parameters
-         ----------
-         num_points : int
+        Parameters
+        ----------
+        num_points : int
             Number of datapoints to generate.
 
-        Note:
+        Notes
+        -----
         - data_points are not sorted.
         - data_points are not guaranteed to be unique.
-        # todo : should they be?
         """
         if self.param_type == "continuous":
             if self.distribution == "linear":
@@ -136,6 +139,35 @@ class Parameter:
         """Generate initial data points based on the specified distribution and range."""
         self.generate_data_points(num_points=self.number_points)
 
+    def generate_dependent_data_points(self, parameter_list: list) -> None:
+        """
+        Generate data points for this parameter based on another parameter's data points and adjust constraints.
+
+        Parameters
+        ----------
+        parameter_list : list
+            List of (all) Parameter objects in the experiment. Should at least contain the parameter that this
+            parameter depends on.
+
+        Notes
+        -----
+        # todo : this will only be applied once before the start of the experiment. Is that useful?
+        """
+        target_parameter = [param for param in parameter_list if param.name == self.depends_on['name']][0]
+
+        new_data_points = [self.depends_on['function'](a, b) for a, b in zip(self.data_points,
+                                                                             target_parameter.data_points)]
+        if self.constraints is not None:
+            try:
+                self.constraints['low'] = self.depends_on['function'](self.constraints['low'],
+                                                                      target_parameter.constraints['low'])
+                self.constraints['high'] = self.depends_on['function'](self.constraints['high'],
+                                                                       target_parameter.constraints['high'])
+            except KeyError:
+                pass
+
+        self.data_points = new_data_points
+
 
 class SystemSetup:
     """Defines a class for the setup of the system parameters.
@@ -156,6 +188,7 @@ class SystemSetup:
     files_needed : list (optional)
         List of files that are needed to run the experiment and should be copied to the run location.
         Defaults to ("*.py",).
+        # todo: this currently does not do anything!
     output_directory: str (optional)
         Name of the directory the output should be stored in. Defaults to 'output'.
     output_extension: str (optional)
@@ -171,19 +204,28 @@ class SystemSetup:
     working_directory : str
         Name of the current working directory to be passed to QCGPilotJob.
     """
-    def __init__(self, source_directory: str, program_name: str, command_line_arguments=None, analysis_script=None,
-                 executor="python", files_needed=("*.py",), output_directory=None, output_extension='csv', venv=None):
+    def __init__(self, source_directory: str, program_name: str, command_line_arguments: dict = None,
+                 analysis_script: str = None, executor: str = "python", files_needed: list = None,
+                 output_directory: str = None, output_extension: str = 'csv', venv: str = None):
         if not os.path.exists(source_directory):
             raise ValueError(f"Invalid source_directory path: {source_directory}")
-        if not os.path.exists(program_name):
-            raise ValueError(f"Invalid program_name: {program_name} is not a file.")
-        if analysis_script is not None and not os.path.exists(analysis_script):
-            raise ValueError(f"Invalid analysis_script: {analysis_script} is not a file.")
+        if not os.path.exists(os.path.join(source_directory, program_name)):
+            raise ValueError(f"Invalid program_name: {os.path.join(source_directory, program_name)} is not a file.")
+        if analysis_script is not None:
+            if not os.path.exists(os.path.join(source_directory, analysis_script)):
+                raise ValueError(f"Invalid analysis_script:"
+                                 f" {os.path.join(source_directory, analysis_script)} is not a file.")
+        if files_needed is not None:
+            raise NotImplementedError("files_needed not implemented..yet.")
 
         self.source_directory = source_directory
-        self.program_name = program_name
+        self.program_name = os.path.join(source_directory, program_name)
         self.cmdline_arguments = command_line_arguments or {}
-        self.analysis_script = analysis_script
+        # replace paths in cmdline args with absolute paths
+        for key, value in self.cmdline_arguments.items():
+            if isinstance(value, str) and os.path.splitext(value)[1]:
+                self.cmdline_arguments[key] = os.path.join(source_directory, value)
+        self.analysis_script = os.path.join(source_directory, analysis_script) if analysis_script is not None else None
         self.job_args = {"exec": executor}
         self.files_needed = files_needed
         self.output_directory = output_directory or 'output'
@@ -276,6 +318,8 @@ class Experiment:
             for param in self.parameters:
                 if not isinstance(param, Parameter):
                     raise TypeError(f"One of the parameters is not of correct type 'Parameter', but is {type(param)}")
+                if param.depends_on is not None:
+                    param.generate_dependent_data_points(self.parameters)
             self.data_points = list(itertools.product(*[param.data_points for param in self.parameters
                                                         if param.is_active]))
 

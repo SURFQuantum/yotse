@@ -14,7 +14,8 @@ def wobbly_pre():
                                  command_line_arguments={"--filebasename": 'wobbly_example'},
                                  analysis_script="analyse_function_output.py",
                                  executor="python",
-                                 files_needed=["*.py"]),
+                                 # files_needed=["*.py"] # todo not implemented
+                                 ),
         parameters=[
             Parameter(
                 name="x",
@@ -22,7 +23,7 @@ def wobbly_pre():
                 number_points=10,
                 distribution="uniform",
                 constraints=None,
-                weights=None,
+                weights=None,   # todo not implemented
                 parameter_active=True,
                 param_type="continuous"
             ),
@@ -31,8 +32,7 @@ def wobbly_pre():
                 param_range=[-3, 3],
                 number_points=10,
                 distribution="uniform",
-                # constraints={'low': -4, 'high': 4, 'step': .001},
-                constraints=None,
+                constraints={'low': -4, 'high': 4, 'step': .001},
                 weights=None,
                 parameter_active=True,
                 param_type="continuous"
@@ -72,9 +72,8 @@ def main():
 
     for i in range(experiment.optimization_information_list[0].parameters["num_generations"]):
         assert wobbly_example.optimization_alg.ga_instance.generations_completed == i   # sanity check
-        # wobbly_example.run(step=i)
-        # todo: for some unknown reason the code below errors out after 10-14 steps
         # todo : the grid based point generation is still somehow bugged
+        # wobbly_example.run(step=i, evolutionary_point_generation=False)
         wobbly_example.run(step=i, evolutionary_point_generation=True)
 
     solution = wobbly_example.suggest_best_solution()
