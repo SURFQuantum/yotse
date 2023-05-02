@@ -50,7 +50,9 @@ class TestSetupOptimizationDir(unittest.TestCase):
 
         for directory in expected_dir_structure:
             self.assertTrue(os.path.exists(os.path.join(self.tmp_dir, directory)))
-        self.assertEqual(os.listdir(self.tmp_dir), ['output', 'src'])
+        sorted_dir = os.listdir(self.tmp_dir)
+        sorted_dir.sort()
+        self.assertEqual(sorted_dir, ['output', 'src'])
         self.assertEqual(experiment.system_setup.working_directory,
                          os.path.join(self.tmp_dir, 'output', f'{experiment.name}_{timestamp_str}/step0/job0'))
 
@@ -66,7 +68,9 @@ class TestSetupOptimizationDir(unittest.TestCase):
 
         for directory in expected_dir_structure_now:
             self.assertTrue(os.path.exists(os.path.join(self.tmp_dir, directory)))
-        self.assertEqual(os.listdir(self.tmp_dir), ['output', 'src'])
+        sorted_dir = os.listdir(self.tmp_dir)
+        sorted_dir.sort()
+        self.assertEqual(sorted_dir, ['output', 'src'])
         self.assertEqual(experiment.system_setup.working_directory,
                          os.path.join(self.tmp_dir, 'output', f'{experiment.name}_{timestamp_str}/step2/job1'))
 
