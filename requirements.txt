@@ -7,5 +7,7 @@ pytest
 pytest-cov
 PyQt5
 qcg-pilotjob>=0.14.0,<0.15.0
+ruamel.yaml
 scikit-learn
 scipy
+pyYAML
