@@ -242,11 +242,12 @@ class Core:
         solution_idx : int
             Index of the solution within the set of points.
         """
+        # todo: input parameters of this are highly GA specific and should be made general
         row = self.input_param_cost_df.iloc[solution_idx]
         if all(math.isclose(row[i + 1], solution[i]) for i in range(len(solution))):
             return row[0]
         else:
-            raise ValueError(f"Solution {solution} was not found in internal dataframe.")
+            raise ValueError(f"Solution {solution} was not found in internal dataframe row {solution_idx}.")
 
     def update_internal_cost_data(self, data: pandas.DataFrame) -> None:
         """Update internal dataframe mapping input parameters to the associated cost from input data.

@@ -27,7 +27,7 @@ class TestParameters(unittest.TestCase):
             self.create_default_param(distribution='invalid')
 
     def test_custom_distribution(self):
-        @staticmethod
+
         def mock_distribution(min_value, max_value, number_points):
             return [.1, .5, .8]
 
