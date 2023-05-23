@@ -320,7 +320,7 @@ class Core:
             The number of the current job.
         """
         source_dir = experiment.system_setup.source_directory
-        output_dir = experiment.system_setup.output_directory
+        output_dir = experiment.system_setup.output_dir_name
         new_working_dir = os.path.join(source_dir, output_dir, f'step{step_number}', f'job{job_number}')
 
         if not os.path.exists(new_working_dir):

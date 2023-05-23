@@ -48,7 +48,7 @@ def setup_optimization_dir(experiment: Experiment, step_number: int, job_number:
             > stepm
     """
     output_directory = os.path.join(experiment.system_setup.source_directory, '..',
-                                    experiment.system_setup.output_directory)
+                                    experiment.system_setup.output_dir_name)
     output_directory = os.path.realpath(output_directory)                                       # clean path of '..'
     if step_number == 0 and job_number == 0:
         # for first step create timestamped project directory

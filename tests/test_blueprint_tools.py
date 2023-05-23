@@ -23,7 +23,7 @@ class TestSetupOptimizationDir(unittest.TestCase):
         experiment.system_setup.source_directory = os.path.join(self.tmp_dir, 'src')
         if not os.path.exists(experiment.system_setup.source_directory):
             os.makedirs(experiment.system_setup.source_directory)
-        experiment.system_setup.output_directory = 'output'
+        experiment.system_setup.output_dir_name = 'output'
         experiment.name = 'blueprint_experiment'
         return experiment
 
@@ -250,7 +250,7 @@ class TestUpdateYamlFiles(unittest.TestCase):
         # Create a mock experiment object
         experiment = MagicMock()
         experiment.system_setup.source_directory = os.path.join(self.tmp_dir, 'src')
-        experiment.system_setup.output_directory = 'output'
+        experiment.system_setup.output_dir_name = 'output'
         experiment.system_setup.cmdline_arguments = {'paramfile': 'params.yaml',
                                                      'configfile': 'config.yaml',
                                                      '--n_runs': 100}
@@ -273,9 +273,9 @@ class TestUpdateYamlFiles(unittest.TestCase):
 
         expected_program_name = os.path.join(experiment.system_setup.source_directory,
                                              experiment.system_setup.program_name)
-        expected_config_path = os.path.join(self.tmp_dir, experiment.system_setup.output_directory,
+        expected_config_path = os.path.join(self.tmp_dir, experiment.system_setup.output_dir_name,
                                             f'{experiment.name}_{timestamp_str}/step0/job0/config_step0_job0.yaml')
-        expected_param_path = os.path.join(self.tmp_dir, experiment.system_setup.output_directory,
+        expected_param_path = os.path.join(self.tmp_dir, experiment.system_setup.output_dir_name,
                                            f'{experiment.name}_{timestamp_str}/step0/job0/params_step0_job0.yaml')
         expected_cmdline = [expected_program_name, expected_config_path, "--paramfile", expected_param_path,
                             '--n_runs', str(100)]

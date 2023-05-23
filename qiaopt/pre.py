@@ -185,16 +185,20 @@ class SystemSetup:
         Name of the script that is used to analyse the output of the program script. Defaults to None.
     executor : str (optional)
         Executor to be passed when submitting jobs. Defaults to 'python'.
-    files_needed : list (optional)
-        List of files that are needed to run the experiment and should be copied to the run location.
-        Defaults to ("*.py",).
-        # todo: this currently does not do anything!
-    output_directory: str (optional)
+    output_dir_name : str (optional)
         Name of the directory the output should be stored in. Defaults to 'output'.
-    output_extension: str (optional)
+    output_extension : str (optional)
         Extension of the output files to be picked up by the analysis_script, e.g 'csv' or 'json'. Defaults to 'csv'.
     venv : str (optional)
-        Path to the virtual environment that should be initialized before the QCGPilot job is started.
+        Path to the virtual environment that should be initialized before the QCGPilot job is started. Defaults to None.
+    num_nodes : int (optional)
+        Number of nodes to allocate on the HPC cluster. Defaults to 1.
+    alloc_time : str (optional)
+        Time to allocate on the HPC cluster in the format HH:MM:SS (or HHH:MM:SS and so forth). Defaults to '00:15:00'.
+    slurm_args : list (optional)
+        Additional arguments to pass to SLURM, e.g. '--exclusive'. Defaults to None
+    modules : list (optional)
+        Modules to load on the HPC cluster. Defaults to None.
 
     Attributes:
     ----------
@@ -205,8 +209,9 @@ class SystemSetup:
         Name of the current working directory to be passed to QCGPilotJob.
     """
     def __init__(self, source_directory: str, program_name: str, command_line_arguments: dict = None,
-                 analysis_script: str = None, executor: str = "python", files_needed: list = None,
-                 output_directory: str = None, output_extension: str = 'csv', venv: str = None):
+                 analysis_script: str = None, executor: str = "python", output_dir_name: str = None,
+                 output_extension: str = 'csv', venv: str = None, num_nodes: int = 1, alloc_time: str = '00:15:00',
+                 slurm_args: list = None, modules: list = None):
         if not os.path.exists(source_directory):
             raise ValueError(f"Invalid source_directory path: {source_directory}")
         if not os.path.exists(os.path.join(source_directory, program_name)):
@@ -215,8 +220,6 @@ class SystemSetup:
             if not os.path.exists(os.path.join(source_directory, analysis_script)):
                 raise ValueError(f"Invalid analysis_script:"
                                  f" {os.path.join(source_directory, analysis_script)} is not a file.")
-        if files_needed is not None:
-            raise NotImplementedError("files_needed not implemented..yet.")
 
         self.source_directory = source_directory
         self.program_name = os.path.join(source_directory, program_name)
@@ -227,13 +230,17 @@ class SystemSetup:
                 self.cmdline_arguments[key] = os.path.join(source_directory, value)
         self.analysis_script = os.path.join(source_directory, analysis_script) if analysis_script is not None else None
         self.job_args = {"exec": executor}
-        self.files_needed = files_needed
-        self.output_directory = output_directory or 'output'
+        self.output_dir_name = output_dir_name or 'output'
         self.output_extension = output_extension
         self.stdout_basename = 'stdout'
         self.working_directory = None
         if venv is not None:
             self.job_args["venv"] = venv
+            self.venv = venv
+        self.num_nodes = num_nodes
+        self.alloc_time = alloc_time
+        self.slurm_args = slurm_args
+        self.modules = modules
 
     @property
     def current_step_directory(self) -> str:
@@ -352,3 +359,34 @@ class Experiment:
         if not isinstance(optimization_info, OptimizationInfo):
             raise TypeError("Can not add parameter that is not of type Parameter.")
         self.optimization_information_list.append(optimization_info)
+
+    def generate_slurm_script(self, filename):
+        """Generate slurm script to execute the file through slurm.
+
+        Note: after the file has been created the process can be started by calling `sbatch slurm.job`
+
+        Parameters
+        ----------
+        filename : str (optional)
+            Name of the file to be executed through SLURM
+        """
+        if self.system_setup.num_nodes is None:
+            raise ValueError("Slurm script can not be generated without num_nodes.")
+        if self.system_setup.alloc_time is None:
+            raise ValueError("Slurm script can not be generated without alloc_time.")
+
+        script = f"#!/bin/bash\n#SBATCH --nodes={self.system_setup.num_nodes}\n"
+        if self.system_setup.slurm_args is not None:
+            for slurm_arg in self.system_setup.slurm_args:
+                script += f"#SBATCH {slurm_arg}\n"
+        script += f"#SBATCH --time={self.system_setup.alloc_time}\n\n"
+        script += "module purge\n"
+        if self.system_setup.modules is not None:
+            for module in self.system_setup.modules:
+                script += f"module load {module}\n"
+        if self.system_setup.venv is not None:
+            script += f"source {os.path.join(self.system_setup.venv,'bin/activate')}\n\n"
+        script += f"python {filename}\n"
+
+        with open(os.path.join(self.system_setup.source_directory, "slurm.job"), "w") as file:
+            file.write(script)

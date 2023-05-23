@@ -2,6 +2,7 @@ import os
 import unittest
 import numpy as np
 import itertools
+import inspect
 from qiaopt.pre import Parameter, SystemSetup, Experiment, OptimizationInfo
 
 DUMMY_FILE = "experiment.py"
@@ -122,15 +123,23 @@ class TestSystemSetup(unittest.TestCase):
     def test_init(self):
         test_system = SystemSetup(source_directory=os.getcwd(), program_name=DUMMY_FILE,
                                   command_line_arguments={'--arg1': 0.1, '--arg2': 'value2'},
-                                  executor='bash',
-                                  # files_needed=['*.sh', 'important_text.txt', 'generic_readme.md']
+                                  executor='bash', output_dir_name='out', output_extension='txt', venv='test/test-env/',
+                                  num_nodes=42, alloc_time='115:00:00', slurm_args=['--exclusive'],
+                                  modules=['PYTHON3.10']
                                   )
         assert test_system.source_directory == os.getcwd()
         assert test_system.program_name == os.path.join(os.getcwd(), DUMMY_FILE)
         assert test_system.cmdline_arguments == {'--arg1': 0.1, '--arg2': 'value2'}
         assert test_system.analysis_script is None
         assert test_system.job_args["exec"] == 'bash'
-        # assert test_system.files_needed == ['*.sh', 'important_text.txt', 'generic_readme.md']
+        assert test_system.output_dir_name == 'out'
+        assert test_system.output_extension == 'txt'
+        assert test_system.venv == 'test/test-env/'
+        assert test_system.job_args["venv"] == 'test/test-env/'
+        assert test_system.num_nodes == 42
+        assert test_system.alloc_time == '115:00:00'
+        assert test_system.slurm_args == ['--exclusive']
+        assert test_system.modules == ['PYTHON3.10']
 
     def test_cmdline_to_list(self):
         """Test if the dict of cmdline args is correctly converted to a list."""
@@ -211,6 +220,45 @@ class TestExperiment(unittest.TestCase):
         test_opt.add_optimization_info(OptimizationInfo(name='GD', opt_parameters={}, is_active=False))
         self.assertEqual(len(test_opt.optimization_information_list), 2)
         self.assertEqual(test_opt.optimization_information_list[-1].name, 'GD')
+
+    def test_generate_slurm_script(self):
+        """Test generation of a default slurm script for the Experiment."""
+        test_exp = self.create_default_experiment()
+        test_exp.system_setup.num_nodes = 42
+        test_exp.system_setup.alloc_time = "01:00:00"
+        test_exp.system_setup.venv = "test/test-env/"
+        test_exp.system_setup.slurm_args = ["--exclusive"]
+        test_exp.system_setup.modules = ["2023", "Python/3.11.1"]
+
+        test_exp.generate_slurm_script('test_pre.py')
+
+        # Read the contents of the slurm.job file
+        with open("slurm.job", "r") as file:
+            script_contents = file.readlines()
+
+        # Define the expected output
+        expected_output = [
+            "#!/bin/bash\n",
+            "#SBATCH --nodes=42\n",
+            "#SBATCH --exclusive\n",
+            "#SBATCH --time=01:00:00\n",
+            "\n",
+            "module purge\n",
+            "module load 2023\n",
+            "module load Python/3.11.1\n",
+            "source test/test-env/bin/activate\n",
+            "\n",
+            "python test_pre.py\n"
+        ]
+
+        # Compare the generated contents with the expected output line-by-line
+        for line_num, (generated_line, expected_line) in enumerate(zip(script_contents, expected_output), start=1):
+            assert generated_line == expected_line, \
+                f"Line {line_num} of the generated slurm.job file does not match the expected output."
+
+        # Ensure that the number of lines in the generated file matches the expected number of lines
+        assert len(script_contents) == len(
+            expected_output), "The generated slurm.job file has a different number of lines than the expected output."
 
 
 if __name__ == '__main__':
