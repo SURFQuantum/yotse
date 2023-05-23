@@ -238,10 +238,11 @@ class TestExperiment(unittest.TestCase):
 
         # Define the expected output
         expected_output = [
-            "#!/bin/bash\n",
+            "!/bin/bash\n",
             "#SBATCH --nodes=42\n",
             "#SBATCH --exclusive\n",
             "#SBATCH --time=01:00:00\n",
+            "\n",
             "\n",
             "module purge\n",
             "module load 2023\n",

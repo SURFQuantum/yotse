@@ -1,5 +1,6 @@
 """Defines classes and functions for pre step."""
 import os
+import argparse
 import itertools
 import numpy as np
 
@@ -375,11 +376,11 @@ class Experiment:
         if self.system_setup.alloc_time is None:
             raise ValueError("Slurm script can not be generated without alloc_time.")
 
-        script = f"#!/bin/bash\n#SBATCH --nodes={self.system_setup.num_nodes}\n"
+        script = f"!/bin/bash\n#SBATCH --nodes={self.system_setup.num_nodes}\n"
         if self.system_setup.slurm_args is not None:
             for slurm_arg in self.system_setup.slurm_args:
                 script += f"#SBATCH {slurm_arg}\n"
-        script += f"#SBATCH --time={self.system_setup.alloc_time}\n\n"
+        script += f"#SBATCH --time={self.system_setup.alloc_time}\n\n\n"
         script += "module purge\n"
         if self.system_setup.modules is not None:
             for module in self.system_setup.modules:
@@ -390,3 +391,11 @@ class Experiment:
 
         with open(os.path.join(self.system_setup.source_directory, "slurm.job"), "w") as file:
             file.write(script)
+
+    def parse_slurm_arg(self, filename):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--slurm", action="store_true", help="Generate slurm.job file")
+        args = parser.parse_args()
+        if args.slurm:
+            self.generate_slurm_script(filename)
+            exit()

@@ -12,18 +12,19 @@ def blueprint_input():
         experiment_name="DelftEindhovenNVSURFDoubleClick",
         system_setup=SystemSetup(
             # Note : here it is important to write the absolute path, since we
-            source_directory="/home/davidm/Projects/QiaOpt/examples/blueprint_example/src",
+            source_directory=os.getcwd(),
             program_name="unified_simulation_script_state_with_translation.py",
             command_line_arguments={"configfile": "nv_surf_config.yaml",
                                     "paramfile": "nv_baseline_params.yaml",
                                     "--n_runs": 100},
             analysis_script="processing_function.py",
-            executor="/home/davidm/Projects/QiaOpt/examples/blueprint_example/src/venv_wrapper.sh",
-            # files_needed=("*.py", "*.pickle", "*.yaml"),  # todo: not implemented yet
-            output_directory="output",
-            # output_extension=".csv",  # collect_data would pick these up if there is no analysis script
-            venv="~/Projects/venvs/qcg-venv"  # todo venv not working? no packages installed?
-            # todo: missing queue, time_run, time_analysis
+            executor="python",
+            output_dir_name="output",
+            venv="~/Projects/venvs/qcg-venv",
+            num_nodes=2,
+            alloc_time="01:00:00",
+            slurm_args=["--exclusive"],
+            modules=["2021", "Python/3.9.5-GCCcore-10.3.0"]
         ),
         parameters=[
             Parameter(
@@ -33,7 +34,6 @@ def blueprint_input():
                 number_points=3,
                 distribution="uniform",
                 param_type="continuous",
-                # scale_factor=0.1
             ),
             Parameter(
                 name="n1e",
@@ -42,7 +42,6 @@ def blueprint_input():
                 number_points=2,
                 distribution="uniform",
                 param_type="continuous",
-                # scale_factor=44700
             ),
             Parameter(
                 name="visibility",
@@ -51,7 +50,6 @@ def blueprint_input():
                 number_points=2,
                 distribution="uniform",
                 param_type="continuous",
-                # scale_factor=0.1
             ),
             Parameter(
                 name="ec_gate_depolar_prob",
@@ -60,7 +58,6 @@ def blueprint_input():
                 number_points=2,
                 distribution="uniform",
                 param_type="continuous",
-                # scale_factor=0.02
             ),
             Parameter(
                 name="carbon_T2",
@@ -69,7 +66,6 @@ def blueprint_input():
                 number_points=2,
                 distribution="uniform",
                 param_type="continuous",
-                # scale_factor=1e+10
             ),
             Parameter(
                 name="electron_T2",
@@ -78,7 +74,6 @@ def blueprint_input():
                 number_points=2,
                 distribution="uniform",
                 param_type="continuous",
-                # scale_factor=1e+10
             ),
             Parameter(
                 name="cutoff_time",
@@ -87,9 +82,9 @@ def blueprint_input():
                 number_points=2,
                 distribution="uniform",
                 param_type="continuous",
-                # scale_factor=0.99,
                 depends_on={'name': "carbon_T2",
                             'function': linear_dep}
+                # todo: test if this dependency is also used in each generation
             )
         ],
         opt_info_list=[
@@ -97,7 +92,7 @@ def blueprint_input():
                 name="GA",
                 opt_parameters={
                     # "num_generations": 200,
-                    "num_generations": 50,
+                    "num_generations": 2,
                     # "maximum": False,
                     "num_parents_mating": 20,           # todo was missing in blueprint code
                     # "global_scale_factor": 1.0,       what is this supposed to do?
@@ -145,28 +140,6 @@ class BlueprintCore(Core):
 class BlueprintExecutor(BlueprintCore):
     def __init__(self, experiment: Experiment):
         super().__init__(experiment)
-        # workaround to enable proper virtualenv usage
-        executor_name = os.path.basename(experiment.system_setup.job_args["exec"])
-        self.create_venv_wrapper(venv_path=experiment.system_setup.job_args["venv"], wrapper_filename=executor_name)
-
-    @staticmethod
-    def create_venv_wrapper(venv_path: str, wrapper_filename: str = "venv_wrapper.sh"):
-        """Workaround function to make QCGPilot use the proper executor from the virtual environment."""
-        content = f"""#!/bin/bash
-
-# Activate the virtual environment
-source {venv_path}/bin/activate
-
-# Run the main Python script with arguments
-python "$@"
-        """
-
-        with open(wrapper_filename, "w") as wrapper_file:
-            wrapper_file.write(content)
-
-        # Make the wrapper file executable
-        import os
-        os.chmod(wrapper_filename, os.stat(wrapper_filename).st_mode | 0o111)
 
     def run(self, step=0, evolutionary_point_generation=None) -> None:
         super().run(step, evolutionary_point_generation)
@@ -180,14 +153,24 @@ def main():
     experiment.cost_function = cost_function
     blueprint_example = BlueprintExecutor(experiment=experiment)
 
+    experiment.parse_slurm_arg('example_blueprint_main.py')
+
     for i in range(experiment.optimization_information_list[0].parameters["num_generations"]):
         blueprint_example.run(step=i)
 
+    # output
+    # todo what do we want to output in the end? should this file also create a stdout
     solution = blueprint_example.suggest_best_solution()
     print("Solution: ", solution)
+    with open('solution.txt', 'w') as file:
+        file.write(f"Solution: {solution} \n")
+    # plot fitness
     matplotlib.use('Qt5Agg')
     # wobbly_example.optimization_alg.ga_instance.plot_new_solution_rate()
-    blueprint_example.optimization_alg.ga_instance.plot_fitness()
+    fig, ax = blueprint_example.optimization_alg.ga_instance.plot_fitness()
+    fig.savefig('fitness.png')
+
+    # clean up
     remove_files_after_run()
 
 
