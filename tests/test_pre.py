@@ -199,7 +199,7 @@ class TestExperiment(unittest.TestCase):
         test_exp.create_datapoint_c_product()
         assert test_exp.parameters[0].is_active is False
         assert test_exp.parameters[2].is_active is False
-        assert test_exp.data_points == list(itertools.product([11., 12., 13.]))
+        assert test_exp.data_points == [11., 12., 13.]
 
     def test_add_parameter(self):
         """Test adding Parameters to an Experiment."""
