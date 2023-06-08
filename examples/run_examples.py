@@ -14,9 +14,10 @@ def main():
     for root, folders, files in os.walk(path_to_here):
         for filename in files:
             if filename.startswith("example") and filename.endswith(".py"):
-                filepath = os.path.join(root, filename)
-                print(files, filepath)
-                _run_example(filepath)
+                # exclude blueprint example on pipeline as it requires a lot of other code
+                if not filename.startswith("example_blueprint_main"):
+                    filepath = os.path.join(root, filename)
+                    _run_example(filepath)
 
 
 def _run_example(filepath):

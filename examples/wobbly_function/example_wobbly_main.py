@@ -78,9 +78,9 @@ def main():
 
     solution = wobbly_example.suggest_best_solution()
     print("Solution: ", solution)
-    matplotlib.use('Qt5Agg')
+    # matplotlib.use('Qt5Agg')
     # wobbly_example.optimization_alg.ga_instance.plot_new_solution_rate()
-    wobbly_example.optimization_alg.ga_instance.plot_fitness()
+    # wobbly_example.optimization_alg.ga_instance.plot_fitness()
     remove_files_after_run()
 
 
