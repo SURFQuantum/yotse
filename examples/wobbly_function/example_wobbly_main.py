@@ -1,6 +1,6 @@
 """Example script for execution of a wobbly_function.py experiment."""
 import os
-import matplotlib
+# import matplotlib
 import shutil
 from qiaopt.pre import Experiment, SystemSetup, Parameter, OptimizationInfo
 from qiaopt.run import Executor
