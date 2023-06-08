@@ -2,7 +2,6 @@ import os
 import unittest
 import numpy as np
 import itertools
-import inspect
 from qiaopt.pre import Parameter, SystemSetup, Experiment, OptimizationInfo
 
 DUMMY_FILE = "experiment.py"
