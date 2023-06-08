@@ -328,8 +328,12 @@ class Experiment:
                     raise TypeError(f"One of the parameters is not of correct type 'Parameter', but is {type(param)}")
                 if param.depends_on is not None:
                     param.generate_dependent_data_points(self.parameters)
-            self.data_points = list(itertools.product(*[param.data_points for param in self.parameters
-                                                        if param.is_active]))
+            active_params = [param for param in self.parameters if param.is_active]
+            if len(active_params) == 1:
+                # single param -> no cartesian product
+                self.data_points = active_params[0].data_points
+            else:
+                self.data_points = list(itertools.product(*[param.data_points for param in active_params]))
 
     @property
     def current_optimization_step(self) -> int:

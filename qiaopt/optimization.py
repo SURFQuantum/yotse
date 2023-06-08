@@ -415,6 +415,7 @@ class Optimizer:
                 raise RuntimeError("trying to construct_points evolutionary for an algorithm that does not support it.")
             experiment.data_points = self.optimization_algorithm.get_new_points()
         else:
+            print("Warning: Grid based point generation currently not supporting constraints!")
             solution, solution_fitness, solution_index = self.optimization_algorithm.get_best_solution()
 
             if self.optimization_algorithm.logging_level >= 1:
