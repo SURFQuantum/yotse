@@ -2,7 +2,7 @@ import os
 import unittest
 import numpy as np
 import itertools
-from qiaopt.pre import Parameter, SystemSetup, Experiment, OptimizationInfo
+from yotse.pre import Parameter, SystemSetup, Experiment, OptimizationInfo
 
 DUMMY_FILE = "experiment.py"
 
@@ -259,6 +259,8 @@ class TestExperiment(unittest.TestCase):
         # Ensure that the number of lines in the generated file matches the expected number of lines
         assert len(script_contents) == len(
             expected_output), "The generated slurm.job file has a different number of lines than the expected output."
+
+        os.remove("slurm.job")
 
 
 if __name__ == '__main__':

@@ -24,7 +24,7 @@ def load_requirements():
 
 
 setup(
-    name='qiaopt',
+    name='yotse',
     version='0.0.1',
     long_description=load_readme_text(),
     long_description_content_type='text/markdown',

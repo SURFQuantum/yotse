@@ -142,7 +142,7 @@ def parse_parameters_from_experiment(experiment) -> list:
 
     Parameters
     ----------
-    experiment : qiaopt.pre.Experiment
+    experiment : yotse.pre.Experiment
         Instance of the experiment class containing the optimized parameters.
 
     Returns

@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from qiaopt.optimization import GAOpt, Optimizer
+from yotse.optimization import GAOpt, Optimizer
 
 
 class TestGAOpt(unittest.TestCase):

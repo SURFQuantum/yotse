@@ -3,8 +3,8 @@ import inspect
 import numpy as np
 from abc import ABCMeta, abstractmethod
 
-from qiaopt.ga import ModGA
-from qiaopt.pre import Experiment
+from yotse.ga import ModGA
+from yotse.pre import Experiment
 
 
 class GenericOptimization:

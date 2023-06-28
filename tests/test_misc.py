@@ -3,9 +3,9 @@ import pytest
 import unittest
 import pandas as pd
 
-from qiaopt.ga import ModGA
-from qiaopt.run import Core
-from qiaopt.pre import Experiment, SystemSetup, Parameter, OptimizationInfo
+from yotse.ga import ModGA
+from yotse.run import Core
+from yotse.pre import Experiment, SystemSetup, Parameter, OptimizationInfo
 
 
 if os.getcwd()[-5:] == "tests":

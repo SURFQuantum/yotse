@@ -2,8 +2,8 @@
 import os
 # import matplotlib
 import shutil
-from qiaopt.pre import Experiment, SystemSetup, Parameter, OptimizationInfo
-from qiaopt.run import Executor
+from yotse.pre import Experiment, SystemSetup, Parameter, OptimizationInfo
+from yotse.run import Executor
 
 
 def wobbly_pre():

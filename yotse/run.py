@@ -3,8 +3,8 @@ import os
 import math
 import pandas
 
-from qiaopt.pre import Experiment
-from qiaopt.optimization import Optimizer, GAOpt, GenericOptimization
+from yotse.pre import Experiment
+from yotse.optimization import Optimizer, GAOpt, GenericOptimization
 
 from qcg.pilotjob.api.job import Jobs
 from qcg.pilotjob.api.manager import LocalManager

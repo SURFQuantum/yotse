@@ -8,9 +8,9 @@ import unittest
 from unittest.mock import Mock
 from pygad import GA
 
-from qiaopt.run import Core
-from qiaopt.pre import Experiment, SystemSetup, Parameter
-from qiaopt.optimization import GAOpt, Optimizer
+from yotse.run import Core
+from yotse.pre import Experiment, SystemSetup, Parameter
+from yotse.optimization import GAOpt, Optimizer
 
 
 if os.getcwd()[-5:] == "tests":

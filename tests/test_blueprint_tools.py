@@ -9,7 +9,7 @@ from ruamel.yaml import YAML
 from ruamel.yaml.nodes import ScalarNode
 from io import StringIO
 
-from qiaopt.blueprint_tools import setup_optimization_dir, update_yaml_params, replace_include_param_file, \
+from yotse.blueprint_tools import setup_optimization_dir, update_yaml_params, replace_include_param_file, \
     create_separate_files_for_job, represent_scalar_node
 
 

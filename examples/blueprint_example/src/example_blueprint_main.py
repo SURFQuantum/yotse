@@ -2,9 +2,9 @@ import os
 import shutil
 import matplotlib
 
-from qiaopt.pre import Experiment, SystemSetup, Parameter, OptimizationInfo
-from qiaopt.run import Core
-from qiaopt.blueprint_tools import setup_optimization_dir, create_separate_files_for_job
+from yotse.pre import Experiment, SystemSetup, Parameter, OptimizationInfo
+from yotse.run import Core
+from yotse.blueprint_tools import setup_optimization_dir, create_separate_files_for_job
 
 
 def blueprint_input():

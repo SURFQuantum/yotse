@@ -5,7 +5,7 @@ from datetime import datetime
 from ruamel.yaml import YAML
 from ruamel.yaml.nodes import ScalarNode
 
-from qiaopt.pre import Experiment
+from yotse.pre import Experiment
 
 
 def setup_optimization_dir(experiment: Experiment, step_number: int, job_number: int) -> None:

@@ -616,7 +616,7 @@ def innsbruck_visibility_and_coin_probs(t_coin, improvement_factor_visibility, i
     return vis, coin_prob_ph_ph, coin_prob_ph_dc, coin_prob_dc_dc
 
 
-# todo: now replaced by `qiaopt.pre.Parameter.depends_on`
+# todo: now replaced by `yotse.pre.Parameter.depends_on`
 # def _translate_smart_stopos_blueprint(param_file):
 #     # load sim parameters from file
 #     with open(param_file, "r") as stream:

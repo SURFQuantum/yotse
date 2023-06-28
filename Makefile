@@ -1,6 +1,6 @@
 PYTHON3         = python3
 TEST_DIR        = tests
-SOURCE_DIR     	= qiaopt
+SOURCE_DIR     	= yotse
 REQUIREMENTS    = requirements.txt
 MINCOV       	= 90
 EXAMPLES     	= examples
