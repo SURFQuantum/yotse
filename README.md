@@ -1,4 +1,7 @@
 # YOTSE - Your Optimization Tool for Scientific Experiments
+<p align="center">
+<img src="YOTSE_Logo.png" alt="drawing" width="400"/>
+</p>
 
 YOTSE is a powerful tool designed to enable computational experiments using any software, with a particular emphasis on NetSquid in the context of the Quantum Internet Alliance. This library offers a set of predefined functions for performing parameter explorations and optimizations in a scalable and efficient manner.
 
