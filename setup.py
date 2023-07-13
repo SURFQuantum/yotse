@@ -1,38 +1,31 @@
-from os import path
-from setuptools import setup, find_packages
+import setuptools
 
+with open("README.md", 'r') as f:
+    long_description = f.read()
 
-def load_readme_text():
-    """Load in README file as a string."""
-    try:
-        dir_path = path.abspath(path.dirname(__file__))
-        with open(path.join(dir_path, 'README.md'), encoding='utf-8') as f:
-            return f.read()
-    except FileNotFoundError:
-        return ""
+with open("requirements.txt", 'r') as f:
+    install_requires = [line.strip() for line in f.readlines()]
 
-
-def load_requirements():
-    """Load in requirements.txt as a list of strings."""
-    try:
-        dir_path = path.abspath(path.dirname(__file__))
-        with open(path.join(dir_path, 'requirements.txt'), encoding='utf-8') as f:
-            install_requires = [line.strip() for line in f.readlines()]
-            return install_requires
-    except FileNotFoundError:
-        return ""
-
-
-setup(
-    name='yotse',
-    version='0.0.1',
-    long_description=load_readme_text(),
-    long_description_content_type='text/markdown',
-    python_requires='>=3.8',
-    packages=find_packages(),
-    install_requires=load_requirements(),
-    zip_safe=False,
+setuptools.setup(
+    name="yotse",
+    version="0.0.1",
+    author="SURFQuantum",
+    # author_email="",
+    description="Your Optimization Tool for Scientific Experiments",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/SURFQuantum/yotse",
+    project_urls={
+        "Bug Tracker": "https://github.com/SURFQuantum/yotse/issues",
+    },
     include_package_data=True,
-    platforms='any',
-
+    packages=setuptools.find_packages(),
+    install_requires=install_requires,
+    python_requires='>=3.10',
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Programming Language :: Python :: 3.10",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: OS Independent",
+    ],
 )

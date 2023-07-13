@@ -1,6 +1,6 @@
 # YOTSE - Your Optimization Tool for Scientific Experiments
 <p align="center">
-<img src="YOTSE_Logo.png" alt="drawing" width="400"/>
+<img src="https://github.com/SURFQuantum/yotse/raw/main/YOTSE_Logo.png" alt="drawing" width="400"/>
 </p>
 
 YOTSE is a powerful tool designed to enable computational experiments using any software, with a particular emphasis on NetSquid in the context of the Quantum Internet Alliance. This library offers a set of predefined functions for performing parameter explorations and optimizations in a scalable and efficient manner.
@@ -45,7 +45,8 @@ We appreciate contributions. To contribute:
 2. Create your feature branch (`git checkout -b feature/MyNewFeature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin feature/MyNewFeature`)
-5. Open a Pull Request
+5. Execute ```make verify``` to check if your changes pass the required checks 
+6. Open a Pull Request
 
 ## Testing
 
@@ -53,6 +54,16 @@ To run tests on the project, navigate to the project's root directory and use th
 
 ```bash
 make test
+```
+or 
+```bash
+make test-cov
+```
+to test coverage.
+
+To run the examples, in the root directory execute
+```bash
+make example
 ```
 
 ## License
