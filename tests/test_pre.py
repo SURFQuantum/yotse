@@ -122,7 +122,8 @@ class TestSystemSetup(unittest.TestCase):
     def test_init(self):
         test_system = SystemSetup(source_directory=os.getcwd(), program_name=DUMMY_FILE,
                                   command_line_arguments={'--arg1': 0.1, '--arg2': 'value2'},
-                                  executor='bash', output_dir_name='out', output_extension='txt', venv='test/test-env/',
+                                  executor='bash', output_dir_name='out', output_extension='json',
+                                  venv='test/test-env/',
                                   num_nodes=42, alloc_time='115:00:00', slurm_args=['--exclusive'],
                                   modules=['PYTHON3.10']
                                   )
@@ -132,7 +133,7 @@ class TestSystemSetup(unittest.TestCase):
         assert test_system.analysis_script is None
         assert test_system.job_args["exec"] == 'bash'
         assert test_system.output_dir_name == 'out'
-        assert test_system.output_extension == 'txt'
+        assert test_system.output_extension == 'json'
         assert test_system.venv == 'test/test-env/'
         assert test_system.job_args["venv"] == 'test/test-env/'
         assert test_system.num_nodes == 42

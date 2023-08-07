@@ -18,7 +18,7 @@ def qcgpilot_commandline(experiment: Experiment, datapoint_item: list) -> list:
      -----------
      experiment: Experiment
          The experiment to configure the command line for.
-    datapoint_item : list or float #todo : fix this so it always gets a list?
+     datapoint_item : list or float #todo : fix this so it always gets a list?
         Datapoint containing the specific values for each parameter e.g. (x1, y2, z1).
 
      Returns:
@@ -62,21 +62,31 @@ def get_files_by_extension(directory: str, extension: str) -> list:
     return [os.path.join(directory, file) for file in os.listdir(directory) if file.endswith(extension)]
 
 
-def file_list_to_single_df(files: list) -> pandas.DataFrame:
+def file_list_to_single_df(files: list, extension: str) -> pandas.DataFrame:
     """
-    Reads CSV files from a list and combines their content in a single dataframe.
+    Reads CSV, json or pickle files from a list and combines their content in a single pandas dataframe.
 
     Parameters:
     -----------
     files: list
-        A list of CSV files to read.
+        A list of files to read.
+    extension: str
+        File extension of the files in the list.
 
     Returns:
     --------
     df : pandas.Dataframe
-        Pandas dataframe containing the combined contents of all the CSV files.
+        Pandas dataframe containing the combined contents of all the files.
     """
-    dfs = [pandas.read_csv(file, delimiter=' ') for file in files]
+    if extension == "csv":
+        dfs = [pandas.read_csv(file, delimiter=' ') for file in files]
+    elif extension == "json":
+        dfs = [pandas.read_json(file) for file in files]
+    elif extension == "pickle":
+        dfs = [pandas.read_pickle(file) for file in files]
+    else:
+        raise NotImplementedError(f"Reading file extension {extension} not implemented yet.")
+        # Note: See https://pandas.pydata.org/docs/reference/io.html for more IO functions for e.g. XML files.
     return pandas.concat(dfs, ignore_index=True)
 
 
@@ -198,7 +208,7 @@ class Core:
             for job_dir in [x[0] for x in os.walk(output_directory_current_step)
                             if x[0] != output_directory_current_step]:
                 files.extend(get_files_by_extension(job_dir, extension))
-            data = file_list_to_single_df(files)
+            data = file_list_to_single_df(files, extension)
             # todo : This is unsorted, is that a problem? yes. sort this by job no.
         else:
             # analysis script is given and will output file 'output.csv' with format 'cost_fun param0 param1 ...'

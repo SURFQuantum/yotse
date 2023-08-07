@@ -221,6 +221,8 @@ class SystemSetup:
             if not os.path.exists(os.path.join(source_directory, analysis_script)):
                 raise ValueError(f"Invalid analysis_script:"
                                  f" {os.path.join(source_directory, analysis_script)} is not a file.")
+        if output_extension not in ['csv', 'json', 'pickle']:
+            raise NotImplementedError(f"`output_extension`={output_extension} not implemented yet.")
 
         self.source_directory = source_directory
         self.program_name = os.path.join(source_directory, program_name)
