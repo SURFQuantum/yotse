@@ -24,8 +24,8 @@ from netsquid_physlayer.classical_connection import ClassicalConnectionWithLengt
 # from nlblueprint.control_layer.magic_EGP import MagicEGP
 from nlblueprint.egp_datacollector import EGPDataCollectorState
 # from nlblueprint.atomic_ensembles.ae_magic_link_layer import AEMagicLinkLayerProtocolWithSignalling
-from nlblueprint.processing_nodes.nodes_with_drivers import AbstractNodeWithDriver, TINodeWithDriver, NVNodeWithDriver,\
-    DepolarizingNodeWithDriver
+from nlblueprint.processing_nodes.nodes_with_drivers import (AbstractNodeWithDriver, TINodeWithDriver,
+                                                             NVNodeWithDriver, DepolarizingNodeWithDriver)
 from netsquid_simulationtools.repchain_data_process import process_repchain_dataframe_holder, process_data_duration, \
     process_data_teleportation_fidelity
 from netsquid_simulationtools.repchain_data_plot import plot_teleportation
