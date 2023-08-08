@@ -117,55 +117,81 @@ class TestCore(unittest.TestCase):
         self.assertEqual(jobs_failed, 0)
 
     def test_core_collect_data(self):
-        test_core = TestCore.create_default_core()
-        test_path = os.path.join(os.getcwd(), 'temp_test_dir')
-        os.makedirs(test_path)
+        def tear_down_dirs(testpath, outputfile):
+            """Helper function to tear down the temporary test dir."""
+            try:
+                os.remove(os.path.join(testpath, 'step0', outputfile))
+                os.remove(os.path.join(testpath, 'step1', outputfile))
+                os.remove(os.path.join(testpath, 'step2', outputfile))
+            except FileNotFoundError:
+                pass
+            os.removedirs(os.path.join(testpath, 'step0'))
+            os.removedirs(os.path.join(testpath, 'step1'))
+            os.removedirs(os.path.join(testpath, 'step2'))
 
-        # test with analysis script
-        test_core.experiment.system_setup.analysis_script = DUMMY_FILE
-        test_core.experiment.system_setup.working_directory = test_path
+        for output_extension in ['csv', 'json', 'pickle']:
+            output_file = f"output.{output_extension}"
 
-        test_df = pandas.DataFrame({'f': [1, 2, 3], 'x': [4, 5, 6], 'y': [7, 8, 9]})
-        # save dataframe as output.csv with whitespace as delimiter
-        test_df.to_csv('output.csv', index=False, sep=' ')
+            test_core = TestCore.create_default_core()
+            test_core.experiment.system_setup.output_extension = output_extension
+            test_path = os.path.join(os.getcwd(), 'temp_test_dir')
+            if os.path.exists(test_path):
+                tear_down_dirs(test_path, output_file)
+            os.makedirs(test_path)
 
-        data = test_core.collect_data()
+            # test with analysis script
+            test_core.experiment.system_setup.analysis_script = DUMMY_FILE
+            test_core.experiment.system_setup.working_directory = test_path
 
-        self.assertEqual(type(data), pandas.DataFrame)
-        self.assertTrue(data.equals(test_df))
+            test_df = pandas.DataFrame({'f': [1, 2, 3], 'x': [4, 5, 6], 'y': [7, 8, 9]})
+            # save dataframe as output.csv with whitespace as delimiter
+            test_df.to_csv("output.csv", index=False, sep=' ')
 
-        os.remove('output.csv')
+            data = test_core.collect_data()
 
-        # test without analysis script
-        test_core.experiment.system_setup.analysis_script = None
-        os.makedirs(os.path.join(test_path, 'step0'))
-        os.makedirs(os.path.join(test_path, 'step1'))
-        os.makedirs(os.path.join(test_path, 'step2'))
-        test_core.experiment.system_setup.working_directory = os.path.join(test_path, 'step2')
+            self.assertEqual(type(data), pandas.DataFrame)
+            self.assertTrue(data.equals(test_df))
 
-        test_df_1 = pandas.DataFrame({'f': [1], 'x': [4], 'y': [7]})
-        test_df_2 = pandas.DataFrame({'f': [2], 'x': [5], 'y': [8]})
-        test_df_3 = pandas.DataFrame({'f': [3], 'x': [6], 'y': [9]})
-        # save dataframe as output.csv with whitespace as delimiter
-        test_df_1.to_csv(os.path.join(test_path, 'step0', 'output.csv'), index=False, sep=' ')
-        test_df_2.to_csv(os.path.join(test_path, 'step1', 'output.csv'), index=False, sep=' ')
-        test_df_3.to_csv(os.path.join(test_path, 'step2', 'output.csv'), index=False, sep=' ')
+            os.remove("output.csv")
 
-        data = test_core.collect_data()
+            # test without analysis script
+            test_core.experiment.system_setup.analysis_script = None
+            os.makedirs(os.path.join(test_path, 'step0'))
+            os.makedirs(os.path.join(test_path, 'step1'))
+            os.makedirs(os.path.join(test_path, 'step2'))
+            test_core.experiment.system_setup.working_directory = os.path.join(test_path, 'step2')
 
-        # the columns here are not sorted so rearrange to match test_df
-        data = data.sort_values(by='f')
-        data = data.reset_index(drop=True)
+            test_df_1 = pandas.DataFrame({'f': [1], 'x': [4], 'y': [7]})
+            test_df_2 = pandas.DataFrame({'f': [2], 'x': [5], 'y': [8]})
+            test_df_3 = pandas.DataFrame({'f': [3], 'x': [6], 'y': [9]})
+            if output_extension == "csv":
+                # save dataframe as output.csv with whitespace as delimiter
+                test_df_1.to_csv(os.path.join(test_path, 'step0', output_file), index=False, sep=' ')
+                test_df_2.to_csv(os.path.join(test_path, 'step1', output_file), index=False, sep=' ')
+                test_df_3.to_csv(os.path.join(test_path, 'step2', output_file), index=False, sep=' ')
+            elif output_extension == "json":
+                # save dataframe as output.json
+                test_df_1.to_json(os.path.join(test_path, 'step0', output_file))
+                test_df_2.to_json(os.path.join(test_path, 'step1', output_file))
+                test_df_3.to_json(os.path.join(test_path, 'step2', output_file))
+            elif output_extension == "pickle":
+                # save dataframe as output.pickle
+                test_df_1.to_pickle(os.path.join(test_path, 'step0', output_file))
+                test_df_2.to_pickle(os.path.join(test_path, 'step1', output_file))
+                test_df_3.to_pickle(os.path.join(test_path, 'step2', output_file))
+            else:
+                raise NotImplementedError
 
-        self.assertEqual(type(data), pandas.DataFrame)
-        self.assertTrue(data.equals(test_df))
+            data = test_core.collect_data()
 
-        os.remove(os.path.join(test_path, 'step0', 'output.csv'))
-        os.remove(os.path.join(test_path, 'step1', 'output.csv'))
-        os.remove(os.path.join(test_path, 'step2', 'output.csv'))
-        os.removedirs(os.path.join(test_path, 'step0'))
-        os.removedirs(os.path.join(test_path, 'step1'))
-        os.removedirs(os.path.join(test_path, 'step2'))
+            # the columns here are not sorted so rearrange to match test_df
+            data = data.sort_values(by='f')
+            data = data.reset_index(drop=True)
+
+            self.assertEqual(type(data), pandas.DataFrame)
+            self.assertTrue(data.equals(test_df))
+
+            tear_down_dirs(test_path, output_file)
 
     def test_core_create_points(self):
         """Test create_points_based_on_optimization."""
