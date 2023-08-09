@@ -20,10 +20,11 @@ def blueprint_input():
             analysis_script="processing_function.py",
             executor="python",
             output_dir_name="output",
-            venv="~/Projects/venvs/qcg-venv",
+            venv="~/Projects/venvs/qcg3.10",
             num_nodes=2,
             alloc_time="01:00:00",
             slurm_args=["--exclusive"],
+            qcg_cfg={'log_level': 'DEBUG'},
             modules=["2021", "Python/3.9.5-GCCcore-10.3.0"]
         ),
         parameters=[

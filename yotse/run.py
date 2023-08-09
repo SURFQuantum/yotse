@@ -142,7 +142,7 @@ class Core:
         job_ids : list
             A list of job IDs submitted to the LocalManager.
         """
-        manager = LocalManager()
+        manager = LocalManager(cfg=self.experiment.system_setup.qcg_cfg)
         stdout = self.experiment.system_setup.stdout_basename
 
         jobs = Jobs()

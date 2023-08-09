@@ -198,6 +198,10 @@ class SystemSetup:
         Time to allocate on the HPC cluster in the format HH:MM:SS (or HHH:MM:SS and so forth). Defaults to '00:15:00'.
     slurm_args : list (optional)
         Additional arguments to pass to SLURM, e.g. '--exclusive'. Defaults to None
+    qcg_cfg : dict (optional)
+        Configuration to pass to the QCG-PilotJob manager. Dict with supported keys 'init_timeout', 'poll_delay',
+        'log_file', 'log_level'. See docstring of `qcg.pilotjob.api.manager.LocalManager`. If None QCG defaults are
+        used. Defaults to None.
     modules : list (optional)
         Modules to load on the HPC cluster. Defaults to None.
 
@@ -212,7 +216,7 @@ class SystemSetup:
     def __init__(self, source_directory: str, program_name: str, command_line_arguments: dict = None,
                  analysis_script: str = None, executor: str = "python", output_dir_name: str = None,
                  output_extension: str = 'csv', venv: str = None, num_nodes: int = 1, alloc_time: str = '00:15:00',
-                 slurm_args: list = None, modules: list = None):
+                 slurm_args: list = None, qcg_cfg: dict = None, modules: list = None):
         if not os.path.exists(source_directory):
             raise ValueError(f"Invalid source_directory path: {source_directory}")
         if not os.path.exists(os.path.join(source_directory, program_name)):
@@ -241,6 +245,7 @@ class SystemSetup:
         self.num_nodes = num_nodes
         self.alloc_time = alloc_time
         self.slurm_args = slurm_args
+        self.qcg_cfg = qcg_cfg
         self.modules = modules
 
     @property
