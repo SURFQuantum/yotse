@@ -124,7 +124,7 @@ class TestSystemSetup(unittest.TestCase):
                                   command_line_arguments={'--arg1': 0.1, '--arg2': 'value2'},
                                   executor='bash', output_dir_name='out', output_extension='txt', venv='test/test-env/',
                                   num_nodes=42, alloc_time='115:00:00', slurm_args=['--exclusive'],
-                                  modules=['PYTHON3.10']
+                                  qcg_cfg={'init_timeout': 420}, modules=['PYTHON3.10']
                                   )
         assert test_system.source_directory == os.getcwd()
         assert test_system.program_name == os.path.join(os.getcwd(), DUMMY_FILE)
@@ -138,6 +138,7 @@ class TestSystemSetup(unittest.TestCase):
         assert test_system.num_nodes == 42
         assert test_system.alloc_time == '115:00:00'
         assert test_system.slurm_args == ['--exclusive']
+        assert test_system.qcg_cfg == {'init_timeout': 420}
         assert test_system.modules == ['PYTHON3.10']
 
     def test_cmdline_to_list(self):
