@@ -12,7 +12,7 @@ def wobbly_pre():
         system_setup=SystemSetup(source_directory=os.getcwd(),
                                  program_name='wobbly_function.py',
                                  command_line_arguments={"--filebasename": 'wobbly_example',
-                                                         # '--resume': '.qcgpjm-service-david-latitude7430.1864'
+                                                         '--resume': '.qcgpjm-service-david-latitude7430.2468'
                                                          },
                                  analysis_script="analyse_function_output.py",
                                  executor="python",
@@ -64,9 +64,11 @@ def remove_files_after_run():
         shutil.rmtree(os.path.join(os.getcwd(), d))
 
 
+def cost_function(f):
+    return f
+
+
 def main():
-    def cost_function(f):
-        return f
 
     experiment = wobbly_pre()
     experiment.cost_function = cost_function

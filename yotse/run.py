@@ -393,7 +393,7 @@ class Core:
                 state = pickle.load(file)
             self.__dict__.update(state)
         except FileNotFoundError:
-            print("No saved state file found. Starting with a fresh instance.")
+            raise ValueError(f"No saved state file found in {aux_directory}, when trying to resume workflow.")
 
 
 class Executor(Core):
