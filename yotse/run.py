@@ -1,7 +1,10 @@
 """ Defines the run"""
 import os
 import math
+from typing import Tuple
+
 import pandas
+import pickle
 
 from yotse.pre import Experiment
 from yotse.optimization import Optimizer, GAOpt, GenericOptimization
@@ -110,6 +113,10 @@ class Core:
             self.optimizer = None
         self.input_param_cost_df = None
 
+        if "--resume" in self.experiment.system_setup.cmdline_arguments:
+            # if resuming the simulation, load state from file
+            self.load_core_state(aux_directory=self.experiment.system_setup.cmdline_arguments["--resume"])
+
     def run(self, step_number=0, evolutionary_point_generation=None) -> None:
         """ Submits jobs to the LocalManager, collects the output, creates new data points, and finishes the run.
 
@@ -122,12 +129,13 @@ class Core:
             # todo : fill in docstring
         """
         print(f"Starting default run of {self.experiment.name} (step{step_number}): submit, collect, create.")
-        self.submit(step_number=step_number)
+        _, aux_dir = self.submit(step_number=step_number)
         data = self.collect_data()
         self.create_points_based_on_optimization(data=data, evolutionary=evolutionary_point_generation)
+        self.save_core_state(aux_directory=aux_dir)
         print(f"Finished run of {self.experiment.name} (step{step_number}).")
 
-    def submit(self, step_number=0) -> list:
+    def submit(self, step_number=0) -> Tuple[list, str]:
         """
         Submits jobs to the LocalManager.
 
@@ -144,6 +152,10 @@ class Core:
         """
         manager = LocalManager(cfg=self.experiment.system_setup.qcg_cfg)
         stdout = self.experiment.system_setup.stdout_basename
+        instance_id = manager.system_status()['System']['InstanceId']
+        aux_dir = os.path.join(os.getcwd(), '.qcgpjm-service-{}'.format(instance_id))
+        print("aux_dir", aux_dir)
+
 
         jobs = Jobs()
         if not self.experiment.data_points:
@@ -175,7 +187,7 @@ class Core:
         manager.wait4(job_ids)
         manager.finish()
         manager.cleanup()
-        return job_ids
+        return job_ids, aux_dir
 
     def collect_data(self) -> pandas.DataFrame:
         """
@@ -367,6 +379,21 @@ class Core:
             optimization_alg = None
 
         return optimization_alg
+
+    def save_core_state(self, aux_directory):
+        """Save state of the core to be able to resume later."""
+
+        with open(os.path.join(aux_directory, 'yotse_state_save.pickle'), 'wb') as file:
+            pickle.dump(self.__dict__, file)
+
+    def load_core_state(self, aux_directory):
+        """Load the state of the core to be able to resume."""
+        try:
+            with open(os.path.join(aux_directory, 'yotse_state_save.pickle'), 'rb') as file:
+                state = pickle.load(file)
+            self.__dict__.update(state)
+        except FileNotFoundError:
+            print("No saved state file found. Starting with a fresh instance.")
 
 
 class Executor(Core):

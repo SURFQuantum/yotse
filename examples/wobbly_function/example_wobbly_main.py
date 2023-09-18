@@ -11,7 +11,9 @@ def wobbly_pre():
         experiment_name="wobbly_example",
         system_setup=SystemSetup(source_directory=os.getcwd(),
                                  program_name='wobbly_function.py',
-                                 command_line_arguments={"--filebasename": 'wobbly_example'},
+                                 command_line_arguments={"--filebasename": 'wobbly_example',
+                                                         # '--resume': '.qcgpjm-service-david-latitude7430.1864'
+                                                         },
                                  analysis_script="analyse_function_output.py",
                                  executor="python",
                                  # files_needed=["*.py"] # todo not implemented

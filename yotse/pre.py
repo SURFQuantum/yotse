@@ -344,7 +344,6 @@ class Experiment:
     def current_optimization_step(self) -> int:
         """Returns the current optimization step."""
         raise NotImplementedError("Keeping track of the current optimization step not implemented...yet.")
-        return self._current_optimization_step
 
     def add_parameter(self, parameter: Parameter) -> None:
         """Adds a parameter to the experiment.
