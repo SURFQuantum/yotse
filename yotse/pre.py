@@ -1,7 +1,8 @@
 """Defines classes and functions for pre step."""
-import os
 import argparse
 import itertools
+import os
+
 import numpy as np
 
 
@@ -320,7 +321,6 @@ class Experiment:
         # set initial datapoints
         self.create_datapoint_c_product()
         self.cost_function = None
-        self._current_optimization_step = None  # TODO: what would this mean if we have various different kinds of opts?
 
     def create_datapoint_c_product(self) -> None:
         """Create initial set of points as Cartesian product of all active parameters.
@@ -339,11 +339,6 @@ class Experiment:
                 self.data_points = active_params[0].data_points
             else:
                 self.data_points = list(itertools.product(*[param.data_points for param in active_params]))
-
-    @property
-    def current_optimization_step(self) -> int:
-        """Returns the current optimization step."""
-        raise NotImplementedError("Keeping track of the current optimization step not implemented...yet.")
 
     def add_parameter(self, parameter: Parameter) -> None:
         """Adds a parameter to the experiment.
@@ -407,3 +402,68 @@ class Experiment:
         if args.slurm:
             self.generate_slurm_script(filename)
             exit()
+
+    def qcgpilot_commandline(self, datapoint_item: list) -> list:
+        """
+         Creates a command line for the QCG-PilotJob executor based on the experiment configuration.
+
+         Parameters:
+         -----------
+         experiment: Experiment
+             The experiment to configure the command line for.
+        datapoint_item : list or float #todo : fix this so it always gets a list?
+            Datapoint containing the specific values for each parameter e.g. (x1, y2, z1).
+
+         Returns:
+         --------
+         list
+             A list of strings representing the command line arguments for the QCG-PilotJob executor.
+         """
+        cmdline = [os.path.join(self.system_setup.source_directory, self.system_setup.program_name)]
+        # add parameters
+        for p, param in enumerate(self.parameters):
+            if param.is_active:
+                cmdline.append(f"--{param.name}")
+                if len(self.parameters) == 1:
+                    # single parameter
+                    cmdline.append(datapoint_item)
+                else:
+                    cmdline.append(datapoint_item[p])
+        # add fixed cmdline arguments
+        for key, value in self.system_setup.cmdline_arguments.items():
+            cmdline.append(key)
+            cmdline.append(str(value))
+        return cmdline
+
+
+def set_basic_directory_structure_for_job(experiment: Experiment, step_number: int, job_number: int) -> None:
+    """
+    Creates a new directory for the given step number and updates the experiment's working directory accordingly.
+
+    The basic directory structure is as follows
+    source_dir
+        - output_dir
+            your_run_script.py
+            analysis_script.py
+            - step_{i}
+                 analysis_output.csv
+                - job_{j}
+                    output_of_your_run_script.extension
+                    stdout{j}.txt
+
+    Parameters:
+    ----------
+    experiment : Experiment
+        The :obj:Experiment that is being run.
+    step_number : int
+        The number of the current step.
+    job_number : int
+        The number of the current job.
+    """
+    source_dir = experiment.system_setup.source_directory
+    output_dir = experiment.system_setup.output_dir_name
+    new_working_dir = os.path.join(source_dir, output_dir, f'step{step_number}', f'job{job_number}')
+
+    if not os.path.exists(new_working_dir):
+        os.makedirs(new_working_dir)
+    experiment.system_setup.working_directory = new_working_dir
