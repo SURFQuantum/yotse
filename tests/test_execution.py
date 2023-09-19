@@ -5,12 +5,10 @@ import pytest
 import pandas
 import shutil
 import unittest
-from unittest.mock import Mock
 
 from yotse.pre import Experiment, SystemSetup, Parameter
 from yotse.optimization.algorithms import GAOpt
 from yotse.optimization.optimizer import Optimizer
-from yotse.optimization.generic_optimization import GenericOptimization
 from yotse.execution import Executor
 
 

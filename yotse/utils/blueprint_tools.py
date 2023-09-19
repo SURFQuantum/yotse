@@ -47,7 +47,7 @@ def setup_optimization_dir(experiment: Experiment, step_number: int, job_number:
             ...
             > stepm
     """
-    output_directory = os.path.join(experiment.system_setup.source_directory, '../..',
+    output_directory = os.path.join(experiment.system_setup.source_directory, '..',
                                     experiment.system_setup.output_dir_name)
     output_directory = os.path.realpath(output_directory)                                       # clean path of '..'
     if step_number == 0 and job_number == 0:
@@ -59,7 +59,7 @@ def setup_optimization_dir(experiment: Experiment, step_number: int, job_number:
         if not os.path.basename(os.path.normpath(experiment.system_setup.working_directory)).startswith("job"):
             raise RuntimeError("The current working directory does not start with 'job'. "
                                "New working directory can't be set up properly.")
-        new_working_dir = os.path.join(experiment.system_setup.working_directory, '../..', '..',
+        new_working_dir = os.path.join(experiment.system_setup.working_directory, '../..',
                                        f'step{step_number}', f'job{job_number}')
         new_working_dir = os.path.realpath(new_working_dir)                                     # clean path of '..'
 

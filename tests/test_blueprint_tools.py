@@ -47,7 +47,6 @@ class TestSetupOptimizationDir(unittest.TestCase):
             'src',
             f'output/{experiment.name}_{timestamp_str}/step0/job0',
         ]
-
         for directory in expected_dir_structure:
             self.assertTrue(os.path.exists(os.path.join(self.tmp_dir, directory)))
         sorted_dir = os.listdir(self.tmp_dir)
@@ -89,6 +88,10 @@ class TestUpdateYamlFiles(unittest.TestCase):
     def setUp(self):
         self.tmp_dir = tempfile.mkdtemp()
         os.mkdir(os.path.join(self.tmp_dir, 'src'))
+
+    def tearDown(self):
+        # Remove the temporary directory and its contents
+        shutil.rmtree(self.tmp_dir)
 
     def create_test_paramfile(self):
         # Create a YAML file with initial parameters
@@ -235,10 +238,6 @@ class TestUpdateYamlFiles(unittest.TestCase):
         # Call the function to replace the INCLUDE statement
         with self.assertRaises(ValueError):
             replace_include_param_file(self.config_file, new_param_file_name)
-
-    def tearDown(self):
-        # Remove the temporary directory and its contents
-        shutil.rmtree(self.tmp_dir)
 
     def test_create_separate_files_for_job(self):
         yaml = YAML(typ='rt')

@@ -1,9 +1,7 @@
 import pandas
-from unittest.mock import Mock
 import unittest
 import numpy as np
 
-from yotse.optimization.generic_optimization import GenericOptimization
 from yotse.optimization.algorithms import GAOpt
 from yotse.optimization.optimizer import Optimizer
 from yotse.pre import Experiment
@@ -96,8 +94,7 @@ class TestGAOpt(unittest.TestCase):
         self.assertTrue(np.abs(solution[1] - y_true) <= 1e-12)
 
     def test_optimize_sixhump(self):
-        solution, _, _ = self._setup_and_execute(self._sixhump,
-                                                                             var_range=[0.8, 0.8], var_step=0.01)
+        solution, _, _ = self._setup_and_execute(self._sixhump, var_range=[0.8, 0.8], var_step=0.01)
         x_true = -0.0898
         y_true = 0.7126
 
