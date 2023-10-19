@@ -13,7 +13,7 @@ def wobbly_pre():
         system_setup=SystemSetup(source_directory=os.getcwd(),
                                  program_name='wobbly_function.py',
                                  command_line_arguments={"--filebasename": 'wobbly_example',
-                                                         # '--resume': '.qcgpjm-service-david-latitude7430.8920'
+                                                         # '--resume': '.qcgpjm-service-david-latitude7430.6070'
                                                          },
                                  analysis_script="analyse_function_output.py",
                                  executor="python",
@@ -72,7 +72,6 @@ def main():
 
     for i in range(wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed,
                    experiment.optimization_information_list[0].parameters["num_generations"]):
-        print(wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed, i)
         assert wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed == i
         # todo : the grid based point generation is still somehow bugged
         # wobbly_example.run(step=i, evolutionary_point_generation=False)
