@@ -73,7 +73,7 @@ def main():
     for i in range(wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed,
                    experiment.optimization_information_list[0].parameters["num_generations"]):
         print(wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed, i)
-        assert wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed == i   # sanity check
+        assert wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed == i
         # todo : the grid based point generation is still somehow bugged
         # wobbly_example.run(step=i, evolutionary_point_generation=False)
         wobbly_example.run(step_number=i, evolutionary_point_generation=True)

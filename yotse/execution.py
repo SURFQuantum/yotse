@@ -125,7 +125,6 @@ class Executor:
         jobs = Jobs()
         if not self.experiment.data_points:
             raise RuntimeError(f"Can not submit jobs for Experiment {self.experiment.name}: No datapoints available.")
-
         for i, item in enumerate(self.experiment.data_points):
             cmdline = self.pre_submission_setup_per_job(datapoint_item=item,
                                                         step_number=step_number,
@@ -203,12 +202,12 @@ class Executor:
             if evolutionary is None:
                 evolutionary = self.optimizer.optimization_algorithm.can_create_points_evolutionary
 
-            self.core.update_internal_cost_data(experiment=self.experiment, data=data)
+            self.optimizer.optimization_algorithm.update_internal_cost_data(experiment=self.experiment, data=data)
 
             if self.optimizer.optimization_algorithm.function is None:
                 raise RuntimeError("Optimization attempted to create new points without a cost function.")
             self.optimizer.optimize()
-            self.core.construct_points(optimizer=self.optimizer, experiment=self.experiment, evolutionary=evolutionary)
+            self.optimizer.construct_points(experiment=self.experiment, evolutionary=evolutionary)
 
     def save_executor_state(self, aux_directory):
         """Save state of the Executor to be able to resume later."""

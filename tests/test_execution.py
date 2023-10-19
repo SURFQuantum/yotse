@@ -66,7 +66,7 @@ class TestExecutor(unittest.TestCase):
         test_exec = create_default_executor(experiment=test_exp)
         test_points = [1, 2, 3, 4]
         test_exec.experiment.data_points = test_points
-        job_ids = test_exec.submit()
+        job_ids, _ = test_exec.submit()
 
         self.assertEqual(len(test_points), len(job_ids))
 
@@ -99,7 +99,7 @@ class TestExecutor(unittest.TestCase):
         test_exec = create_default_executor(analysis_exp)
         test_points = [1, 2, 3, 4]
         test_exec.experiment.data_points = test_points
-        job_ids = test_exec.submit()
+        job_ids, _ = test_exec.submit()
 
         self.assertEqual(len(test_points) + 1, len(job_ids))                # now one extra analysis job
 
@@ -184,7 +184,9 @@ class TestExecutor(unittest.TestCase):
             return solution[0]**2 + solution[1]**2
 
         for evolutionary in [None, True, False]:
-            test_executor = create_default_executor(create_default_experiment(num_params=2))
+            test_executor = create_default_executor(
+                create_default_experiment(parameters=[create_default_param(name="param1"),
+                                                      create_default_param(name="param2")]))
             initial_num_points = len(test_executor.experiment.data_points)
             ga_opt = GAOpt(initial_population=test_executor.experiment.data_points,
                            num_generations=100,
@@ -223,22 +225,6 @@ class TestExecutor(unittest.TestCase):
             best_solution, _, _ = test_executor.optimization_alg.get_best_solution()
             assert all(math.isclose(.1, x) for x in best_solution)
 
-
-class TestCore(unittest.TestCase):
-    """Test the Core class."""
-    def setUp(self) -> None:
-        self.path = None  # path for tearDown
-
-    def tearDown(self) -> None:
-        [os.remove(f'stdout{i}.txt') for i in range(4) if os.path.exists(f'stdout{i}.txt')]
-        if self.path is not None:
-            [os.remove(f) for f in os.listdir(self.path) if f.endswith('.csv')]
-            shutil.rmtree(os.path.join(self.path, 'output'))
-            dirs = [f for f in os.listdir(self.path) if (f.startswith(".qcg"))]
-            for d in dirs:
-                shutil.rmtree(os.path.join(self.path, d))
-            self.path = None
-
     @pytest.mark.xfail(reason="pygad can not guarantee uniqueness of genes even with allow_duplicate_genes=False.")
     def test_executor_create_points_uniqueness(self):
         """Test create_points_based_on_optimization."""
@@ -248,9 +234,11 @@ class TestCore(unittest.TestCase):
             return solution[0]**2 + solution[1]**2
 
         for evolutionary in [None, True, False]:
-            test_core = TestCore.create_default_core(num_params=2)
-            initial_num_points = len(test_core.experiment.data_points)
-            ga_opt = GAOpt(initial_population=test_core.experiment.data_points,
+            test_executor = create_default_executor(
+                create_default_experiment(parameters=[create_default_param(name="param1"),
+                                                      create_default_param(name="param2")]))
+            initial_num_points = len(test_executor.experiment.data_points)
+            ga_opt = GAOpt(initial_population=test_executor.experiment.data_points,
                            num_generations=100,
                            num_parents_mating=9,
                            fitness_func=mock_function,
@@ -263,19 +251,19 @@ class TestCore(unittest.TestCase):
                            )
             # self.assertTrue(ga_opt.ga_instance.allow_duplicate_genes is False)
             opt = Optimizer(ga_opt)
-            test_core.optimizer = opt
-            test_core.optimization_alg = ga_opt
-            test_core._opt_is_evolutionary = True
+            test_executor.optimizer = opt
+            test_executor.optimization_alg = ga_opt
+            test_executor._opt_is_evolutionary = True
 
             x_list = [x for x, y in ga_opt.optimization_instance.population]
             y_list = [y for x, y in ga_opt.optimization_instance.population]
-            c_list = [mock_function(ga_instance=test_core.optimization_alg.optimization_instance,
+            c_list = [mock_function(ga_instance=test_executor.optimization_alg.optimization_instance,
                                     solution=sol, solution_idx=0) for sol in ga_opt.optimization_instance.population]
             data = pandas.DataFrame({'f': c_list, 'x': x_list, 'y': y_list})
 
-            test_core.create_points_based_on_optimization(data=data, evolutionary=evolutionary)
-            self.assertEqual(test_core.optimization_alg.optimization_instance.generations_completed, 1)
-            new_points = test_core.experiment.data_points
+            test_executor.create_points_based_on_optimization(data=data, evolutionary=evolutionary)
+            self.assertEqual(test_executor.optimization_alg.optimization_instance.generations_completed, 1)
+            new_points = test_executor.experiment.data_points
             s = set([tuple(x) for x in new_points])
             self.assertEqual(len(s), initial_num_points)                    # all points are unique
 
