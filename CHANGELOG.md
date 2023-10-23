@@ -11,7 +11,7 @@ Upcoming
 -----------------
 * minimal viable product
 
-2023-10-23 (1.0.0)
+2023-10-23 (0.2.0)
 -----------------
 * refactor to new, less convoluted code structure
 * made experiments resumable by saving/loading state
