@@ -1,8 +1,7 @@
 # ! /usr/bin/env python3
 '''concatenate last rows of .csv files under output/ into one file: csv_output.csv'''
-
-import os
 import csv
+import os
 from argparse import ArgumentParser
 
 

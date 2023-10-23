@@ -1,39 +1,54 @@
+import copy
 import os
 import pickle
 import time
-import yaml
-import copy
 from argparse import ArgumentParser
-import pandas as pd
+
 import netsquid as ns
-from netsquid.nodes import Node, Connection
+import pandas as pd
+import yaml
+from netsquid.nodes import Connection
+from netsquid.nodes import Node
 from netsquid.util import DataCollector
+from netsquid_driver.EGP import EGPService
+from netsquid_magic.magic_distributor import DoubleClickMagicDistributor
+from netsquid_magic.magic_distributor import SingleClickMagicDistributor
+from netsquid_netconf.netconf import ComponentBuilder
+from netsquid_netconf.netconf import Loader
+from netsquid_netconf.netconf import netconf_generator
+from netsquid_nv.magic_distributor import NVDoubleClickMagicDistributor
+from netsquid_nv.magic_distributor import NVSingleClickMagicDistributor
+from netsquid_physlayer.classical_connection import ClassicalConnectionWithLength
+from netsquid_physlayer.heralded_connection import HeraldedConnection
+from netsquid_physlayer.heralded_connection import MiddleHeraldedConnection
+from netsquid_simulationtools.repchain_data_plot import plot_teleportation
+from netsquid_simulationtools.repchain_data_process import process_data_duration
+from netsquid_simulationtools.repchain_data_process import process_data_teleportation_fidelity
+from netsquid_simulationtools.repchain_data_process import process_repchain_dataframe_holder
+from netsquid_simulationtools.repchain_dataframe_holder import RepchainDataFrameHolder
+from nlblueprint.analytics.effect_of_time_windows import coincidence_probability
+from nlblueprint.analytics.effect_of_time_windows import coincidence_probability_dark_count_and_photon
+from nlblueprint.analytics.effect_of_time_windows import coincidence_probability_two_dark_counts
+from nlblueprint.analytics.effect_of_time_windows import innsbruck_emission_time_decay_param
+from nlblueprint.analytics.effect_of_time_windows import innsbruck_t_win
+from nlblueprint.analytics.effect_of_time_windows import innsbruck_wave_function_decay_param
+from nlblueprint.analytics.effect_of_time_windows import visibility
+from nlblueprint.egp_datacollector import EGPDataCollectorState
+from nlblueprint.processing_nodes.nodes_with_drivers import AbstractNodeWithDriver
+from nlblueprint.processing_nodes.nodes_with_drivers import DepolarizingNodeWithDriver
+from nlblueprint.processing_nodes.nodes_with_drivers import NVNodeWithDriver
+from nlblueprint.processing_nodes.nodes_with_drivers import TINodeWithDriver
 from pydynaa.core import EventExpression
-from qlink_interface import ReqCreateAndKeep, ResCreateAndKeep
+from qlink_interface import ReqCreateAndKeep
+from qlink_interface import ResCreateAndKeep
 # from netsquid_ae.ae_classes import EndNode, RepeaterNode, MessagingConnection, QKDNode
 # from nlblueprint.atomic_ensembles.ae_rb_tm_node_setup import RbTmRepeaterNode
 # from nlblueprint.atomic_ensembles.rb_tm_chain_setup import _add_rb_protocols_and_magic
 # from netsquid_ae.ae_classes import HeraldedConnection as AEHeraldedConnection
 # from netsquid_ae.ae_chain_setup import create_qkd_application, _add_protocols_and_magic
-from netsquid_magic.magic_distributor import DoubleClickMagicDistributor, SingleClickMagicDistributor
-from netsquid_nv.magic_distributor import NVSingleClickMagicDistributor, NVDoubleClickMagicDistributor
-from netsquid_netconf.netconf import ComponentBuilder, netconf_generator, Loader
-from netsquid_simulationtools.repchain_dataframe_holder import RepchainDataFrameHolder
-from netsquid_physlayer.heralded_connection import MiddleHeraldedConnection, HeraldedConnection
-from netsquid_physlayer.classical_connection import ClassicalConnectionWithLength
 # from nlblueprint.control_layer.magic_EGP import MagicEGP
-from nlblueprint.egp_datacollector import EGPDataCollectorState
 # from nlblueprint.atomic_ensembles.ae_magic_link_layer import AEMagicLinkLayerProtocolWithSignalling
-from nlblueprint.processing_nodes.nodes_with_drivers import (AbstractNodeWithDriver, TINodeWithDriver,
-                                                             NVNodeWithDriver, DepolarizingNodeWithDriver)
-from netsquid_simulationtools.repchain_data_process import process_repchain_dataframe_holder, process_data_duration, \
-    process_data_teleportation_fidelity
-from netsquid_simulationtools.repchain_data_plot import plot_teleportation
-from netsquid_driver.EGP import EGPService
 # from nlblueprint.atomic_ensembles.magic.forced_magic_factory import generate_forced_magic
-from nlblueprint.analytics.effect_of_time_windows import visibility, coincidence_probability, \
-    coincidence_probability_dark_count_and_photon, coincidence_probability_two_dark_counts, innsbruck_t_win, \
-    innsbruck_emission_time_decay_param, innsbruck_wave_function_decay_param
 
 distance_delft_eindhoven = 226.5
 distributor_name_to_class = {"double_click": DoubleClickMagicDistributor,

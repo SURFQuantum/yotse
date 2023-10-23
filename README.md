@@ -1,3 +1,9 @@
+
+[![PyPI Version](https://img.shields.io/pypi/v/yotse.svg)](https://pypi.org/project/yotse)
+![Python Version](https://img.shields.io/badge/Python-3.9%20%E2%86%92%203.12-blue)
+![CI/CD](https://github.com/SURFQuantum/yotse/actions/workflows/actions.yml/badge.svg)
+![Coverage](https://github.com/SURFQuantum/yotse/blob/main/coverage.svg?raw=1)
+
 # YOTSE - Your Optimization Tool for Scientific Experiments
 <p align="center">
 <img src="https://github.com/SURFQuantum/yotse/raw/main/YOTSE_Logo.png" alt="drawing" width="400"/>
@@ -38,6 +44,49 @@ The optimization component of YOTSE involves a base class that can be used with 
 
 Detailed examples of usage will be provided in the /examples directory.
 
+```mermaid
+---
+title: Workflow
+---
+flowchart LR
+    p("`user_pre
+    (Experiment)`")
+    a(analysis script)
+    s(user script)
+    c{{"`csv output
+     input params, cost
+     (Core)`"}}
+    S[[Best Solution]]
+    q["`QcgPilotJob
+    (Executor)`"]
+    G["`GenericOptimization
+    (Optimizer)`"]
+
+    p --> q -- schedules jobs of --> s --> c --> G --  generates new datapoints for --> q
+    G --> S
+    s -.-> a -.-> c
+
+```
+
+## Current structure
+
+```mermaid
+---
+title: Class diagram
+---
+flowchart TB
+  E["Executor"]
+  c["cost function"]
+  O["Optimizer"]
+  G["GenericOptimization"]
+  D[("database_from_csv")]
+  Ex["Experiment"]
+  E --> Ex --> O
+  E -- generates --> O -- contains --> G -- contains --> D
+  c -- replaced by --x D
+  D -- fitness fun in --> G
+```
+
 ## Contributing
 
 We appreciate contributions. To contribute:
@@ -45,7 +94,7 @@ We appreciate contributions. To contribute:
 2. Create your feature branch (`git checkout -b feature/MyNewFeature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin feature/MyNewFeature`)
-5. Execute ```make verify``` to check if your changes pass the required checks 
+5. Execute ```make verify``` to check if your changes pass the required checks
 6. Open a Pull Request
 
 ## Testing
@@ -55,7 +104,7 @@ To run tests on the project, navigate to the project's root directory and use th
 ```bash
 make test
 ```
-or 
+or
 ```bash
 make test-cov
 ```

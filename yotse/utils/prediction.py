@@ -1,7 +1,9 @@
-import numpy as np
-from sklearn.linear_model import LinearRegression, BayesianRidge, SGDRegressor
-from sklearn.preprocessing import PolynomialFeatures
 import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.linear_model import BayesianRidge
+from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import SGDRegressor
+from sklearn.preprocessing import PolynomialFeatures
 
 
 class Predict:

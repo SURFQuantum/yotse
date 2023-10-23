@@ -1,7 +1,11 @@
 import unittest
-import numpy as np
 
-from yotse.optimization import GAOpt, Optimizer
+import numpy as np
+import pandas
+
+from yotse.optimization.algorithms import GAOpt
+from yotse.optimization.optimizer import Optimizer
+from yotse.pre import Experiment
 
 
 class TestGAOpt(unittest.TestCase):
@@ -74,16 +78,16 @@ class TestGAOpt(unittest.TestCase):
                        mutation_probability=.1,)
         opt = Optimizer(ga_opt)
 
-        for _ in range(ga_opt.ga_instance.num_generations):
+        for _ in range(ga_opt.optimization_instance.num_generations):
             opt.optimize()
-            ga_opt.ga_instance.initial_population = ga_opt.ga_instance.population
+            ga_opt.optimization_instance.initial_population = ga_opt.optimization_instance.population
 
         # matplotlib.use('Qt5Agg')
         # ga_opt.ga_instance.plot_fitness()
         return ga_opt.get_best_solution()
 
     def test_optimize_paraboloid(self):
-        solution, solution_fitness, solution_index = self._setup_and_execute(self._paraboloid)
+        solution, _, _ = self._setup_and_execute(self._paraboloid)
         x_true = 0.0
         y_true = 0.0
 
@@ -91,8 +95,7 @@ class TestGAOpt(unittest.TestCase):
         self.assertTrue(np.abs(solution[1] - y_true) <= 1e-12)
 
     def test_optimize_sixhump(self):
-        solution, solution_fitness, solution_index = self._setup_and_execute(self._sixhump,
-                                                                             var_range=[0.8, 0.8], var_step=0.01)
+        solution, _, _ = self._setup_and_execute(self._sixhump, var_range=[0.8, 0.8], var_step=0.01)
         x_true = -0.0898
         y_true = 0.7126
 
@@ -104,7 +107,7 @@ class TestGAOpt(unittest.TestCase):
         self.assertTrue(np.abs(solution[1] - y_true) <= 1e-2)
 
     def test_optimize_rosenbrock(self):
-        solution, solution_fitness, solution_index = self._setup_and_execute(self._rosenbrock)
+        solution, _, _ = self._setup_and_execute(self._rosenbrock)
         x_true = 1.0
         y_true = 1.0
 
@@ -112,7 +115,7 @@ class TestGAOpt(unittest.TestCase):
         self.assertTrue(np.abs(solution[1] - y_true) <= 1e-12)
 
     def test_optimize_rastrigin(self):
-        solution, solution_fitness, solution_index = self._setup_and_execute(self._rastrigin)
+        solution, _, _ = self._setup_and_execute(self._rastrigin)
         x_true = 0.0
         y_true = 0.0
 
@@ -121,6 +124,51 @@ class TestGAOpt(unittest.TestCase):
 
     # todo : write test for constraint: check that in different cases (e.g. multiple params, single param /
     #  starting params within/outside constraints) all points created are always inside constrains (multiple iterations)
+
+
+class TestGenericOptimization(unittest.TestCase):
+    def test_generic_optimization_update_internal_cost_data(self):
+        """Combined test for input_params_to_cost_value & update_internal_cost_data
+        (because otherwise the dict is empty)."""
+        test_df = pandas.DataFrame({'f': [1, 2, 3], 'x': [4, 5, 6], 'y': [7, 8, 9]})
+        test_points = [[4, 7], [5, 8], [6, 9]]
+        test_df2 = pandas.DataFrame({'f': [.01, .02, .03], 'x': [.04, .05, .06], 'y': [.07, .08, .09]})
+        test_points2 = [[.04, .07], [.05, .08], [.06, .09]]
+        test_df2_unprecise = pandas.DataFrame({'f': [.01, .02, .03],
+                                               'x': [.04, 0.04999999999, .06],
+                                               'y': [.07, 0.07999999999, .09]})
+
+        test_exp = Experiment(experiment_name="test", system_setup=None)
+        test_optimization = GAOpt(initial_population=[[1], [1]], num_generations=1, num_parents_mating=1)
+
+        # test update_internal_cost_data
+        self.assertEqual(test_optimization.input_param_cost_df, None)
+        with self.assertRaises(ValueError):
+            # update data will disagree with data_points in experiment
+            test_optimization.update_internal_cost_data(experiment=test_exp, data=test_df)
+        with self.assertRaises(ValueError):
+            # length of update data will disagree
+            test_exp.data_points = test_points[:2]
+            test_optimization.update_internal_cost_data(experiment=test_exp, data=test_df)
+
+        test_exp.data_points = test_points
+        test_optimization.update_internal_cost_data(experiment=test_exp, data=test_df)
+        self.assertTrue(test_optimization.input_param_cost_df.equals(test_df))
+        test_exp.data_points = test_points2
+        test_optimization.update_internal_cost_data(experiment=test_exp, data=test_df2)
+        self.assertTrue(test_optimization.input_param_cost_df.equals(test_df2))
+        # test float representation errors
+        test_optimization.update_internal_cost_data(experiment=test_exp, data=test_df2_unprecise)
+        self.assertTrue(test_optimization.input_param_cost_df.equals(test_df2_unprecise))
+
+        # Test update_internal_cost_data.
+        ga_instance = test_optimization.optimization_instance
+        self.assertEqual(test_optimization.input_params_to_cost_value(ga_instance, [0.05, 0.08], 1), 0.02)
+        # test float representation error
+        self.assertEqual(test_optimization.input_params_to_cost_value(ga_instance, [0.04999999999, 0.07999999999], 1),
+                         0.02)
+        with self.assertRaises(ValueError):
+            test_optimization.input_params_to_cost_value(ga_instance, [0.049, 0.079], 0)
 
 
 if __name__ == '__main__':

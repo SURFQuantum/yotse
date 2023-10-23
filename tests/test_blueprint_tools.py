@@ -1,16 +1,20 @@
 import os
-import yaml
 import shutil
 import tempfile
 import unittest
 from datetime import datetime
+from io import StringIO
 from unittest.mock import MagicMock
+
+import yaml
 from ruamel.yaml import YAML
 from ruamel.yaml.nodes import ScalarNode
-from io import StringIO
 
-from yotse.blueprint_tools import setup_optimization_dir, update_yaml_params, replace_include_param_file, \
-    create_separate_files_for_job, represent_scalar_node
+from yotse.utils.blueprint_tools import create_separate_files_for_job
+from yotse.utils.blueprint_tools import replace_include_param_file
+from yotse.utils.blueprint_tools import represent_scalar_node
+from yotse.utils.blueprint_tools import setup_optimization_dir
+from yotse.utils.blueprint_tools import update_yaml_params
 
 
 class TestSetupOptimizationDir(unittest.TestCase):
@@ -47,7 +51,6 @@ class TestSetupOptimizationDir(unittest.TestCase):
             'src',
             f'output/{experiment.name}_{timestamp_str}/step0/job0',
         ]
-
         for directory in expected_dir_structure:
             self.assertTrue(os.path.exists(os.path.join(self.tmp_dir, directory)))
         sorted_dir = os.listdir(self.tmp_dir)
@@ -89,6 +92,10 @@ class TestUpdateYamlFiles(unittest.TestCase):
     def setUp(self):
         self.tmp_dir = tempfile.mkdtemp()
         os.mkdir(os.path.join(self.tmp_dir, 'src'))
+
+    def tearDown(self):
+        # Remove the temporary directory and its contents
+        shutil.rmtree(self.tmp_dir)
 
     def create_test_paramfile(self):
         # Create a YAML file with initial parameters
@@ -235,10 +242,6 @@ class TestUpdateYamlFiles(unittest.TestCase):
         # Call the function to replace the INCLUDE statement
         with self.assertRaises(ValueError):
             replace_include_param_file(self.config_file, new_param_file_name)
-
-    def tearDown(self):
-        # Remove the temporary directory and its contents
-        shutil.rmtree(self.tmp_dir)
 
     def test_create_separate_files_for_job(self):
         yaml = YAML(typ='rt')

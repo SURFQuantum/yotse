@@ -1,8 +1,13 @@
+import itertools
 import os
 import unittest
+
 import numpy as np
-import itertools
-from yotse.pre import Parameter, SystemSetup, Experiment, OptimizationInfo
+
+from yotse.pre import Experiment
+from yotse.pre import OptimizationInfo
+from yotse.pre import Parameter
+from yotse.pre import SystemSetup
 
 DUMMY_FILE = "experiment.py"
 

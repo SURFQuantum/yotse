@@ -2,18 +2,19 @@
 # generated with them, computes the cost according to the cost function defined in total_cost and writes it, together
 # with the optimization parameters to a csv file in a format that can be read by smart-stopos and use to generate new
 # sets of parameters.
-
 import os
-import yaml
 import pickle
-import pandas as pd
-import numpy as np
-from netsquid_simulationtools.repchain_data_process import process_data_duration, process_data_teleportation_fidelity, \
-    process_repchain_dataframe_holder
-from netsquid_netconf.netconf import Loader
-from netsquid_nv.nv_parameter_set import compute_dephasing_prob_from_nodephasing_number, _gaussian_dephasing_fn
 
+import numpy as np
+import pandas as pd
+import yaml
 from example_blueprint_main import blueprint_input
+from netsquid_netconf.netconf import Loader
+from netsquid_nv.nv_parameter_set import _gaussian_dephasing_fn
+from netsquid_nv.nv_parameter_set import compute_dephasing_prob_from_nodephasing_number
+from netsquid_simulationtools.repchain_data_process import process_data_duration
+from netsquid_simulationtools.repchain_data_process import process_data_teleportation_fidelity
+from netsquid_simulationtools.repchain_data_process import process_repchain_dataframe_holder
 
 PLATFORM_TO_COHERENCE_TIME = {"nv": "carbon_T2",
                               "ti": "coherence_time",

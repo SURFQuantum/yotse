@@ -2,10 +2,10 @@
 Usage:
     python3 function.py -filebasename <folder-to-store-output>/<somefilebasename> -x 3 -y 5.5
 """
-
 import csv
-import numpy as np
 from argparse import ArgumentParser
+
+import numpy as np
 
 
 def function(x, y):

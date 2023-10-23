@@ -1,28 +1,52 @@
-import os
 import json
 import math
-import pytest
-import pandas
+import os
 import shutil
 import unittest
-from unittest.mock import Mock
-from pygad import GA
 
-from yotse.run import Core
-from yotse.pre import Experiment, SystemSetup, Parameter
-from yotse.optimization import GAOpt, Optimizer
+import pandas
+import pytest
+
+from yotse.execution import Executor
+from yotse.optimization.algorithms import GAOpt
+from yotse.optimization.optimizer import Optimizer
+from yotse.pre import Experiment
+from yotse.pre import Parameter
+from yotse.pre import SystemSetup
 
 
-if os.getcwd()[-5:] == "tests":
+if os.getcwd().endswith("tests"):
     DUMMY_FILE = "myfunction.py"
 else:
     DUMMY_FILE = "tests/myfunction.py"
 
 
-class TestCore(unittest.TestCase):
-    """Test the Core class."""
+def create_default_param(name="bright_state_parameter", parameter_range=[.1, .9], number_points=9,
+                         distribution="linear", constraints=None, custom_distribution=None):
+    return Parameter(name=name, param_range=parameter_range, number_points=number_points,
+                     distribution=distribution, constraints=constraints, custom_distribution=custom_distribution)
+
+
+def create_default_experiment(parameters=None, opt_info_list=[]):
+    return Experiment(experiment_name='default_exp',
+                      system_setup=SystemSetup(
+                          source_directory=os.getcwd(),
+                          program_name=DUMMY_FILE,
+                          command_line_arguments={'arg1': 1.0}),
+                      parameters=parameters,
+                      opt_info_list=opt_info_list)
+
+
+def create_default_executor(experiment):
+    return Executor(experiment=experiment)
+
+
+class TestExecutor(unittest.TestCase):
+    """Test the executor class."""
+
     def setUp(self) -> None:
         self.path = None  # path for tearDown
+        # self.tearDown()
 
     def tearDown(self) -> None:
         [os.remove(f'stdout{i}.txt') for i in range(4) if os.path.exists(f'stdout{i}.txt')]
@@ -34,43 +58,24 @@ class TestCore(unittest.TestCase):
                 shutil.rmtree(os.path.join(self.path, d))
             self.path = None
 
-    @staticmethod
-    def create_default_param(name="bright_state_parameter", parameter_range=[.1, .9], number_points=9,
-                             distribution="linear", constraints=None, custom_distribution=None):
-        return Parameter(name=name, param_range=parameter_range, number_points=number_points,
-                         distribution=distribution, constraints=constraints, custom_distribution=custom_distribution)
+    def test_executor_experiment_input(self):
+        test_exp = create_default_experiment()
+        test_exec = create_default_executor(experiment=test_exp)
+        self.assertTrue(isinstance(test_exec.experiment, Experiment))
+        self.assertEqual(test_exec.experiment, test_exp)
 
-    @staticmethod
-    def create_default_experiment(parameters=None, opt_info_list=[]):
-        return Experiment(experiment_name='default_exp',
-                          system_setup=SystemSetup(
-                              source_directory=os.getcwd(),
-                              program_name=DUMMY_FILE,
-                              command_line_arguments={'arg1': 1.0}),
-                          parameters=parameters,
-                          opt_info_list=opt_info_list)
-
-    @staticmethod
-    def create_default_core(num_params=1):
-        test_param = [TestCore.create_default_param() for _ in range(num_params)]
-        test_experiment = TestCore.create_default_experiment(parameters=test_param)
-        return Core(test_experiment)
-
-    def test_core_experiment(self):
-        test_core = TestCore.create_default_core()
-        self.assertTrue(isinstance(test_core.experiment, Experiment))
-
-    def test_core_submit(self):
-        test_core = TestCore.create_default_core()
+    def test_executor_submit(self):
+        test_exp = create_default_experiment()
+        test_exec = create_default_executor(experiment=test_exp)
         test_points = [1, 2, 3, 4]
-        test_core.experiment.data_points = test_points
-        job_ids = test_core.submit()
+        test_exec.experiment.data_points = test_points
+        job_ids = test_exec.submit()
 
         self.assertEqual(len(test_points), len(job_ids))
 
         # count no of jobs
-        self.path = test_core.experiment.system_setup.source_directory
-        output_path = os.path.join(test_core.experiment.system_setup.working_directory, '..')
+        self.path = test_exec.experiment.system_setup.source_directory
+        output_path = os.path.join(test_exec.experiment.system_setup.working_directory, '..')
         job_dirs = [d for d in os.listdir(output_path)]
         self.assertEqual(len(job_ids), len(job_dirs))
         # check if jobs were finishes successfully
@@ -82,7 +87,7 @@ class TestCore(unittest.TestCase):
         self.assertEqual(jobs_finished, len(test_points))
         self.assertEqual(jobs_failed, 0)
 
-    def test_core_submit_with_analysis(self):
+    def test_executor_submit_with_analysis(self):
         """Check that when using an analysis script the right number of jobs are created as well."""
         analysis_exp = Experiment(experiment_name='default_exp',
                                   system_setup=SystemSetup(
@@ -91,19 +96,19 @@ class TestCore(unittest.TestCase):
                                       command_line_arguments={'arg1': 1.0},
                                       analysis_script=DUMMY_FILE  # now with analysis script
                                   ),
-                                  parameters=[self.create_default_param()],
+                                  parameters=[create_default_param()],
                                   opt_info_list=[])
 
-        test_core = Core(analysis_exp)
+        test_exec = create_default_executor(analysis_exp)
         test_points = [1, 2, 3, 4]
-        test_core.experiment.data_points = test_points
-        job_ids = test_core.submit()
+        test_exec.experiment.data_points = test_points
+        job_ids = test_exec.submit()
 
         self.assertEqual(len(test_points) + 1, len(job_ids))                # now one extra analysis job
 
         # count no of jobs
-        self.path = test_core.experiment.system_setup.source_directory
-        output_path = os.path.join(test_core.experiment.system_setup.working_directory, '..')
+        self.path = test_exec.experiment.system_setup.source_directory
+        output_path = os.path.join(test_exec.experiment.system_setup.working_directory, '..')
         job_dirs = [d for d in os.listdir(output_path) if os.path.isdir(os.path.join(output_path, d))]
         self.assertEqual(len(job_ids) - 1, len(job_dirs))                    # for the analysis job no dir is created
         self.assertEqual(len(job_dirs) + 2, len([d for d in os.listdir(output_path)]))      # but 2 files are created
@@ -116,20 +121,28 @@ class TestCore(unittest.TestCase):
         self.assertEqual(jobs_finished, len(test_points) + 1)               # again one extra analysis job
         self.assertEqual(jobs_failed, 0)
 
-    def test_core_collect_data(self):
-        test_core = TestCore.create_default_core()
+    def test_executor_run(self):
+        test_exec = create_default_executor(experiment=create_default_experiment())
+        test_points = [1, 2, 3, 4]
+        test_exec.experiment.data_points = test_points
+        test_exec.run()
+        # todo: this tests nothing! add test
+        self.path = test_exec.experiment.system_setup.source_directory  # path for tearDown
+
+    def test_executor_collect_data(self):
+        test_exec = create_default_executor(create_default_experiment())
         test_path = os.path.join(os.getcwd(), 'temp_test_dir')
         os.makedirs(test_path)
 
         # test with analysis script
-        test_core.experiment.system_setup.analysis_script = DUMMY_FILE
-        test_core.experiment.system_setup.working_directory = test_path
+        test_exec.experiment.system_setup.analysis_script = DUMMY_FILE
+        test_exec.experiment.system_setup.working_directory = test_path
 
         test_df = pandas.DataFrame({'f': [1, 2, 3], 'x': [4, 5, 6], 'y': [7, 8, 9]})
         # save dataframe as output.csv with whitespace as delimiter
         test_df.to_csv('output.csv', index=False, sep=' ')
 
-        data = test_core.collect_data()
+        data = test_exec.collect_data()
 
         self.assertEqual(type(data), pandas.DataFrame)
         self.assertTrue(data.equals(test_df))
@@ -137,11 +150,11 @@ class TestCore(unittest.TestCase):
         os.remove('output.csv')
 
         # test without analysis script
-        test_core.experiment.system_setup.analysis_script = None
+        test_exec.experiment.system_setup.analysis_script = None
         os.makedirs(os.path.join(test_path, 'step0'))
         os.makedirs(os.path.join(test_path, 'step1'))
         os.makedirs(os.path.join(test_path, 'step2'))
-        test_core.experiment.system_setup.working_directory = os.path.join(test_path, 'step2')
+        test_exec.experiment.system_setup.working_directory = os.path.join(test_path, 'step2')
 
         test_df_1 = pandas.DataFrame({'f': [1], 'x': [4], 'y': [7]})
         test_df_2 = pandas.DataFrame({'f': [2], 'x': [5], 'y': [8]})
@@ -151,7 +164,7 @@ class TestCore(unittest.TestCase):
         test_df_2.to_csv(os.path.join(test_path, 'step1', 'output.csv'), index=False, sep=' ')
         test_df_3.to_csv(os.path.join(test_path, 'step2', 'output.csv'), index=False, sep=' ')
 
-        data = test_core.collect_data()
+        data = test_exec.collect_data()
 
         # the columns here are not sorted so rearrange to match test_df
         data = data.sort_values(by='f')
@@ -167,41 +180,43 @@ class TestCore(unittest.TestCase):
         os.removedirs(os.path.join(test_path, 'step1'))
         os.removedirs(os.path.join(test_path, 'step2'))
 
-    def test_core_create_points(self):
+    def test_executor_create_points(self):
         """Test create_points_based_on_optimization."""
 
         def mock_function(ga_instance, solution, solution_idx):
             return solution[0]**2 + solution[1]**2
 
         for evolutionary in [None, True, False]:
-            test_core = TestCore.create_default_core(num_params=2)
-            initial_num_points = len(test_core.experiment.data_points)
-            ga_opt = GAOpt(initial_population=test_core.experiment.data_points,
+            test_executor = create_default_executor(
+                create_default_experiment(parameters=[create_default_param(name="param1"),
+                                                      create_default_param(name="param2")]))
+            initial_num_points = len(test_executor.experiment.data_points)
+            ga_opt = GAOpt(initial_population=test_executor.experiment.data_points,
                            num_generations=100,
                            num_parents_mating=9,
                            fitness_func=mock_function,
                            gene_type=float,
                            gene_space={'low': .1, 'high': .9},
-                           mutation_probability=.02,                            # todo: this line break it
+                           mutation_probability=.02,                            # todo: this line breaks it
                            crossover_probability=.7,
                            refinement_factors=[.1, .5],
                            allow_duplicate_genes=False,
                            )
             # self.assertTrue(ga_opt.ga_instance.allow_duplicate_genes is False)
             opt = Optimizer(ga_opt)
-            test_core.optimizer = opt
-            test_core.optimization_alg = ga_opt
-            test_core._opt_is_evolutionary = True
+            test_executor.optimizer = opt
+            test_executor.optimization_alg = ga_opt
+            test_executor._opt_is_evolutionary = True
 
-            x_list = [x for x, y in ga_opt.ga_instance.population]
-            y_list = [y for x, y in ga_opt.ga_instance.population]
-            c_list = [mock_function(ga_instance=test_core.optimization_alg.ga_instance,
-                                    solution=sol, solution_idx=0) for sol in ga_opt.ga_instance.population]
+            x_list = [x for x, y in ga_opt.optimization_instance.population]
+            y_list = [y for x, y in ga_opt.optimization_instance.population]
+            c_list = [mock_function(ga_instance=test_executor.optimization_alg.optimization_instance,
+                                    solution=sol, solution_idx=0) for sol in ga_opt.optimization_instance.population]
             data = pandas.DataFrame({'f': c_list, 'x': x_list, 'y': y_list})
 
-            test_core.create_points_based_on_optimization(data=data, evolutionary=evolutionary)
-            self.assertEqual(test_core.optimization_alg.ga_instance.generations_completed, 1)
-            new_points = test_core.experiment.data_points
+            test_executor.create_points_based_on_optimization(data=data, evolutionary=evolutionary)
+            self.assertEqual(test_executor.optimization_alg.optimization_instance.generations_completed, 1)
+            new_points = test_executor.experiment.data_points
             self.assertIsInstance(new_points, list, list)                   # correct type
             self.assertEqual(len(new_points), initial_num_points)           # correct num points
             [self.assertEqual(len(point), 2) for point in new_points]       # each point has two param values
@@ -210,11 +225,11 @@ class TestCore(unittest.TestCase):
             if evolutionary is not False:
                 for point in new_points:
                     self.assertTrue(all(.1 <= x <= .9 for x in point))          # each point is within constraint
-            best_solution, _, _ = test_core.optimization_alg.get_best_solution()
+            best_solution, _, _ = test_executor.optimization_alg.get_best_solution()
             assert all(math.isclose(.1, x) for x in best_solution)
 
     @pytest.mark.xfail(reason="pygad can not guarantee uniqueness of genes even with allow_duplicate_genes=False.")
-    def test_core_create_points_uniqueness(self):
+    def test_executor_create_points_uniqueness(self):
         """Test create_points_based_on_optimization."""
         # todo: merge this test with the above once uniqueness is fixed
 
@@ -222,9 +237,11 @@ class TestCore(unittest.TestCase):
             return solution[0]**2 + solution[1]**2
 
         for evolutionary in [None, True, False]:
-            test_core = TestCore.create_default_core(num_params=2)
-            initial_num_points = len(test_core.experiment.data_points)
-            ga_opt = GAOpt(initial_population=test_core.experiment.data_points,
+            test_executor = create_default_executor(
+                create_default_experiment(parameters=[create_default_param(name="param1"),
+                                                      create_default_param(name="param2")]))
+            initial_num_points = len(test_executor.experiment.data_points)
+            ga_opt = GAOpt(initial_population=test_executor.experiment.data_points,
                            num_generations=100,
                            num_parents_mating=9,
                            fitness_func=mock_function,
@@ -237,66 +254,21 @@ class TestCore(unittest.TestCase):
                            )
             # self.assertTrue(ga_opt.ga_instance.allow_duplicate_genes is False)
             opt = Optimizer(ga_opt)
-            test_core.optimizer = opt
-            test_core.optimization_alg = ga_opt
-            test_core._opt_is_evolutionary = True
+            test_executor.optimizer = opt
+            test_executor.optimization_alg = ga_opt
+            test_executor._opt_is_evolutionary = True
 
-            x_list = [x for x, y in ga_opt.ga_instance.population]
-            y_list = [y for x, y in ga_opt.ga_instance.population]
-            c_list = [mock_function(ga_instance=test_core.optimization_alg.ga_instance,
-                                    solution=sol, solution_idx=0) for sol in ga_opt.ga_instance.population]
+            x_list = [x for x, y in ga_opt.optimization_instance.population]
+            y_list = [y for x, y in ga_opt.optimization_instance.population]
+            c_list = [mock_function(ga_instance=test_executor.optimization_alg.optimization_instance,
+                                    solution=sol, solution_idx=0) for sol in ga_opt.optimization_instance.population]
             data = pandas.DataFrame({'f': c_list, 'x': x_list, 'y': y_list})
 
-            test_core.create_points_based_on_optimization(data=data, evolutionary=evolutionary)
-            self.assertEqual(test_core.optimization_alg.ga_instance.generations_completed, 1)
-            new_points = test_core.experiment.data_points
+            test_executor.create_points_based_on_optimization(data=data, evolutionary=evolutionary)
+            self.assertEqual(test_executor.optimization_alg.optimization_instance.generations_completed, 1)
+            new_points = test_executor.experiment.data_points
             s = set([tuple(x) for x in new_points])
             self.assertEqual(len(s), initial_num_points)                    # all points are unique
-
-    def test_internal_dict(self):
-        """Combined test for input_params_to_cost_value and update_internal_cost_data."""
-        test_df = pandas.DataFrame({'f': [1, 2, 3], 'x': [4, 5, 6], 'y': [7, 8, 9]})
-        test_points = [[4, 7], [5, 8], [6, 9]]
-        test_df2 = pandas.DataFrame({'f': [.01, .02, .03], 'x': [.04, .05, .06], 'y': [.07, .08, .09]})
-        test_points2 = [[.04, .07], [.05, .08], [.06, .09]]
-        test_df2_unprecise = pandas.DataFrame({'f': [.01, .02, .03],
-                                               'x': [.04, 0.04999999999, .06],
-                                               'y': [.07, 0.07999999999, .09]})
-        test_core = self.create_default_core()
-        ga_instance = Mock(spec=GA)
-        # test update_internal_cost_data
-        self.assertEqual(test_core.input_param_cost_df, None)
-        with self.assertRaises(ValueError):
-            # update data will disagree with data_points in experiment
-            test_core.update_internal_cost_data(data=test_df)
-        with self.assertRaises(ValueError):
-            # length of update data will disagree
-            test_core.experiment.data_points = test_points[:2]
-            test_core.update_internal_cost_data(data=test_df)
-
-        test_core.experiment.data_points = test_points
-        test_core.update_internal_cost_data(data=test_df)
-        self.assertTrue(test_core.input_param_cost_df.equals(test_df))
-        test_core.experiment.data_points = test_points2
-        test_core.update_internal_cost_data(test_df2)
-        self.assertTrue(test_core.input_param_cost_df.equals(test_df2))
-        # test float representation errors
-        test_core.update_internal_cost_data(test_df2_unprecise)
-        self.assertTrue(test_core.input_param_cost_df.equals(test_df2_unprecise))
-
-        # test input_params_to_cost_value
-        self.assertEqual(test_core.input_params_to_cost_value(ga_instance, [0.05, 0.08], 1), 0.02)
-        # test float representation error
-        self.assertEqual(test_core.input_params_to_cost_value(ga_instance, [0.04999999999, 0.07999999999], 1), 0.02)
-        with self.assertRaises(ValueError):
-            test_core.input_params_to_cost_value(ga_instance, [0.049, 0.079], 0)
-
-    def test_core_run(self):
-        test_core = TestCore.create_default_core()
-        test_points = [1, 2, 3, 4]
-        test_core.experiment.data_points = test_points
-        test_core.run()
-        self.path = test_core.experiment.system_setup.source_directory  # path for tearDown
 
 
 if __name__ == '__main__':

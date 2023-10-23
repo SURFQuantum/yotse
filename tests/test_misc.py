@@ -1,14 +1,18 @@
 import os
-import pytest
 import unittest
+
 import pandas as pd
+import pytest
 
-from yotse.ga import ModGA
-from yotse.run import Core
-from yotse.pre import Experiment, SystemSetup, Parameter, OptimizationInfo
+from yotse.execution import Executor
+from yotse.optimization.ga import ModGA
+from yotse.pre import Experiment
+from yotse.pre import OptimizationInfo
+from yotse.pre import Parameter
+from yotse.pre import SystemSetup
 
 
-if os.getcwd()[-5:] == "tests":
+if os.getcwd().endswith("tests"):
     DUMMY_FILE = "myfunction.py"
 else:
     DUMMY_FILE = "tests/myfunction.py"
@@ -33,10 +37,8 @@ class TestNewOpt(unittest.TestCase):
                           opt_info_list=opt_info_list)
 
     @staticmethod
-    def create_default_core(num_params=1):
-        test_param = [TestNewOpt.create_default_param() for _ in range(num_params)]
-        test_experiment = TestNewOpt.create_default_experiment(parameters=test_param)
-        return Core(test_experiment)
+    def create_default_executor(experiment):
+        return Executor(experiment=experiment)
 
     def setUp(self) -> None:
         self.lookup_dict = {(1, 2, 3): 1,
@@ -79,15 +81,14 @@ class TestNewOpt(unittest.TestCase):
                                                                                   },
                                                                                   is_active=True)])
         test_exp.data_points = self.initial_pop
-        test_core = Core(experiment=test_exp)
-        test_core.update_internal_cost_data(data=self.data)
+        test_exec = self.create_default_executor(experiment=test_exp)
+        test_exec.optimizer.optimization_algorithm.update_internal_cost_data(experiment=test_exp, data=self.data)
 
-        print(test_core.optimization_alg.ga_instance.population)
-        assert test_core.optimization_alg.ga_instance.pop_size == (len(self.initial_pop), len(self.initial_pop[0]))
-        test_core.optimization_alg.ga_instance.run_single_generation()
+        self.assertEqual(test_exec.optimizer.optimization_algorithm.optimization_instance.pop_size,
+                         (len(self.initial_pop), len(self.initial_pop[0])))
+        test_exec.optimizer.optimization_algorithm.optimization_instance.run_single_generation()
 
-        assert test_core.optimization_alg.ga_instance.generations_completed == 1
-        print(test_core.optimization_alg.ga_instance.population)
+        self.assertEqual(test_exec.optimizer.optimization_algorithm.optimization_instance.generations_completed, 1)
 
     def test_new_population_func(self):
         num_generations = 100
@@ -96,7 +97,7 @@ class TestNewOpt(unittest.TestCase):
                                              initial_pop=self.initial_pop,
                                              num_gen=num_generations)
         print("initial population", self.initial_pop)
-        for i in range(ga_instance.num_generations):
+        for _ in range(ga_instance.num_generations):
             ga_instance.run_single_generation()
             ga_instance.population
             # print("new population", ga_instance.population)

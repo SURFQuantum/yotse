@@ -1,10 +1,15 @@
 import os
 import shutil
+
 import matplotlib
 
-from yotse.pre import Experiment, SystemSetup, Parameter, OptimizationInfo
-from yotse.run import Core
-from yotse.blueprint_tools import setup_optimization_dir, create_separate_files_for_job
+from yotse.execution import Executor
+from yotse.pre import Experiment
+from yotse.pre import OptimizationInfo
+from yotse.pre import Parameter
+from yotse.pre import SystemSetup
+from yotse.utils.blueprint_tools import create_separate_files_for_job
+from yotse.utils.blueprint_tools import setup_optimization_dir
 
 
 def blueprint_input():
@@ -128,7 +133,7 @@ def remove_files_after_run():
     os.remove('venv_wrapper.sh')
 
 
-class BlueprintCore(Core):
+class BlueprintCore(Executor):
     """Executor implementation using adaptions for NLBlueprint."""
     def pre_submission_setup_per_job(self, datapoint_item: list, step_number: int, job_number: int) -> None:
         setup_optimization_dir(experiment=self.experiment, step_number=step_number, job_number=job_number)
@@ -161,14 +166,14 @@ def main():
 
     # output
     # todo what do we want to output in the end? should this file also create a stdout
-    solution = blueprint_example.suggest_best_solution()
+    solution = blueprint_example.optimizer.suggest_best_solution()
     print("Solution: ", solution)
     with open('solution.txt', 'w') as file:
         file.write(f"Solution: {solution} \n")
     # plot fitness
     matplotlib.use('Qt5Agg')
     # wobbly_example.optimization_alg.ga_instance.plot_new_solution_rate()
-    fig, ax = blueprint_example.optimization_alg.ga_instance.plot_fitness()
+    fig, ax = blueprint_example.optimizer.optimization_algorithm.plot_fitness()
     fig.savefig('fitness.png')
 
     # clean up
