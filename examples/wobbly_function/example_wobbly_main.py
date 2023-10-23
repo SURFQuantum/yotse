@@ -1,10 +1,13 @@
 """Example script for execution of a wobbly_function.py experiment."""
 import os
-# import matplotlib
 import shutil
 
-from yotse.pre import Experiment, SystemSetup, Parameter, OptimizationInfo
 from yotse.execution import Executor
+from yotse.pre import Experiment
+from yotse.pre import OptimizationInfo
+from yotse.pre import Parameter
+from yotse.pre import SystemSetup
+# import matplotlib
 
 
 def wobbly_pre():

@@ -1,6 +1,7 @@
-import pandas
 import unittest
+
 import numpy as np
+import pandas
 
 from yotse.optimization.algorithms import GAOpt
 from yotse.optimization.optimizer import Optimizer

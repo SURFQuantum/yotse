@@ -6,10 +6,12 @@ import pandas
 from qcg.pilotjob.api.job import Jobs
 from qcg.pilotjob.api.manager import LocalManager
 
-from yotse.optimization.optimizer import Optimizer
-from yotse.pre import Experiment, set_basic_directory_structure_for_job
-from yotse.utils.utils import file_list_to_single_df, get_files_by_extension
 from yotse.optimization.algorithms import GAOpt
+from yotse.optimization.optimizer import Optimizer
+from yotse.pre import Experiment
+from yotse.pre import set_basic_directory_structure_for_job
+from yotse.utils.utils import file_list_to_single_df
+from yotse.utils.utils import get_files_by_extension
 
 
 class Executor:
@@ -224,6 +226,7 @@ class Executor:
             with open(os.path.join(aux_directory, 'yotse_state_save.pickle'), 'rb') as file:
                 state = pickle.load(file)
             self.__dict__.update(state)
+            print(f"State of yotse executor loaded from {self.aux_dir}.")
         except FileNotFoundError:
             raise ValueError(f"No saved state file found in {aux_directory}, when trying to resume workflow.")
 

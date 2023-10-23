@@ -1,10 +1,15 @@
 import os
 import shutil
+
 import matplotlib
 
 from yotse.execution import Executor
-from yotse.pre import Experiment, SystemSetup, Parameter, OptimizationInfo
-from yotse.utils.blueprint_tools import setup_optimization_dir, create_separate_files_for_job
+from yotse.pre import Experiment
+from yotse.pre import OptimizationInfo
+from yotse.pre import Parameter
+from yotse.pre import SystemSetup
+from yotse.utils.blueprint_tools import create_separate_files_for_job
+from yotse.utils.blueprint_tools import setup_optimization_dir
 
 
 def blueprint_input():

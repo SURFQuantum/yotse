@@ -1,4 +1,5 @@
 import math
+
 import numpy as np
 
 from yotse.optimization.ga import ModGA

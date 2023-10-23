@@ -1,7 +1,8 @@
-import sys
 import csv
-import numpy as np
+import sys
 from datetime import datetime
+
+import numpy as np
 
 
 if __name__ == "__main__":

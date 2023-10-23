@@ -1,11 +1,15 @@
 import os
-import pytest
 import unittest
-import pandas as pd
 
-from yotse.optimization.ga import ModGA
-from yotse.pre import Experiment, SystemSetup, Parameter, OptimizationInfo
+import pandas as pd
+import pytest
+
 from yotse.execution import Executor
+from yotse.optimization.ga import ModGA
+from yotse.pre import Experiment
+from yotse.pre import OptimizationInfo
+from yotse.pre import Parameter
+from yotse.pre import SystemSetup
 
 
 if os.getcwd().endswith("tests"):

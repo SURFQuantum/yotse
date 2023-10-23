@@ -14,7 +14,7 @@ network: delft_eindhoven_asymmetric
 
 nv_params: &nv_params
   INCLUDE: !include nv_baseline_params.yaml
- 
+
 node_type: &node_type
   type: nv_node
 
@@ -28,7 +28,7 @@ repeater: &repeater
       - B  # classical communication B side
       - ENT_A  # entanglement generation A side
       - ENT_B  # entanglement generation B side
-    <<: *nv_params    
+    <<: *nv_params
 
 components:
 
@@ -45,7 +45,7 @@ components:
   ent_connection_1:
     type: heralded_connection
     properties:
-      length_A: 82.8 
+      length_A: 82.8
       p_loss_length_A: 0.263
       length_B: 19.1
       p_loss_length_B: 0.325
@@ -109,4 +109,3 @@ components:
         - A
         - ENT_A
       <<: *nv_params
-

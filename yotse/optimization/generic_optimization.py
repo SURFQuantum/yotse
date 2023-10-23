@@ -1,7 +1,9 @@
 import inspect
-from abc import ABCMeta, abstractmethod
-import pandas
 import math
+from abc import ABCMeta
+from abc import abstractmethod
+
+import pandas
 
 from yotse.pre import Experiment
 

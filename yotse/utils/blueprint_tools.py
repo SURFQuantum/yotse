@@ -1,7 +1,8 @@
 import os
-import yaml
 import shutil
 from datetime import datetime
+
+import yaml
 from ruamel.yaml import YAML
 from ruamel.yaml.nodes import ScalarNode
 

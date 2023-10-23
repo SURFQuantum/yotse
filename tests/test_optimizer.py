@@ -1,7 +1,8 @@
 import unittest
 from unittest.mock import Mock
-from yotse.optimization.optimizer import Optimizer
+
 from yotse.optimization.generic_optimization import GenericOptimization
+from yotse.optimization.optimizer import Optimizer
 
 
 class TestOptimizer(unittest.TestCase):

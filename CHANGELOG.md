@@ -10,3 +10,10 @@ Upcoming
 2023-07-13 (0.0.1)
 -----------------
 * minimal viable product
+
+2023-10-23 (1.0.0)
+-----------------
+* refactor to new, less convoluted code structure
+* made experiments resumable by saving/loading state
+* switched to dependency management using poetry
+* updated installation instructions and documentation in `README.md`

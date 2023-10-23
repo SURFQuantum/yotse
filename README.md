@@ -59,7 +59,7 @@ flowchart LR
     p --> q -- schedules jobs of --> s --> c --> G --  generates new datapoints for --> q
     G --> S
     s -.-> a -.-> c
-    
+
 ```
 
 ## Current structure
@@ -88,7 +88,7 @@ We appreciate contributions. To contribute:
 2. Create your feature branch (`git checkout -b feature/MyNewFeature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin feature/MyNewFeature`)
-5. Execute ```make verify``` to check if your changes pass the required checks 
+5. Execute ```make verify``` to check if your changes pass the required checks
 6. Open a Pull Request
 
 ## Testing
@@ -98,7 +98,7 @@ To run tests on the project, navigate to the project's root directory and use th
 ```bash
 make test
 ```
-or 
+or
 ```bash
 make test-cov
 ```

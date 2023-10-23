@@ -8,7 +8,7 @@ with open("requirements.txt", 'r') as f:
 
 setuptools.setup(
     name="yotse",
-    version="0.0.1",
+    version="1.0.0",
     author="SURFQuantum",
     # author_email="",
     description="Your Optimization Tool for Scientific Experiments",

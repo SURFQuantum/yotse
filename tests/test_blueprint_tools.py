@@ -1,16 +1,20 @@
 import os
-import yaml
 import shutil
 import tempfile
 import unittest
 from datetime import datetime
+from io import StringIO
 from unittest.mock import MagicMock
+
+import yaml
 from ruamel.yaml import YAML
 from ruamel.yaml.nodes import ScalarNode
-from io import StringIO
 
-from yotse.utils.blueprint_tools import setup_optimization_dir, update_yaml_params, replace_include_param_file, \
-    create_separate_files_for_job, represent_scalar_node
+from yotse.utils.blueprint_tools import create_separate_files_for_job
+from yotse.utils.blueprint_tools import replace_include_param_file
+from yotse.utils.blueprint_tools import represent_scalar_node
+from yotse.utils.blueprint_tools import setup_optimization_dir
+from yotse.utils.blueprint_tools import update_yaml_params
 
 
 class TestSetupOptimizationDir(unittest.TestCase):

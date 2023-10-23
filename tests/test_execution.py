@@ -1,15 +1,18 @@
-import os
 import json
 import math
-import pytest
-import pandas
+import os
 import shutil
 import unittest
 
-from yotse.pre import Experiment, SystemSetup, Parameter
+import pandas
+import pytest
+
+from yotse.execution import Executor
 from yotse.optimization.algorithms import GAOpt
 from yotse.optimization.optimizer import Optimizer
-from yotse.execution import Executor
+from yotse.pre import Experiment
+from yotse.pre import Parameter
+from yotse.pre import SystemSetup
 
 
 if os.getcwd().endswith("tests"):

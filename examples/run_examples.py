@@ -1,7 +1,7 @@
+import importlib
+import inspect
 import os
 import sys
-import inspect
-import importlib
 
 # This file is used to run all the examples in this folder and subfolders
 # Each file should be of the form example*.py and contain a `main`-method.
