@@ -16,6 +16,7 @@ class Executor:
     def __init__(self, experiment: Experiment):
         self.experiment = experiment
         self.optimizer = self.generate_optimizer()
+        self.aux_dir = None
 
         if "--resume" in self.experiment.system_setup.cmdline_arguments:
             # if resuming the simulation, load state from file
@@ -73,10 +74,10 @@ class Executor:
             # todo : fill in docstring
         """
         print(f"Starting default run of {self.experiment.name} (step{step_number}): submit, collect, create.")
-        _, aux_dir = self.submit(step_number=step_number)
+        self.submit(step_number=step_number)
         data = self.collect_data()
         self.create_points_based_on_optimization(data=data, evolutionary=evolutionary_point_generation)
-        self.save_executor_state(aux_directory=aux_dir)
+        self.save_executor_state()
         print(f"Finished run of {self.experiment.name} (step{step_number}).")
 
     def pre_submission_setup_per_job(self, datapoint_item: list, step_number: int, job_number: int) -> list:
@@ -121,6 +122,7 @@ class Executor:
         stdout = self.experiment.system_setup.stdout_basename
         instance_id = manager.system_status()['System']['InstanceId']
         aux_dir = os.path.join(os.getcwd(), '.qcgpjm-service-{}'.format(instance_id))
+        self.aux_dir = aux_dir
 
         jobs = Jobs()
         if not self.experiment.data_points:
@@ -153,7 +155,7 @@ class Executor:
         manager.wait4(job_ids)
         manager.finish()
         manager.cleanup()
-        return job_ids, aux_dir
+        return job_ids
 
     def collect_data(self) -> pandas.DataFrame:
         """
@@ -209,12 +211,12 @@ class Executor:
             self.optimizer.optimize()
             self.optimizer.construct_points(experiment=self.experiment, evolutionary=evolutionary)
 
-    def save_executor_state(self, aux_directory):
+    def save_executor_state(self):
         """Save state of the Executor to be able to resume later."""
         # Note: maybe this should be optional, because not everything might be serializable, e.g. complex cost_functions
-        with open(os.path.join(aux_directory, 'yotse_state_save.pickle'), 'wb') as file:
+        with open(os.path.join(self.aux_dir, 'yotse_state_save.pickle'), 'wb') as file:
             pickle.dump(self.__dict__, file)
-        print(f"Latest state of yotse executor saved in {aux_directory}.")
+        print(f"Latest state of yotse executor saved in {self.aux_dir}.")
 
     def load_executor_state(self, aux_directory):
         """Load the state of the Executor to be able to resume."""

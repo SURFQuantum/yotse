@@ -84,6 +84,26 @@ def main():
     # wobbly_example.optimization_alg.ga_instance.plot_fitness()
     remove_files_after_run()
 
+    # as a second example, we see what happens when the experiment is stopped and later continued from a save file
+    stop_continue_experiment = wobbly_pre()
+    stop_continue_example = Executor(experiment=stop_continue_experiment)
+    for i in range(3):
+        stop_continue_example.run(step_number=i, evolutionary_point_generation=True)
+    # write resume parameter to experiment
+    continue_experiment = wobbly_pre()
+    continue_experiment.system_setup.cmdline_arguments['--resume'] = stop_continue_example.aux_dir
+    continue_example = Executor(experiment=continue_experiment)
+    for i in range(continue_example.optimizer.optimization_algorithm.optimization_instance.generations_completed,
+                   continue_experiment.optimization_information_list[0].parameters["num_generations"]):
+        assert continue_example.optimizer.optimization_algorithm.optimization_instance.generations_completed == i
+        continue_example.run(step_number=i, evolutionary_point_generation=True)
+
+    stop_continue_solution = continue_example.optimizer.suggest_best_solution()
+
+    print(solution, stop_continue_solution)
+
+    remove_files_after_run()
+
 
 if __name__ == "__main__":
     main()

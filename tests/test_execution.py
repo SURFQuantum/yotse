@@ -66,7 +66,7 @@ class TestExecutor(unittest.TestCase):
         test_exec = create_default_executor(experiment=test_exp)
         test_points = [1, 2, 3, 4]
         test_exec.experiment.data_points = test_points
-        job_ids, _ = test_exec.submit()
+        job_ids = test_exec.submit()
 
         self.assertEqual(len(test_points), len(job_ids))
 
@@ -99,7 +99,7 @@ class TestExecutor(unittest.TestCase):
         test_exec = create_default_executor(analysis_exp)
         test_points = [1, 2, 3, 4]
         test_exec.experiment.data_points = test_points
-        job_ids, _ = test_exec.submit()
+        job_ids = test_exec.submit()
 
         self.assertEqual(len(test_points) + 1, len(job_ids))                # now one extra analysis job
 

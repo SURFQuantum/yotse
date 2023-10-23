@@ -87,7 +87,6 @@ class GAOpt(GenericOptimization):
         if self.extrema == self.MINIMUM:
             factor = -1.
 
-        print(self, self.function)
         fitness = factor * self.function(ga_instance, solution, solution_idx)
 
         if self.logging_level >= 3:
