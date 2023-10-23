@@ -1,4 +1,4 @@
-name: Lint, Test, Example, Coverage
+name: Tests, Examples
 
 on:
   push:
