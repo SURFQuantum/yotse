@@ -3,10 +3,20 @@ name = "yotse"
 version = "0.2.0"
 description = "Your Optimization Tool for Scientific Experiments"
 authors = ["dmark04 <dmark04@web.de>"]
-license = "Apache 2.0"
+license = "Apache-2.0"
 readme = "README.md"
 keywords = ["science", "optimization", "genetic", "algorithm", "gradient", "experiment"]
 repository = "https://github.com/SURFQuantum/yotse"
+classifiers=[
+        "Development Status :: 4 - Beta",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: OS Independent",
+        "Topic :: Scientific/Engineering",
+    ]
+include = ["CHANGELOG.md"]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
@@ -21,6 +31,11 @@ pytest = "^7.4.2"
 pytest-cov = "^4.1.0"
 flake8 = "^6.1.0"
 pre-commit = "^3.5.0"
+
+[tool.poetry.scripts]
+tests = "tests.run_tests:main"
+examples = "examples.run_examples:main"
+show-cov = "tests.run_tests:open_coverage_report"
 
 [build-system]
 requires = ["poetry-core"]
