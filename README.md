@@ -114,20 +114,20 @@ We appreciate contributions. To contribute:
 
 ## Testing
 
-To run tests on the project, navigate to the project's root directory and use the make test command.
+To run tests on the project, navigate to the project's root directory and:
 
 ```bash
-make test
+poetry run tests
 ```
-or
+If you want to open the coverage report do:
 ```bash
-make test-cov
+poetry run show-cov
 ```
-to test coverage.
+and the coverage report should open in your default browser.
 
 To run the examples, in the root directory execute
 ```bash
-make example
+poetry run examples
 ```
 
 ## License
