@@ -7,16 +7,16 @@ from sklearn.preprocessing import PolynomialFeatures
 
 
 class Predict:
-    def __init__(self, model_name='LR'):
+    def __init__(self, model_name="LR"):
         """
         Deafault constructor
         :param model_name:Regression model name
         """
-        if model_name == 'LR':
+        if model_name == "LR":
             self.model = LinearRegression()
-        elif model_name == 'BR':
+        elif model_name == "BR":
             self.model = BayesianRidge()
-        elif model_name == 'AR':
+        elif model_name == "AR":
             self.model = SGDRegressor()
         pass
 
@@ -37,13 +37,13 @@ class Predict:
         b = self.model.intercept_
         print("slope=", m, "intercept=", b)
 
-        print('poly_features:', poly_features)
-        plt.scatter(x, f, color='black')
+        print("poly_features:", poly_features)
+        plt.scatter(x, f, color="black")
         # predicted_values = [self.model.coef_ * i + self.model.intercept_ for i in x]
         y_predicted = self.model.predict(poly_features)
-        print('poly_features:', poly_features)
-        print('y_predicted:', y_predicted)
-        plt.plot(poly_features, y_predicted, 'b')
+        print("poly_features:", poly_features)
+        print("y_predicted:", y_predicted)
+        plt.plot(poly_features, y_predicted, "b")
         plt.xlabel("x")
         plt.ylabel("y")
         plt.show()

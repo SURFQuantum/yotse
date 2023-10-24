@@ -48,9 +48,21 @@ class Parameter:
     data_points : list
         Data points to be explored for this parameter.
     """
-    def __init__(self, name: str, param_range: list, number_points: int, distribution: str, constraints=None,
-                 weights=None, parameter_active=True, custom_distribution=None, param_type="continuous",
-                 scale_factor=1., depends_on=None):
+
+    def __init__(
+        self,
+        name: str,
+        param_range: list,
+        number_points: int,
+        distribution: str,
+        constraints=None,
+        weights=None,
+        parameter_active=True,
+        custom_distribution=None,
+        param_type="continuous",
+        scale_factor=1.0,
+        depends_on=None,
+    ):
         self.name = name
         self.range = param_range
         self.range[0] = float(self.range[0])
@@ -62,12 +74,14 @@ class Parameter:
         self.constraints = constraints
         self.parameter_active = parameter_active
         self.data_points = []
-        if custom_distribution is not None and distribution != 'custom':
-            raise ValueError(f"Custom distribution supplied but distribution set to {distribution}!")
+        if custom_distribution is not None and distribution != "custom":
+            raise ValueError(
+                f"Custom distribution supplied but distribution set to {distribution}!"
+            )
         self.distribution = distribution
         self.custom_distribution = custom_distribution
         self.param_type = param_type
-        if scale_factor != 1.:
+        if scale_factor != 1.0:
             raise NotImplementedError("scale_factor not implemented yet.")
         self.scale_factor = scale_factor
         self.depends_on = depends_on
@@ -95,45 +109,78 @@ class Parameter:
         """
         if self.param_type == "continuous":
             if self.distribution == "linear":
-                self.data_points = np.linspace(self.range[0], self.range[1], num_points).tolist()
+                self.data_points = np.linspace(
+                    self.range[0], self.range[1], num_points
+                ).tolist()
             elif self.distribution == "uniform":
-                self.data_points = np.random.uniform(self.range[0], self.range[1], num_points).tolist()
+                self.data_points = np.random.uniform(
+                    self.range[0], self.range[1], num_points
+                ).tolist()
             elif self.distribution == "normal":
-                self.data_points = np.random.normal((self.range[0] + self.range[1]) / 2,
-                                                    abs(self.range[1] - self.range[0]) / 3, num_points).tolist()
+                self.data_points = np.random.normal(
+                    (self.range[0] + self.range[1]) / 2,
+                    abs(self.range[1] - self.range[0]) / 3,
+                    num_points,
+                ).tolist()
             elif self.distribution == "log":
-                self.data_points = np.logspace(np.log10(self.range[0]), np.log10(self.range[1]), num_points).tolist()
+                self.data_points = np.logspace(
+                    np.log10(self.range[0]), np.log10(self.range[1]), num_points
+                ).tolist()
             elif self.distribution == "custom" and self.custom_distribution is not None:
-                self.data_points = self.custom_distribution(self.range[0], self.range[1], num_points)
+                self.data_points = self.custom_distribution(
+                    self.range[0], self.range[1], num_points
+                )
                 if len(self.data_points) != num_points:
-                    raise ValueError(f'Custom distribution returned invalid number of points {len(self.data_points)}.')
+                    raise ValueError(
+                        f"Custom distribution returned invalid number of points {len(self.data_points)}."
+                    )
                 assert min(self.data_points) >= self.range[0]
                 assert max(self.data_points) <= self.range[1]
             else:
-                raise ValueError(f"Invalid distribution specified: {self.distribution} for continuous parameter.")
+                raise ValueError(
+                    f"Invalid distribution specified: {self.distribution} for continuous parameter."
+                )
         elif self.param_type == "discrete":
             if self.distribution == "linear":
-                self.data_points = np.linspace(self.range[0], self.range[1], num_points, dtype=int).tolist()
+                self.data_points = np.linspace(
+                    self.range[0], self.range[1], num_points, dtype=int
+                ).tolist()
             elif self.distribution == "uniform":
-                self.data_points = np.random.randint(self.range[0], self.range[1] + 1, num_points).tolist()
+                self.data_points = np.random.randint(
+                    self.range[0], self.range[1] + 1, num_points
+                ).tolist()
             elif self.distribution == "normal":
-                self.data_points = np.random.normal((self.range[0] + self.range[1]) / 2,
-                                                    abs(self.range[1] - self.range[0]) / 3, num_points)
+                self.data_points = np.random.normal(
+                    (self.range[0] + self.range[1]) / 2,
+                    abs(self.range[1] - self.range[0]) / 3,
+                    num_points,
+                )
                 # for discrete normal distribution round floats to the nearest int
                 self.data_points = np.round(self.data_points).astype(int).tolist()
             elif self.distribution == "log":
                 # self.data_points = np.unique(
                 #     np.geomspace(self.range[0], self.range[1], num_points, dtype=int)).tolist()
-                self.data_points = np.logspace(np.log10(self.range[0]), np.log10(self.range[1]), num_points,
-                                               dtype=int).tolist()
+                self.data_points = np.logspace(
+                    np.log10(self.range[0]),
+                    np.log10(self.range[1]),
+                    num_points,
+                    dtype=int,
+                ).tolist()
             elif self.distribution == "custom" and self.custom_distribution is not None:
-                self.data_points = self.custom_distribution(self.range[0], self.range[1], num_points)
+                self.data_points = self.custom_distribution(
+                    self.range[0], self.range[1], num_points
+                )
                 if len(self.data_points) != num_points:
                     raise ValueError(
-                        f'Custom distribution returned invalid number of points {len(self.data_points)}.')
-                assert all([self.range[0] <= p <= self.range[1] for p in self.data_points])
+                        f"Custom distribution returned invalid number of points {len(self.data_points)}."
+                    )
+                assert all(
+                    [self.range[0] <= p <= self.range[1] for p in self.data_points]
+                )
             else:
-                raise ValueError(f"Invalid distribution specified: {self.distribution} for discrete parameter.")
+                raise ValueError(
+                    f"Invalid distribution specified: {self.distribution} for discrete parameter."
+                )
         else:
             raise ValueError(f"Invalid parameter type specified: {self.param_type}")
 
@@ -155,16 +202,22 @@ class Parameter:
         -----
         # todo : this will only be applied once before the start of the experiment. Is that useful?
         """
-        target_parameter = [param for param in parameter_list if param.name == self.depends_on['name']][0]
+        target_parameter = [
+            param for param in parameter_list if param.name == self.depends_on["name"]
+        ][0]
 
-        new_data_points = [self.depends_on['function'](a, b) for a, b in zip(self.data_points,
-                                                                             target_parameter.data_points)]
+        new_data_points = [
+            self.depends_on["function"](a, b)
+            for a, b in zip(self.data_points, target_parameter.data_points)
+        ]
         if self.constraints is not None:
             try:
-                self.constraints['low'] = self.depends_on['function'](self.constraints['low'],
-                                                                      target_parameter.constraints['low'])
-                self.constraints['high'] = self.depends_on['function'](self.constraints['high'],
-                                                                       target_parameter.constraints['high'])
+                self.constraints["low"] = self.depends_on["function"](
+                    self.constraints["low"], target_parameter.constraints["low"]
+                )
+                self.constraints["high"] = self.depends_on["function"](
+                    self.constraints["high"], target_parameter.constraints["high"]
+                )
             except KeyError:
                 pass
 
@@ -214,20 +267,39 @@ class SystemSetup:
     working_directory : str
         Name of the current working directory to be passed to QCGPilotJob.
     """
-    def __init__(self, source_directory: str, program_name: str, command_line_arguments: dict = None,
-                 analysis_script: str = None, executor: str = "python", output_dir_name: str = None,
-                 output_extension: str = 'csv', venv: str = None, num_nodes: int = 1, alloc_time: str = '00:15:00',
-                 slurm_args: list = None, qcg_cfg: dict = None, modules: list = None):
+
+    def __init__(
+        self,
+        source_directory: str,
+        program_name: str,
+        command_line_arguments: dict = None,
+        analysis_script: str = None,
+        executor: str = "python",
+        output_dir_name: str = None,
+        output_extension: str = "csv",
+        venv: str = None,
+        num_nodes: int = 1,
+        alloc_time: str = "00:15:00",
+        slurm_args: list = None,
+        qcg_cfg: dict = None,
+        modules: list = None,
+    ):
         if not os.path.exists(source_directory):
             raise ValueError(f"Invalid source_directory path: {source_directory}")
         if not os.path.exists(os.path.join(source_directory, program_name)):
-            raise ValueError(f"Invalid program_name: {os.path.join(source_directory, program_name)} is not a file.")
+            raise ValueError(
+                f"Invalid program_name: {os.path.join(source_directory, program_name)} is not a file."
+            )
         if analysis_script is not None:
             if not os.path.exists(os.path.join(source_directory, analysis_script)):
-                raise ValueError(f"Invalid analysis_script:"
-                                 f" {os.path.join(source_directory, analysis_script)} is not a file.")
-        if output_extension not in ['csv', 'json', 'pickle']:
-            raise NotImplementedError(f"`output_extension`={output_extension} not implemented yet.")
+                raise ValueError(
+                    f"Invalid analysis_script:"
+                    f" {os.path.join(source_directory, analysis_script)} is not a file."
+                )
+        if output_extension not in ["csv", "json", "pickle"]:
+            raise NotImplementedError(
+                f"`output_extension`={output_extension} not implemented yet."
+            )
 
         self.source_directory = source_directory
         self.program_name = os.path.join(source_directory, program_name)
@@ -236,11 +308,15 @@ class SystemSetup:
         for key, value in self.cmdline_arguments.items():
             if isinstance(value, str) and os.path.splitext(value)[1]:
                 self.cmdline_arguments[key] = os.path.join(source_directory, value)
-        self.analysis_script = os.path.join(source_directory, analysis_script) if analysis_script is not None else None
+        self.analysis_script = (
+            os.path.join(source_directory, analysis_script)
+            if analysis_script is not None
+            else None
+        )
         self.job_args = {"exec": executor}
-        self.output_dir_name = output_dir_name or 'output'
+        self.output_dir_name = output_dir_name or "output"
         self.output_extension = output_extension
-        self.stdout_basename = 'stdout'
+        self.stdout_basename = "stdout"
         self.working_directory = None
         if venv is not None:
             self.job_args["venv"] = venv
@@ -255,13 +331,19 @@ class SystemSetup:
     def current_step_directory(self) -> str:
         """Returns the path of the current optimization step."""
         if self.working_directory is not None:
-            return os.path.realpath(os.path.join(self.working_directory, '..'))
+            return os.path.realpath(os.path.join(self.working_directory, ".."))
         else:
-            raise RuntimeError(f"Could not get current step directory. Working directory is {self.working_directory}")
+            raise RuntimeError(
+                f"Could not get current step directory. Working directory is {self.working_directory}"
+            )
 
     def cmdline_dict_to_list(self) -> list:
         """Convert the dictionary of commandline arguments to a list for QCGPilot."""
-        return [item for key_value_pair in self.cmdline_arguments.items() for item in key_value_pair]
+        return [
+            item
+            for key_value_pair in self.cmdline_arguments.items()
+            for item in key_value_pair
+        ]
 
 
 class OptimizationInfo:
@@ -309,7 +391,13 @@ class Experiment:
         The current optimization step number.
     """
 
-    def __init__(self, experiment_name: str, system_setup: SystemSetup, parameters=None, opt_info_list=None):
+    def __init__(
+        self,
+        experiment_name: str,
+        system_setup: SystemSetup,
+        parameters=None,
+        opt_info_list=None,
+    ):
         self.name = experiment_name
         self.system_setup = system_setup
         self.parameters = parameters or []
@@ -317,7 +405,9 @@ class Experiment:
         if opt_info_list is not None:
             for item in opt_info_list:
                 if not isinstance(item, OptimizationInfo):
-                    raise ValueError(f"Items in opt_info_list should be of type OptimizationInfo not {type(item)}.")
+                    raise ValueError(
+                        f"Items in opt_info_list should be of type OptimizationInfo not {type(item)}."
+                    )
             self.optimization_information_list = list(opt_info_list)
         self.data_points = []
         # set initial datapoints
@@ -332,7 +422,9 @@ class Experiment:
             assert isinstance(self.parameters, list), "Parameters are not list."
             for param in self.parameters:
                 if not isinstance(param, Parameter):
-                    raise TypeError(f"One of the parameters is not of correct type 'Parameter', but is {type(param)}")
+                    raise TypeError(
+                        f"One of the parameters is not of correct type 'Parameter', but is {type(param)}"
+                    )
                 if param.depends_on is not None:
                     param.generate_dependent_data_points(self.parameters)
             active_params = [param for param in self.parameters if param.is_active]
@@ -340,7 +432,9 @@ class Experiment:
                 # single param -> no cartesian product
                 self.data_points = active_params[0].data_points
             else:
-                self.data_points = list(itertools.product(*[param.data_points for param in active_params]))
+                self.data_points = list(
+                    itertools.product(*[param.data_points for param in active_params])
+                )
 
     def add_parameter(self, parameter: Parameter) -> None:
         """Adds a parameter to the experiment.
@@ -391,15 +485,21 @@ class Experiment:
             for module in self.system_setup.modules:
                 script += f"module load {module}\n"
         if self.system_setup.venv is not None:
-            script += f"source {os.path.join(self.system_setup.venv,'bin/activate')}\n\n"
+            script += (
+                f"source {os.path.join(self.system_setup.venv,'bin/activate')}\n\n"
+            )
         script += f"python {filename}\n"
 
-        with open(os.path.join(self.system_setup.source_directory, "slurm.job"), "w") as file:
+        with open(
+            os.path.join(self.system_setup.source_directory, "slurm.job"), "w"
+        ) as file:
             file.write(script)
 
     def parse_slurm_arg(self, filename):
         parser = argparse.ArgumentParser()
-        parser.add_argument("--slurm", action="store_true", help="Generate slurm.job file")
+        parser.add_argument(
+            "--slurm", action="store_true", help="Generate slurm.job file"
+        )
         args = parser.parse_args()
         if args.slurm:
             self.generate_slurm_script(filename)
@@ -420,8 +520,12 @@ class Experiment:
          --------
          list
              A list of strings representing the command line arguments for the QCG-PilotJob executor.
-         """
-        cmdline = [os.path.join(self.system_setup.source_directory, self.system_setup.program_name)]
+        """
+        cmdline = [
+            os.path.join(
+                self.system_setup.source_directory, self.system_setup.program_name
+            )
+        ]
         # add parameters
         for p, param in enumerate(self.parameters):
             if param.is_active:
@@ -438,7 +542,9 @@ class Experiment:
         return cmdline
 
 
-def set_basic_directory_structure_for_job(experiment: Experiment, step_number: int, job_number: int) -> None:
+def set_basic_directory_structure_for_job(
+    experiment: Experiment, step_number: int, job_number: int
+) -> None:
     """
     Creates a new directory for the given step number and updates the experiment's working directory accordingly.
 
@@ -464,7 +570,9 @@ def set_basic_directory_structure_for_job(experiment: Experiment, step_number: i
     """
     source_dir = experiment.system_setup.source_directory
     output_dir = experiment.system_setup.output_dir_name
-    new_working_dir = os.path.join(source_dir, output_dir, f'step{step_number}', f'job{job_number}')
+    new_working_dir = os.path.join(
+        source_dir, output_dir, f"step{step_number}", f"job{job_number}"
+    )
 
     if not os.path.exists(new_working_dir):
         os.makedirs(new_working_dir)

@@ -23,15 +23,27 @@ from netsquid_physlayer.heralded_connection import HeraldedConnection
 from netsquid_physlayer.heralded_connection import MiddleHeraldedConnection
 from netsquid_simulationtools.repchain_data_plot import plot_teleportation
 from netsquid_simulationtools.repchain_data_process import process_data_duration
-from netsquid_simulationtools.repchain_data_process import process_data_teleportation_fidelity
-from netsquid_simulationtools.repchain_data_process import process_repchain_dataframe_holder
+from netsquid_simulationtools.repchain_data_process import (
+    process_data_teleportation_fidelity,
+)
+from netsquid_simulationtools.repchain_data_process import (
+    process_repchain_dataframe_holder,
+)
 from netsquid_simulationtools.repchain_dataframe_holder import RepchainDataFrameHolder
 from nlblueprint.analytics.effect_of_time_windows import coincidence_probability
-from nlblueprint.analytics.effect_of_time_windows import coincidence_probability_dark_count_and_photon
-from nlblueprint.analytics.effect_of_time_windows import coincidence_probability_two_dark_counts
-from nlblueprint.analytics.effect_of_time_windows import innsbruck_emission_time_decay_param
+from nlblueprint.analytics.effect_of_time_windows import (
+    coincidence_probability_dark_count_and_photon,
+)
+from nlblueprint.analytics.effect_of_time_windows import (
+    coincidence_probability_two_dark_counts,
+)
+from nlblueprint.analytics.effect_of_time_windows import (
+    innsbruck_emission_time_decay_param,
+)
 from nlblueprint.analytics.effect_of_time_windows import innsbruck_t_win
-from nlblueprint.analytics.effect_of_time_windows import innsbruck_wave_function_decay_param
+from nlblueprint.analytics.effect_of_time_windows import (
+    innsbruck_wave_function_decay_param,
+)
 from nlblueprint.analytics.effect_of_time_windows import visibility
 from nlblueprint.egp_datacollector import EGPDataCollectorState
 from nlblueprint.processing_nodes.nodes_with_drivers import AbstractNodeWithDriver
@@ -41,6 +53,7 @@ from nlblueprint.processing_nodes.nodes_with_drivers import TINodeWithDriver
 from pydynaa.core import EventExpression
 from qlink_interface import ReqCreateAndKeep
 from qlink_interface import ResCreateAndKeep
+
 # from netsquid_ae.ae_classes import EndNode, RepeaterNode, MessagingConnection, QKDNode
 # from nlblueprint.atomic_ensembles.ae_rb_tm_node_setup import RbTmRepeaterNode
 # from nlblueprint.atomic_ensembles.rb_tm_chain_setup import _add_rb_protocols_and_magic
@@ -51,10 +64,12 @@ from qlink_interface import ResCreateAndKeep
 # from nlblueprint.atomic_ensembles.magic.forced_magic_factory import generate_forced_magic
 
 distance_delft_eindhoven = 226.5
-distributor_name_to_class = {"double_click": DoubleClickMagicDistributor,
-                             "single_click": SingleClickMagicDistributor,
-                             "single_click_nv": NVSingleClickMagicDistributor,
-                             "double_click_nv": NVDoubleClickMagicDistributor}
+distributor_name_to_class = {
+    "double_click": DoubleClickMagicDistributor,
+    "single_click": SingleClickMagicDistributor,
+    "single_click_nv": NVSingleClickMagicDistributor,
+    "double_click_nv": NVDoubleClickMagicDistributor,
+}
 
 """
 This script takes as input a configuration file and a parameter file. You can find examples of these for each of the
@@ -107,12 +122,19 @@ def implement_magic(network, config):
 
     for connection in network.connections.values():
         if isinstance(connection, HeraldedConnection):
-            nodes = [port.connected_port.component for port in connection.ports.values()]
+            nodes = [
+                port.connected_port.component for port in connection.ports.values()
+            ]
             try:
-                magic_distributor = distributor_name_to_class[distributors[connection.name]](
-                    nodes=nodes, heralded_connection=connection)
+                magic_distributor = distributor_name_to_class[
+                    distributors[connection.name]
+                ](nodes=nodes, heralded_connection=connection)
             except KeyError:
-                raise KeyError("{} is not a supported distributor type.".format(distributors[connection.name]))
+                raise KeyError(
+                    "{} is not a supported distributor type.".format(
+                        distributors[connection.name]
+                    )
+                )
             connection.magic_distributor = magic_distributor
 
 
@@ -141,10 +163,16 @@ def setup_networks(config_file_name, param_file_name):
     ComponentBuilder.add_type(name="abstract_node", new_type=AbstractNodeWithDriver)
     ComponentBuilder.add_type(name="ti_node", new_type=TINodeWithDriver)
     ComponentBuilder.add_type(name="nv_node", new_type=NVNodeWithDriver)
-    ComponentBuilder.add_type(name="depolarizing_node", new_type=DepolarizingNodeWithDriver)
-    ComponentBuilder.add_type(name="mid_heralded_connection", new_type=MiddleHeraldedConnection)
+    ComponentBuilder.add_type(
+        name="depolarizing_node", new_type=DepolarizingNodeWithDriver
+    )
+    ComponentBuilder.add_type(
+        name="mid_heralded_connection", new_type=MiddleHeraldedConnection
+    )
     ComponentBuilder.add_type(name="heralded_connection", new_type=HeraldedConnection)
-    ComponentBuilder.add_type(name="classical_connection", new_type=ClassicalConnectionWithLength)
+    ComponentBuilder.add_type(
+        name="classical_connection", new_type=ClassicalConnectionWithLength
+    )
     # ComponentBuilder.add_type(name="AEEndNode", new_type=EndNode)
     # ComponentBuilder.add_type(name="AERepeaterNode", new_type=RepeaterNode)
     # ComponentBuilder.add_type(name="RbTmRepeaterNode", new_type=RbTmRepeaterNode)
@@ -259,7 +287,14 @@ def find_varied_param(generator):
                     return key, property_key
 
 
-def run_simulation(egp_services, request_type, response_type, data_collector, n_runs, experiment_specific_arguments={}):
+def run_simulation(
+    egp_services,
+    request_type,
+    response_type,
+    data_collector,
+    n_runs,
+    experiment_specific_arguments={},
+):
     """
     Places a request for a given number of pairs to be created and kept, runs the simulation and
     collects the resulting data.
@@ -285,10 +320,14 @@ def run_simulation(egp_services, request_type, response_type, data_collector, n_
         Dataframe holding simulation results
     """
 
-    alice_responds = EventExpression(source=egp_services[0],
-                                     event_type=egp_services[0].signals.get(response_type.__name__))
-    bob_responds = EventExpression(source=egp_services[1],
-                                   event_type=egp_services[1].signals.get(response_type.__name__))
+    alice_responds = EventExpression(
+        source=egp_services[0],
+        event_type=egp_services[0].signals.get(response_type.__name__),
+    )
+    bob_responds = EventExpression(
+        source=egp_services[1],
+        event_type=egp_services[1].signals.get(response_type.__name__),
+    )
 
     both_nodes_respond = alice_responds & bob_responds
     egp_datacollector = DataCollector(data_collector(start_time=ns.sim_time()))
@@ -296,9 +335,9 @@ def run_simulation(egp_services, request_type, response_type, data_collector, n_
 
     local = egp_services[0]
     remote = egp_services[1]
-    request = request_type(remote_node_id=remote.node.ID,
-                           number=n_runs,
-                           **experiment_specific_arguments)
+    request = request_type(
+        remote_node_id=remote.node.ID, number=n_runs, **experiment_specific_arguments
+    )
 
     local.put(request)
 
@@ -426,12 +465,13 @@ def save_data(meas_holder, args):
             arg_dict["paramfile"] = arg_dict["paramfile"].split("/")[-1]
         arg_dict_no_none_values = {k: v for k, v in arg_dict.items() if v is not None}
         argstring = str(arg_dict_no_none_values).translate(
-            {**{ord(i): None for i in "{' }"}, **{ord(j): "_" for j in ":,"}})
+            {**{ord(i): None for i in "{' }"}, **{ord(j): "_" for j in ":,"}}
+        )
 
         filename = args.output_path + "/" + argstring + "_" + timestr
 
         if not os.path.isfile(filename):
-            with open(filename + ".pickle", 'wb') as handle:
+            with open(filename + ".pickle", "wb") as handle:
                 pickle.dump(meas_holder, handle, protocol=pickle.HIGHEST_PROTOCOL)
             saved = True
 
@@ -447,18 +487,36 @@ def plot_data(meas_holder):
 
     """
     if len(meas_holder.varied_parameters) != 1:
-        raise ValueError("Can only plot for data with exactly one varied parameter. "
-                         f"This data has the following varied parameters: {meas_holder.varied_parameters}")
+        raise ValueError(
+            "Can only plot for data with exactly one varied parameter. "
+            f"This data has the following varied parameters: {meas_holder.varied_parameters}"
+        )
     [varied_param] = meas_holder.varied_parameters
-    processed_data = process_repchain_dataframe_holder(repchain_dataframe_holder=meas_holder,
-                                                       processing_functions=[process_data_duration,
-                                                                             process_data_teleportation_fidelity])
+    processed_data = process_repchain_dataframe_holder(
+        repchain_dataframe_holder=meas_holder,
+        processing_functions=[
+            process_data_duration,
+            process_data_teleportation_fidelity,
+        ],
+    )
     processed_data.to_csv("output.csv")
-    plot_teleportation(filename="output.csv", scan_param_name=varied_param, scan_param_label=varied_param)
+    plot_teleportation(
+        filename="output.csv",
+        scan_param_name=varied_param,
+        scan_param_label=varied_param,
+    )
 
 
-def collect_state_data(generator, n_runs, ae, sim_params, varied_param,
-                       varied_object, number_nodes, suppress_output=False):
+def collect_state_data(
+    generator,
+    n_runs,
+    ae,
+    sim_params,
+    varied_param,
+    varied_object,
+    number_nodes,
+    suppress_output=False,
+):
     """
     Runs simulation and collects data for each network configuration. Stores data in RepchainDataFrameHolder in format
     that allows for plotting at later point.
@@ -504,21 +562,27 @@ def collect_state_data(generator, n_runs, ae, sim_params, varied_param,
         network = objects["network"]
         egp_services = magic_and_protocols(network, config, ae, sim_params)
         start_time_simulation = time.time()
-        data_one_configuration = run_simulation(egp_services=egp_services,
-                                                request_type=ReqCreateAndKeep,
-                                                response_type=ResCreateAndKeep,
-                                                data_collector=EGPDataCollectorState,
-                                                n_runs=n_runs)
+        data_one_configuration = run_simulation(
+            egp_services=egp_services,
+            request_type=ReqCreateAndKeep,
+            response_type=ResCreateAndKeep,
+            data_collector=EGPDataCollectorState,
+            n_runs=n_runs,
+        )
         if varied_param is not None:
-            param_value = config["components"][varied_object]["properties"][varied_param]
+            param_value = config["components"][varied_object]["properties"][
+                varied_param
+            ]
             data_one_configuration[varied_param] = param_value
         simulation_time = time.time() - start_time_simulation
         if not suppress_output:
             if varied_param is None:
                 print(f"Performed {n_runs} runs in {simulation_time:.2e} s")
             else:
-                print(f"Performed {n_runs} runs for {varied_param} = {param_value} "
-                      f"in {simulation_time:.2e} s")
+                print(
+                    f"Performed {n_runs} runs for {varied_param} = {param_value} "
+                    f"in {simulation_time:.2e} s"
+                )
         data.append(data_one_configuration)
 
     data = pd.concat(data, ignore_index=True)
@@ -528,15 +592,21 @@ def collect_state_data(generator, n_runs, ae, sim_params, varied_param,
         baseline_parameters = sim_params
         baseline_parameters["number_nodes"] = number_nodes
     else:
-        baseline_parameters = {"length": distance_delft_eindhoven,
-                               "number_nodes": number_nodes}
+        baseline_parameters = {
+            "length": distance_delft_eindhoven,
+            "number_nodes": number_nodes,
+        }
     print(new_data)
-    meas_holder = RepchainDataFrameHolder(baseline_parameters=baseline_parameters, data=new_data, number_of_nodes=2)
+    meas_holder = RepchainDataFrameHolder(
+        baseline_parameters=baseline_parameters, data=new_data, number_of_nodes=2
+    )
 
     return meas_holder
 
 
-def run_unified_simulation_state(configfile, paramfile=None, n_runs=10, suppress_output=False):
+def run_unified_simulation_state(
+    configfile, paramfile=None, n_runs=10, suppress_output=False
+):
     """Run unified simulation script.
 
     Parameters
@@ -570,13 +640,23 @@ def run_unified_simulation_state(configfile, paramfile=None, n_runs=10, suppress
     else:
         sim_params = None
 
-    repchain_df_holder = collect_state_data(generator, n_runs, ae, sim_params, varied_param, varied_object,
-                                            number_nodes, suppress_output=suppress_output)
+    repchain_df_holder = collect_state_data(
+        generator,
+        n_runs,
+        ae,
+        sim_params,
+        varied_param,
+        varied_object,
+        number_nodes,
+        suppress_output=suppress_output,
+    )
 
     return repchain_df_holder, varied_param
 
 
-def innsbruck_visibility_and_coin_probs(t_coin, improvement_factor_visibility, improvement_factor_coin_prob_ph_ph):
+def innsbruck_visibility_and_coin_probs(
+    t_coin, improvement_factor_visibility, improvement_factor_coin_prob_ph_ph
+):
     """Calculate visibility and coincidence probabilities for Innsbruck setup.
 
     Parameters
@@ -602,7 +682,7 @@ def innsbruck_visibility_and_coin_probs(t_coin, improvement_factor_visibility, i
 
     """
 
-    t_coin = t_coin * 1E-3  # convert to microseconds to match Innsbruck data
+    t_coin = t_coin * 1e-3  # convert to microseconds to match Innsbruck data
 
     if t_coin > innsbruck_t_win:
         raise ValueError("Coincidence window cannot exceed time window.")
@@ -610,23 +690,34 @@ def innsbruck_visibility_and_coin_probs(t_coin, improvement_factor_visibility, i
         raise ValueError("Coincidence window must be a positive number.")
 
     # calculate quantities from coincidence-window model
-    baseline_visibility = visibility(t_coin=t_coin, emission_time_decay_param=innsbruck_emission_time_decay_param,
-                                     wave_function_decay_param=innsbruck_wave_function_decay_param,
-                                     t_win=innsbruck_t_win)
-    baseline_coin_prob_ph_ph = coincidence_probability(t_coin=t_coin,
-                                                       emission_time_decay_param=innsbruck_emission_time_decay_param,
-                                                       wave_function_decay_param=innsbruck_wave_function_decay_param,
-                                                       t_win=innsbruck_t_win, condition_on_within_time_window=True)
-    coin_prob_ph_dc = \
-        coincidence_probability_dark_count_and_photon(t_coin=t_coin,
-                                                      emission_time_decay_param=innsbruck_emission_time_decay_param,
-                                                      wave_function_decay_param=innsbruck_wave_function_decay_param,
-                                                      t_win=innsbruck_t_win)
-    coin_prob_dc_dc = coincidence_probability_two_dark_counts(t_coin=t_coin, t_win=innsbruck_t_win)
+    baseline_visibility = visibility(
+        t_coin=t_coin,
+        emission_time_decay_param=innsbruck_emission_time_decay_param,
+        wave_function_decay_param=innsbruck_wave_function_decay_param,
+        t_win=innsbruck_t_win,
+    )
+    baseline_coin_prob_ph_ph = coincidence_probability(
+        t_coin=t_coin,
+        emission_time_decay_param=innsbruck_emission_time_decay_param,
+        wave_function_decay_param=innsbruck_wave_function_decay_param,
+        t_win=innsbruck_t_win,
+        condition_on_within_time_window=True,
+    )
+    coin_prob_ph_dc = coincidence_probability_dark_count_and_photon(
+        t_coin=t_coin,
+        emission_time_decay_param=innsbruck_emission_time_decay_param,
+        wave_function_decay_param=innsbruck_wave_function_decay_param,
+        t_win=innsbruck_t_win,
+    )
+    coin_prob_dc_dc = coincidence_probability_two_dark_counts(
+        t_coin=t_coin, t_win=innsbruck_t_win
+    )
 
     # perform parameter improvements
-    vis = baseline_visibility ** (1. / improvement_factor_visibility)
-    coin_prob_ph_ph = baseline_coin_prob_ph_ph ** (1. / improvement_factor_coin_prob_ph_ph)
+    vis = baseline_visibility ** (1.0 / improvement_factor_visibility)
+    coin_prob_ph_ph = baseline_coin_prob_ph_ph ** (
+        1.0 / improvement_factor_coin_prob_ph_ph
+    )
 
     return vis, coin_prob_ph_ph, coin_prob_ph_dc, coin_prob_dc_dc
 
@@ -647,23 +738,50 @@ def innsbruck_visibility_and_coin_probs(t_coin, improvement_factor_visibility, i
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument('configfile', type=str, help="Name of the config file.")
-    parser.add_argument('-pf', '--paramfile', required=False, type=str,
-                        help="Name of the parameter file. Only required as a command line argument for AE simulations.")
-    parser.add_argument('-n', '--n_runs', required=False, type=int, default=10,
-                        help="Number of runs per configuration. If none is provided, defaults to 10.")
-    parser.add_argument('--output_path', required=False, type=str, default="raw_data",
-                        help="Path relative to local directory where simulation results should be saved.")
-    parser.add_argument('--filebasename', required=False, type=str, help="Name of the file to store results in.")
-    parser.add_argument('--plot', dest="plot", action="store_true",
-                        help="Plot the simulation results. Currently not available.")
+    parser.add_argument("configfile", type=str, help="Name of the config file.")
+    parser.add_argument(
+        "-pf",
+        "--paramfile",
+        required=False,
+        type=str,
+        help="Name of the parameter file. Only required as a command line argument for AE simulations.",
+    )
+    parser.add_argument(
+        "-n",
+        "--n_runs",
+        required=False,
+        type=int,
+        default=10,
+        help="Number of runs per configuration. If none is provided, defaults to 10.",
+    )
+    parser.add_argument(
+        "--output_path",
+        required=False,
+        type=str,
+        default="raw_data",
+        help="Path relative to local directory where simulation results should be saved.",
+    )
+    parser.add_argument(
+        "--filebasename",
+        required=False,
+        type=str,
+        help="Name of the file to store results in.",
+    )
+    parser.add_argument(
+        "--plot",
+        dest="plot",
+        action="store_true",
+        help="Plot the simulation results. Currently not available.",
+    )
 
     args, unknown = parser.parse_known_args()
     # _translate_smart_stopos_blueprint(args.paramfile)
-    repchain_df_holder, varied_param = run_unified_simulation_state(configfile=args.configfile,
-                                                                    paramfile=args.paramfile,
-                                                                    n_runs=args.n_runs,
-                                                                    suppress_output=False)
+    repchain_df_holder, varied_param = run_unified_simulation_state(
+        configfile=args.configfile,
+        paramfile=args.paramfile,
+        n_runs=args.n_runs,
+        suppress_output=False,
+    )
     save_data(repchain_df_holder, args)
     if args.plot:
         plot_data(repchain_df_holder, varied_param)

@@ -13,50 +13,57 @@ from netsquid_netconf.netconf import Loader
 from netsquid_nv.nv_parameter_set import _gaussian_dephasing_fn
 from netsquid_nv.nv_parameter_set import compute_dephasing_prob_from_nodephasing_number
 from netsquid_simulationtools.repchain_data_process import process_data_duration
-from netsquid_simulationtools.repchain_data_process import process_data_teleportation_fidelity
-from netsquid_simulationtools.repchain_data_process import process_repchain_dataframe_holder
+from netsquid_simulationtools.repchain_data_process import (
+    process_data_teleportation_fidelity,
+)
+from netsquid_simulationtools.repchain_data_process import (
+    process_repchain_dataframe_holder,
+)
 
-PLATFORM_TO_COHERENCE_TIME = {"nv": "carbon_T2",
-                              "ti": "coherence_time",
-                              "abstract": "T2"}
+PLATFORM_TO_COHERENCE_TIME = {
+    "nv": "carbon_T2",
+    "ti": "coherence_time",
+    "abstract": "T2",
+}
 
-TO_PROB_NO_ERROR_FUNCTION = {"detector_efficiency": lambda x: x,
-                             "collection_efficiency": lambda x: x,
-                             "p_double_exc": lambda x: 1 - x,
-                             "ec_gate_depolar_prob": lambda x: 1 - x,
-                             "n1e": lambda x: 1 - compute_dephasing_prob_from_nodephasing_number(x),
-                             "electron_T1": lambda x: np.exp(-1 / x),
-                             "electron_T2": lambda x: np.exp(-1 / x),
-                             "carbon_T1": lambda x: np.exp(-1 / x),
-                             "carbon_T2": lambda x: np.exp(-1 / x),
-                             "std_electron_electron_phase_drift": lambda x: _gaussian_dephasing_fn(x),
-                             "T1": lambda x: np.exp(-1 / x),
-                             "T2": lambda x: np.exp(-1 / x),
-                             "coherence_time": lambda x: np.exp(-1 * (1 / x)**2),
-                             "emission_fidelity": lambda x: x,
-                             "swap_quality": lambda x: x,
-                             "visibility": lambda x: x,
-                             "dark_count_probability": lambda x: 1 - x,
-                             }
+TO_PROB_NO_ERROR_FUNCTION = {
+    "detector_efficiency": lambda x: x,
+    "collection_efficiency": lambda x: x,
+    "p_double_exc": lambda x: 1 - x,
+    "ec_gate_depolar_prob": lambda x: 1 - x,
+    "n1e": lambda x: 1 - compute_dephasing_prob_from_nodephasing_number(x),
+    "electron_T1": lambda x: np.exp(-1 / x),
+    "electron_T2": lambda x: np.exp(-1 / x),
+    "carbon_T1": lambda x: np.exp(-1 / x),
+    "carbon_T2": lambda x: np.exp(-1 / x),
+    "std_electron_electron_phase_drift": lambda x: _gaussian_dephasing_fn(x),
+    "T1": lambda x: np.exp(-1 / x),
+    "T2": lambda x: np.exp(-1 / x),
+    "coherence_time": lambda x: np.exp(-1 * (1 / x) ** 2),
+    "emission_fidelity": lambda x: x,
+    "swap_quality": lambda x: x,
+    "visibility": lambda x: x,
+    "dark_count_probability": lambda x: 1 - x,
+}
 
 
 def parameter_cost(row: pd.Series, baseline_parameters: dict) -> float:
     """Computes the cost of parameters in `row` with respect to the baseline_parameters.
 
-       Parameters
-       ----------
-       row : pd.Series
-           A pandas Series object containing the values of parameters for which the cost will be computed.
-       baseline_parameters : dict
-           A dictionary where the keys are the names of optimized hardware parameters and the values are their baseline
-            values.
+    Parameters
+    ----------
+    row : pd.Series
+        A pandas Series object containing the values of parameters for which the cost will be computed.
+    baseline_parameters : dict
+        A dictionary where the keys are the names of optimized hardware parameters and the values are their baseline
+         values.
 
-       Returns
-       -------
-       float
-           The hardware parameter cost.
+    Returns
+    -------
+    float
+        The hardware parameter cost.
 
-       """
+    """
     parameter_cost = 0
     baseline_prob_no_error_dict = {}
     prob_no_error_dict = {}
@@ -64,19 +71,29 @@ def parameter_cost(row: pd.Series, baseline_parameters: dict) -> float:
         # Some TI parameters are passed as improvement factors, hence they can just directly be added to the cost
         if "improvement" in parameter:
             continue
-        baseline_prob_no_error_dict[parameter] = TO_PROB_NO_ERROR_FUNCTION[parameter](value)
-        prob_no_error_dict[parameter] = TO_PROB_NO_ERROR_FUNCTION[parameter](row[parameter])
+        baseline_prob_no_error_dict[parameter] = TO_PROB_NO_ERROR_FUNCTION[parameter](
+            value
+        )
+        prob_no_error_dict[parameter] = TO_PROB_NO_ERROR_FUNCTION[parameter](
+            row[parameter]
+        )
     for parameter in baseline_parameters:
         if "improvement" in parameter:
             parameter_cost += row[parameter]
         else:
             parameter_cost += 1 / (
-                np.log(prob_no_error_dict[parameter]) / np.log(baseline_prob_no_error_dict[parameter]))
+                np.log(prob_no_error_dict[parameter])
+                / np.log(baseline_prob_no_error_dict[parameter])
+            )
     return parameter_cost
 
 
-def total_cost_squared_difference(row: pd.Series, fidelity_threshold: float, rate_threshold: float,
-                                  baseline_parameters: dict) -> float:
+def total_cost_squared_difference(
+    row: pd.Series,
+    fidelity_threshold: float,
+    rate_threshold: float,
+    baseline_parameters: dict,
+) -> float:
     """Computes total cost, which includes hardware parameter cost and penalties for not meeting target metrics.
 
     A square difference penalty is used, ensuring that the penalty is higher the furthest away from the target a
@@ -99,10 +116,15 @@ def total_cost_squared_difference(row: pd.Series, fidelity_threshold: float, rat
         Total cost, including hardware parameter cost and penalties.
 
     """
-    fid_cost = (1 + (fidelity_threshold - row["teleportation_fidelity_average"])**2) \
-        * np.heaviside(fidelity_threshold - row["teleportation_fidelity_average"], 0)
-    rate_cost = (1 + (rate_threshold - row["rate"])**2) * np.heaviside(rate_threshold - row["rate"], 0)
-    total_cost = 1.e+20 * (fid_cost + rate_cost) + parameter_cost(row, baseline_parameters)
+    fid_cost = (
+        1 + (fidelity_threshold - row["teleportation_fidelity_average"]) ** 2
+    ) * np.heaviside(fidelity_threshold - row["teleportation_fidelity_average"], 0)
+    rate_cost = (1 + (rate_threshold - row["rate"]) ** 2) * np.heaviside(
+        rate_threshold - row["rate"], 0
+    )
+    total_cost = 1.0e20 * (fid_cost + rate_cost) + parameter_cost(
+        row, baseline_parameters
+    )
     return total_cost
 
 
@@ -172,7 +194,11 @@ def get_baseline_parameters(baseline_parameter_file: str, parameter_list: list) 
         Dictionary where the keys are names of optimized hardware parameters and the values are their baseline values.
 
     """
-    tunable_parameters = ["cutoff_time", "bright_state_param", "coincidence_time_window"]
+    tunable_parameters = [
+        "cutoff_time",
+        "bright_state_param",
+        "coincidence_time_window",
+    ]
     with open(baseline_parameter_file, "r") as stream:
         sim_params = yaml.load(stream, Loader=Loader)
     baseline_parameters = {}
@@ -206,20 +232,26 @@ def process_data(parameter_list: list, root_dir: str = ".") -> pd.DataFrame:
     """
     processed_data = pd.DataFrame()
 
-    job_dirs = [d for d in os.listdir(root_dir) if os.path.isdir(os.path.join(root_dir, d)) and d.startswith('job')]
+    job_dirs = [
+        d
+        for d in os.listdir(root_dir)
+        if os.path.isdir(os.path.join(root_dir, d)) and d.startswith("job")
+    ]
     job_dirs.sort(key=lambda x: int(x[3:]))  # Sort job directories by job number
 
     for job_dir in job_dirs:
         print(job_dir)
         current_job_dir = os.path.join(root_dir, job_dir)
-        raw_data_subfolder = 'raw_data'  # Replace this with the correct subfolder name
+        raw_data_subfolder = "raw_data"  # Replace this with the correct subfolder name
         subfolder_path = os.path.join(current_job_dir, raw_data_subfolder)
 
         for _, _, subfolder_files in os.walk(subfolder_path):
             for filename in subfolder_files:
                 if filename.endswith(".pickle"):
                     file_path = os.path.join(subfolder_path, filename)
-                    print(f"Loading pickle file: {file_path}")  # Add this line to print the file path
+                    print(
+                        f"Loading pickle file: {file_path}"
+                    )  # Add this line to print the file path
                     new_data = pickle.load(open(file_path, "rb"))
                     # manually write varied param to dataframe
                     for param in parameter_list:
@@ -230,7 +262,11 @@ def process_data(parameter_list: list, root_dir: str = ".") -> pd.DataFrame:
 
                     new_processed_data = process_repchain_dataframe_holder(
                         repchain_dataframe_holder=new_data,
-                        processing_functions=[process_data_duration, process_data_teleportation_fidelity])
+                        processing_functions=[
+                            process_data_duration,
+                            process_data_teleportation_fidelity,
+                        ],
+                    )
                     processed_data = processed_data.append(new_processed_data)
     return processed_data
 
@@ -238,7 +274,9 @@ def process_data(parameter_list: list, root_dir: str = ".") -> pd.DataFrame:
 if __name__ == "__main__":
     # Replace this by the name of the baseline parameter file you used
     # This name should be in the format "platform_baseline_params.yaml"
-    baseline_parameter_file = blueprint_input().system_setup.cmdline_arguments["paramfile"]
+    baseline_parameter_file = blueprint_input().system_setup.cmdline_arguments[
+        "paramfile"
+    ]
     # baseline_parameter_file = "nv_baseline_params.yaml"
 
     param_list = parse_parameters_from_experiment(experiment=blueprint_input())
@@ -258,20 +296,32 @@ if __name__ == "__main__":
     # this means getting the cost in the first column, and the values of the optimized parameters in the other columns
 
     csv_output = pd.read_csv("full_output.csv")
-    output_for_stopos = pd.DataFrame(csv_output["teleportation_fidelity_average"],
-                                     columns=['teleportation_fidelity_average'])
+    output_for_stopos = pd.DataFrame(
+        csv_output["teleportation_fidelity_average"],
+        columns=["teleportation_fidelity_average"],
+    )
     output_for_stopos["rate"] = 1 / csv_output["duration_per_success"]
 
     # Assuming cutoff is being optimized as factor of coherence time
     try:
-        csv_output["cutoff_time"] = csv_output["cutoff_time"] / csv_output[PLATFORM_TO_COHERENCE_TIME[platform]]
+        csv_output["cutoff_time"] = (
+            csv_output["cutoff_time"] / csv_output[PLATFORM_TO_COHERENCE_TIME[platform]]
+        )
     except KeyError:
         pass
     for parameter in param_list:
         output_for_stopos[parameter] = csv_output[parameter]
-    output_for_stopos.insert(0, "cost", output_for_stopos.apply(
-        lambda row: total_cost_squared_difference(row, fid_threshold, rate_threshold, baseline_parameters), axis=1))
+    output_for_stopos.insert(
+        0,
+        "cost",
+        output_for_stopos.apply(
+            lambda row: total_cost_squared_difference(
+                row, fid_threshold, rate_threshold, baseline_parameters
+            ),
+            axis=1,
+        ),
+    )
 
     output_for_stopos.drop("teleportation_fidelity_average", inplace=True, axis=1)
     output_for_stopos.drop("rate", inplace=True, axis=1)
-    output_for_stopos.to_csv("output.csv", index=False, sep=' ')
+    output_for_stopos.to_csv("output.csv", index=False, sep=" ")

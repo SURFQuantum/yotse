@@ -40,31 +40,47 @@ class GAOpt(GenericOptimization):
         Optional pygad arguments to be passed to `pygad.GA`.
         See https://pygad.readthedocs.io/en/latest/README_pygad_ReadTheDocs.html#pygad-ga-class for documentation.
     """
-    def __init__(self, initial_population: list, num_generations: int, num_parents_mating: int,
-                 gene_space: dict = None, refinement_factors=None, logging_level=1, allow_duplicate_genes=False,
-                 fitness_func=None,
-                 **pygad_kwargs):
+
+    def __init__(
+        self,
+        initial_population: list,
+        num_generations: int,
+        num_parents_mating: int,
+        gene_space: dict = None,
+        refinement_factors=None,
+        logging_level=1,
+        allow_duplicate_genes=False,
+        fitness_func=None,
+        **pygad_kwargs,
+    ):
         if fitness_func is None:
             fitness_func = self.input_params_to_cost_value
 
         # Note: number of new points is determined by initial population
         # gene_space to limit space in which new genes are formed = constraints
-        ga_instance = ModGA(fitness_func=self._objective_func,
-                            initial_population=initial_population,
-                            num_generations=num_generations,
-                            num_parents_mating=num_parents_mating,
-                            # todo : gene_type/_space are exactly data_type/constraints of the params, see core.py
-                            # gene_type=gene_type,
-                            gene_space=gene_space,
-                            save_best_solutions=True,
-                            allow_duplicate_genes=allow_duplicate_genes,
-                            mutation_by_replacement=True,
-                            **pygad_kwargs
-                            )
+        ga_instance = ModGA(
+            fitness_func=self._objective_func,
+            initial_population=initial_population,
+            num_generations=num_generations,
+            num_parents_mating=num_parents_mating,
+            # todo : gene_type/_space are exactly data_type/constraints of the params, see core.py
+            # gene_type=gene_type,
+            gene_space=gene_space,
+            save_best_solutions=True,
+            allow_duplicate_genes=allow_duplicate_genes,
+            mutation_by_replacement=True,
+            **pygad_kwargs,
+        )
         self.constraints = gene_space
         # todo : why if save_solutions=True the optimization doesn't converge anymore?
-        super().__init__(function=fitness_func, opt_instance=ga_instance, refinement_factors=refinement_factors,
-                         logging_level=logging_level, extrema=self.MINIMUM, evolutionary=True)
+        super().__init__(
+            function=fitness_func,
+            opt_instance=ga_instance,
+            refinement_factors=refinement_factors,
+            logging_level=logging_level,
+            extrema=self.MINIMUM,
+            evolutionary=True,
+        )
 
     def _objective_func(self, ga_instance, solution, solution_idx) -> float:
         """
@@ -84,9 +100,9 @@ class GAOpt(GenericOptimization):
             Fitness value.
         """
         # Invert function to find the minimum, if needed
-        factor = 1.
+        factor = 1.0
         if self.extrema == self.MINIMUM:
-            factor = -1.
+            factor = -1.0
 
         fitness = factor * self.function(ga_instance, solution, solution_idx)
 
@@ -139,9 +155,15 @@ class GAOpt(GenericOptimization):
                 for index, value in enumerate(point):
                     if isinstance(self.constraints, list):
                         if self.constraints[index] is not None:
-                            assert self.constraints[index]['low'] <= value <= self.constraints[index]['high']
+                            assert (
+                                self.constraints[index]["low"]
+                                <= value
+                                <= self.constraints[index]["high"]
+                            )
                     elif isinstance(self.constraints, dict):
-                        assert self.constraints['low'] <= value <= self.constraints['high']
+                        assert (
+                            self.constraints["low"] <= value <= self.constraints["high"]
+                        )
                     else:
                         raise TypeError(f"Unacceptable type {type} for constraints.")
         return [tuple(point) for point in new_points]
@@ -151,7 +173,9 @@ class GAOpt(GenericOptimization):
         data_array = np.array(data_points)
         self.optimization_instance.population = data_array
 
-    def input_params_to_cost_value(self, ga_instance, solution: list, solution_idx: int) -> float:
+    def input_params_to_cost_value(
+        self, ga_instance, solution: list, solution_idx: int
+    ) -> float:
         """Return value of cost function for given set of input parameter values and their index in the set of points.
 
         Parameters:
@@ -166,7 +190,9 @@ class GAOpt(GenericOptimization):
         if all(math.isclose(row[i + 1], solution[i]) for i in range(len(solution))):
             return row[0]
         else:
-            raise ValueError(f"Solution {solution} was not found in internal dataframe row {solution_idx}.")
+            raise ValueError(
+                f"Solution {solution} was not found in internal dataframe row {solution_idx}."
+            )
 
 
 # class CGOpt(GenericOptimization):

@@ -6,10 +6,12 @@ import webbrowser
 def main():
     command = [
         "pytest",
-        "-W", "ignore::DeprecationWarning",
-        "--cov-report", "html",
+        "-W",
+        "ignore::DeprecationWarning",
+        "--cov-report",
+        "html",
         "--cov=yotse",
-        "tests/"
+        "tests/",
     ]
     subprocess.run(command, check=True)
 

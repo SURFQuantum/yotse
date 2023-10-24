@@ -7,21 +7,24 @@ from yotse.pre import Experiment
 from yotse.pre import OptimizationInfo
 from yotse.pre import Parameter
 from yotse.pre import SystemSetup
+
 # import matplotlib
 
 
 def wobbly_pre():
     wobbly_experiment = Experiment(
         experiment_name="wobbly_example",
-        system_setup=SystemSetup(source_directory=os.getcwd(),
-                                 program_name='wobbly_function.py',
-                                 command_line_arguments={"--filebasename": 'wobbly_example',
-                                                         # '--resume': '.qcgpjm-service-david-latitude7430.6070'
-                                                         },
-                                 analysis_script="analyse_function_output.py",
-                                 executor="python",
-                                 # files_needed=["*.py"] # todo not implemented
-                                 ),
+        system_setup=SystemSetup(
+            source_directory=os.getcwd(),
+            program_name="wobbly_function.py",
+            command_line_arguments={
+                "--filebasename": "wobbly_example",
+                # '--resume': '.qcgpjm-service-david-latitude7430.6070'
+            },
+            analysis_script="analyse_function_output.py",
+            executor="python",
+            # files_needed=["*.py"] # todo not implemented
+        ),
         parameters=[
             Parameter(
                 name="x",
@@ -29,53 +32,59 @@ def wobbly_pre():
                 number_points=10,
                 distribution="uniform",
                 constraints=None,
-                weights=None,   # todo not implemented
+                weights=None,  # todo not implemented
                 parameter_active=True,
-                param_type="continuous"
+                param_type="continuous",
             ),
             Parameter(
                 name="y",
                 param_range=[-3, 3],
                 number_points=10,
                 distribution="uniform",
-                constraints={'low': -4, 'high': 4, 'step': .001},
+                constraints={"low": -4, "high": 4, "step": 0.001},
                 weights=None,
                 parameter_active=True,
-                param_type="continuous"
-            )
+                param_type="continuous",
+            ),
         ],
         opt_info_list=[
             OptimizationInfo(
                 name="GA",
                 opt_parameters={
-                    "num_generations": 10,     # number of iterations of the algorithm
+                    "num_generations": 10,  # number of iterations of the algorithm
                     # "num_points": 10,            # number of points per param to re-create , now determined by initial
                     "num_parents_mating": 5,
-                    "mutation_probability": .2,
-                    "refinement_factors": [.5, .5],
+                    "mutation_probability": 0.2,
+                    "refinement_factors": [0.5, 0.5],
                     "logging_level": 1,
                 },
-                is_active=True)]
+                is_active=True,
+            )
+        ],
     )
     return wobbly_experiment
 
 
 def remove_files_after_run():
     # remove files and directories
-    shutil.rmtree('output')
+    shutil.rmtree("output")
     dirs = [f for f in os.listdir(os.getcwd()) if (f.startswith(".qcg"))]
     for d in dirs:
         shutil.rmtree(os.path.join(os.getcwd(), d))
 
 
 def main():
-
     experiment = wobbly_pre()
     wobbly_example = Executor(experiment=experiment)
 
-    for i in range(wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed,
-                   experiment.optimization_information_list[0].parameters["num_generations"]):
-        assert wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed == i
+    for i in range(
+        wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed,
+        experiment.optimization_information_list[0].parameters["num_generations"],
+    ):
+        assert (
+            wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed
+            == i
+        )
         # todo : the grid based point generation is still somehow bugged
         # wobbly_example.run(step=i, evolutionary_point_generation=False)
         wobbly_example.run(step_number=i, evolutionary_point_generation=True)
@@ -94,11 +103,20 @@ def main():
         stop_continue_example.run(step_number=i, evolutionary_point_generation=True)
     # write resume parameter to experiment
     continue_experiment = wobbly_pre()
-    continue_experiment.system_setup.cmdline_arguments['--resume'] = stop_continue_example.aux_dir
+    continue_experiment.system_setup.cmdline_arguments[
+        "--resume"
+    ] = stop_continue_example.aux_dir
     continue_example = Executor(experiment=continue_experiment)
-    for i in range(continue_example.optimizer.optimization_algorithm.optimization_instance.generations_completed,
-                   continue_experiment.optimization_information_list[0].parameters["num_generations"]):
-        assert continue_example.optimizer.optimization_algorithm.optimization_instance.generations_completed == i
+    for i in range(
+        continue_example.optimizer.optimization_algorithm.optimization_instance.generations_completed,
+        continue_experiment.optimization_information_list[0].parameters[
+            "num_generations"
+        ],
+    ):
+        assert (
+            continue_example.optimizer.optimization_algorithm.optimization_instance.generations_completed
+            == i
+        )
         continue_example.run(step_number=i, evolutionary_point_generation=True)
 
     stop_continue_solution = continue_example.optimizer.suggest_best_solution()

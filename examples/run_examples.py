@@ -23,7 +23,7 @@ def main():
 def _run_example(filepath):
     cwd = os.getcwd()
     sys.path.append(os.path.dirname(filepath))
-    example_module_name = os.path.basename(filepath)[:-len(".py")]
+    example_module_name = os.path.basename(filepath)[: -len(".py")]
     example_module = importlib.import_module(example_module_name)
     print(hasattr(example_module, "main"))
     if hasattr(example_module, "main"):
@@ -43,5 +43,5 @@ def _has_no_output_arg(func):
     return "no_output" in inspect.getfullargspec(func).args
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

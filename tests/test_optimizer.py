@@ -6,7 +6,6 @@ from yotse.optimization.optimizer import Optimizer
 
 
 class TestOptimizer(unittest.TestCase):
-
     def test_init(self):
         """Test that Optimizer is initialized correctly."""
         mock_optimization = Mock(spec=GenericOptimization)
@@ -18,9 +17,10 @@ class TestOptimizer(unittest.TestCase):
 
     def test_best_solution(self):
         """Test that Optimizer correctly suggests the best solution."""
+
         class MockOpt(GenericOptimization):
             def get_best_solution(self) -> (list, float, int):
-                return [1, 0.1, 0.01], 2., 3
+                return [1, 0.1, 0.01], 2.0, 3
 
         test_optimizer = Optimizer(optimization_algorithm=MockOpt(function=None))
         solution = test_optimizer.suggest_best_solution()
@@ -31,16 +31,18 @@ class TestOptimizer(unittest.TestCase):
         self.assertIsInstance(solution[2], int)
         self.assertEqual(len(solution), 3)
         # test correct value
-        self.assertEqual(solution, ([1, 0.1, 0.01], 2., 3))
+        self.assertEqual(solution, ([1, 0.1, 0.01], 2.0, 3))
 
     def test_optimize(self):
         """Test that Optimizer correctly optimizes."""
+
         class MockOpt(GenericOptimization):
             def __init__(self):
                 self.was_executed = 0
 
             def execute(self) -> None:
                 self.was_executed += 1
+
         test_go = MockOpt()
         test_optimizer = Optimizer(test_go)
         self.assertEqual(test_go.was_executed, 0)
