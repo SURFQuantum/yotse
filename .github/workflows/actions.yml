@@ -53,7 +53,7 @@ jobs:
       run: poetry run pytest -W ignore::DeprecationWarning --cov-report xml --cov=yotse tests/
     - name: Run the examples
       if: matrix.task == 'run-examples'
-      run: poetry run python examples/run_examples.py
+      run: poetry run examples
 
     # the following is coverage stuff that should only run on pull requests
     - name: Debug environment

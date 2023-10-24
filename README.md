@@ -19,20 +19,35 @@ YOTSE is a powerful tool designed to enable computational experiments using any 
 5. [License](#license)
 
 ## Installation
+### Python Package
 
-To install this project, clone the repository. Make sure you have the necessary permissions.
+To install this project, simply:
+```bash
+pip install yotse
+```
+### Manual
+If you want to contribute to the project, then clone the repository as follows: (Make sure you have the necessary permissions.)
 
 ```bash
 git clone https://github.com/SURFQuantum/yotse.git
 ```
 
-Once the repository is cloned, navigate to the project's root directory.
+Once the repository is cloned, navigate to the project's root directory, with:
 
 ```bash
 cd yotse
 ```
+If you do not have [poetry](https://python-poetry.org/docs/) already installed you need will need  to [install](https://python-poetry.org/docs/#installation) it first.
+Then install yotse using:
 
-Install any necessary dependencies as per the project's documentation.
+```bash
+poetry install
+```
+To verify your installation you can now do:
+
+```bash
+poetry run tests && poetry run examples
+```
 
 ## Usage
 
@@ -42,7 +57,7 @@ Our library offers predefined functions for parameter exploration and optimizati
 
 The optimization component of YOTSE involves a base class that can be used with any external optimization library. This flexibility allows you to tailor your optimization process to your specific needs and preferences.
 
-Detailed examples of usage will be provided in the /examples directory.
+Detailed examples of usage are provided in the `/examples` directory.
 
 ```mermaid
 ---
@@ -68,7 +83,7 @@ flowchart LR
 
 ```
 
-## Current structure
+## Class structure
 
 ```mermaid
 ---

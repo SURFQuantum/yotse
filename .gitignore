@@ -7,3 +7,5 @@ dist/
 .coverage
 .qcgpjm-*
 output/
+*.xml
+htmlcov/
