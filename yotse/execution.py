@@ -180,7 +180,7 @@ class Executor:
             for job_dir in [x[0] for x in os.walk(output_directory_current_step)
                             if x[0] != output_directory_current_step]:
                 files.extend(get_files_by_extension(job_dir, extension))
-            data = file_list_to_single_df(files)
+            data = file_list_to_single_df(files, extension)
             # todo : This is unsorted, is that a problem? yes. sort this by job no.
         else:
             # analysis script is given and will output file 'output.csv' with format 'cost_fun param0 param1 ...'
