@@ -4,12 +4,15 @@ import tempfile
 import unittest
 from datetime import datetime
 from io import StringIO
+from typing import Any
+from typing import Dict
 from unittest.mock import MagicMock
 
-import yaml
+import yaml  # type: ignore
 from ruamel.yaml import YAML
 from ruamel.yaml.nodes import ScalarNode
 
+from yotse.pre import Experiment
 from yotse.utils.blueprint_tools import create_separate_files_for_job
 from yotse.utils.blueprint_tools import replace_include_param_file
 from yotse.utils.blueprint_tools import represent_scalar_node
@@ -18,10 +21,10 @@ from yotse.utils.blueprint_tools import update_yaml_params
 
 
 class TestSetupOptimizationDir(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.tmp_dir = tempfile.mkdtemp()
 
-    def set_mock_experiment(self):
+    def set_mock_experiment(self) -> Experiment:
         # Create a mock experiment object
         experiment = MagicMock()
         experiment.system_setup.source_directory = os.path.join(self.tmp_dir, "src")
@@ -31,10 +34,10 @@ class TestSetupOptimizationDir(unittest.TestCase):
         experiment.name = "blueprint_experiment"
         return experiment
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         shutil.rmtree(self.tmp_dir)
 
-    def test_multiple_step_and_job(self):
+    def test_multiple_step_and_job(self) -> None:
         experiment = self.set_mock_experiment()
         timestamp_str = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 
@@ -85,7 +88,7 @@ class TestSetupOptimizationDir(unittest.TestCase):
             ),
         )
 
-    def test_existing_non_job_directory(self):
+    def test_existing_non_job_directory(self) -> None:
         experiment = self.set_mock_experiment()
         timestamp_str = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
         experiment.system_setup.working_directory = os.path.join(
@@ -98,15 +101,15 @@ class TestSetupOptimizationDir(unittest.TestCase):
 
 
 class TestUpdateYamlFiles(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.tmp_dir = tempfile.mkdtemp()
         os.mkdir(os.path.join(self.tmp_dir, "src"))
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         # Remove the temporary directory and its contents
         shutil.rmtree(self.tmp_dir)
 
-    def create_test_paramfile(self):
+    def create_test_paramfile(self) -> None:
         # Create a YAML file with initial parameters
         self.param_file = os.path.join(self.tmp_dir, "src", "params.yaml")
         with open(self.param_file, "w") as f:
@@ -119,7 +122,7 @@ class TestUpdateYamlFiles(unittest.TestCase):
             }
             yaml.dump(params, f, default_flow_style=False)
 
-    def create_test_configfile(self):
+    def create_test_configfile(self) -> None:
         # Create a YAML config file with an INCLUDE statement
         self.config_file = os.path.join(self.tmp_dir, "src", "config.yaml")
         with open(self.config_file, "w") as f:
@@ -146,13 +149,13 @@ class TestUpdateYamlFiles(unittest.TestCase):
             }
             yaml.dump(config, f, default_flow_style=False)
 
-    def test_update_yaml_params(self):
+    def test_update_yaml_params(self) -> None:
         self.create_test_paramfile()
         # Define the parameter updates
         param_list = [
-            ["det_efficiency", 0.9],
-            ["dark_count_prob", 1e-5],
-            ["emission_probability", 0.1],
+            ("det_efficiency", 0.9),
+            ("dark_count_prob", 1e-5),
+            ("emission_probability", 0.1),
         ]
 
         # Update the YAML file
@@ -173,7 +176,7 @@ class TestUpdateYamlFiles(unittest.TestCase):
         self.assertEqual(params, expected_params)
 
     @staticmethod
-    def expected_config(paramfile_name):
+    def expected_config(paramfile_name: str) -> Dict[str, Any]:
         # Note: modifying the dict changes the order, so the expected dict is slightly reordered
         return {
             "network": "blueprint_network",
@@ -201,7 +204,7 @@ class TestUpdateYamlFiles(unittest.TestCase):
             },
         }
 
-    def test_replace_include_param_file(self):
+    def test_replace_include_param_file(self) -> None:
         yaml = YAML(typ="rt")
         yaml.indent(mapping=2, sequence=4, offset=2)
         yaml.representer.add_representer(ScalarNode, represent_scalar_node)
@@ -228,7 +231,7 @@ class TestUpdateYamlFiles(unittest.TestCase):
         # Compare the serialized strings
         self.assertEqual(config_str.getvalue(), expected_config_str.getvalue())
 
-    def test_include_not_found(self):
+    def test_include_not_found(self) -> None:
         # Create a YAML config file WITHOUT an INCLUDE statement
         self.config_file = os.path.join(self.tmp_dir, "config.yaml")
         with open(self.config_file, "w") as f:
@@ -244,7 +247,7 @@ class TestUpdateYamlFiles(unittest.TestCase):
         with self.assertRaises(ValueError):
             replace_include_param_file(self.config_file, new_param_file_name)
 
-    def test_create_separate_files_for_job(self):
+    def test_create_separate_files_for_job(self) -> None:
         yaml = YAML(typ="rt")
         yaml.indent(mapping=2, sequence=4, offset=2)
         yaml.representer.add_representer(ScalarNode, represent_scalar_node)

@@ -1,9 +1,17 @@
 import math
+from typing import Any
+from typing import Callable
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 import numpy as np
+from pygad.pygad import GA
 
-from yotse.optimization.ga import ModGA
+from yotse.optimization.ga import ModGA  # type: ignore[attr-defined]
 from yotse.optimization.generic_optimization import GenericOptimization
+from yotse.pre import ConstraintDict
+from yotse.utils.utils import ndarray_to_list
 
 
 class GAOpt(GenericOptimization):
@@ -14,7 +22,7 @@ class GAOpt(GenericOptimization):
     ----------
     fitness_func : function
         Fitness/objective/cost function.
-    initial_population: list
+    initial_data_points: np.ndarray
         Initial population of data points to start the optimization with.
     num_generations : int
         Number of generations in the genetic algorithm.
@@ -43,15 +51,15 @@ class GAOpt(GenericOptimization):
 
     def __init__(
         self,
-        initial_population: list,
+        initial_data_points: np.ndarray,
         num_generations: int,
         num_parents_mating: int,
-        gene_space: dict = None,
-        refinement_factors=None,
-        logging_level=1,
-        allow_duplicate_genes=False,
-        fitness_func=None,
-        **pygad_kwargs,
+        gene_space: Optional[ConstraintDict] = None,
+        refinement_factors: Optional[List[float]] = None,
+        logging_level: int = 1,
+        allow_duplicate_genes: bool = False,
+        fitness_func: Optional[Callable[..., float]] = None,
+        **pygad_kwargs: Any,
     ):
         if fitness_func is None:
             fitness_func = self.input_params_to_cost_value
@@ -60,7 +68,7 @@ class GAOpt(GenericOptimization):
         # gene_space to limit space in which new genes are formed = constraints
         ga_instance = ModGA(
             fitness_func=self._objective_func,
-            initial_population=initial_population,
+            initial_population=ndarray_to_list(initial_data_points),
             num_generations=num_generations,
             num_parents_mating=num_parents_mating,
             # todo : gene_type/_space are exactly data_type/constraints of the params, see core.py
@@ -82,7 +90,9 @@ class GAOpt(GenericOptimization):
             evolutionary=True,
         )
 
-    def _objective_func(self, ga_instance, solution, solution_idx) -> float:
+    def _objective_func(
+        self, ga_instance: GA, solution: List[float], solution_idx: int
+    ) -> float:
         """
         Fitness function to be called from PyGAD
 
@@ -121,7 +131,7 @@ class GAOpt(GenericOptimization):
         if self.logging_level >= 2:
             self.optimization_instance.plot_fitness()
 
-    def get_best_solution(self) -> (list, None, None):
+    def get_best_solution(self) -> Tuple[List[float], None, None]:
         """
         Get the best solution. We don't yet know the fitness for the solution (because we have not run the simulation
         for those values yet), so just return the point.
@@ -138,17 +148,17 @@ class GAOpt(GenericOptimization):
         return best_solution, None, None
         # todo: this could also instead return solution and fitness of the best solution one generation back?
 
-    def get_new_points(self) -> list:
+    def get_new_points(self) -> np.ndarray:
         """
         Get new points from the GA (aka return the next population).
 
         Returns:
         -------
-        new_points : list of tuples
+        new_points : np.ndarray
             New points for the next iteration of the optimization.
         """
-        new_points = self.optimization_instance.population.tolist()
-        # todo : this check should be redundant and could be removed
+        new_points = self.optimization_instance.population
+        # todo: see if we check constraints somewhere else, might be redundant
         if self.constraints is not None:
             # double check constraints are kept
             for point in new_points:
@@ -166,16 +176,16 @@ class GAOpt(GenericOptimization):
                         )
                     else:
                         raise TypeError(f"Unacceptable type {type} for constraints.")
-        return [tuple(point) for point in new_points]
+        new_points = [tuple(point) for point in new_points]
 
-    def overwrite_internal_data_points(self, data_points: list) -> None:
-        # convert list of tuples into np.array
-        data_array = np.array(data_points)
-        self.optimization_instance.population = data_array
+        return np.array(new_points)
+
+    def overwrite_internal_data_points(self, data_points: np.ndarray) -> None:
+        self.optimization_instance.population = data_points
 
     def input_params_to_cost_value(
-        self, ga_instance, solution: list, solution_idx: int
-    ) -> float:
+        self, ga_instance: GA, solution: List[float], solution_idx: int
+    ) -> Any:
         """Return value of cost function for given set of input parameter values and their index in the set of points.
 
         Parameters:
@@ -282,7 +292,7 @@ class GAOpt(GenericOptimization):
 #         #
 #         # ga_instance = pygad.GA(num_generations=self.num_generations,
 #         #                        num_parents_mating=5,
-#         #                        initial_population=function_inputs,
+#         #                        initial_data_points=function_inputs,
 #         #                        sol_per_pop=10,
 #         #                        num_genes=len(function_inputs),
 #         #                        gene_type=float,
