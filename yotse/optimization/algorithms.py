@@ -1,9 +1,11 @@
 import math
 from typing import Any
 from typing import Callable
+from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
+from typing import Union
 
 import numpy as np
 from pygad.pygad import GA
@@ -22,7 +24,7 @@ class GAOpt(GenericOptimization):
     ----------
     fitness_func : function
         Fitness/objective/cost function.
-    initial_population: list
+    initial_data_points: np.ndarray
         Initial population of data points to start the optimization with.
     num_generations : int
         Number of generations in the genetic algorithm.
@@ -51,7 +53,7 @@ class GAOpt(GenericOptimization):
 
     def __init__(
         self,
-        initial_population: np.ndarray,
+        initial_data_points: np.ndarray,
         num_generations: int,
         num_parents_mating: int,
         gene_space: Optional[ConstraintDict] = None,
@@ -68,7 +70,7 @@ class GAOpt(GenericOptimization):
         # gene_space to limit space in which new genes are formed = constraints
         ga_instance = ModGA(
             fitness_func=self._objective_func,
-            initial_population=ndarray_to_list(initial_population),
+            initial_population=ndarray_to_list(initial_data_points),
             num_generations=num_generations,
             num_parents_mating=num_parents_mating,
             # todo : gene_type/_space are exactly data_type/constraints of the params, see core.py
@@ -292,7 +294,7 @@ class GAOpt(GenericOptimization):
 #         #
 #         # ga_instance = pygad.GA(num_generations=self.num_generations,
 #         #                        num_parents_mating=5,
-#         #                        initial_population=function_inputs,
+#         #                        initial_data_points=function_inputs,
 #         #                        sol_per_pop=10,
 #         #                        num_genes=len(function_inputs),
 #         #                        gene_type=float,

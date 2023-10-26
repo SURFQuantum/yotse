@@ -79,7 +79,7 @@ class Executor:
             # todo: figure out what's nicer for user constraint or data_type? both seems redundant?
             if opt_info.name == "GA":
                 optimization_alg = GAOpt(
-                    initial_population=ndarray_to_list(self.experiment.data_points),
+                    initial_data_points=self.experiment.data_points,
                     # gene_type=param_types,
                     gene_space=constraints,  # type: ignore
                     **opt_info.parameters,

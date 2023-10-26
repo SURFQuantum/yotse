@@ -9,7 +9,6 @@ from typing import Callable
 from typing import Dict
 from typing import List
 from typing import Optional
-from typing import Tuple
 from typing import TypedDict
 from typing import Union
 
@@ -30,10 +29,10 @@ class ParameterDependencyDict(TypedDict):
     function: Callable[[float, float], float]
 
 
-class ConstraintDict(TypedDict):
+class ConstraintDict(TypedDict, total=False):
     low: float
     high: float
-    step: float
+    step: Optional[float]
 
 
 class Parameter:
@@ -256,9 +255,14 @@ class Parameter:
                 self.constraints["high"] = self.depends_on["function"](
                     self.constraints["high"], target_parameter.constraints["high"]
                 )
-                self.constraints["step"] = self.depends_on["function"](
-                    self.constraints["step"], target_parameter.constraints["step"]
-                )
+                if (
+                    self.constraints["step"] is not None
+                    and target_parameter.constraints["step"] is not None
+                ):
+                    # step is not necessary to specify
+                    self.constraints["step"] = self.depends_on["function"](
+                        self.constraints["step"], target_parameter.constraints["step"]
+                    )
             elif isinstance(self.constraints, tuple) and isinstance(
                 target_parameter.constraints, tuple
             ):
