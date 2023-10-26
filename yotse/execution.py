@@ -16,7 +16,6 @@ from yotse.pre import Experiment
 from yotse.pre import set_basic_directory_structure_for_job
 from yotse.utils.utils import file_list_to_single_df
 from yotse.utils.utils import get_files_by_extension
-from yotse.utils.utils import ndarray_to_list
 
 
 class Executor:

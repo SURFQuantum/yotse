@@ -1,7 +1,6 @@
 from typing import List
 from typing import Optional
 from typing import Tuple
-from typing import Union
 
 from yotse.optimization.generic_optimization import GenericOptimization
 from yotse.pre import Experiment

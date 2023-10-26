@@ -1,16 +1,14 @@
 import math
 from typing import Any
 from typing import Callable
-from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
-from typing import Union
 
 import numpy as np
 from pygad.pygad import GA
 
-from yotse.optimization.ga import ModGA
+from yotse.optimization.ga import ModGA  # type: ignore[attr-defined]
 from yotse.optimization.generic_optimization import GenericOptimization
 from yotse.pre import ConstraintDict
 from yotse.utils.utils import ndarray_to_list

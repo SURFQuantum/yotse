@@ -280,7 +280,8 @@ class Parameter:
                 self.constraints = tuple(updated_constraints)
             else:
                 raise ValueError(
-                    f"For parameters that depend on each other the constraints must be of the same type and not {type(self.constraints)} and {type(target_parameter.constraints)}."
+                    f"For parameters that depend on each other the constraints must be of the same type and not "
+                    f"{type(self.constraints)} and {type(target_parameter.constraints)}."
                 )
 
         self.data_points = tuple(new_data_points)
