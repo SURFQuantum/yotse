@@ -4,18 +4,19 @@ Usage:
 """
 import csv
 from argparse import ArgumentParser
+from typing import Any
 
 import numpy as np
 
 
-def function(x, y):
+def function(x: float, y: float) -> Any:
     """Returns wobbly function value f(x,y) = (x^2 + y^2) + sin(x^2 + y^2)."""
 
     radius_squared = x**2 + y**2
     return radius_squared + np.sin(radius_squared)
 
 
-def ackley_function_2d(x, y):
+def ackley_function_2d(x: float, y: float) -> Any:
     """Returns function value of the 2d ackley function."""
     f = (
         -20 * np.exp(-0.2 * np.sqrt(0.5 * (x**2 + y**2)))

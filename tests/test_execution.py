@@ -4,6 +4,7 @@ import os
 import shutil
 import unittest
 
+import numpy as np
 import pandas
 import pytest
 
@@ -23,12 +24,12 @@ else:
 
 def create_default_param(
     name="bright_state_parameter",
-    parameter_range=[0.1, 0.9],
+    parameter_range=(0.1, 0.9),
     number_points=9,
     distribution="linear",
     constraints=None,
     custom_distribution=None,
-):
+) -> Parameter:
     return Parameter(
         name=name,
         param_range=parameter_range,
@@ -39,7 +40,7 @@ def create_default_param(
     )
 
 
-def create_default_experiment(parameters=None, opt_info_list=[]):
+def create_default_experiment(parameters=None, opt_info_list=[]) -> Experiment:
     return Experiment(
         experiment_name="default_exp",
         system_setup=SystemSetup(
@@ -52,7 +53,7 @@ def create_default_experiment(parameters=None, opt_info_list=[]):
     )
 
 
-def create_default_executor(experiment):
+def create_default_executor(experiment: Experiment) -> Executor:
     return Executor(experiment=experiment)
 
 
@@ -315,7 +316,8 @@ class TestExecutor(unittest.TestCase):
                 1,
             )
             new_points = test_executor.experiment.data_points
-            self.assertIsInstance(new_points, list, list)  # correct type
+            print("types are:", type(new_points), type(new_points[0]))
+            self.assertIsInstance(new_points, np.ndarray)  # correct type
             self.assertEqual(len(new_points), initial_num_points)  # correct num points
             [
                 self.assertEqual(len(point), 2) for point in new_points
@@ -337,7 +339,7 @@ class TestExecutor(unittest.TestCase):
         """Test create_points_based_on_optimization."""
         # todo: merge this test with the above once uniqueness is fixed
 
-        def mock_function(ga_instance, solution, solution_idx):
+        def mock_function(ga_instance, solution, solution_idx) -> float:
             return solution[0] ** 2 + solution[1] ** 2
 
         for evolutionary in [None, True, False]:
@@ -365,14 +367,14 @@ class TestExecutor(unittest.TestCase):
             # self.assertTrue(ga_opt.ga_instance.allow_duplicate_genes is False)
             opt = Optimizer(ga_opt)
             test_executor.optimizer = opt
-            test_executor.optimization_alg = ga_opt
-            test_executor._opt_is_evolutionary = True
+            test_executor.optimizer.optimization_algorithm = ga_opt
+            test_executor.optimizer.optimization_algorithm._opt_is_evolutionary = True
 
             x_list = [x for x, y in ga_opt.optimization_instance.population]
             y_list = [y for x, y in ga_opt.optimization_instance.population]
             c_list = [
                 mock_function(
-                    ga_instance=test_executor.optimization_alg.optimization_instance,
+                    ga_instance=test_executor.optimizer.optimization_algorithm.optimization_instance,
                     solution=sol,
                     solution_idx=0,
                 )
@@ -384,7 +386,7 @@ class TestExecutor(unittest.TestCase):
                 data=data, evolutionary=evolutionary
             )
             self.assertEqual(
-                test_executor.optimization_alg.optimization_instance.generations_completed,
+                test_executor.optimizer.optimization_algorithm.optimization_instance.generations_completed,
                 1,
             )
             new_points = test_executor.experiment.data_points

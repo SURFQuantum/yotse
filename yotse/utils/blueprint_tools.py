@@ -1,8 +1,14 @@
 import os
 import shutil
 from datetime import datetime
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Tuple
+from typing import Union
 
-import yaml
+import numpy as np
+import yaml  # type: ignore[import-untyped]
 from ruamel.yaml import YAML
 from ruamel.yaml.nodes import ScalarNode
 
@@ -86,7 +92,7 @@ def setup_optimization_dir(
     experiment.system_setup.working_directory = new_working_dir
 
 
-def update_yaml_params(param_list: list, paramfile_name: str) -> None:
+def update_yaml_params(param_list: List[Tuple[str, Any]], paramfile_name: str) -> None:
     """Update parameter values in a YAML file and save the updated file.
 
     Parameters:
@@ -113,7 +119,7 @@ def update_yaml_params(param_list: list, paramfile_name: str) -> None:
         yaml.dump(params, f, default_flow_style=False)
 
 
-def represent_scalar_node(dumper: yaml.Dumper, data: yaml.ScalarNode) -> str:
+def represent_scalar_node(dumper: yaml.Dumper, data: yaml.ScalarNode) -> ScalarNode:
     """Represent a ScalarNode object as a scalar value in a YAML file.
 
     Parameters:
@@ -156,7 +162,9 @@ def replace_include_param_file(configfile_name: str, paramfile_name: str) -> Non
         old_config = yaml.load(f)
 
     # Find the line with the INCLUDE keyword recursively
-    def replace_include(config: dict, replace_str: str, found: bool = False) -> bool:
+    def replace_include(
+        config: Union[List[Any], Dict[str, Any]], replace_str: str, found: bool = False
+    ) -> bool:
         """Recursively search a dictionary or list for an INCLUDE keyword and replace it with a reference to a parameter
          file.
 
@@ -203,8 +211,11 @@ def replace_include_param_file(configfile_name: str, paramfile_name: str) -> Non
 
 
 def create_separate_files_for_job(
-    experiment: Experiment, datapoint_item: list, step_number: int, job_number: int
-) -> list:
+    experiment: Experiment,
+    datapoint_item: np.ndarray,
+    step_number: int,
+    job_number: int,
+) -> List[Any]:
     """Create separate parameter and configuration files for a job and prepare for execution.
 
     Parameters:

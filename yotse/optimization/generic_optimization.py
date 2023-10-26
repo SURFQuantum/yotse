@@ -2,7 +2,13 @@ import inspect
 import math
 from abc import ABCMeta
 from abc import abstractmethod
+from typing import Any
+from typing import Callable
+from typing import List
+from typing import Optional
+from typing import Tuple
 
+import numpy as np
 import pandas
 
 from yotse.pre import Experiment
@@ -16,13 +22,15 @@ class GenericOptimization:
     ----------
     function : function
         Cost function used for optimization.
+    opt_instance: Any
+        Instance of the optimization engine
     refinement_factors : list (optional)
         Refinement factors for all parameters. If specified must be list of length = #params.
         Defaults to None.
     logging_level : int (optional)
         Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything.
         Defaults to 1.
-    extrema: str (optional)
+    extrema: int (optional)
         Define what type of problem to solve. 'extrema' can be equal to either MINIMUM or MAXIMUM. The
         optimization algorithm will look for minimum and maximum values respectively.
         Defaults to MINIMUM.
@@ -35,12 +43,12 @@ class GenericOptimization:
 
     def __init__(
         self,
-        function,
-        opt_instance=None,
-        refinement_factors=None,
-        logging_level=1,
-        extrema=MINIMUM,
-        evolutionary=False,
+        function: Callable[..., float],
+        opt_instance: Any,
+        refinement_factors: Optional[List[float]] = None,
+        logging_level: int = 1,
+        extrema: int = MINIMUM,
+        evolutionary: bool = False,
     ):
         self.logging_level = logging_level
         self.extrema = extrema
@@ -49,9 +57,9 @@ class GenericOptimization:
         self.data = None
         self.can_create_points_evolutionary = evolutionary
         self.optimization_instance = opt_instance
-        self.input_param_cost_df = None
+        self.input_param_cost_df: pandas.DataFrame = pandas.DataFrame()
 
-    def get_function(self):
+    def get_function(self) -> Callable[..., float]:
         """Returns the cost function."""
         return self.function
 
@@ -61,13 +69,13 @@ class GenericOptimization:
         Execute method should be implemented in every derived class.
 
         """
+        frame = inspect.currentframe()
+        assert frame is not None, "Failed to get the current frame"
         raise NotImplementedError(
-            "The '{}' method is not implemented".format(
-                inspect.currentframe().f_code.co_name
-            )
+            f"The '{frame.f_code.co_name}' method is not implemented"
         )
 
-    def get_best_solution(self) -> (list, float, int):
+    def get_best_solution(self) -> Tuple[List[float], float | None, int | None]:
         """
         Get the best solution. Should be implemented in every derived class.
 
@@ -76,44 +84,44 @@ class GenericOptimization:
         solution, solution_fitness, solution_idx
             Solution its fitness and its index in the list of data points.
         """
+        frame = inspect.currentframe()
+        assert frame is not None, "Failed to get the current frame"
         raise NotImplementedError(
-            "The '{}' method is not implemented".format(
-                inspect.currentframe().f_code.co_name
-            )
+            f"The '{frame.f_code.co_name}' method is not implemented"
         )
 
     @abstractmethod
-    def get_new_points(self) -> list:
+    def get_new_points(self) -> np.ndarray:
         """
         Get new points. Should be implemented in every evolutional algorithm.
 
         Returns:
         -------
-        new_points : list of tuples
+        new_points : np.ndarray
             New points for the next iteration of the optimization.
         """
         # todo: test output type here in tests
+        frame = inspect.currentframe()
+        assert frame is not None, "Failed to get the current frame"
         raise NotImplementedError(
-            "The '{}' method is not implemented".format(
-                inspect.currentframe().f_code.co_name
-            )
+            f"The '{frame.f_code.co_name}' method is not implemented"
         )
 
     @abstractmethod
-    def overwrite_internal_data_points(self, data_points: list):
+    def overwrite_internal_data_points(self, data_points: np.ndarray) -> None:
         """
         Overwrite the internal set of data points with one externally generated. E.g. when manually passing new points
         to an evolutionary optimization algorithm.
 
         Parameters:
         ----------
-        data_points : list
-            List containing all new data points that should be passed to the optimization.
+        data_points : np.ndarray
+            Array containing all new data points that should be passed to the optimization.
         """
+        frame = inspect.currentframe()
+        assert frame is not None, "Failed to get the current frame"
         raise NotImplementedError(
-            "The '{}' method is not implemented".format(
-                inspect.currentframe().f_code.co_name
-            )
+            f"The '{frame.f_code.co_name}' method is not implemented"
         )
 
     def update_internal_cost_data(
@@ -141,9 +149,9 @@ class GenericOptimization:
 
         self.input_param_cost_df = data
 
-    def input_params_to_cost_value(self, *args, **kwargs) -> float:
+    def input_params_to_cost_value(self, *args: Any, **kwargs: Any) -> float:
+        frame = inspect.currentframe()
+        assert frame is not None, "Failed to get the current frame"
         raise NotImplementedError(
-            "The '{}' method is not implemented".format(
-                inspect.currentframe().f_code.co_name
-            )
+            f"The '{frame.f_code.co_name}' method is not implemented"
         )

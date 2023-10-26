@@ -1,12 +1,21 @@
 import itertools
 import os
 import unittest
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
 import numpy as np
 
+from yotse.pre import ConstraintDict
 from yotse.pre import Experiment
 from yotse.pre import OptimizationInfo
 from yotse.pre import Parameter
+from yotse.pre import ParameterDependencyDict
 from yotse.pre import SystemSetup
 
 DUMMY_FILE = "experiment.py"
@@ -17,16 +26,16 @@ class TestParameters(unittest.TestCase):
 
     @staticmethod
     def create_default_param(
-        name="bright_state_parameter",
-        parameter_range=[0.1, 0.9],
-        number_points=9,
-        distribution="linear",
-        constraints=None,
-        custom_distribution=None,
-        param_type="continuous",
-        parameter_active=True,
-        depends_on=None,
-    ):
+        name: str = "bright_state_parameter",
+        parameter_range: List[Union[float, int]] = [0.1, 0.9],
+        number_points: int = 9,
+        distribution: str = "linear",
+        constraints: Union[ConstraintDict, np.ndarray, None] = None,
+        custom_distribution: Optional[Callable[[float, float, int], np.ndarray]] = None,
+        param_type: str = "continuous",
+        parameter_active: bool = True,
+        depends_on: Optional[ParameterDependencyDict] = None,
+    ) -> Parameter:
         return Parameter(
             name=name,
             param_range=parameter_range,
@@ -39,20 +48,22 @@ class TestParameters(unittest.TestCase):
             depends_on=depends_on,
         )
 
-    def test_initialization(self):
+    def test_initialization(self) -> None:
         test_parameter = self.create_default_param()
         self.assertEqual(len(test_parameter.data_points), test_parameter.number_points)
         np.testing.assert_almost_equal(
             test_parameter.data_points, [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
         )
 
-    def test_invalid_distribution(self):
+    def test_invalid_distribution(self) -> None:
         with self.assertRaises(ValueError):
             self.create_default_param(distribution="invalid")
 
-    def test_custom_distribution(self):
-        def mock_distribution(min_value, max_value, number_points):
-            return [0.1, 0.5, 0.8]
+    def test_custom_distribution(self) -> None:
+        def mock_distribution(
+            min_value: float, max_value: float, number_points: int
+        ) -> np.ndarray:
+            return np.array((0.1, 0.5, 0.8))
 
         for param_type in ["continuous", "discrete"]:
             with self.assertRaises(ValueError):
@@ -73,11 +84,11 @@ class TestParameters(unittest.TestCase):
                 custom_distribution=mock_distribution,
                 param_type=param_type,
             )
-            self.assertListEqual(custom_param.data_points, [0.1, 0.5, 0.8])
+            assert np.array_equal(custom_param.data_points, np.array((0.1, 0.5, 0.8)))
             with self.assertRaises(ValueError):
                 self.create_default_param(param_type="something")
 
-    def test_initial_data_points_within_range(self):
+    def test_initial_data_points_within_range(self) -> None:
         for param_type in ["continuous", "discrete"]:
             linear_param = self.create_default_param(
                 distribution="linear", param_type=param_type, parameter_range=[1.0, 9.0]
@@ -96,14 +107,14 @@ class TestParameters(unittest.TestCase):
                 )
                 self.assertLessEqual(min(dist_param.data_points), dist_param.range[1])
 
-    def test_generate_data_points(self):
+    def test_generate_data_points(self) -> None:
         test_parameter = self.create_default_param(number_points=5)
-        test_parameter.generate_data_points(num_points=3)
+        test_parameter.data_points = test_parameter.generate_data_points(num_points=3)
         self.assertEqual(len(test_parameter.data_points), 3)
         np.testing.assert_almost_equal(test_parameter.data_points, [0.1, 0.5, 0.9])
 
-    def test_generate_dependent_data_points(self):
-        def linear_dep(x, y):
+    def test_generate_dependent_data_points(self) -> None:
+        def linear_dep(x: float, y: float) -> float:
             return x * y
 
         param1 = self.create_default_param(
@@ -120,11 +131,11 @@ class TestParameters(unittest.TestCase):
             depends_on={"name": "param1", "function": linear_dep},
         )
         param_list = [param1, param2]
-        param2.generate_dependent_data_points(param_list)
-        self.assertListEqual(param2.data_points, [1, 4, 9, 16])
+        param2.update_parameter_through_dependency(param_list)
+        assert np.array_equal(param2.data_points, np.array((1, 4, 9, 16)))
 
-        def fancy_dep(x, y):
-            return 2 * x**y
+        def fancy_dep(x: float, y: float) -> float:
+            return float(2 * x**y)
 
         param3 = self.create_default_param(
             name="param3",
@@ -134,10 +145,10 @@ class TestParameters(unittest.TestCase):
             depends_on={"name": "param1", "function": fancy_dep},
         )
         param_list = [param1, param3]
-        param3.generate_dependent_data_points(param_list)
-        self.assertListEqual(param3.data_points, [2, 8, 54, 512])
+        param3.update_parameter_through_dependency(param_list)
+        assert np.array_equal(param3.data_points, np.array((2, 8, 54, 512)))
 
-    def test_is_active_property(self):
+    def test_is_active_property(self) -> None:
         active_param = self.create_default_param(parameter_active=True)
         inactive_param = self.create_default_param(parameter_active=False)
         self.assertTrue(active_param.is_active)
@@ -154,7 +165,7 @@ class TestSystemSetup(unittest.TestCase):
     def tearDown(self) -> None:
         os.remove(DUMMY_FILE)
 
-    def test_invalid_directory_or_files(self):
+    def test_invalid_directory_or_files(self) -> None:
         """Test if an invalid source_directory will correctly be caught."""
         invalid_directory = "/invalid/source_directory"
 
@@ -167,7 +178,7 @@ class TestSystemSetup(unittest.TestCase):
         # test correct setup
         SystemSetup(os.getcwd(), DUMMY_FILE, {"--arg1": 0.1, "--arg2": "value2"})
 
-    def test_init(self):
+    def test_init(self) -> None:
         test_system = SystemSetup(
             source_directory=os.getcwd(),
             program_name=DUMMY_FILE,
@@ -197,7 +208,7 @@ class TestSystemSetup(unittest.TestCase):
         assert test_system.qcg_cfg == {"init_timeout": 420}
         assert test_system.modules == ["PYTHON3.10"]
 
-    def test_cmdline_to_list(self):
+    def test_cmdline_to_list(self) -> None:
         """Test if the dict of cmdline args is correctly converted to a list."""
 
         test_setup = SystemSetup(
@@ -226,7 +237,10 @@ class TestExperiment(unittest.TestCase):
         os.remove(DUMMY_FILE)
 
     @staticmethod
-    def create_default_experiment(parameters=None, optimization_info=None):
+    def create_default_experiment(
+        parameters: Optional[List[Parameter]] = None,
+        optimization_info: Optional[List[OptimizationInfo]] = None,
+    ) -> Experiment:
         """Helper function to set up a default experiment for the tests."""
         return Experiment(
             experiment_name="default_exp",
@@ -239,7 +253,7 @@ class TestExperiment(unittest.TestCase):
             opt_info_list=optimization_info,
         )
 
-    def test_c_product(self):
+    def test_c_product(self) -> None:
         """Test whether Cartesian product is correctly formed from active Parameters."""
         test_exp = self.create_default_experiment()
         test_exp.add_parameter(
@@ -269,26 +283,43 @@ class TestExperiment(unittest.TestCase):
                 parameter_active=True,
             )
         )
-        test_exp.create_datapoint_c_product()
-        assert test_exp.data_points == list(
-            itertools.product([1.0, 2.0, 3.0], [21.0, 22.0, 23.0])
+        test_exp.data_points = test_exp.create_datapoint_c_product()
+
+        assert np.array_equal(
+            test_exp.data_points,
+            np.array(
+                list(
+                    itertools.product(
+                        np.array([1.0, 2.0, 3.0]), np.array([21.0, 22.0, 23.0])
+                    )
+                )
+            ),
         )
         # now activate 'inactive_param' and regenerate points
         test_exp.parameters[1].parameter_active = True
         assert test_exp.parameters[1].is_active
-        test_exp.create_datapoint_c_product()
-        assert test_exp.data_points == list(
-            itertools.product([1.0, 2.0, 3.0], [11.0, 12.0, 13.0], [21.0, 22.0, 23.0])
+        test_exp.data_points = test_exp.create_datapoint_c_product()
+        assert np.array_equal(
+            test_exp.data_points,
+            np.array(
+                list(
+                    itertools.product(
+                        np.array((1.0, 2.0, 3.0)),
+                        np.array((11.0, 12.0, 13.0)),
+                        np.array((21.0, 22.0, 23.0)),
+                    )
+                )
+            ),
         )
         # now deactivate 'active_param1' and 'active_param2' and regenerate points
         test_exp.parameters[0].parameter_active = False
         test_exp.parameters[2].parameter_active = False
-        test_exp.create_datapoint_c_product()
+        test_exp.data_points = test_exp.create_datapoint_c_product()
         assert test_exp.parameters[0].is_active is False
         assert test_exp.parameters[2].is_active is False
-        assert test_exp.data_points == [11.0, 12.0, 13.0]
+        assert np.array_equal(test_exp.data_points, np.array([[11.0], [12.0], [13.0]]))
 
-    def test_add_parameter(self):
+    def test_add_parameter(self) -> None:
         """Test adding Parameters to an Experiment."""
         test_exp = self.create_default_experiment()
         self.assertEqual(len(test_exp.parameters), 0)
@@ -296,7 +327,7 @@ class TestExperiment(unittest.TestCase):
         test_exp.add_parameter(test_param)
         self.assertEqual(len(test_exp.parameters), 1)
 
-    def test_add_optimization_information(self):
+    def test_add_optimization_information(self) -> None:
         """Test adding OptimizationInfo to an Experiment."""
         test_exp = self.create_default_experiment()
         self.assertEqual(len(test_exp.optimization_information_list), 0)
@@ -314,7 +345,7 @@ class TestExperiment(unittest.TestCase):
         self.assertEqual(len(test_opt.optimization_information_list), 2)
         self.assertEqual(test_opt.optimization_information_list[-1].name, "GD")
 
-    def test_generate_slurm_script(self):
+    def test_generate_slurm_script(self) -> None:
         """Test generation of a default slurm script for the Experiment."""
         test_exp = self.create_default_experiment()
         test_exp.system_setup.num_nodes = 42
