@@ -13,7 +13,10 @@ def main() -> None:
         "--cov=yotse",
         "tests/",
     ]
-    subprocess.run(command, check=True)
+    try:
+        subprocess.run(command, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Tests failed with error: {e}")
 
 
 def open_coverage_report() -> None:

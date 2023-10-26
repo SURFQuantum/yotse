@@ -73,6 +73,7 @@ class TestExecutor(unittest.TestCase):
 
     def setUp(self) -> None:
         self.path: Optional[str] = None  # path for tearDown
+        self.test_points = np.array([[1], [2], [3], [4]])
         # self.tearDown()
 
     def tearDown(self) -> None:
@@ -96,7 +97,7 @@ class TestExecutor(unittest.TestCase):
     def test_executor_submit(self) -> None:
         test_exp = create_default_experiment()
         test_exec = create_default_executor(experiment=test_exp)
-        test_points = [1, 2, 3, 4]
+        test_points = self.test_points
         test_exec.experiment.data_points = test_points
         job_ids = test_exec.submit()
 
@@ -137,7 +138,7 @@ class TestExecutor(unittest.TestCase):
         )
 
         test_exec = create_default_executor(analysis_exp)
-        test_points = [1, 2, 3, 4]
+        test_points = self.test_points
         test_exec.experiment.data_points = test_points
         job_ids = test_exec.submit()
 
@@ -160,7 +161,7 @@ class TestExecutor(unittest.TestCase):
         )  # for the analysis job no dir is created
         self.assertEqual(
             len(job_dirs) + 2, len([d for d in os.listdir(output_path)])
-        )  # but 2 files are created
+        )  # but 2 additional files are created
         # check if jobs were finishes successfully
         service_dirs = [
             f for f in os.listdir(self.path) if (f.startswith(".qcgpjm-service"))
@@ -178,7 +179,7 @@ class TestExecutor(unittest.TestCase):
 
     def test_executor_run(self) -> None:
         test_exec = create_default_executor(experiment=create_default_experiment())
-        test_points = [1, 2, 3, 4]
+        test_points = self.test_points
         test_exec.experiment.data_points = test_points
         test_exec.run()
         # todo: this tests nothing! add test

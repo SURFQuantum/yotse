@@ -117,7 +117,7 @@ class Executor:
         print(f"Finished run of {self.experiment.name} (step{step_number}).")
 
     def pre_submission_setup_per_job(
-        self, datapoint_item: np.ndarray, step_number: int, job_number: int
+        self, datapoint_item: List[float], step_number: int, job_number: int
     ) -> List[Union[str, Any]]:
         """Sets up the basic directory structure for a job and returns the QCG-Pilot command line list for it.
 
@@ -138,6 +138,9 @@ class Executor:
         Note: Overwrite this function if you need other directory structure or pre-submission functionality.
 
         """
+        assert not isinstance(
+            datapoint_item, np.ndarray
+        )  # check item is not an array, which is not serializable
         set_basic_directory_structure_for_job(self.experiment, step_number, job_number)
         return self.experiment.qcgpilot_commandline(datapoint_item=datapoint_item)
 
@@ -169,30 +172,34 @@ class Executor:
             )
         for i, item in enumerate(self.experiment.data_points):
             cmdline = self.pre_submission_setup_per_job(
-                datapoint_item=item, step_number=step_number, job_number=i
+                datapoint_item=item.tolist(), step_number=step_number, job_number=i
             )
             jobs.add(
-                name=self.experiment.name + str(i),
-                args=cmdline,
-                stdout=stdout + str(i) + ".txt",
-                stderr=stdout + str(i) + ".err",
-                wd=self.experiment.system_setup.working_directory,
+                {
+                    "name": self.experiment.name + str(i),
+                    "args": cmdline,
+                    "stdout": stdout + str(i) + ".txt",
+                    "stderr": stdout + str(i) + ".err",
+                    "wd": self.experiment.system_setup.working_directory,
+                },
                 **self.experiment.system_setup.job_args,
             )
         if self.experiment.system_setup.analysis_script is not None:
             # add analysis job with correct dependency
             jobs.add(
-                name=self.experiment.name + f"step{step_number}_analysis",
-                args=[
-                    os.path.join(
-                        self.experiment.system_setup.source_directory,
-                        self.experiment.system_setup.analysis_script,
-                    )
-                ],
-                stdout=stdout + f"step{step_number}_analysis.txt",
-                stderr=stdout + f"step{step_number}_analysis.err",
-                wd=self.experiment.system_setup.current_step_directory,
-                after=jobs.job_names(),
+                {
+                    "name": self.experiment.name + f"step{step_number}_analysis",
+                    "args": [
+                        os.path.join(
+                            self.experiment.system_setup.source_directory,
+                            self.experiment.system_setup.analysis_script,
+                        )
+                    ],
+                    "stdout": stdout + f"step{step_number}_analysis.txt",
+                    "stderr": stdout + f"step{step_number}_analysis.err",
+                    "wd": self.experiment.system_setup.current_step_directory,
+                    "after": jobs.job_names(),
+                },
                 **self.experiment.system_setup.job_args,
             )
         job_ids = manager.submit(jobs)

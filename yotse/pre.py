@@ -573,9 +573,7 @@ class Experiment:
             self.generate_slurm_script(filename)
             exit()
 
-    def qcgpilot_commandline(
-        self, datapoint_item: Union[np.ndarray, Any]
-    ) -> List[Union[str, Any]]:
+    def qcgpilot_commandline(self, datapoint_item: List[Any]) -> List[Union[str, Any]]:
         """
         Creates a command line for the QCG-PilotJob executor based on the experiment configuration.
 
@@ -602,9 +600,8 @@ class Experiment:
                 cmdline.append(f"--{param.name}")
                 if len(self.parameters) == 1:
                     # single parameter
-                    cmdline.append(datapoint_item)
+                    cmdline.append(datapoint_item[0])
                 else:
-                    assert isinstance(datapoint_item, np.ndarray)
                     cmdline.append(datapoint_item[p])
         # add fixed cmdline arguments
         for key, value in self.system_setup.cmdline_arguments.items():
