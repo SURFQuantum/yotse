@@ -28,4 +28,4 @@ repos:
     hooks:
     -   id: mypy
         args: [--strict, --ignore-missing-imports, --allow-untyped-decorators, --allow-subclassing-any]
-        exclude: "^examples/blueprint_example|yotse/optimization/ga.py"
+        exclude: "^examples/blueprint_example|^yotse/optimization/ga.py"

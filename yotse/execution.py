@@ -164,7 +164,7 @@ class Executor:
         self.aux_dir = aux_dir
 
         jobs = Jobs()
-        if not self.experiment.data_points:
+        if self.experiment.data_points.size == 0:
             raise RuntimeError(
                 f"Can not submit jobs for Experiment {self.experiment.name}: No datapoints available."
             )
