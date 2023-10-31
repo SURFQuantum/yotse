@@ -87,14 +87,16 @@ class TestExecutor(unittest.TestCase):
             for d in dirs:
                 shutil.rmtree(os.path.join(self.path, d))
             self.path = None
+        if os.path.exists("yotse.log"):
+            os.remove("yotse.log")
 
-    def test_executor_experiment_input(self) -> None:
+    def test_experiment_input(self) -> None:
         test_exp = create_default_experiment()
         test_exec = create_default_executor(experiment=test_exp)
         self.assertTrue(isinstance(test_exec.experiment, Experiment))
         self.assertEqual(test_exec.experiment, test_exp)
 
-    def test_executor_submit(self) -> None:
+    def test_submit(self) -> None:
         test_exp = create_default_experiment()
         test_exec = create_default_executor(experiment=test_exp)
         test_points = self.test_points
@@ -123,7 +125,7 @@ class TestExecutor(unittest.TestCase):
         self.assertEqual(jobs_finished, len(test_points))
         self.assertEqual(jobs_failed, 0)
 
-    def test_executor_submit_with_analysis(self) -> None:
+    def test_submit_with_analysis(self) -> None:
         """Check that when using an analysis script the right number of jobs are created as well."""
         analysis_exp = Experiment(
             experiment_name="default_exp",
@@ -177,7 +179,7 @@ class TestExecutor(unittest.TestCase):
         )  # again one extra analysis job
         self.assertEqual(jobs_failed, 0)
 
-    def test_executor_run(self) -> None:
+    def test_run(self) -> None:
         test_exec = create_default_executor(experiment=create_default_experiment())
         test_points = self.test_points
         test_exec.experiment.data_points = test_points
@@ -187,7 +189,7 @@ class TestExecutor(unittest.TestCase):
             test_exec.experiment.system_setup.source_directory
         )  # path for tearDown
 
-    def test_executor_collect_data(self) -> None:
+    def test_collect_data(self) -> None:
         def tear_down_dirs(testpath: str, outputfile: str) -> None:
             """Helper function to tear down the temporary test dir."""
             try:
@@ -272,7 +274,7 @@ class TestExecutor(unittest.TestCase):
 
             tear_down_dirs(test_path, output_file)
 
-    def test_executor_create_points(self) -> None:
+    def test_create_points(self) -> None:
         """Test create_points_based_on_optimization."""
 
         def mock_function(
@@ -353,7 +355,7 @@ class TestExecutor(unittest.TestCase):
     @pytest.mark.xfail(
         reason="pygad can not guarantee uniqueness of genes even with allow_duplicate_genes=False."
     )
-    def test_executor_create_points_uniqueness(self) -> None:
+    def test_create_points_uniqueness(self) -> None:
         """Test create_points_based_on_optimization."""
         # todo: merge this test with the above once uniqueness is fixed
 

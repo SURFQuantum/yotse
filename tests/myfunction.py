@@ -6,11 +6,12 @@ import numpy as np
 
 
 if __name__ == "__main__":
+    print("Calling __main__ of `myfunction.py`")
     if len(sys.argv) > 1:
         # used as run script with params as input
         var = float(sys.argv[2])
         filename = f'myoutput_{datetime.now().strftime("%Y-%m-%d_%H:%M:%S")}.csv'
-        print("f x y")
+        print("f x y  -> .csv")
         with open(filename, "w") as file:
             writer = csv.writer(file, delimiter=" ")
             writer.writerow(["f", "x", "y"])
@@ -22,6 +23,8 @@ if __name__ == "__main__":
                 with open(filename, "a") as file:
                     writer = csv.writer(file, delimiter=" ")
                     writer.writerow([x, y])
+        print("'myfunction.py' done writing values.")
     else:
-        # used as analysis script with no output
+        print("No input params. 'myfunction.py' used as analysis script.")
         pass
+    print("End of `myfunction.py`.")

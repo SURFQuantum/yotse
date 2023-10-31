@@ -12,6 +12,7 @@ def main() -> None:
         "html",
         "--cov=yotse",
         "tests/",
+        "--verbose",
     ]
     try:
         subprocess.run(command, check=True)

@@ -317,8 +317,8 @@ class SystemSetup:
         Additional arguments to pass to SLURM, e.g. '--exclusive'. Defaults to None
     qcg_cfg : dict (optional)
         Configuration to pass to the QCG-PilotJob manager. Dict with supported keys 'init_timeout', 'poll_delay',
-        'log_file', 'log_level'. See docstring of `qcg.pilotjob.api.manager.LocalManager`. If None QCG defaults are
-        used. Defaults to None.
+        'log_file' (only DEBUG/INFO), 'log_level'. See docstring of `qcg.pilotjob.api.manager.LocalManager`.
+        If None QCG defaults are used. Defaults to None.
     modules : list (optional)
         Modules to load on the HPC cluster. Defaults to None.
 
