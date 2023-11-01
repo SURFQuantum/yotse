@@ -9,6 +9,7 @@ git clone https://gitlab.com/d.maier/simulation-code-for-requirements-for-a-proc
 cd simulation-code-for-requirements-for-a-processing-node-quantum-repeater-on-a-real-world-fiber-grid
 
 # Install the dependencies
+poetry config netsquid-pypi ${USERNAME} ${PASSWORD}
 poetry install
 pip list
 # Exit the virtual environment
