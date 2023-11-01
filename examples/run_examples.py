@@ -26,16 +26,17 @@ def main() -> None:
 
 
 def run_blueprint_example() -> None:
+    print(" --- Executing NlBlueprint Example --- ")
     path_to_here = os.path.dirname(os.path.abspath(__file__))
-    blueprint_example_file = "example_blueprint_main.py"
-    filepath = os.path.join(path_to_here, blueprint_example_file)
-    if os.path.exists(filepath):
-        example_execution_time = _run_example(filepath)
-        print(
-            f"Execution time for blueprint example: {example_execution_time:.2f} seconds"
-        )
-    else:
-        print(f"Blueprint example file not found at: {filepath}")
+    total_execution_time = 0.0
+    for root, folders, files in os.walk(path_to_here):
+        for filename in files:
+            if filename.startswith("example") and filename.endswith(".py"):
+                if filename.startswith("example_blueprint_main"):
+                    filepath = os.path.join(root, filename)
+                    example_execution_time = _run_example(filepath)
+                    total_execution_time += example_execution_time
+    print(f"Execution time for NlBlueprint example: {total_execution_time:.2f} seconds")
 
 
 def _run_example(filepath: str) -> float:  # Modified return type to float
