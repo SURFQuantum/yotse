@@ -28,4 +28,5 @@ if [[ ! -f "$FILE_PATH" ]]; then
 fi
 
 # Output the contents of the file
+echo "Opening File $FILE_PATH"
 cat "$FILE_PATH"

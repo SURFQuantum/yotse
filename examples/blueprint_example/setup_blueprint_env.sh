@@ -10,7 +10,7 @@ cd simulation-code-for-requirements-for-a-processing-node-quantum-repeater-on-a-
 
 # Install the dependencies
 poetry install
-
+pip list
 # Exit the virtual environment
 cd ..
 deactivate

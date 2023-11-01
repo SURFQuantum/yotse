@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        task: [run-tests, run-examples]
+        task: [run-tests, run-examples, run-nlblueprint]
         python-version: ["3.9", "3.10", "3.11"]
         os: [ubuntu-latest]
         poetry-version: ["1.6.1"]
@@ -51,20 +51,23 @@ jobs:
         key: venv-${{ hashFiles('poetry.lock') }}
     - name: Install the project dependencies
       run: poetry install
+
     - name: Run the automated tests (ignore deprecation errors )
       if: matrix.task == 'run-tests'
       run: poetry run pytest -W ignore::DeprecationWarning --cov-report xml --cov=yotse tests/
+
     - name: Run the examples (except nlblueprint)
       if: matrix.task == 'run-examples'
       run: poetry run examples
+
     - name: Setup and activate nlblueprint environment
-      if: matrix.task == 'run-examples'
+      if: matrix.task == 'run-nlblueprint'
       run: ./examples/blueprint_example/setup_blueprint_env.sh
     - name: Run the nlblueprint example
-      if: matrix.task == 'run-examples'
+      if: matrix.task == 'run-nlblueprint'
       run: poetry run blueprint
     - name: Debug nlblueprint examples
-      if: always() && matrix.task == 'run-examples'
+      if: always() && matrix.task == 'run-nlblueprint'
       run: ./examples/blueprint_example/debug.sh
 
     # the following is coverage stuff that should only run on pull requests
