@@ -18,11 +18,24 @@ def main() -> None:
     for root, folders, files in os.walk(path_to_here):
         for filename in files:
             if filename.startswith("example") and filename.endswith(".py"):
-                # if not filename.startswith("example_blueprint_main"):
-                filepath = os.path.join(root, filename)
-                example_execution_time = _run_example(filepath)
-                total_execution_time += example_execution_time
+                if not filename.startswith("example_blueprint_main"):
+                    filepath = os.path.join(root, filename)
+                    example_execution_time = _run_example(filepath)
+                    total_execution_time += example_execution_time
     print(f"Total execution time for all examples: {total_execution_time:.2f} seconds")
+
+
+def run_blueprint_example() -> None:
+    path_to_here = os.path.dirname(os.path.abspath(__file__))
+    blueprint_example_file = "example_blueprint_main.py"
+    filepath = os.path.join(path_to_here, blueprint_example_file)
+    if os.path.exists(filepath):
+        example_execution_time = _run_example(filepath)
+        print(
+            f"Execution time for blueprint example: {example_execution_time:.2f} seconds"
+        )
+    else:
+        print(f"Blueprint example file not found at: {filepath}")
 
 
 def _run_example(filepath: str) -> float:  # Modified return type to float
