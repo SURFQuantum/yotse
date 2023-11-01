@@ -18,10 +18,10 @@ def main() -> None:
     for root, folders, files in os.walk(path_to_here):
         for filename in files:
             if filename.startswith("example") and filename.endswith(".py"):
-                if not filename.startswith("example_blueprint_main"):
-                    filepath = os.path.join(root, filename)
-                    example_execution_time = _run_example(filepath)
-                    total_execution_time += example_execution_time
+                # if not filename.startswith("example_blueprint_main"):
+                filepath = os.path.join(root, filename)
+                example_execution_time = _run_example(filepath)
+                total_execution_time += example_execution_time
     print(f"Total execution time for all examples: {total_execution_time:.2f} seconds")
 
 

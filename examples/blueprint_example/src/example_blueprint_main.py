@@ -27,7 +27,7 @@ def blueprint_input():
             analysis_script="processing_function.py",
             executor="python",
             output_dir_name="output",
-            venv="~/Projects/venvs/p39yotse",
+            venv="blueprint_venv",
             num_nodes=2,
             alloc_time="01:00:00",
             slurm_args=["--exclusive"],
