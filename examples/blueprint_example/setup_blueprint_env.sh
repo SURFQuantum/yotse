@@ -13,7 +13,7 @@ which python
 python --version
 
 
-poetry config netsquid-pypi ${USERNAME} ${PASSWORD}
+poetry config http-basic.netsquid-pypi ${USERNAME} ${PASSWORD}
 poetry install
 pip list
 # Exit the virtual environment
