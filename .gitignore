@@ -9,4 +9,3 @@ dist/
 output/
 *.xml
 htmlcov/
-poetry.lock
