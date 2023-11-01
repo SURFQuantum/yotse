@@ -54,11 +54,15 @@ jobs:
     - name: Run the automated tests (ignore deprecation errors )
       if: matrix.task == 'run-tests'
       run: poetry run pytest -W ignore::DeprecationWarning --cov-report xml --cov=yotse tests/
-    - name: Setup and activate nlblueprint environment
-      run: ./examples/blueprint_example/setup_blueprint_env.sh
-    - name: Run the examples
+    - name: Run the examples (except nlblueprint)
       if: matrix.task == 'run-examples'
       run: poetry run examples
+    - name: Setup and activate nlblueprint environment
+      if: matrix.task == 'run-examples'
+      run: ./examples/blueprint_example/setup_blueprint_env.sh
+    - name: Run the nlblueprint example
+      if: matrix.task == 'run-examples'
+      run: poetry run blueprint
 
     # the following is coverage stuff that should only run on pull requests
     - name: Debug environment
