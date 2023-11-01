@@ -9,6 +9,7 @@ cd simulation-code-for-requirements-for-a-processing-node-quantum-repeater-on-a-
 
 # Install the dependencies
 poetry install
+pwd
 cd ..
 
 # Exit the virtual environment
