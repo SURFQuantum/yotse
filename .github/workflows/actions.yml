@@ -64,7 +64,8 @@ jobs:
       if: matrix.task == 'run-nlblueprint'
       run: ./examples/blueprint_example/setup_blueprint_env.sh
       env:
-        POETRY_HTTP_BASIC_NETSQUID-PYPI: ${{ secrets.NETSQUID_PYPI_USER }}:${{ secrets.NETSQUID_PYPI_PWD }}
+        USERNAME: ${{ secrets.NETSQUID_PYPI_USER }}
+        PASSWORD: ${{ secrets.NETSQUID_PYPI_PWD }}
     - name: Run the nlblueprint example
       if: matrix.task == 'run-nlblueprint'
       run: poetry run blueprint
