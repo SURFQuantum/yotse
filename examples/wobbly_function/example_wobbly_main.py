@@ -29,7 +29,7 @@ def wobbly_pre() -> Experiment:
             Parameter(
                 name="x",
                 param_range=[-4, 4],
-                number_points=10,
+                number_points=4,
                 distribution="uniform",
                 constraints=None,
                 weights=None,  # todo not implemented
@@ -39,7 +39,7 @@ def wobbly_pre() -> Experiment:
             Parameter(
                 name="y",
                 param_range=[-3, 3],
-                number_points=10,
+                number_points=4,
                 distribution="uniform",
                 constraints={"low": -4, "high": 4, "step": 0.001},
                 weights=None,

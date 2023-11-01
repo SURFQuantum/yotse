@@ -2,6 +2,7 @@ import importlib
 import inspect
 import os
 import sys
+import time
 from typing import Any
 from typing import Callable
 
@@ -13,32 +14,38 @@ from typing import Callable
 
 def main() -> None:
     path_to_here = os.path.dirname(os.path.abspath(__file__))
+    total_execution_time = 0.0
     for root, folders, files in os.walk(path_to_here):
         for filename in files:
             if filename.startswith("example") and filename.endswith(".py"):
-                # exclude blueprint example on pipeline as it requires a lot of other code
                 if not filename.startswith("example_blueprint_main"):
                     filepath = os.path.join(root, filename)
-                    _run_example(filepath)
+                    example_execution_time = _run_example(filepath)
+                    total_execution_time += example_execution_time
+    print(f"Total execution time for all examples: {total_execution_time:.2f} seconds")
 
 
-def _run_example(filepath: str) -> None:
+def _run_example(filepath: str) -> float:  # Modified return type to float
     cwd = os.getcwd()
     sys.path.append(os.path.dirname(filepath))
     example_module_name = os.path.basename(filepath)[: -len(".py")]
     example_module = importlib.import_module(example_module_name)
-    print(hasattr(example_module, "main"))
     if hasattr(example_module, "main"):
         main = getattr(example_module, "main")
     else:
-        return
+        return 0.0  # Return 0.0 if there is no main function
     os.chdir(os.path.dirname(filepath))
+    start_time = time.time()
     if _has_no_output_arg(main):
         main(no_output=True)
     else:
         main()
+    end_time = time.time()
     os.chdir(cwd)
     sys.path.pop()
+    execution_time = end_time - start_time
+    print(f"{filepath} took {execution_time:.2f} seconds to execute")
+    return execution_time
 
 
 def _has_no_output_arg(func: Callable[..., Any]) -> bool:
