@@ -1,5 +1,5 @@
 # create venv and activate
-python -m venv --python=python3.9 blueprint_venv
+python -m venv blueprint_venv
 source blueprint_venv/bin/activate
 
 # Clone the blueprint repository
