@@ -63,6 +63,9 @@ jobs:
     - name: Run the nlblueprint example
       if: matrix.task == 'run-examples'
       run: poetry run blueprint
+    - name: Debug nlblueprint examples
+      if: always() && matrix.task == 'run-examples'
+      run: ./examples/blueprint_example/debug.sh
 
     # the following is coverage stuff that should only run on pull requests
     - name: Debug environment
