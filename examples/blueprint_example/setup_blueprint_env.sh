@@ -12,7 +12,7 @@ cd simulation-code-for-requirements-for-a-processing-node-quantum-repeater-on-a-
 which python
 python --version
 
-export POETRY_HTTP_BASIC_NETSQUID-PYPI="${USERNAME}:${PASSWORD}"
+export
 
 poetry install
 pip list
