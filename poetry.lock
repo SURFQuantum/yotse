@@ -1107,19 +1107,24 @@ cffi = {version = "*", markers = "implementation_name == \"pypy\""}
 
 [[package]]
 name = "qcg-pilotjob"
-version = "0.14.0"
+version = "0.14.0+1.g8db4ebb"
 description = "Manage many jobs inside one allocation"
 optional = false
 python-versions = "*"
-files = [
-    {file = "qcg-pilotjob-0.14.0.tar.gz", hash = "sha256:18e3dab9427fe6402e2da419e8230d2c43391304939d13ede09a6cf2ed18c9c1"},
-    {file = "qcg_pilotjob-0.14.0-py3-none-any.whl", hash = "sha256:6d36418ea5883054b816dabacb20f80da77b86c17066cf3b443315cb3568cb72"},
-]
+files = []
+develop = false
 
 [package.dependencies]
 click = "*"
 psutil = "*"
 pyzmq = "*"
+
+[package.source]
+type = "git"
+url = "https://github.com/psnc-qcg/QCG-PilotJob/"
+reference = "issue-174_venv_interpreter"
+resolved_reference = "8db4ebb71ccb56acaaf782ab0ae367f9d4521f9f"
+subdirectory = "components/core"
 
 [[package]]
 name = "ruamel-yaml"
@@ -1274,4 +1279,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.13"
-content-hash = "53eed490716be3c31cbab3dd7a311c4b48c38abb141a26390c21041345774a7b"
+content-hash = "a79d079bb5e1748f0217556cb8a46bc98e3fc8a32f8355446c326f489aafde79"

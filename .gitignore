@@ -9,3 +9,4 @@ dist/
 output/
 *.xml
 htmlcov/
+raw_data/

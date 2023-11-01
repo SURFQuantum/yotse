@@ -255,14 +255,18 @@ class Parameter:
                 self.constraints["high"] = self.depends_on["function"](
                     self.constraints["high"], target_parameter.constraints["high"]
                 )
-                if (
-                    self.constraints["step"] is not None
-                    and target_parameter.constraints["step"] is not None
-                ):
-                    # step is not necessary to specify
-                    self.constraints["step"] = self.depends_on["function"](
-                        self.constraints["step"], target_parameter.constraints["step"]
-                    )
+                try:
+                    if (
+                        self.constraints["step"] is not None
+                        and target_parameter.constraints["step"] is not None
+                    ):
+                        # step is not necessary to specify
+                        self.constraints["step"] = self.depends_on["function"](
+                            self.constraints["step"],
+                            target_parameter.constraints["step"],
+                        )
+                except KeyError:
+                    pass
             elif isinstance(self.constraints, tuple) and isinstance(
                 target_parameter.constraints, tuple
             ):
