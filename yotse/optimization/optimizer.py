@@ -35,7 +35,7 @@ class Optimizer:
         self.optimization_algorithm.execute()
         self._is_executed = True
 
-    def suggest_best_solution(self) -> Tuple[List[float], float | None, int | None]:
+    def suggest_best_solution(self) -> Tuple[List[float], float, int]:
         """Suggest the best solution and return: [best_solution, solution_fitness, solution_index]."""
         return self.optimization_algorithm.get_best_solution()
 

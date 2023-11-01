@@ -131,7 +131,7 @@ class GAOpt(GenericOptimization):
         if self.logging_level >= 2:
             self.optimization_instance.plot_fitness()
 
-    def get_best_solution(self) -> Tuple[List[float], None, None]:
+    def get_best_solution(self) -> Tuple[List[float], None, None]:  # type: ignore[override]
         """
         Get the best solution. We don't yet know the fitness for the solution (because we have not run the simulation
         for those values yet), so just return the point.

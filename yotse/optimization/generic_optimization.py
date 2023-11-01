@@ -75,7 +75,7 @@ class GenericOptimization:
             f"The '{frame.f_code.co_name}' method is not implemented"
         )
 
-    def get_best_solution(self) -> Tuple[List[float], float | None, int | None]:
+    def get_best_solution(self) -> Tuple[List[float], float, int]:
         """
         Get the best solution. Should be implemented in every derived class.
 
