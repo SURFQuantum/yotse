@@ -3,14 +3,23 @@ import math
 import os
 import shutil
 import unittest
+from typing import Any
+from typing import Callable
+from typing import List
+from typing import Optional
+from typing import Union
 
+import numpy as np
 import pandas
 import pytest
+from pygad.pygad import GA
 
 from yotse.execution import Executor
 from yotse.optimization.algorithms import GAOpt
 from yotse.optimization.optimizer import Optimizer
+from yotse.pre import ConstraintDict
 from yotse.pre import Experiment
+from yotse.pre import OptimizationInfo
 from yotse.pre import Parameter
 from yotse.pre import SystemSetup
 
@@ -22,13 +31,13 @@ else:
 
 
 def create_default_param(
-    name="bright_state_parameter",
-    parameter_range=[0.1, 0.9],
-    number_points=9,
-    distribution="linear",
-    constraints=None,
-    custom_distribution=None,
-):
+    name: str = "bright_state_parameter",
+    parameter_range: List[Union[float, int]] = [0.1, 0.9],
+    number_points: int = 9,
+    distribution: str = "linear",
+    constraints: Union[ConstraintDict, np.ndarray, None] = None,
+    custom_distribution: Optional[Callable[[float, float, int], np.ndarray]] = None,
+) -> Parameter:
     return Parameter(
         name=name,
         param_range=parameter_range,
@@ -39,7 +48,10 @@ def create_default_param(
     )
 
 
-def create_default_experiment(parameters=None, opt_info_list=[]):
+def create_default_experiment(
+    parameters: Optional[List[Parameter]] = None,
+    opt_info_list: Optional[List[OptimizationInfo]] = None,
+) -> Experiment:
     return Experiment(
         experiment_name="default_exp",
         system_setup=SystemSetup(
@@ -52,7 +64,7 @@ def create_default_experiment(parameters=None, opt_info_list=[]):
     )
 
 
-def create_default_executor(experiment):
+def create_default_executor(experiment: Experiment) -> Executor:
     return Executor(experiment=experiment)
 
 
@@ -60,33 +72,32 @@ class TestExecutor(unittest.TestCase):
     """Test the executor class."""
 
     def setUp(self) -> None:
-        self.path = None  # path for tearDown
+        self.path: Optional[str] = None  # path for tearDown
+        self.test_points = np.array([[1], [2], [3], [4]])
         # self.tearDown()
 
     def tearDown(self) -> None:
-        [
-            os.remove(f"stdout{i}.txt")
-            for i in range(4)
-            if os.path.exists(f"stdout{i}.txt")
-        ]
+        for i in range(4):
+            if os.path.exists(f"stdout{i}.txt"):
+                os.remove(f"stdout{i}.txt")
         if self.path is not None:
-            [os.remove(f) for f in os.listdir(self.path) if f.endswith(".csv")]
+            [os.remove(f) for f in os.listdir(self.path) if f.endswith(".csv")]  # type: ignore[func-returns-value]
             shutil.rmtree(os.path.join(self.path, "output"))
             dirs = [f for f in os.listdir(self.path) if (f.startswith(".qcg"))]
             for d in dirs:
                 shutil.rmtree(os.path.join(self.path, d))
             self.path = None
 
-    def test_executor_experiment_input(self):
+    def test_executor_experiment_input(self) -> None:
         test_exp = create_default_experiment()
         test_exec = create_default_executor(experiment=test_exp)
         self.assertTrue(isinstance(test_exec.experiment, Experiment))
         self.assertEqual(test_exec.experiment, test_exp)
 
-    def test_executor_submit(self):
+    def test_executor_submit(self) -> None:
         test_exp = create_default_experiment()
         test_exec = create_default_executor(experiment=test_exp)
-        test_points = [1, 2, 3, 4]
+        test_points = self.test_points
         test_exec.experiment.data_points = test_points
         job_ids = test_exec.submit()
 
@@ -112,7 +123,7 @@ class TestExecutor(unittest.TestCase):
         self.assertEqual(jobs_finished, len(test_points))
         self.assertEqual(jobs_failed, 0)
 
-    def test_executor_submit_with_analysis(self):
+    def test_executor_submit_with_analysis(self) -> None:
         """Check that when using an analysis script the right number of jobs are created as well."""
         analysis_exp = Experiment(
             experiment_name="default_exp",
@@ -127,7 +138,7 @@ class TestExecutor(unittest.TestCase):
         )
 
         test_exec = create_default_executor(analysis_exp)
-        test_points = [1, 2, 3, 4]
+        test_points = self.test_points
         test_exec.experiment.data_points = test_points
         job_ids = test_exec.submit()
 
@@ -150,7 +161,7 @@ class TestExecutor(unittest.TestCase):
         )  # for the analysis job no dir is created
         self.assertEqual(
             len(job_dirs) + 2, len([d for d in os.listdir(output_path)])
-        )  # but 2 files are created
+        )  # but 2 additional files are created
         # check if jobs were finishes successfully
         service_dirs = [
             f for f in os.listdir(self.path) if (f.startswith(".qcgpjm-service"))
@@ -166,9 +177,9 @@ class TestExecutor(unittest.TestCase):
         )  # again one extra analysis job
         self.assertEqual(jobs_failed, 0)
 
-    def test_executor_run(self):
+    def test_executor_run(self) -> None:
         test_exec = create_default_executor(experiment=create_default_experiment())
-        test_points = [1, 2, 3, 4]
+        test_points = self.test_points
         test_exec.experiment.data_points = test_points
         test_exec.run()
         # todo: this tests nothing! add test
@@ -176,8 +187,8 @@ class TestExecutor(unittest.TestCase):
             test_exec.experiment.system_setup.source_directory
         )  # path for tearDown
 
-    def test_executor_collect_data(self):
-        def tear_down_dirs(testpath, outputfile):
+    def test_executor_collect_data(self) -> None:
+        def tear_down_dirs(testpath: str, outputfile: str) -> None:
             """Helper function to tear down the temporary test dir."""
             try:
                 os.remove(os.path.join(testpath, "step0", outputfile))
@@ -261,10 +272,12 @@ class TestExecutor(unittest.TestCase):
 
             tear_down_dirs(test_path, output_file)
 
-    def test_executor_create_points(self):
+    def test_executor_create_points(self) -> None:
         """Test create_points_based_on_optimization."""
 
-        def mock_function(ga_instance, solution, solution_idx):
+        def mock_function(
+            ga_instance: GA, solution: List[float], solution_idx: int
+        ) -> float:
             return solution[0] ** 2 + solution[1] ** 2
 
         for evolutionary in [None, True, False]:
@@ -278,7 +291,7 @@ class TestExecutor(unittest.TestCase):
             )
             initial_num_points = len(test_executor.experiment.data_points)
             ga_opt = GAOpt(
-                initial_population=test_executor.experiment.data_points,
+                initial_data_points=test_executor.experiment.data_points,
                 num_generations=100,
                 num_parents_mating=9,
                 fitness_func=mock_function,
@@ -292,14 +305,16 @@ class TestExecutor(unittest.TestCase):
             # self.assertTrue(ga_opt.ga_instance.allow_duplicate_genes is False)
             opt = Optimizer(ga_opt)
             test_executor.optimizer = opt
-            test_executor.optimization_alg = ga_opt
-            test_executor._opt_is_evolutionary = True
+            test_executor.optimizer.optimization_algorithm = ga_opt
+            test_executor.optimizer.optimization_algorithm.can_create_points_evolutionary = (
+                True
+            )
 
             x_list = [x for x, y in ga_opt.optimization_instance.population]
             y_list = [y for x, y in ga_opt.optimization_instance.population]
             c_list = [
                 mock_function(
-                    ga_instance=test_executor.optimization_alg.optimization_instance,
+                    ga_instance=test_executor.optimizer.optimization_algorithm.optimization_instance,
                     solution=sol,
                     solution_idx=0,
                 )
@@ -311,14 +326,15 @@ class TestExecutor(unittest.TestCase):
                 data=data, evolutionary=evolutionary
             )
             self.assertEqual(
-                test_executor.optimization_alg.optimization_instance.generations_completed,
+                test_executor.optimizer.optimization_algorithm.optimization_instance.generations_completed,
                 1,
             )
             new_points = test_executor.experiment.data_points
-            self.assertIsInstance(new_points, list, list)  # correct type
+            print("types are:", type(new_points), type(new_points[0]))
+            self.assertIsInstance(new_points, np.ndarray)  # correct type
             self.assertEqual(len(new_points), initial_num_points)  # correct num points
             [
-                self.assertEqual(len(point), 2) for point in new_points
+                self.assertEqual(len(point), 2) for point in new_points  # type: ignore[func-returns-value]
             ]  # each point has two param values
             # s = set([tuple(x) for x in new_points])
             # self.assertEqual(len(s), initial_num_points)                    # all points are unique
@@ -327,17 +343,23 @@ class TestExecutor(unittest.TestCase):
                     self.assertTrue(
                         all(0.1 <= x <= 0.9 for x in point)
                     )  # each point is within constraint
-            best_solution, _, _ = test_executor.optimization_alg.get_best_solution()
+            (
+                best_solution,
+                _,
+                _,
+            ) = test_executor.optimizer.optimization_algorithm.get_best_solution()
             assert all(math.isclose(0.1, x) for x in best_solution)
 
     @pytest.mark.xfail(
         reason="pygad can not guarantee uniqueness of genes even with allow_duplicate_genes=False."
     )
-    def test_executor_create_points_uniqueness(self):
+    def test_executor_create_points_uniqueness(self) -> None:
         """Test create_points_based_on_optimization."""
         # todo: merge this test with the above once uniqueness is fixed
 
-        def mock_function(ga_instance, solution, solution_idx):
+        def mock_function(
+            ga_instance: GA, solution: List[float], solution_idx: int
+        ) -> Any:
             return solution[0] ** 2 + solution[1] ** 2
 
         for evolutionary in [None, True, False]:
@@ -351,7 +373,7 @@ class TestExecutor(unittest.TestCase):
             )
             initial_num_points = len(test_executor.experiment.data_points)
             ga_opt = GAOpt(
-                initial_population=test_executor.experiment.data_points,
+                initial_data_points=test_executor.experiment.data_points,
                 num_generations=100,
                 num_parents_mating=9,
                 fitness_func=mock_function,
@@ -365,14 +387,16 @@ class TestExecutor(unittest.TestCase):
             # self.assertTrue(ga_opt.ga_instance.allow_duplicate_genes is False)
             opt = Optimizer(ga_opt)
             test_executor.optimizer = opt
-            test_executor.optimization_alg = ga_opt
-            test_executor._opt_is_evolutionary = True
+            test_executor.optimizer.optimization_algorithm = ga_opt
+            test_executor.optimizer.optimization_algorithm.can_create_points_evolutionary = (
+                True
+            )
 
             x_list = [x for x, y in ga_opt.optimization_instance.population]
             y_list = [y for x, y in ga_opt.optimization_instance.population]
             c_list = [
                 mock_function(
-                    ga_instance=test_executor.optimization_alg.optimization_instance,
+                    ga_instance=test_executor.optimizer.optimization_algorithm.optimization_instance,
                     solution=sol,
                     solution_idx=0,
                 )
@@ -384,7 +408,7 @@ class TestExecutor(unittest.TestCase):
                 data=data, evolutionary=evolutionary
             )
             self.assertEqual(
-                test_executor.optimization_alg.optimization_instance.generations_completed,
+                test_executor.optimizer.optimization_algorithm.optimization_instance.generations_completed,
                 1,
             )
             new_points = test_executor.experiment.data_points

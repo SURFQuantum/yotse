@@ -1,7 +1,11 @@
 import os
 import pickle
-from typing import Tuple
+from typing import Any
+from typing import List
+from typing import Optional
+from typing import Union
 
+import numpy as np
 import pandas
 from qcg.pilotjob.api.job import Jobs
 from qcg.pilotjob.api.manager import LocalManager
@@ -16,11 +20,14 @@ from yotse.utils.utils import get_files_by_extension
 
 class Executor:
     def __init__(self, experiment: Experiment):
-        self.experiment = experiment
-        self.optimizer = self.generate_optimizer()
-        self.aux_dir = None
+        self.experiment: Experiment = experiment
+        self.optimizer: Optimizer = self.generate_optimizer()
+        self.aux_dir: str = ""
 
         if "--resume" in self.experiment.system_setup.cmdline_arguments:
+            assert isinstance(
+                self.experiment.system_setup.cmdline_arguments["--resume"], str
+            ), "--resume keyword must be passed a string describing the path to the aux directory."
             # if resuming the simulation, load state from file
             self.load_executor_state(
                 aux_directory=self.experiment.system_setup.cmdline_arguments["--resume"]
@@ -62,7 +69,7 @@ class Executor:
             ]
             # check if there are no constraints
             if all(x is None for x in constraints):
-                constraints = None
+                constraints = None  # type: ignore
             # todo: add more tests that check what happens if only some constraints are None etc.
             # param_types = [int if param.param_type == "discrete" else float for param in experiment.parameters
             #                if param.is_active]
@@ -71,9 +78,9 @@ class Executor:
             # todo: figure out what's nicer for user constraint or data_type? both seems redundant?
             if opt_info.name == "GA":
                 optimization_alg = GAOpt(
-                    initial_population=self.experiment.data_points,
+                    initial_data_points=self.experiment.data_points,
                     # gene_type=param_types,
-                    gene_space=constraints,
+                    gene_space=constraints,  # type: ignore
                     **opt_info.parameters,
                 )
             else:
@@ -81,9 +88,11 @@ class Executor:
         else:
             optimization_alg = None
 
-        return Optimizer(optimization_algorithm=optimization_alg)
+        return Optimizer(optimization_algorithm=optimization_alg)  # type: ignore[arg-type]
 
-    def run(self, step_number=0, evolutionary_point_generation=None) -> None:
+    def run(
+        self, step_number: int = 0, evolutionary_point_generation: Optional[bool] = None
+    ) -> None:
         """Submits jobs to the LocalManager, collects the output, creates new data points, and finishes the run.
 
         Parameters:
@@ -91,8 +100,10 @@ class Executor:
         step_number : int (optional)
             Step number to submit to QCGPilot. Should be used for e.g. running different optimization steps.
             Defaults to 0.
-        evolutionary_point_generation
-            # todo : fill in docstring
+        evolutionary_point_generation : bool (optional)
+            Overwrite the type of construction to be used for the new points. If None the optimization
+            algorithm determines whether the point creation is evolutionary or based on the best solution.
+            Defaults to None.
         """
         print(
             f"Starting default run of {self.experiment.name} (step{step_number}): submit, collect, create."
@@ -106,8 +117,8 @@ class Executor:
         print(f"Finished run of {self.experiment.name} (step{step_number}).")
 
     def pre_submission_setup_per_job(
-        self, datapoint_item: list, step_number: int, job_number: int
-    ) -> list:
+        self, datapoint_item: List[float], step_number: int, job_number: int
+    ) -> List[Union[str, Any]]:
         """Sets up the basic directory structure for a job and returns the QCG-Pilot command line list for it.
 
         Parameters:
@@ -127,10 +138,13 @@ class Executor:
         Note: Overwrite this function if you need other directory structure or pre-submission functionality.
 
         """
+        assert not isinstance(
+            datapoint_item, np.ndarray
+        )  # check item is not an array, which is not serializable
         set_basic_directory_structure_for_job(self.experiment, step_number, job_number)
         return self.experiment.qcgpilot_commandline(datapoint_item=datapoint_item)
 
-    def submit(self, step_number=0) -> Tuple[list, str]:
+    def submit(self, step_number: int = 0) -> List[str]:
         """
         Submits jobs to the LocalManager.
 
@@ -152,43 +166,47 @@ class Executor:
         self.aux_dir = aux_dir
 
         jobs = Jobs()
-        if not self.experiment.data_points:
+        if self.experiment.data_points.size == 0:
             raise RuntimeError(
                 f"Can not submit jobs for Experiment {self.experiment.name}: No datapoints available."
             )
         for i, item in enumerate(self.experiment.data_points):
             cmdline = self.pre_submission_setup_per_job(
-                datapoint_item=item, step_number=step_number, job_number=i
+                datapoint_item=item.tolist(), step_number=step_number, job_number=i
             )
             jobs.add(
-                name=self.experiment.name + str(i),
-                args=cmdline,
-                stdout=stdout + str(i) + ".txt",
-                stderr=stdout + str(i) + ".err",
-                wd=self.experiment.system_setup.working_directory,
+                {
+                    "name": self.experiment.name + str(i),
+                    "args": cmdline,
+                    "stdout": stdout + str(i) + ".txt",
+                    "stderr": stdout + str(i) + ".err",
+                    "wd": self.experiment.system_setup.working_directory,
+                },
                 **self.experiment.system_setup.job_args,
             )
         if self.experiment.system_setup.analysis_script is not None:
             # add analysis job with correct dependency
             jobs.add(
-                name=self.experiment.name + f"step{step_number}_analysis",
-                args=[
-                    os.path.join(
-                        self.experiment.system_setup.source_directory,
-                        self.experiment.system_setup.analysis_script,
-                    )
-                ],
-                stdout=stdout + f"step{step_number}_analysis.txt",
-                stderr=stdout + f"step{step_number}_analysis.err",
-                wd=self.experiment.system_setup.current_step_directory,
-                after=jobs.job_names(),
+                {
+                    "name": self.experiment.name + f"step{step_number}_analysis",
+                    "args": [
+                        os.path.join(
+                            self.experiment.system_setup.source_directory,
+                            self.experiment.system_setup.analysis_script,
+                        )
+                    ],
+                    "stdout": stdout + f"step{step_number}_analysis.txt",
+                    "stderr": stdout + f"step{step_number}_analysis.err",
+                    "wd": self.experiment.system_setup.current_step_directory,
+                    "after": jobs.job_names(),
+                },
                 **self.experiment.system_setup.job_args,
             )
         job_ids = manager.submit(jobs)
         manager.wait4(job_ids)
         manager.finish()
         manager.cleanup()
-        return job_ids
+        return job_ids  # type: ignore[no-any-return]
 
     def collect_data(self) -> pandas.DataFrame:
         """
@@ -229,7 +247,7 @@ class Executor:
         return data
 
     def create_points_based_on_optimization(
-        self, data: pandas.DataFrame, evolutionary=None
+        self, data: pandas.DataFrame, evolutionary: Optional[bool] = None
     ) -> None:
         """
         Applies an optimization algorithm to process the collected data and create new data points from it which is then
@@ -263,14 +281,14 @@ class Executor:
                 experiment=self.experiment, evolutionary=evolutionary
             )
 
-    def save_executor_state(self):
+    def save_executor_state(self) -> None:
         """Save state of the Executor to be able to resume later."""
         # Note: maybe this should be optional, because not everything might be serializable, e.g. complex cost_functions
         with open(os.path.join(self.aux_dir, "yotse_state_save.pickle"), "wb") as file:
             pickle.dump(self.__dict__, file)
         print(f"Latest state of yotse executor saved in {self.aux_dir}.")
 
-    def load_executor_state(self, aux_directory):
+    def load_executor_state(self, aux_directory: str) -> None:
         """Load the state of the Executor to be able to resume."""
         try:
             with open(
@@ -289,7 +307,9 @@ class CustomExecutor(Executor):
     def __init__(self, experiment: Experiment):
         super().__init__(experiment)
 
-    def run(self, step_number=0, evolutionary_point_generation=None):
+    def run(
+        self, step_number: int = 0, evolutionary_point_generation: Optional[bool] = None
+    ) -> None:
         super().run(
             step_number=step_number,
             evolutionary_point_generation=evolutionary_point_generation,

@@ -11,7 +11,7 @@ from yotse.pre import SystemSetup
 # import matplotlib
 
 
-def wobbly_pre():
+def wobbly_pre() -> Experiment:
     wobbly_experiment = Experiment(
         experiment_name="wobbly_example",
         system_setup=SystemSetup(
@@ -65,7 +65,7 @@ def wobbly_pre():
     return wobbly_experiment
 
 
-def remove_files_after_run():
+def remove_files_after_run() -> None:
     # remove files and directories
     shutil.rmtree("output")
     dirs = [f for f in os.listdir(os.getcwd()) if (f.startswith(".qcg"))]
@@ -73,7 +73,7 @@ def remove_files_after_run():
         shutil.rmtree(os.path.join(os.getcwd(), d))
 
 
-def main():
+def main() -> None:
     experiment = wobbly_pre()
     wobbly_example = Executor(experiment=experiment)
 

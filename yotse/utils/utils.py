@@ -1,9 +1,12 @@
 import os
+from typing import Any
+from typing import List
 
+import numpy as np
 import pandas
 
 
-def get_files_by_extension(directory: str, extension: str) -> list:
+def get_files_by_extension(directory: str, extension: str) -> List[str]:
     """
     Returns a list of files in the given directory with the specified extension.
 
@@ -26,7 +29,7 @@ def get_files_by_extension(directory: str, extension: str) -> list:
     ]
 
 
-def file_list_to_single_df(files: list, extension: str) -> pandas.DataFrame:
+def file_list_to_single_df(files: List[str], extension: str) -> pandas.DataFrame:
     """
     Reads CSV, json or pickle files from a list and combines their content in a single pandas dataframe.
 
@@ -55,3 +58,11 @@ def file_list_to_single_df(files: list, extension: str) -> pandas.DataFrame:
         )
         # Note: See https://pandas.pydata.org/docs/reference/io.html for more IO functions for e.g. XML files.
     return pandas.concat(dfs, ignore_index=True)
+
+
+def ndarray_to_list(numpy_array: np.ndarray) -> List[Any]:
+    return numpy_array.tolist()  # type: ignore[no-any-return]
+
+
+def list_to_numpy_array(list_data: List[Any]) -> np.ndarray:
+    return np.array(list_data)

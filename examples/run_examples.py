@@ -2,6 +2,8 @@ import importlib
 import inspect
 import os
 import sys
+from typing import Any
+from typing import Callable
 
 # This file is used to run all the examples in this folder and subfolders
 # Each file should be of the form example*.py and contain a `main`-method.
@@ -9,7 +11,7 @@ import sys
 # to avoid creating plots etc.
 
 
-def main():
+def main() -> None:
     path_to_here = os.path.dirname(os.path.abspath(__file__))
     for root, folders, files in os.walk(path_to_here):
         for filename in files:
@@ -20,7 +22,7 @@ def main():
                     _run_example(filepath)
 
 
-def _run_example(filepath):
+def _run_example(filepath: str) -> None:
     cwd = os.getcwd()
     sys.path.append(os.path.dirname(filepath))
     example_module_name = os.path.basename(filepath)[: -len(".py")]
@@ -39,7 +41,7 @@ def _run_example(filepath):
     sys.path.pop()
 
 
-def _has_no_output_arg(func):
+def _has_no_output_arg(func: Callable[..., Any]) -> bool:
     return "no_output" in inspect.getfullargspec(func).args
 
 

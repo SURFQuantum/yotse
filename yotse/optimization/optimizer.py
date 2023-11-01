@@ -1,4 +1,5 @@
 from typing import List
+from typing import Optional
 from typing import Tuple
 
 from yotse.optimization.generic_optimization import GenericOptimization
@@ -34,12 +35,15 @@ class Optimizer:
         self.optimization_algorithm.execute()
         self._is_executed = True
 
-    def suggest_best_solution(self) -> Tuple[List[float], float, int]:
+    def suggest_best_solution(self) -> Tuple[List[float], float | None, int | None]:
         """Suggest the best solution and return: [best_solution, solution_fitness, solution_index]."""
         return self.optimization_algorithm.get_best_solution()
 
     def construct_points(
-        self, experiment: Experiment, evolutionary: bool, points_per_param=None
+        self,
+        experiment: Experiment,
+        evolutionary: bool,
+        points_per_param: Optional[int] = None,
     ) -> None:
         """
         Constructs new set of values around the solution and write them to the experiment.
@@ -75,7 +79,7 @@ class Optimizer:
             )
 
     def grid_based_point_creation(
-        self, experiment: Experiment, points_per_param: int
+        self, experiment: Experiment, points_per_param: Optional[int] = None
     ) -> None:
         solution, solution_fitness, _ = self.optimization_algorithm.get_best_solution()
 
@@ -84,6 +88,9 @@ class Optimizer:
             print("Solution:     ", solution)
             print(f"Fitness value: {solution_fitness}")
         ref_factors = self.optimization_algorithm.refinement_factors
+        assert (
+            ref_factors is not None
+        ), "refinement factors can not be None for grid_bases_point_creation."
         if len(ref_factors) != len(experiment.parameters):
             raise ValueError(
                 f"Length of refinement factors {len(ref_factors)} "
@@ -98,22 +105,26 @@ class Optimizer:
             if param.is_active:
                 # calculate new ranges for each active param
                 delta_param = ref_factors[p] * (param.range[1] - param.range[0]) * 0.5
-                opt_range = (
+                opt_range = [
                     opt_input_datapoint[i] - delta_param,
                     opt_input_datapoint[i] + delta_param,
-                )
+                ]
                 i += 1
                 # write updated parameter range to each active param
                 param.range = opt_range
                 # create new points on each active param
                 if points_per_param is not None:
                     # generate same amount of points for each param
-                    param.generate_data_points(num_points=points_per_param)
+                    param.data_points = param.generate_data_points(
+                        num_points=points_per_param
+                    )
                 else:
                     # generate different amounts of points for each param
-                    param.generate_data_points(num_points=param.number_points)
-        # call create points on the experiment
-        experiment.create_datapoint_c_product()
+                    param.data_points = param.generate_data_points(
+                        num_points=param.number_points
+                    )
+        # update data points points on the experiment
+        experiment.data_points = experiment.create_datapoint_c_product()
         self.optimization_algorithm.overwrite_internal_data_points(
             experiment.data_points
         )

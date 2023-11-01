@@ -1,8 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from pre import Experiment
 
 
-def plot_cost_function(x, y, z):
+def plot_cost_function(x: np.ndarray, y: np.ndarray, z: np.ndarray) -> None:
     ax = plt.figure().add_subplot(projection="3d")
     ax.plot_surface(
         x, y, z, edgecolor="royalblue", lw=0.5, rstride=8, cstride=8, alpha=0.3
@@ -18,7 +19,9 @@ def plot_cost_function(x, y, z):
     plt.show()
 
 
-def plot_opt_steps(experiment, x, y, z):
+def plot_opt_steps(
+    experiment: Experiment, x: np.ndarray, y: np.ndarray, z: np.ndarray
+) -> None:
     # data = collect_all_data()
 
     ax = plt.figure().add_subplot(projection="3d")

@@ -1,11 +1,19 @@
 import os
 import unittest
+from typing import Any
+from typing import Callable
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
+import numpy as np
 import pandas as pd
 import pytest
 
 from yotse.execution import Executor
-from yotse.optimization.ga import ModGA
+from yotse.optimization.ga import ModGA  # type: ignore[attr-defined]
+from yotse.pre import ConstraintDict
 from yotse.pre import Experiment
 from yotse.pre import OptimizationInfo
 from yotse.pre import Parameter
@@ -21,13 +29,13 @@ else:
 class TestNewOpt(unittest.TestCase):
     @staticmethod
     def create_default_param(
-        name="bright_state_parameter",
-        parameter_range=[0.1, 0.9],
-        number_points=9,
-        distribution="linear",
-        constraints=None,
-        custom_distribution=None,
-    ):
+        name: str = "bright_state_parameter",
+        parameter_range: List[Union[float, int]] = [0.1, 0.9],
+        number_points: int = 9,
+        distribution: str = "linear",
+        constraints: Union[ConstraintDict, np.ndarray, None] = None,
+        custom_distribution: Optional[Callable[[float, float, int], np.ndarray]] = None,
+    ) -> Parameter:
         return Parameter(
             name=name,
             param_range=parameter_range,
@@ -38,7 +46,10 @@ class TestNewOpt(unittest.TestCase):
         )
 
     @staticmethod
-    def create_default_experiment(parameters=None, opt_info_list=[]):
+    def create_default_experiment(
+        parameters: Optional[List[Parameter]] = None,
+        opt_info_list: Optional[List[OptimizationInfo]] = None,
+    ) -> Experiment:
         return Experiment(
             experiment_name="default_exp",
             system_setup=SystemSetup(
@@ -51,7 +62,7 @@ class TestNewOpt(unittest.TestCase):
         )
 
     @staticmethod
-    def create_default_executor(experiment):
+    def create_default_executor(experiment: Experiment) -> Executor:
         return Executor(experiment=experiment)
 
     def setUp(self) -> None:
@@ -62,7 +73,7 @@ class TestNewOpt(unittest.TestCase):
             (8, 9, 10): 0.1,
             (11, 11, 11): 3,
         }
-        self.initial_pop = list(self.lookup_dict.keys())
+        self.initial_pop = np.array(list(self.lookup_dict.keys()))
         df = pd.DataFrame.from_dict(
             self.lookup_dict, orient="index", columns=["Values"]
         )
@@ -74,7 +85,11 @@ class TestNewOpt(unittest.TestCase):
         self.data = df
 
     @staticmethod
-    def setup_ga_instance(fitness_func, initial_pop, num_gen):
+    def setup_ga_instance(
+        fitness_func: Callable[..., float],
+        initial_pop: List[Tuple[float, ...]],
+        num_gen: int,
+    ) -> ModGA:
         return ModGA(
             num_generations=num_gen,
             num_parents_mating=2,
@@ -84,10 +99,12 @@ class TestNewOpt(unittest.TestCase):
             initial_population=initial_pop,
         )
 
-    def cost_func(self, ga_instance, solution, sol_idx):
+    def cost_func(
+        self, ga_instance: Any, solution: Tuple[float, ...], sol_idx: int
+    ) -> Any:
         return -1 * (solution[0] ** 2 + solution[1] ** 2 + solution[2] ** 2)
 
-    def test_population_lookup(self):
+    def test_population_lookup(self) -> None:
         # todo : this test seems to still test something that no other test picks up (aka the input_to_cost_value func)
         print("Initial pop has size", len(self.initial_pop))
         test_param = [TestNewOpt.create_default_param() for _ in range(3)]
@@ -125,7 +142,7 @@ class TestNewOpt(unittest.TestCase):
             1,
         )
 
-    def test_new_population_func(self):
+    def test_new_population_func(self) -> None:
         num_generations = 100
 
         ga_instance = self.setup_ga_instance(
@@ -133,18 +150,11 @@ class TestNewOpt(unittest.TestCase):
             initial_pop=self.initial_pop,
             num_gen=num_generations,
         )
-        print("initial population", self.initial_pop)
         for _ in range(ga_instance.num_generations):
             ga_instance.run_single_generation()
-            ga_instance.population
-            # print("new population", ga_instance.population)
-            # ga_instance.initial_population = ga_instance.population
+            ga_instance.initial_population = ga_instance.population
 
         assert ga_instance.generations_completed == num_generations
-        # print(ga_instance.population)
-        # print(ga_instance.best_solution())
-        # matplotlib.use('Qt5Agg')
-        # ga_instance.plot_fitness()
         assert ga_instance.best_solution()[0][0] == 0
         assert ga_instance.best_solution()[0][1] == 0
         assert ga_instance.best_solution()[0][2] == 0
@@ -154,13 +164,13 @@ class TestGA(unittest.TestCase):
     @pytest.mark.xfail(
         reason="pygad can not guarantee uniqueness of genes even with allow_duplicate_genes=False."
     )
-    def test_non_uniqueness(self):
+    def test_non_uniqueness(self) -> None:
         """Minimal working example to demonstrate how mutation ruins the gene_space and allow_duplicate_genes params."""
         import pygad
         import numpy
         import itertools
 
-        def mock_function(ga_instance, solution, sol_idx):
+        def mock_function(ga_instance: Any, solution: List[float], sol_idx: int) -> Any:
             return -1 * (solution[0] ** 2 + solution[1] ** 2)
 
         range = [0.1, 1.0]

@@ -1,3 +1,5 @@
+from typing import List
+
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.linear_model import BayesianRidge
@@ -7,7 +9,7 @@ from sklearn.preprocessing import PolynomialFeatures
 
 
 class Predict:
-    def __init__(self, model_name="LR"):
+    def __init__(self, model_name: str = "LR"):
         """
         Deafault constructor
         :param model_name:Regression model name
@@ -20,7 +22,7 @@ class Predict:
             self.model = SGDRegressor()
         pass
 
-    def learn(self, x, y):
+    def learn(self, x: np.ndarray, y: np.ndarray) -> None:
         """
         Execute learning process
         :param x: Training data, ndarray of shape (n_samples, n_features)
@@ -48,7 +50,7 @@ class Predict:
         plt.ylabel("y")
         plt.show()
 
-    def predict(self, x_new):
+    def predict(self, x_new: np.ndarray) -> np.ndarray:
         """
         Predict value(s) using linear model
         :param x_new: Samples, ndarray of shape (n_samples, n_features)
@@ -64,7 +66,7 @@ if __name__ == "__main__":
     #     y_loc = vars[0]
     #     return x_loc**2 + y_loc**2
 
-    def func(vars):
+    def func(vars: List[int]) -> float:
         x_loc = vars[0]
         return x_loc**2
 

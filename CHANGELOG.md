@@ -7,6 +7,7 @@ Upcoming
 --------
 * added `json` and `pickle` output file support in `execution.py`
 * added `examples`, `tests` and `show-cov` commands for `poetry`
+* added strict type checking with `mypy` to help catch type issues
 
 
 2023-10-23 (0.2.0)

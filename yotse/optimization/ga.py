@@ -1,3 +1,4 @@
+# type: ignore
 import time
 
 import numpy
@@ -5,13 +6,13 @@ from pygad import GA
 
 
 class ModGA(GA):
-    def run_single_generation(self):
+    def run_single_generation(self) -> None:
         num_generations = self.num_generations
         self.num_generations = 1
         self.run()
         self.num_generations = num_generations
 
-    def run(self):
+    def run(self) -> None:
         """
         Runs the genetic algorithm. This is the main method in which the genetic algorithm is evolved through a number
         of generations.
