@@ -19,14 +19,17 @@ if [[ -z "$FIRST_FOLDER" ]]; then
 fi
 
 # Define the file path
-FILE_PATH="${FIRST_FOLDER}step0/job0/stdout0.err"
+FILE_PATH_ERR="${FIRST_FOLDER}step0/job0/stdout0.err"
+FILE_PATH_OUT="${FIRST_FOLDER}step0/job0/stdout0.txt"
 
 # Check if the file exists
-if [[ ! -f "$FILE_PATH" ]]; then
-  echo "File $FILE_PATH does not exist."
+if [[ ! -f "$FILE_PATH_ERR" ]]; then
+  echo "File $FILE_PATH_ERR does not exist."
   exit 1
 fi
 
 # Output the contents of the file
-echo "Opening File $FILE_PATH"
-cat "$FILE_PATH"
+echo "Opening File $FILE_PATH_ERR"
+cat "$FILE_PATH_ERR"
+echo "Opening File $FILE_PATH_OUT"
+cat "$FILE_PATH_OUT"
