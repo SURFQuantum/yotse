@@ -11,8 +11,6 @@ cd simulation-code-for-requirements-for-a-processing-node-quantum-repeater-on-a-
 # Install the dependencies
 which python
 python --version
-
-
 poetry config http-basic.netsquid-pypi ${USERNAME} ${PASSWORD}
 poetry install
 pip list

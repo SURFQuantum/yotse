@@ -1,10 +1,13 @@
-name: Tests, Examples
+name: CI/CD Pipeline
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  schedule:
+    - cron: '0 0 * * *'  # Run daily at midnight
+  workflow_dispatch:  # Allows manual triggering of the workflow
 
 jobs:
   pre-commit:
@@ -20,7 +23,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        task: [run-tests, run-examples, run-nlblueprint]
         python-version: ["3.9", "3.10", "3.11"]
         os: [ubuntu-latest]
         poetry-version: ["1.6.1"]
@@ -51,37 +53,10 @@ jobs:
         key: venv-${{ hashFiles('poetry.lock') }}
     - name: Install the project dependencies
       run: poetry install
-
     - name: Run the automated tests (ignore deprecation errors )
-      if: matrix.task == 'run-tests'
       run: poetry run pytest -W ignore::DeprecationWarning --cov-report xml --cov=yotse tests/
-
     - name: Run the examples (except nlblueprint)
-      if: matrix.task == 'run-examples'
       run: poetry run examples
-
-    - name: Set up Python 3.9
-      if: matrix.task == 'run-nlblueprint'
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.9
-    - name: Setup and activate nlblueprint environment
-      if: matrix.task == 'run-nlblueprint'
-      run: ./examples/blueprint_example/setup_blueprint_env.sh
-      env:
-        USERNAME: ${{ secrets.NETSQUID_PYPI_USER }}
-        PASSWORD: ${{ secrets.NETSQUID_PYPI_PWD }}
-    - name: Revert to original Python version
-      if: matrix.task == 'run-nlblueprint'
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Run the nlblueprint example
-      if: matrix.task == 'run-nlblueprint'
-      run: poetry run blueprint
-    - name: Debug nlblueprint examples
-      if: always() && matrix.task == 'run-nlblueprint'
-      run: ./examples/blueprint_example/debug.sh
 
     # the following is coverage stuff that should only run on pull requests
     - name: Debug environment
@@ -120,3 +95,57 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         branch: ${{ github.head_ref }}
         force: true
+  integration:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.9", "3.10", "3.11" ]
+        os: [ ubuntu-latest ]
+        poetry-version: [ "1.6.1" ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
+          ref: ${{ github.head_ref }}
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+        # see details (matrix, python-version, python-version-file, etc.)
+        # https://github.com/actions/setup-python
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v2
+        with:
+          poetry-version: ${{ matrix.poetry-version }}
+      - name: Setup a local virtual environment (if no poetry.toml file)
+        run: |
+          poetry config virtualenvs.create true --local
+          poetry config virtualenvs.in-project true --local
+      - uses: actions/cache@v3
+        name: Define a cache for the virtual environment based on the dependencies lock file
+        with:
+          path: ./.venv
+          key: venv-${{ hashFiles('poetry.lock') }}
+      - name: Install the project dependencies
+        run: poetry install
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+      - name: Setup and activate nlblueprint environment
+        run: ./examples/blueprint_example/setup_blueprint_env.sh
+        env:
+          USERNAME: ${{ secrets.NETSQUID_PYPI_USER }}
+          PASSWORD: ${{ secrets.NETSQUID_PYPI_PWD }}
+      - name: Revert to original Python version
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run the nlblueprint example
+        run: poetry run blueprint
+      - name: Debug nlblueprint examples
+        if: always()
+        run: ./examples/blueprint_example/debug.sh
