@@ -206,10 +206,10 @@ def main(plot=False):
     print("Solution: ", solution)
     with open("solution.txt", "w") as file:
         file.write(f"Solution: {solution} \n")
-    # plot fitness
-    matplotlib.use("Qt5Agg")
-    # wobbly_example.optimization_alg.ga_instance.plot_new_solution_rate()
     if plot:
+        # plot fitness
+        matplotlib.use("Qt5Agg")
+        # wobbly_example.optimization_alg.ga_instance.plot_new_solution_rate()
         (
             fig,
             ax,
