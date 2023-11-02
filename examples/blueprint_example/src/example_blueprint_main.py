@@ -1,7 +1,11 @@
 import os
 import shutil
+from typing import Any
+from typing import List
+from typing import Union
 
 import matplotlib
+import numpy as np
 
 from yotse.execution import Executor
 from yotse.pre import Experiment
@@ -27,7 +31,7 @@ def blueprint_input():
             analysis_script="processing_function.py",
             executor="python",
             output_dir_name="output",
-            venv="~/Projects/venvs/qcg3.10",
+            venv="/home/runner/work/yotse/yotse/blueprint_venv",
             num_nodes=2,
             alloc_time="01:00:00",
             slurm_args=["--exclusive"],
@@ -138,8 +142,8 @@ class BlueprintCore(Executor):
     """Executor implementation using adaptions for NLBlueprint."""
 
     def pre_submission_setup_per_job(
-        self, datapoint_item: list, step_number: int, job_number: int
-    ) -> None:
+        self, datapoint_item: List[float], step_number: int, job_number: int
+    ) -> List[Union[str, Any]]:
         setup_optimization_dir(
             experiment=self.experiment, step_number=step_number, job_number=job_number
         )
@@ -152,6 +156,24 @@ class BlueprintCore(Executor):
 
         return new_cmdline
 
+    def pre_submission_analysis(self) -> List[Union[str, Any]]:
+        assert self.experiment.system_setup.analysis_script is not None
+        analysis_commandline = [
+            os.path.join(
+                self.experiment.system_setup.source_directory,
+                self.experiment.system_setup.analysis_script,
+            )
+        ]
+        analysis_commandline.append("--paramfile")
+        analysis_commandline.append(
+            self.experiment.system_setup.cmdline_arguments["paramfile"]
+        )
+        analysis_commandline.append("--variedparams")
+        analysis_commandline.extend(
+            [param.name for param in self.experiment.parameters if param.is_active]
+        )
+        return analysis_commandline
+
 
 class BlueprintExecutor(BlueprintCore):
     def __init__(self, experiment: Experiment):
@@ -161,10 +183,12 @@ class BlueprintExecutor(BlueprintCore):
         super().run(step, evolutionary_point_generation)
 
 
-def main():
-    def cost_function(f):
-        return f
+def cost_function(f):
+    """Important note: Cost function should not be defined within main."""
+    return f
 
+
+def main(plot=False):
     experiment = blueprint_input()
     experiment.cost_function = cost_function
     blueprint_example = BlueprintExecutor(experiment=experiment)
@@ -185,8 +209,14 @@ def main():
     # plot fitness
     matplotlib.use("Qt5Agg")
     # wobbly_example.optimization_alg.ga_instance.plot_new_solution_rate()
-    fig, ax = blueprint_example.optimizer.optimization_algorithm.plot_fitness()
-    fig.savefig("fitness.png")
+    if plot:
+        (
+            fig,
+            ax,
+        ) = (
+            blueprint_example.optimizer.optimization_algorithm.optimization_instance.plot_fitness()
+        )
+        fig.savefig("fitness.png")
 
     # clean up
     remove_files_after_run()

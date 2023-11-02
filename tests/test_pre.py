@@ -18,6 +18,11 @@ from yotse.pre import SystemSetup
 DUMMY_FILE = "experiment.py"
 
 
+def valid_function() -> None:
+    """Test function for TestExperiment.test_cost_function_setter_and_getter()"""
+    pass
+
+
 class TestParameters(unittest.TestCase):
     """Test the parameters class."""
 
@@ -248,6 +253,30 @@ class TestExperiment(unittest.TestCase):
             ),
             parameters=parameters,
             opt_info_list=optimization_info,
+        )
+
+    def test_cost_function_setter_and_getter(self) -> None:
+        """Test whether setting and getting of the cost function works as expected."""
+        test_exp = self.create_default_experiment()
+
+        test_exp.cost_function = valid_function  # type: ignore[assignment]
+        self.assertEqual(test_exp.cost_function, valid_function)
+
+        # Test setting and getting a local function
+        def main() -> None:
+            def local_function() -> None:
+                pass
+
+            with self.assertRaises(ValueError):
+                test_exp.cost_function = local_function  # type: ignore[assignment]
+
+        main()
+
+        # Test setting a non-function value
+        with self.assertRaises(ValueError) as context:
+            test_exp.cost_function = "not a function"  # type: ignore[assignment]
+        self.assertEqual(
+            str(context.exception), "Input cost_function is not a function."
         )
 
     def test_c_product(self) -> None:

@@ -132,8 +132,8 @@ class Executor:
 
         Returns:
         -------
-        qcg_cmdline_list : list
-            The list of command line arguments for the QCG-Pilot job submission.
+        program_commandline : list
+            The list of command line arguments for the QCG-Pilot job submission for the program.
 
         Note: Overwrite this function if you need other directory structure or pre-submission functionality.
 
@@ -142,7 +142,30 @@ class Executor:
             datapoint_item, np.ndarray
         )  # check item is not an array, which is not serializable
         set_basic_directory_structure_for_job(self.experiment, step_number, job_number)
-        return self.experiment.qcgpilot_commandline(datapoint_item=datapoint_item)
+        program_commandline = self.experiment.qcgpilot_commandline(
+            datapoint_item=datapoint_item
+        )
+        return program_commandline
+
+    def pre_submission_analysis(self) -> List[Union[str, Any]]:
+        """Executes any necessary steps before the analysis script and returns the QCG-Pilot command line list for it.
+
+        Returns:
+        -------
+        analysis_commandline : list
+            The list of command line arguments for the QCG-Pilot job submission for the program.
+
+        Note: Overwrite this function if you need other directory structure or pre-submission functionality for your
+        analysis script.
+        """
+        assert self.experiment.system_setup.analysis_script is not None
+        analysis_commandline = [
+            os.path.join(
+                self.experiment.system_setup.source_directory,
+                self.experiment.system_setup.analysis_script,
+            )
+        ]
+        return analysis_commandline
 
     def submit(self, step_number: int = 0) -> List[str]:
         """
@@ -171,13 +194,13 @@ class Executor:
                 f"Can not submit jobs for Experiment {self.experiment.name}: No datapoints available."
             )
         for i, item in enumerate(self.experiment.data_points):
-            cmdline = self.pre_submission_setup_per_job(
+            prog_cmdline = self.pre_submission_setup_per_job(
                 datapoint_item=item.tolist(), step_number=step_number, job_number=i
             )
             jobs.add(
                 {
                     "name": self.experiment.name + str(i),
-                    "args": cmdline,
+                    "args": prog_cmdline,
                     "stdout": stdout + str(i) + ".txt",
                     "stderr": stdout + str(i) + ".err",
                     "wd": self.experiment.system_setup.working_directory,
@@ -185,16 +208,12 @@ class Executor:
                 **self.experiment.system_setup.job_args,
             )
         if self.experiment.system_setup.analysis_script is not None:
+            analysis_cmdline = self.pre_submission_analysis()
             # add analysis job with correct dependency
             jobs.add(
                 {
                     "name": self.experiment.name + f"step{step_number}_analysis",
-                    "args": [
-                        os.path.join(
-                            self.experiment.system_setup.source_directory,
-                            self.experiment.system_setup.analysis_script,
-                        )
-                    ],
+                    "args": analysis_cmdline,
                     "stdout": stdout + f"step{step_number}_analysis.txt",
                     "stderr": stdout + f"step{step_number}_analysis.err",
                     "wd": self.experiment.system_setup.current_step_directory,

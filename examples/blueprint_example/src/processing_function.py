@@ -4,11 +4,13 @@
 # sets of parameters.
 import os
 import pickle
+from argparse import ArgumentParser
+from typing import Dict
+from typing import List
 
 import numpy as np
 import pandas as pd
 import yaml
-from example_blueprint_main import blueprint_input
 from netsquid_netconf.netconf import Loader
 from netsquid_nv.nv_parameter_set import _gaussian_dephasing_fn
 from netsquid_nv.nv_parameter_set import compute_dephasing_prob_from_nodephasing_number
@@ -160,24 +162,9 @@ def total_cost_squared_difference(
 #     return parameter_names
 
 
-def parse_parameters_from_experiment(experiment) -> list:
-    """Gets list of parameters that were optimized over from the experiment object.
-
-    Parameters
-    ----------
-    experiment : yotse.pre.Experiment
-        Instance of the experiment class containing the optimized parameters.
-
-    Returns
-    -------
-    parameter_names : list
-        Names of the parameters that were optimized over in the input experiment.
-    """
-    parameter_names = [param.name for param in experiment.parameters if param.is_active]
-    return parameter_names
-
-
-def get_baseline_parameters(baseline_parameter_file: str, parameter_list: list) -> dict:
+def get_baseline_parameters(
+    baseline_parameter_file: str, parameter_list: List[str]
+) -> Dict[str, float]:
     """Identifies baseline values of the parameters in `parameter_list`, i.e. the parameters that were optimized over.
     Removes tunable parameters, as those are not relevant for computing the cost.
 
@@ -272,16 +259,28 @@ def process_data(parameter_list: list, root_dir: str = ".") -> pd.DataFrame:
 
 
 if __name__ == "__main__":
+    parser = ArgumentParser()
+    parser.add_argument(
+        "-pf", "--paramfile", required=True, type=str, help="Name of the parameter file"
+    )
+    parser.add_argument(
+        "-vp",
+        "--variedparams",
+        nargs="+",
+        required=True,
+        type=str,
+        help="Names of the varied parameters",
+    )
+    args, unknown = parser.parse_known_args()
     # Replace this by the name of the baseline parameter file you used
     # This name should be in the format "platform_baseline_params.yaml"
-    baseline_parameter_file = blueprint_input().system_setup.cmdline_arguments[
-        "paramfile"
-    ]
+    baseline_parameter_file = args.paramfile
     # baseline_parameter_file = "nv_baseline_params.yaml"
 
-    param_list = parse_parameters_from_experiment(experiment=blueprint_input())
+    param_list = args.variedparams
     # param_list = parse_from_input_file()
     platform = baseline_parameter_file.split("_baseline")[0]
+    print("here", baseline_parameter_file, param_list, type(param_list))
     baseline_parameters = get_baseline_parameters(baseline_parameter_file, param_list)
     fid_threshold = 0.8717
     rate_threshold = 0.1

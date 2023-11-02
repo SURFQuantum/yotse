@@ -29,7 +29,7 @@ def wobbly_pre() -> Experiment:
             Parameter(
                 name="x",
                 param_range=[-4, 4],
-                number_points=10,
+                number_points=4,
                 distribution="uniform",
                 constraints=None,
                 weights=None,  # todo not implemented
@@ -39,7 +39,7 @@ def wobbly_pre() -> Experiment:
             Parameter(
                 name="y",
                 param_range=[-3, 3],
-                number_points=10,
+                number_points=4,
                 distribution="uniform",
                 constraints={"low": -4, "high": 4, "step": 0.001},
                 weights=None,
@@ -74,6 +74,7 @@ def remove_files_after_run() -> None:
 
 
 def main() -> None:
+    print(" --- Running Wobbly-Main Example. --- ")
     experiment = wobbly_pre()
     wobbly_example = Executor(experiment=experiment)
 
@@ -94,35 +95,6 @@ def main() -> None:
     # matplotlib.use('Qt5Agg')
     # wobbly_example.optimization_alg.ga_instance.plot_new_solution_rate()
     # wobbly_example.optimization_alg.ga_instance.plot_fitness()
-    remove_files_after_run()
-
-    # as a second example, we see what happens when the experiment is stopped and later continued from a save file
-    stop_continue_experiment = wobbly_pre()
-    stop_continue_example = Executor(experiment=stop_continue_experiment)
-    for i in range(3):
-        stop_continue_example.run(step_number=i, evolutionary_point_generation=True)
-    # write resume parameter to experiment
-    continue_experiment = wobbly_pre()
-    continue_experiment.system_setup.cmdline_arguments[
-        "--resume"
-    ] = stop_continue_example.aux_dir
-    continue_example = Executor(experiment=continue_experiment)
-    for i in range(
-        continue_example.optimizer.optimization_algorithm.optimization_instance.generations_completed,
-        continue_experiment.optimization_information_list[0].parameters[
-            "num_generations"
-        ],
-    ):
-        assert (
-            continue_example.optimizer.optimization_algorithm.optimization_instance.generations_completed
-            == i
-        )
-        continue_example.run(step_number=i, evolutionary_point_generation=True)
-
-    stop_continue_solution = continue_example.optimizer.suggest_best_solution()
-
-    print(solution, stop_continue_solution)
-
     remove_files_after_run()
 
 
