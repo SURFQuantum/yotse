@@ -266,8 +266,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "-vp",
         "--variedparams",
+        nargs="+",
         required=True,
-        type=List[str],
+        type=str,
         help="Names of the varied parameters",
     )
     args, unknown = parser.parse_known_args()
@@ -279,6 +280,7 @@ if __name__ == "__main__":
     param_list = args.variedparams
     # param_list = parse_from_input_file()
     platform = baseline_parameter_file.split("_baseline")[0]
+    print("here", baseline_parameter_file, param_list, type(param_list))
     baseline_parameters = get_baseline_parameters(baseline_parameter_file, param_list)
     fid_threshold = 0.8717
     rate_threshold = 0.1

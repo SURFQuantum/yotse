@@ -169,7 +169,7 @@ class BlueprintCore(Executor):
             self.experiment.system_setup.cmdline_arguments["paramfile"]
         )
         analysis_commandline.append("--variedparams")
-        analysis_commandline.append(
+        analysis_commandline.extend(
             [param.name for param in self.experiment.parameters if param.is_active]
         )
         return analysis_commandline
