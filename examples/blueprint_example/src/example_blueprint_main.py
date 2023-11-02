@@ -55,22 +55,25 @@ def blueprint_input():
                 distribution="uniform",
                 param_type="continuous",
             ),
-            Parameter(
-                name="visibility",
-                param_range=[0.9, 0.99999],
-                constraints={"low": 0.9, "high": 0.99999},
-                number_points=2,
-                distribution="uniform",
-                param_type="continuous",
-            ),
-            Parameter(
-                name="ec_gate_depolar_prob",
-                param_range=[0.0001, 0.02],
-                constraints={"low": 0.0001, "high": 0.02},
-                number_points=2,
-                distribution="uniform",
-                param_type="continuous",
-            ),
+            # Note: Commenting out some params to improve runtime of this example. If using this for actual optimization
+            # please uncomment parameters and increase the number of generations.
+            #
+            # Parameter(
+            #     name="visibility",
+            #     param_range=[0.9, 0.99999],
+            #     constraints={"low": 0.9, "high": 0.99999},
+            #     number_points=2,
+            #     distribution="uniform",
+            #     param_type="continuous",
+            # ),
+            # Parameter(
+            #     name="ec_gate_depolar_prob",
+            #     param_range=[0.0001, 0.02],
+            #     constraints={"low": 0.0001, "high": 0.02},
+            #     number_points=2,
+            #     distribution="uniform",
+            #     param_type="continuous",
+            # ),
             Parameter(
                 name="carbon_T2",
                 param_range=[1e9, 1e10],
