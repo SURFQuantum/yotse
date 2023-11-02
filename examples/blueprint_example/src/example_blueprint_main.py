@@ -183,10 +183,12 @@ class BlueprintExecutor(BlueprintCore):
         super().run(step, evolutionary_point_generation)
 
 
-def main():
-    def cost_function(f):
-        return f
+def cost_function(f):
+    """Important note: Cost function should not be defined within main."""
+    return f
 
+
+def main(plot=False):
     experiment = blueprint_input()
     experiment.cost_function = cost_function
     blueprint_example = BlueprintExecutor(experiment=experiment)
@@ -207,8 +209,14 @@ def main():
     # plot fitness
     matplotlib.use("Qt5Agg")
     # wobbly_example.optimization_alg.ga_instance.plot_new_solution_rate()
-    fig, ax = blueprint_example.optimizer.optimization_algorithm.plot_fitness()
-    fig.savefig("fitness.png")
+    if plot:
+        (
+            fig,
+            ax,
+        ) = (
+            blueprint_example.optimizer.optimization_algorithm.optimization_instance.plot_fitness()
+        )
+        fig.savefig("fitness.png")
 
     # clean up
     remove_files_after_run()

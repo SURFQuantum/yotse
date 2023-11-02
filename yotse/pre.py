@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import inspect
 import itertools
 import os
 from typing import Any
@@ -479,7 +480,25 @@ class Experiment:
             self.optimization_information_list = list(opt_info_list)
         # todo: to avoid confusion maybe it is useful to call the datapoints of the exp different than those of params
         self.data_points: np.ndarray = self.create_datapoint_c_product()
-        self.cost_function = None
+        self._cost_function: Optional[Callable[..., float]] = None
+
+    @property
+    def cost_function(self) -> Union[Callable[..., float], None]:
+        return self._cost_function
+
+    @cost_function.setter
+    def cost_function(self, func: Callable[..., float]) -> None:
+        if inspect.isfunction(func):
+            if "<locals>" in func.__qualname__:
+                raise ValueError(
+                    "Local functions are not supported for serialization by pickle. Therefore your"
+                    " optimization will not be able to save its state. Please define your cost_function"
+                    " outside the main() function of your script."
+                )
+                # todo: or should we just switch to dill instead of pickle?
+        else:
+            raise ValueError("Input cost_function is not a function.")
+        self._cost_function = func
 
     def create_datapoint_c_product(self) -> np.ndarray:
         """Create initial set of points as Cartesian product of all active parameters.

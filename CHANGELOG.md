@@ -10,6 +10,7 @@ CHANGELOG
 * added strict type checking with `mypy` to help catch type issues
 * added commandline function for analysis script in `execution.py`
 * improved CI/CD and added integration tests
+* added check for `cost_function` property in `pre.py`
 
 
 2023-10-23 (0.2.0)

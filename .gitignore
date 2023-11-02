@@ -10,3 +10,4 @@ output/
 *.xml
 htmlcov/
 raw_data/
+solution.txt
