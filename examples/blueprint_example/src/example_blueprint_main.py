@@ -5,7 +5,6 @@ from typing import List
 from typing import Union
 
 import matplotlib
-import numpy as np
 
 from yotse.execution import Executor
 from yotse.pre import Experiment
@@ -31,7 +30,7 @@ def blueprint_input():
             analysis_script="processing_function.py",
             executor="python",
             output_dir_name="output",
-            venv="/home/runner/work/yotse/yotse/blueprint_venv",
+            venv="~/Projects/venvs/p39blueprint",
             num_nodes=2,
             alloc_time="01:00:00",
             slurm_args=["--exclusive"],
@@ -137,8 +136,6 @@ def remove_files_after_run():
     dirs = [f for f in os.listdir(os.getcwd()) if (f.startswith(".qcg"))]
     for d in dirs:
         shutil.rmtree(os.path.join(os.getcwd(), d))
-
-    os.remove("venv_wrapper.sh")
 
 
 class BlueprintCore(Executor):
