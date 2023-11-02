@@ -30,7 +30,9 @@ def blueprint_input():
             analysis_script="processing_function.py",
             executor="python",
             output_dir_name="output",
-            venv="~/Projects/venvs/p39blueprint",
+            venv=os.environ.get(
+                "BLUEPRINT_VENV_PATH", "/home/runner/work/yotse/yotse/blueprint_venv"
+            ),
             num_nodes=2,
             alloc_time="01:00:00",
             slurm_args=["--exclusive"],
