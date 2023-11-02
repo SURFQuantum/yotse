@@ -212,7 +212,7 @@ def replace_include_param_file(configfile_name: str, paramfile_name: str) -> Non
 
 def create_separate_files_for_job(
     experiment: Experiment,
-    datapoint_item: np.ndarray,
+    datapoint_item: List[float],
     step_number: int,
     job_number: int,
 ) -> List[Any]:
@@ -222,7 +222,7 @@ def create_separate_files_for_job(
     ----------
     experiment : Experiment
         The experiment object containing information about the experiment.
-    datapoint_item : list
+    datapoint_item : List[float]
         A single item of data points for the job, represented as a list.
     step_number : int
         The number of the step in the experiment.
@@ -281,11 +281,7 @@ def create_separate_files_for_job(
     param_list = []
     for p, param in enumerate(experiment.parameters):
         if param.is_active:
-            if len(experiment.parameters) == 1:
-                # single parameter
-                param_list.append((param.name, datapoint_item))
-            else:
-                param_list.append((param.name, datapoint_item[p]))
+            param_list.append((param.name, datapoint_item[p]))
     if len(param_list) != len(datapoint_item):
         raise RuntimeError(
             "Datapoint has different length then list of parameters to be changes in paramfile."

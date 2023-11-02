@@ -1,7 +1,11 @@
 import os
 import shutil
+from typing import Any
+from typing import List
+from typing import Union
 
 import matplotlib
+import numpy as np
 
 from yotse.execution import Executor
 from yotse.pre import Experiment
@@ -138,8 +142,8 @@ class BlueprintCore(Executor):
     """Executor implementation using adaptions for NLBlueprint."""
 
     def pre_submission_setup_per_job(
-        self, datapoint_item: list, step_number: int, job_number: int
-    ) -> None:
+        self, datapoint_item: List[float], step_number: int, job_number: int
+    ) -> List[Union[str, Any]]:
         setup_optimization_dir(
             experiment=self.experiment, step_number=step_number, job_number=job_number
         )
@@ -151,6 +155,24 @@ class BlueprintCore(Executor):
         )
 
         return new_cmdline
+
+    def pre_submission_analysis(self) -> List[Union[str, Any]]:
+        assert self.experiment.system_setup.analysis_script is not None
+        analysis_commandline = [
+            os.path.join(
+                self.experiment.system_setup.source_directory,
+                self.experiment.system_setup.analysis_script,
+            )
+        ]
+        analysis_commandline.append("--paramfile")
+        analysis_commandline.append(
+            self.experiment.system_setup.cmdline_arguments["paramfile"]
+        )
+        analysis_commandline.append("--variedparams")
+        analysis_commandline.append(
+            [param.name for param in self.experiment.parameters if param.is_active]
+        )
+        return analysis_commandline
 
 
 class BlueprintExecutor(BlueprintCore):

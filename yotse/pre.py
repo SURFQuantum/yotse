@@ -585,7 +585,7 @@ class Experiment:
         -----------
         experiment: Experiment
             The experiment to configure the command line for.
-        datapoint_item : list or float #todo : fix this so it always gets a list?
+        datapoint_item : List[float]
             Datapoint containing the specific values for each parameter e.g. (x1, y2, z1).
 
         Returns:
@@ -602,11 +602,7 @@ class Experiment:
         for p, param in enumerate(self.parameters):
             if param.is_active:
                 cmdline.append(f"--{param.name}")
-                if len(self.parameters) == 1:
-                    # single parameter
-                    cmdline.append(datapoint_item[0])
-                else:
-                    cmdline.append(datapoint_item[p])
+                cmdline.append(datapoint_item[p])
         # add fixed cmdline arguments
         for key, value in self.system_setup.cmdline_arguments.items():
             cmdline.append(key)
