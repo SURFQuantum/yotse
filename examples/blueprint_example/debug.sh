@@ -27,6 +27,10 @@ if [[ ! -f "$FILE_PATH_ERR" ]]; then
   echo "File $FILE_PATH_ERR does not exist."
   exit 0
 fi
+if [[ ! -f "$FILE_PATH_OUT" ]]; then
+  echo "File $FILE_PATH_OUT does not exist."
+  exit 0
+fi
 
 # Output the contents of the file
 echo "Opening File $FILE_PATH_ERR"
