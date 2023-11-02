@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import inspect
 import itertools
 import os
 from typing import Any
@@ -255,14 +256,18 @@ class Parameter:
                 self.constraints["high"] = self.depends_on["function"](
                     self.constraints["high"], target_parameter.constraints["high"]
                 )
-                if (
-                    self.constraints["step"] is not None
-                    and target_parameter.constraints["step"] is not None
-                ):
-                    # step is not necessary to specify
-                    self.constraints["step"] = self.depends_on["function"](
-                        self.constraints["step"], target_parameter.constraints["step"]
-                    )
+                try:
+                    if (
+                        self.constraints["step"] is not None
+                        and target_parameter.constraints["step"] is not None
+                    ):
+                        # step is not necessary to specify
+                        self.constraints["step"] = self.depends_on["function"](
+                            self.constraints["step"],
+                            target_parameter.constraints["step"],
+                        )
+                except KeyError:
+                    pass
             elif isinstance(self.constraints, tuple) and isinstance(
                 target_parameter.constraints, tuple
             ):
@@ -475,7 +480,25 @@ class Experiment:
             self.optimization_information_list = list(opt_info_list)
         # todo: to avoid confusion maybe it is useful to call the datapoints of the exp different than those of params
         self.data_points: np.ndarray = self.create_datapoint_c_product()
-        self.cost_function = None
+        self._cost_function: Optional[Callable[..., float]] = None
+
+    @property
+    def cost_function(self) -> Union[Callable[..., float], None]:
+        return self._cost_function
+
+    @cost_function.setter
+    def cost_function(self, func: Callable[..., float]) -> None:
+        if inspect.isfunction(func):
+            if "<locals>" in func.__qualname__:
+                raise ValueError(
+                    "Local functions are not supported for serialization by pickle. Therefore your"
+                    " optimization will not be able to save its state. Please define your cost_function"
+                    " outside the main() function of your script."
+                )
+                # todo: or should we just switch to dill instead of pickle?
+        else:
+            raise ValueError("Input cost_function is not a function.")
+        self._cost_function = func
 
     def create_datapoint_c_product(self) -> np.ndarray:
         """Create initial set of points as Cartesian product of all active parameters.
@@ -581,7 +604,7 @@ class Experiment:
         -----------
         experiment: Experiment
             The experiment to configure the command line for.
-        datapoint_item : list or float #todo : fix this so it always gets a list?
+        datapoint_item : List[float]
             Datapoint containing the specific values for each parameter e.g. (x1, y2, z1).
 
         Returns:
@@ -598,11 +621,7 @@ class Experiment:
         for p, param in enumerate(self.parameters):
             if param.is_active:
                 cmdline.append(f"--{param.name}")
-                if len(self.parameters) == 1:
-                    # single parameter
-                    cmdline.append(datapoint_item[0])
-                else:
-                    cmdline.append(datapoint_item[p])
+                cmdline.append(datapoint_item[p])
         # add fixed cmdline arguments
         for key, value in self.system_setup.cmdline_arguments.items():
             cmdline.append(key)

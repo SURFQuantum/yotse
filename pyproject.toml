@@ -20,20 +20,25 @@ include = ["CHANGELOG.md"]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.13"
-numpy = "^1.26.1"
 pygad = ">=3.0.0, <3.1.0"
 pandas = ">=0.25, <2.0.0" # dictacted by netsquid
-qcg-pilotjob = "^0.14.0"
 ruamel-yaml = "^0.17.40"
+qcg-pilotjob = {git = "https://github.com/psnc-qcg/QCG-PilotJob/", rev = "issue-174_venv_interpreter", subdirectory = "components/core"}
+#qcg-pilotjob = "^0.14.0"  Note: excluded until https://github.com/psnc-qcg/QCG-PilotJob/issues/174 is merged
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.2"
 pytest-cov = "^4.1.0"
 pre-commit = "^3.5.0"
 
+#
+#[tool.poetry.group.nlblueprint.dependencies]
+#nlblueprint = {git = "https://gitlab.com/d.maier/simulation-code-for-requirements-for-a-processing-node-quantum-repeater-on-a-real-world-fiber-grid"}
+
 [tool.poetry.scripts]
 tests = "tests.run_tests:main"
 examples = "examples.run_examples:main"
+blueprint = "examples.run_examples:run_blueprint_example"
 show-cov = "tests.run_tests:open_coverage_report"
 
 [build-system]

@@ -1,4 +1,4 @@
-name: Tests, Examples
+name: CI/CD Pipeline
 
 on:
   push:
@@ -20,7 +20,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        task: [run-tests, run-examples]
         python-version: ["3.9", "3.10", "3.11"]
         os: [ubuntu-latest]
         poetry-version: ["1.6.1"]
@@ -52,10 +51,8 @@ jobs:
     - name: Install the project dependencies
       run: poetry install
     - name: Run the automated tests (ignore deprecation errors )
-      if: matrix.task == 'run-tests'
       run: poetry run pytest -W ignore::DeprecationWarning --cov-report xml --cov=yotse tests/
-    - name: Run the examples
-      if: matrix.task == 'run-examples'
+    - name: Run the examples (except nlblueprint)
       run: poetry run examples
 
     # the following is coverage stuff that should only run on pull requests
