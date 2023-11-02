@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "yotse"
-version = "0.2.0"
+version = "0.3.0"
 description = "Your Optimization Tool for Scientific Experiments"
 authors = ["dmark04 <dmark04@web.de>"]
 license = "Apache-2.0"
