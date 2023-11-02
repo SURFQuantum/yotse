@@ -1,7 +1,7 @@
 
 [![PyPI Version](https://img.shields.io/pypi/v/yotse.svg)](https://pypi.org/project/yotse)
 ![Python Version](https://img.shields.io/badge/Python-3.9%20%E2%86%92%203.12-blue)
-![CI/CD](https://github.com/SURFQuantum/yotse/actions/workflows/actions.yml/badge.svg)
+![CI/CD](https://github.com/SURFQuantum/yotse/actions/workflows/main_pipeline.yml/badge.svg)
 ![Coverage](https://github.com/SURFQuantum/yotse/blob/main/coverage.svg?raw=1)
 
 # YOTSE - Your Optimization Tool for Scientific Experiments
