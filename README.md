@@ -51,6 +51,8 @@ poetry run tests && poetry run examples
 
 ## Usage
 
+### General
+
 YOTSE is versatile, catering to a wide range of software. While it has a special focus on NetSquid, it is flexible enough to accommodate any software you wish to use for your computational experiments.
 
 Our library offers predefined functions for parameter exploration and optimization. We base our tools on the QCG-Pilotjob project, a job manager executable both locally and in HPC centers. You can find more information about QCG-Pilotjob here.
@@ -81,6 +83,19 @@ flowchart LR
     G --> S
     s -.-> a -.-> c
 
+```
+
+### Usage with SLURM
+
+In order to make usage with HPC resources and [SLURM](https://slurm.schedmd.com/documentation.html) as smooth and simple as possible, yotse can generate it's own SLURM files ready for execution.
+
+Simply specify your SLURM parameters (such as required nodes or time) and modules to be imported in the `SystemSetup` and then execute
+```bash
+python <your_yotse_script.py> --slurm
+```
+This will generate a SLURM script for your (default name: `slurm.job`) which you can then submit by:
+```bash
+sbatch slurm.job
 ```
 
 ## Class structure
