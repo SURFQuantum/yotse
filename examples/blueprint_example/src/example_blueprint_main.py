@@ -184,10 +184,13 @@ class BlueprintExecutor(BlueprintCore):
         super().__init__(experiment)
         # workaround to enable proper virtualenv usage
         executor_name = os.path.basename(experiment.system_setup.job_args["exec"])
-        self.create_venv_wrapper(
-            venv_path=experiment.system_setup.job_args["venv"],
-            wrapper_filename=executor_name,
-        )
+        if executor_name.endswith(".sh"):
+            self.create_venv_wrapper(
+                venv_path=experiment.system_setup.job_args["venv"],
+                wrapper_filename=executor_name,
+            )
+            # remove venv from job_arg to take over from qcgpilotjob
+            del self.experiment.system_setup.job_args["venv"]
 
     @staticmethod
     def create_venv_wrapper(venv_path: str, wrapper_filename: str = "venv_wrapper.sh"):

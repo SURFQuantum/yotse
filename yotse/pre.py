@@ -566,7 +566,7 @@ class Experiment:
         if self.system_setup.alloc_time is None:
             raise ValueError("Slurm script can not be generated without alloc_time.")
 
-        script = f"!/bin/bash\n#SBATCH --nodes={self.system_setup.num_nodes}\n"
+        script = f"#!/bin/bash\n#SBATCH --nodes={self.system_setup.num_nodes}\n"
         if self.system_setup.slurm_args is not None:
             for slurm_arg in self.system_setup.slurm_args:
                 script += f"#SBATCH {slurm_arg}\n"
