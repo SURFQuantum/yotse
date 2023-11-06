@@ -56,7 +56,7 @@ poetry run tests && poetry run examples
 
 YOTSE is versatile, catering to a wide range of software. While it has a special focus on NetSquid, it is flexible enough to accommodate any software you wish to use for your computational experiments.
 
-Our library offers predefined functions for parameter exploration and optimization. We base our tools on the QCG-Pilotjob project, a job manager executable both locally and in HPC centers. You can find more information about QCG-Pilotjob here.
+Our library offers predefined functions for parameter exploration and optimization. We base our tools on the QCG-Pilotjob project, a job manager executable both locally and in HPC centers. You can find more information about QCG-Pilotjob in their [official docs](https://qcg-pilotjob.readthedocs.io/en/develop/) or in the [original paper](https://doi.org/10.1007/978-3-030-77977-1_39).
 
 The optimization component of YOTSE involves a base class that can be used with any external optimization library. This flexibility allows you to tailor your optimization process to your specific needs and preferences.
 
