@@ -314,6 +314,9 @@ class SystemSetup:
         Extension of the output files to be picked up by the analysis_script, e.g 'csv' or 'json'. Defaults to 'csv'.
     venv : str (optional)
         Path to the virtual environment that should be initialized before the QCGPilot job is started. Defaults to None.
+    slurm_venv : str (optional)
+        Path to the environment that slurm should activate before executing yotse. This needs to have yotse installed.
+        Defaults to None.
     num_nodes : int (optional)
         Number of nodes to allocate on the HPC cluster. Defaults to 1.
     alloc_time : str (optional)
@@ -346,6 +349,7 @@ class SystemSetup:
         output_dir_name: Optional[str] = None,
         output_extension: str = "csv",
         venv: Optional[str] = None,
+        slurm_venv: Optional[str] = None,
         num_nodes: int = 1,
         alloc_time: str = "00:15:00",
         slurm_args: Optional[List[str]] = None,
@@ -391,6 +395,7 @@ class SystemSetup:
             self.venv = venv
         self.num_nodes = num_nodes
         self.alloc_time = alloc_time
+        self.slurm_venv = slurm_venv
         self.slurm_args = slurm_args
         self.qcg_cfg = qcg_cfg
         self.modules = modules
@@ -575,10 +580,8 @@ class Experiment:
         if self.system_setup.modules is not None:
             for module in self.system_setup.modules:
                 script += f"module load {module}\n"
-        if self.system_setup.venv is not None:
-            script += (
-                f"source {os.path.join(self.system_setup.venv,'bin/activate')}\n\n"
-            )
+        if self.system_setup.slurm_venv is not None:
+            script += f"source {os.path.join(self.system_setup.slurm_venv,'bin/activate')}\n\n"
         script += f"python {filename}\n"
 
         with open(

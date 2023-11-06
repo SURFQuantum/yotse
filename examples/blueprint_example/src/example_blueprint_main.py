@@ -35,6 +35,7 @@ def blueprint_input():
             venv=os.environ.get(
                 "BLUEPRINT_VENV_PATH", "/home/runner/work/yotse/yotse/blueprint_venv"
             ),
+            slurm_venv="~/yotse_venv",
             num_nodes=2,
             alloc_time="01:00:00",
             slurm_args=["--exclusive"],
