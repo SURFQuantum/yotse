@@ -97,6 +97,9 @@ This will generate a SLURM script for your (default name: `slurm.job`) which you
 ```bash
 sbatch slurm.job
 ```
+In order to keep dependencies as clean as possible, we suggest using two virtual environments for SLURM execution:
+1. A virtual environment that has all dependencies of your own script installed and can execute your owns script without errors. Pass this as `SystemSetup.venv`.
+2. A virtual environment that has `yotse` installed. Pass this as `SystemSetup.slurm_venv` such that it is activated before SLURM executes the yotse commands.
 
 ## Class structure
 
