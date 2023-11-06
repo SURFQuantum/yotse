@@ -594,9 +594,12 @@ class Experiment:
         args = parser.parse_args()
         if args.slurm:
             self.generate_slurm_script(filename)
+            border = "=" * 80
+            print("\n" + border)
             print(
-                f"SLURM execution script {filename} successfully created. Execute with 'sbatch {filename}'."
+                f"\033[1;92mSLURM execution script {filename} successfully created. Execute with 'sbatch {filename}'.\033[0m"
             )
+            print(border + "\n")
             exit()
 
     def qcgpilot_commandline(self, datapoint_item: List[Any]) -> List[Union[str, Any]]:
