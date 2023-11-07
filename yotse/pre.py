@@ -314,6 +314,9 @@ class SystemSetup:
         Extension of the output files to be picked up by the analysis_script, e.g 'csv' or 'json'. Defaults to 'csv'.
     venv : str (optional)
         Path to the virtual environment that should be initialized before the QCGPilot job is started. Defaults to None.
+    slurm_venv : str (optional)
+        Path to the environment that slurm should activate before executing yotse. This needs to have yotse installed.
+        Defaults to None.
     num_nodes : int (optional)
         Number of nodes to allocate on the HPC cluster. Defaults to 1.
     alloc_time : str (optional)
@@ -346,6 +349,7 @@ class SystemSetup:
         output_dir_name: Optional[str] = None,
         output_extension: str = "csv",
         venv: Optional[str] = None,
+        slurm_venv: Optional[str] = None,
         num_nodes: int = 1,
         alloc_time: str = "00:15:00",
         slurm_args: Optional[List[str]] = None,
@@ -391,6 +395,7 @@ class SystemSetup:
             self.venv = venv
         self.num_nodes = num_nodes
         self.alloc_time = alloc_time
+        self.slurm_venv = slurm_venv
         self.slurm_args = slurm_args
         self.qcg_cfg = qcg_cfg
         self.modules = modules
@@ -566,7 +571,7 @@ class Experiment:
         if self.system_setup.alloc_time is None:
             raise ValueError("Slurm script can not be generated without alloc_time.")
 
-        script = f"!/bin/bash\n#SBATCH --nodes={self.system_setup.num_nodes}\n"
+        script = f"#!/bin/bash\n#SBATCH --nodes={self.system_setup.num_nodes}\n"
         if self.system_setup.slurm_args is not None:
             for slurm_arg in self.system_setup.slurm_args:
                 script += f"#SBATCH {slurm_arg}\n"
@@ -575,10 +580,8 @@ class Experiment:
         if self.system_setup.modules is not None:
             for module in self.system_setup.modules:
                 script += f"module load {module}\n"
-        if self.system_setup.venv is not None:
-            script += (
-                f"source {os.path.join(self.system_setup.venv,'bin/activate')}\n\n"
-            )
+        if self.system_setup.slurm_venv is not None:
+            script += f"source {os.path.join(self.system_setup.slurm_venv,'bin/activate')}\n\n"
         script += f"python {filename}\n"
 
         with open(
@@ -594,6 +597,12 @@ class Experiment:
         args = parser.parse_args()
         if args.slurm:
             self.generate_slurm_script(filename)
+            border = "=" * 80
+            print("\n" + border)
+            print(
+                f"\033[1;92mSLURM execution script {filename} successfully created. Execute with 'sbatch {filename}'.\033[0m"
+            )
+            print(border + "\n")
             exit()
 
     def qcgpilot_commandline(self, datapoint_item: List[Any]) -> List[Union[str, Any]]:

@@ -2,6 +2,7 @@
 [![PyPI Version](https://img.shields.io/pypi/v/yotse.svg)](https://pypi.org/project/yotse)
 ![Python Version](https://img.shields.io/badge/Python-3.9%20%E2%86%92%203.12-blue)
 ![CI/CD](https://github.com/SURFQuantum/yotse/actions/workflows/main_pipeline.yml/badge.svg)
+![Integration](https://github.com/SURFQuantum/yotse/actions/workflows/integration.yml/badge.svg)
 ![Coverage](https://github.com/SURFQuantum/yotse/blob/main/coverage.svg?raw=1)
 
 # YOTSE - Your Optimization Tool for Scientific Experiments
@@ -51,6 +52,8 @@ poetry run tests && poetry run examples
 
 ## Usage
 
+### General
+
 YOTSE is versatile, catering to a wide range of software. While it has a special focus on NetSquid, it is flexible enough to accommodate any software you wish to use for your computational experiments.
 
 Our library offers predefined functions for parameter exploration and optimization. We base our tools on the QCG-Pilotjob project, a job manager executable both locally and in HPC centers. You can find more information about QCG-Pilotjob in their [official docs](https://qcg-pilotjob.readthedocs.io/en/develop/) or in the [original paper](https://doi.org/10.1007/978-3-030-77977-1_39).
@@ -82,6 +85,22 @@ flowchart LR
     s -.-> a -.-> c
 
 ```
+
+### Usage with SLURM
+
+In order to make usage with HPC resources and [SLURM](https://slurm.schedmd.com/documentation.html) as smooth and simple as possible, yotse can generate it's own SLURM files ready for execution.
+
+Simply specify your SLURM parameters (such as required nodes or time) and modules to be imported in the `SystemSetup` and then execute
+```bash
+python <your_yotse_script.py> --slurm
+```
+This will generate a SLURM script for your (default name: `slurm.job`) which you can then submit by:
+```bash
+sbatch slurm.job
+```
+In order to keep dependencies as clean as possible, we suggest using two virtual environments for SLURM execution:
+1. A virtual environment that has all dependencies of your own script installed and can execute your owns script without errors. Pass this as `SystemSetup.venv`.
+2. A virtual environment that has `yotse` installed. Pass this as `SystemSetup.slurm_venv` such that it is activated before SLURM executes the yotse commands.
 
 ## Class structure
 

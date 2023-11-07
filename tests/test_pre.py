@@ -377,6 +377,7 @@ class TestExperiment(unittest.TestCase):
         test_exp.system_setup.num_nodes = 42
         test_exp.system_setup.alloc_time = "01:00:00"
         test_exp.system_setup.venv = "test/test-env/"
+        test_exp.system_setup.slurm_venv = "test/yotse-test-env/"
         test_exp.system_setup.slurm_args = ["--exclusive"]
         test_exp.system_setup.modules = ["2023", "Python/3.11.1"]
 
@@ -388,7 +389,7 @@ class TestExperiment(unittest.TestCase):
 
         # Define the expected output
         expected_output = [
-            "!/bin/bash\n",
+            "#!/bin/bash\n",
             "#SBATCH --nodes=42\n",
             "#SBATCH --exclusive\n",
             "#SBATCH --time=01:00:00\n",
@@ -397,7 +398,7 @@ class TestExperiment(unittest.TestCase):
             "module purge\n",
             "module load 2023\n",
             "module load Python/3.11.1\n",
-            "source test/test-env/bin/activate\n",
+            "source test/yotse-test-env/bin/activate\n",
             "\n",
             "python test_pre.py\n",
         ]

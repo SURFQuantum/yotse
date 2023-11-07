@@ -3,8 +3,14 @@ CHANGELOG
 
 [//]: # (For more details refer to the [documentation]&#40;&#41;.)
 
+Upcoming:
+---
+* fixed SLURM workflow in `yotse.pre.SystemSetup`
+* added documentation about usage with SLURM to `README.md`
+
+
 2023-11-02 (0.3.0)
---------
+---
 * added `json` and `pickle` output file support in `execution.py`
 * added `examples`, `tests` and `show-cov` commands for `poetry`
 * added strict type checking with `mypy` to help catch type issues
@@ -14,7 +20,7 @@ CHANGELOG
 
 
 2023-10-23 (0.2.0)
------------------
+---
 * refactor to new, less convoluted code structure
 * made experiments resumable by saving/loading state
 * switched to dependency management using poetry
@@ -23,5 +29,5 @@ CHANGELOG
 
 
 2023-07-13 (0.0.1)
------------------
+---
 * minimal viable product
