@@ -20,8 +20,8 @@ include = ["CHANGELOG.md"]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.13"
+pandas = "^2.0.0"
 pygad = ">=3.0.0, <3.1.0"
-pandas = ">=0.25, <2.0.0" # dictacted by netsquid
 ruamel-yaml = "^0.17.40"
 qcg-pilotjob = {git = "https://github.com/psnc-qcg/QCG-PilotJob/", rev = "issue-174_venv_interpreter", subdirectory = "components/core"}
 #qcg-pilotjob = "^0.14.0"  Note: excluded until https://github.com/psnc-qcg/QCG-PilotJob/issues/174 is merged
