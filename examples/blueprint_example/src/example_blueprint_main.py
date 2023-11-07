@@ -28,9 +28,7 @@ def blueprint_input():
                 "--n_runs": 100,
             },
             analysis_script="processing_function.py",
-            # executor="python",
-            # Note: Test a workaround for the venv bug on snellius
-            executor="~/yotse/examples/blueprint_example/src/venv_wrapper.sh",
+            executor="python",
             output_dir_name="output",
             venv=os.environ.get(
                 "BLUEPRINT_VENV_PATH", "/home/runner/work/yotse/yotse/blueprint_venv"
@@ -183,33 +181,6 @@ class BlueprintCore(Executor):
 class BlueprintExecutor(BlueprintCore):
     def __init__(self, experiment: Experiment):
         super().__init__(experiment)
-        # workaround to enable proper virtualenv usage
-        executor_name = os.path.basename(experiment.system_setup.job_args["exec"])
-        if executor_name.endswith(".sh"):
-            self.create_venv_wrapper(
-                venv_path=experiment.system_setup.job_args["venv"],
-                wrapper_filename=executor_name,
-            )
-            # remove venv from job_arg to take over from qcgpilotjob
-            del self.experiment.system_setup.job_args["venv"]
-
-    @staticmethod
-    def create_venv_wrapper(venv_path: str, wrapper_filename: str = "venv_wrapper.sh"):
-        """Workaround function to make QCGPilot use the proper executor from the virtual environment."""
-        content = f"""#!/bin/bash
-# Activate the virtual environment
-source {venv_path}/bin/activate
-# Run the main Python script with arguments
-python "$@"
-"""
-
-        with open(wrapper_filename, "w") as wrapper_file:
-            wrapper_file.write(content)
-
-        # Make the wrapper file executable
-        import os
-
-        os.chmod(wrapper_filename, os.stat(wrapper_filename).st_mode | 0o111)
 
     def run(self, step=0, evolutionary_point_generation=None) -> None:
         super().run(step, evolutionary_point_generation)
