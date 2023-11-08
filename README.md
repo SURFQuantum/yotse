@@ -13,6 +13,8 @@
 
 YOTSE is a powerful tool designed to enable computational experiments using any software, with a particular emphasis on NetSquid in the context of the Quantum Internet Alliance. This library offers a set of predefined functions for performing parameter explorations and optimizations in a scalable and efficient manner.
 
+Documentation can be found [here](https://surfquantum.github.io/yotse/).
+
 ## Table of Contents
 1. [Installation](#installation)
 2. [Usage](#usage)
