@@ -16,6 +16,8 @@
         <script src="_static/documentation_options.js?v=5929fcd5"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -94,6 +96,152 @@
 </li>
 </ul>
 </div>
+<p><a class="reference external" href="https://pypi.org/project/yotse"><img alt="PyPI Version" src="https://img.shields.io/pypi/v/yotse.svg" /></a>
+<img alt="Python Version" src="https://img.shields.io/badge/Python-3.9%20%E2%86%92%203.12-blue" />
+<img alt="CI/CD" src="https://github.com/SURFQuantum/yotse/actions/workflows/main_pipeline.yml/badge.svg" />
+<img alt="Integration" src="https://github.com/SURFQuantum/yotse/actions/workflows/integration.yml/badge.svg" />
+<img alt="Coverage" src="https://github.com/SURFQuantum/yotse/blob/main/coverage.svg?raw=1" />
+<img alt="docs: numpy" src="https://img.shields.io/badge/docstyle-numpy-green" /></p>
+<section id="yotse-your-optimization-tool-for-scientific-experiments">
+<h2>YOTSE - Your Optimization Tool for Scientific Experiments<a class="headerlink" href="#yotse-your-optimization-tool-for-scientific-experiments" title="Link to this heading"></a></h2>
+<p align="center">
+<img src="https://github.com/SURFQuantum/yotse/raw/main/YOTSE_Logo.png" alt="drawing" width="400"/>
+</p>
+<p>YOTSE is a powerful tool designed to enable computational experiments using any software, with a particular emphasis on NetSquid in the context of the Quantum Internet Alliance. This library offers a set of predefined functions for performing parameter explorations and optimizations in a scalable and efficient manner.</p>
+<p>Documentation can be found <a class="reference external" href="https://surfquantum.github.io/yotse/">here</a>.</p>
+<section id="table-of-contents">
+<h3>Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="#installation">Installation</a></p></li>
+<li><p><a class="reference external" href="#usage">Usage</a></p></li>
+<li><p><a class="reference external" href="#contributing">Contributing</a></p></li>
+<li><p><a class="reference external" href="#testing">Testing</a></p></li>
+<li><p><a class="reference external" href="#license">License</a></p></li>
+</ol>
+</section>
+<section id="installation">
+<h3>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h3>
+<section id="python-package">
+<h4>Python Package<a class="headerlink" href="#python-package" title="Link to this heading"></a></h4>
+<p>To install this project, simply:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>yotse
+</pre></div>
+</div>
+</section>
+<section id="manual">
+<h4>Manual<a class="headerlink" href="#manual" title="Link to this heading"></a></h4>
+<p>If you want to contribute to the project, then clone the repository as follows: (Make sure you have the necessary permissions.)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/SURFQuantum/yotse.git
+</pre></div>
+</div>
+<p>Once the repository is cloned, navigate to the project’s root directory, with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>yotse
+</pre></div>
+</div>
+<p>If you do not have <a class="reference external" href="https://python-poetry.org/docs/">poetry</a> already installed you need will need  to <a class="reference external" href="https://python-poetry.org/docs/#installation">install</a> it first.
+Then install yotse using:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>install
+</pre></div>
+</div>
+<p>To verify your installation you can now do:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>run<span class="w"> </span>tests<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>poetry<span class="w"> </span>run<span class="w"> </span>examples
+</pre></div>
+</div>
+</section>
+</section>
+<section id="usage">
+<h3>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h3>
+<section id="general">
+<h4>General<a class="headerlink" href="#general" title="Link to this heading"></a></h4>
+<p>YOTSE is versatile, catering to a wide range of software. While it has a special focus on NetSquid, it is flexible enough to accommodate any software you wish to use for your computational experiments.</p>
+<p>Our library offers predefined functions for parameter exploration and optimization. We base our tools on the QCG-Pilotjob project, a job manager executable both locally and in HPC centers. You can find more information about QCG-Pilotjob in their <a class="reference external" href="https://qcg-pilotjob.readthedocs.io/en/develop/">official docs</a> or in the <a class="reference external" href="https://doi.org/10.1007/978-3-030-77977-1_39">original paper</a>.</p>
+<p>The optimization component of YOTSE involves a base class that can be used with any external optimization library. This flexibility allows you to tailor your optimization process to your specific needs and preferences.</p>
+<p>Detailed examples of usage are provided in the <code class="docutils literal notranslate"><span class="pre">/examples</span></code> directory.</p>
+<div class="mermaid">
+            flowchart LR
+    p(&quot;`user_pre
+    (Experiment)`&quot;)
+    a(analysis script)
+    s(user script)
+    c{{&quot;`csv output
+     input params, cost
+     (Core)`&quot;}}
+    S[[Best Solution]]
+    q[&quot;`QcgPilotJob
+    (Executor)`&quot;]
+    G[&quot;`GenericOptimization
+    (Optimizer)`&quot;]
+
+    p --&gt; q -- schedules jobs of --&gt; s --&gt; c --&gt; G --  generates new datapoints for --&gt; q
+    G --&gt; S
+    s -.-&gt; a -.-&gt; c
+        </div></section>
+<section id="usage-with-slurm">
+<h4>Usage with SLURM<a class="headerlink" href="#usage-with-slurm" title="Link to this heading"></a></h4>
+<p>In order to make usage with HPC resources and <a class="reference external" href="https://slurm.schedmd.com/documentation.html">SLURM</a> as smooth and simple as possible, yotse can generate it’s own SLURM files ready for execution.</p>
+<p>Simply specify your SLURM parameters (such as required nodes or time) and modules to be imported in the <code class="docutils literal notranslate"><span class="pre">SystemSetup</span></code> and then execute</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>&lt;your_yotse_script.py&gt;<span class="w"> </span>--slurm
+</pre></div>
+</div>
+<p>This will generate a SLURM script for your (default name: <code class="docutils literal notranslate"><span class="pre">slurm.job</span></code>) which you can then submit by:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sbatch<span class="w"> </span>slurm.job
+</pre></div>
+</div>
+<p>In order to keep dependencies as clean as possible, we suggest using two virtual environments for SLURM execution:</p>
+<ol class="arabic simple">
+<li><p>A virtual environment that has all dependencies of your own script installed and can execute your owns script without errors. Pass this as <code class="docutils literal notranslate"><span class="pre">SystemSetup.venv</span></code>.</p></li>
+<li><p>A virtual environment that has <code class="docutils literal notranslate"><span class="pre">yotse</span></code> installed. Pass this as <code class="docutils literal notranslate"><span class="pre">SystemSetup.slurm_venv</span></code> such that it is activated before SLURM executes the yotse commands.</p></li>
+</ol>
+</section>
+</section>
+<section id="class-structure">
+<h3>Class structure<a class="headerlink" href="#class-structure" title="Link to this heading"></a></h3>
+<div class="mermaid">
+            flowchart TB
+  E[&quot;Executor&quot;]
+  c[&quot;cost function&quot;]
+  O[&quot;Optimizer&quot;]
+  G[&quot;GenericOptimization&quot;]
+  D[(&quot;database_from_csv&quot;)]
+  Ex[&quot;Experiment&quot;]
+  E --&gt; Ex --&gt; O
+  E -- generates --&gt; O -- contains --&gt; G -- contains --&gt; D
+  c -- replaced by --x D
+  D -- fitness fun in --&gt; G
+        </div></section>
+<section id="contributing">
+<h3>Contributing<a class="headerlink" href="#contributing" title="Link to this heading"></a></h3>
+<p>We appreciate contributions. To contribute:</p>
+<ol class="arabic simple">
+<li><p>Fork the project</p></li>
+<li><p>Create your feature branch (<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">checkout</span> <span class="pre">-b</span> <span class="pre">feature/MyNewFeature</span></code>)</p></li>
+<li><p>Commit your changes (<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">-am</span> <span class="pre">'Add</span> <span class="pre">some</span> <span class="pre">feature'</span></code>)</p></li>
+<li><p>Push to the branch (<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span> <span class="pre">origin</span> <span class="pre">feature/MyNewFeature</span></code>)</p></li>
+<li><p>Execute <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">verify</span></code> to check if your changes pass the required checks</p></li>
+<li><p>Open a Pull Request</p></li>
+</ol>
+</section>
+<section id="testing">
+<h3>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h3>
+<p>To run tests on the project, navigate to the project’s root directory and:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>run<span class="w"> </span>tests
+</pre></div>
+</div>
+<p>If you want to open the coverage report do:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>run<span class="w"> </span>show-cov
+</pre></div>
+</div>
+<p>and the coverage report should open in your default browser.</p>
+<p>To run the examples, in the root directory execute</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>run<span class="w"> </span>examples
+</pre></div>
+</div>
+</section>
+<section id="license">
+<h3>License<a class="headerlink" href="#license" title="Link to this heading"></a></h3>
+<p>This project is licensed under the terms of the Apache License 2.0. For more details, refer to the LICENSE file in the project root.</p>
+</section>
+</section>
 </section>
 <section id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading"></a></h1>

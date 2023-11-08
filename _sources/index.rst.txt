@@ -13,6 +13,8 @@ Welcome to the official YOTSE documentation!
    yotse
    examples
 
+.. include:: ../../README.md
+   :parser: myst_parser.sphinx_
 
 Indices and tables
 ==================
