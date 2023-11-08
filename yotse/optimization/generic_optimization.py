@@ -136,7 +136,9 @@ class GenericOptimization:
             )
         for i, values in enumerate(experiment.data_points):
             row = data.iloc[i]
-            if any(not math.isclose(row[j + 1], values[j]) for j in range(len(values))):
+            if any(
+                not math.isclose(row.iloc[j + 1], values[j]) for j in range(len(values))
+            ):
                 raise ValueError(
                     f"Position of {values} is different between data and original data_points"
                 )

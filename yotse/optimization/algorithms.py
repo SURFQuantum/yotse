@@ -195,8 +195,10 @@ class GAOpt(GenericOptimization):
         """
         # todo: input parameters of this are highly GA specific and should be made general
         row = self.input_param_cost_df.iloc[solution_idx]
-        if all(math.isclose(row[i + 1], solution[i]) for i in range(len(solution))):
-            return row[0]
+        if all(
+            math.isclose(row.iloc[i + 1], solution[i]) for i in range(len(solution))
+        ):
+            return row.iloc[0]
         else:
             raise ValueError(
                 f"Solution {solution} was not found in internal dataframe row {solution_idx}."
