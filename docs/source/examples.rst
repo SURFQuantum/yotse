@@ -2,7 +2,7 @@ Yotse Examples
 ================
 
 List of Examples
------------
+----------------
 
 .. toctree::
    :maxdepth: 4
