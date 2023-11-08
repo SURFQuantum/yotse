@@ -13,9 +13,10 @@ class ModGA(GA):
         self.num_generations = num_generations
 
     def run(self) -> None:
-        """
-        Runs the genetic algorithm. This is the main method in which the genetic algorithm is evolved through a number
-        of generations.
+        """Runs the genetic algorithm.
+
+        This is the main method in which the genetic algorithm is evolved through a
+        number of generations.
         """
         if self.valid_parameters is False:
             self.logger.error(
@@ -46,7 +47,7 @@ class ModGA(GA):
         if type(self.solutions_fitness) is numpy.ndarray:
             self.solutions_fitness = list(self.solutions_fitness)
 
-        if not (self.on_start is None):
+        if self.on_start is not None:
             self.on_start(self)
 
         stop_run = False
@@ -78,7 +79,7 @@ class ModGA(GA):
             self.best_solutions.append(best_solution)
 
         for generation in range(generation_first_idx, generation_last_idx):
-            if not (self.on_fitness is None):
+            if self.on_fitness is not None:
                 self.on_fitness(self, self.last_generation_fitness)
 
             # Appending the fitness value of the best solution in the current generation to the best_solutions_fitness
@@ -102,7 +103,7 @@ class ModGA(GA):
                 ) = self.select_parents(
                     self, self.last_generation_fitness, self.num_parents_mating, self
                 )
-                if not type(self.last_generation_parents) is numpy.ndarray:
+                if type(self.last_generation_parents) is not numpy.ndarray:
                     self.logger.error(
                         "The type of the iterable holding the selected parents is expected to be (numpy.ndarray) but "
                         "{last_generation_parents_type} found.".format(
@@ -119,7 +120,7 @@ class ModGA(GA):
                             )
                         )
                     )
-                if not type(self.last_generation_parents_indices) is numpy.ndarray:
+                if type(self.last_generation_parents_indices) is not numpy.ndarray:
                     self.logger.error(
                         "The type of the iterable holding the selected parents' indices is expected to be "
                         "(numpy.ndarray) but {last_generation_parents_indices_type} found.".format(
@@ -241,7 +242,7 @@ class ModGA(GA):
                     )
                 )
 
-            if not (self.on_parents is None):
+            if self.on_parents is not None:
                 self.on_parents(self, self.last_generation_parents)
 
             # If self.crossover_type=None, then no crossover is applied and thus no offspring will be created in the
@@ -303,8 +304,8 @@ class ModGA(GA):
                         self,
                     )
                     if (
-                        not type(self.last_generation_offspring_crossover)
-                        is numpy.ndarray
+                        type(self.last_generation_offspring_crossover)
+                        is not numpy.ndarray
                     ):
                         self.logger.error(
                             "The output of the crossover step is expected to be of type (numpy.ndarray) but "
@@ -578,7 +579,7 @@ class ModGA(GA):
             # If the on_generation attribute is not None, then cal the callback function after the generation.
             if self.on_generation is not None:
                 r = self.on_generation(self)
-                if type(r) is str and r.lower() == "stop":
+                if isinstance(r, str) and r.lower() == "stop":
                     # Before aborting the loop, save the fitness value of the best solution.
                     # _, best_solution_fitness, _ = self.best_solution()
                     self.best_solutions_fitness.append(best_solution_fitness)
@@ -633,7 +634,7 @@ class ModGA(GA):
             True  # Set to True only after the run() method completes gracefully.
         )
 
-        if not (self.on_stop is None):
+        if self.on_stop is not None:
             self.on_stop(self, self.last_generation_fitness)
 
         # Converting the 'best_solutions' list into a NumPy array.

@@ -1,4 +1,4 @@
-"""Defines classes and functions for pre step."""
+"""Defines classes and functions for the setup of your experiment."""
 from __future__ import annotations
 
 import argparse
@@ -17,7 +17,8 @@ import numpy as np
 
 
 class ParameterDependencyDict(TypedDict):
-    """Data structure to explicitly specify how to define parameter dependencies.\
+    """Data structure to explicitly specify how to define parameter dependencies.
+
     Parameters
     ----------
     name: str
@@ -38,6 +39,7 @@ class ConstraintDict(TypedDict, total=False):
 
 class Parameter:
     """Defines a class for any type of parameter we want to vary in our simulation.
+
     Parameters
     ----------
     name : str
@@ -77,7 +79,6 @@ class Parameter:
     ----------
     data_points : np.ndarray (1D)
         Data points for this parameter, stored in an np.ndarray for efficient computation and memory usage.
-
     """
 
     def __init__(
@@ -123,9 +124,8 @@ class Parameter:
         return self.parameter_active
 
     def generate_data_points(self, num_points: int) -> np.ndarray:
-        """
-        Generate set of n=num_points data points based on the specified distribution, range, and param_type of
-        this parameter.
+        """Generate set of n=num_points data points based on the specified distribution,
+        range, and param_type of this parameter.
 
         Parameters
         ----------
@@ -213,14 +213,15 @@ class Parameter:
         return data_points
 
     def generate_initial_data_points(self) -> np.ndarray:
-        """Generate initial data points based on the specified distribution and range."""
+        """Generate initial data points based on the specified distribution and
+        range."""
         return self.generate_data_points(num_points=self.number_points)
 
     def update_parameter_through_dependency(
         self, parameter_list: List[Parameter]
     ) -> None:
-        """
-        Update data points and constraints for this parameter based on another parameter's data points and constraints.
+        """Update data points and constraints for this parameter based on another
+        parameter's data points and constraints.
 
         Parameters
         ----------
@@ -295,7 +296,7 @@ class Parameter:
 class SystemSetup:
     """Defines a class for the setup of the system parameters.
 
-    Parameters:
+    Parameters
     ----------
     source_directory : str
         Path of the source directory.
@@ -420,8 +421,9 @@ class SystemSetup:
 
 
 class OptimizationInfo:
-    """Class that is optional as input to the Experiment, if the run is supposed to execute an optimization it will
-    look here for the parameters.
+    """Class that is optional as input to the Experiment, if the run is supposed to
+    execute an optimization it will look here for the parameters.
+
     Parameters
     ----------
     name : str
@@ -440,27 +442,29 @@ class OptimizationInfo:
 
 
 class Experiment:
-    """Class that contains the whole experiment, including ExperimentalSystemSetup, all Parameters and a list of
-    optimization steps.
+    """Class that contains the whole experiment, including ExperimentalSystemSetup, all
+    Parameters and a list of optimization steps.
+
     Parameters
     ----------
     experiment_name : str
         Descriptive name for the experiment.
     system_setup : SystemSetup
         Instance of the SystemSetup class that contains the setup of the experimental system.
-    parameters : list[Parameter] (optional)
+    parameters : list of Parameter, optional
         List of Parameter instances that define the parameters to be varied in the experiment.
         Defaults to an empty list.
         Note: If one wants to first optimize over a subset of parameters then set the remaining parameters as inactive
-        `for param not in params_to_opt_over: param.parameter_active = False`. To later also optimize over the other
-        subset just set them to active again.
-    opt_info_list : list (optional)
-         List of :obj:OptimizationInfo describing the different optimization algorithms to be used and their parameters.
-         Defaults to an empty list.
+        `for param not in params_to_opt_over: param.parameter_active = False`. To later also optimize over the
+        other subset just set them to active again.
+    opt_info_list : list, optional
+        List of OptimizationInfo objects describing the different optimization algorithms to be used and their
+        parameters.
+        Defaults to an empty list.
 
     Attributes
     ----------
-    data_points : np.ndarray (2D)
+    data_points : ndarray
         MxN array where M is the total number of combinations of parameter data points and N is the number of
         parameters. Each row represents a unique combination of parameter values to be explored in the experiment.
     """
@@ -508,7 +512,8 @@ class Experiment:
     def create_datapoint_c_product(self) -> np.ndarray:
         """Create initial set of points as Cartesian product of all active parameters.
 
-        Overwrite if other combination is needed."""
+        Overwrite if other combination is needed.
+        """
         if self.parameters:
             assert isinstance(self.parameters, list), "Parameters are not list."
             for param in self.parameters:
@@ -606,18 +611,16 @@ class Experiment:
             exit()
 
     def qcgpilot_commandline(self, datapoint_item: List[Any]) -> List[Union[str, Any]]:
-        """
-        Creates a command line for the QCG-PilotJob executor based on the experiment configuration.
+        """Creates a command line for the QCG-PilotJob executor based on the experiment
+        configuration.
 
-        Parameters:
-        -----------
-        experiment: Experiment
-            The experiment to configure the command line for.
+        Parameters
+        ----------
         datapoint_item : List[float]
             Datapoint containing the specific values for each parameter e.g. (x1, y2, z1).
 
-        Returns:
-        --------
+        Returns
+        -------
         list
             A list of strings representing the command line arguments for the QCG-PilotJob executor.
         """
@@ -641,24 +644,25 @@ class Experiment:
 def set_basic_directory_structure_for_job(
     experiment: Experiment, step_number: int, job_number: int
 ) -> None:
-    """
-    Creates a new directory for the given step number and updates the experiment's working directory accordingly.
+    """Creates a new directory for the given step number and updates the experiment's
+    working directory accordingly.
 
-    The basic directory structure is as follows
-    source_dir
-        - output_dir
-            your_run_script.py
-            analysis_script.py
-            - step_{i}
-                 analysis_output.csv
-                - job_{j}
-                    output_of_your_run_script.extension
-                    stdout{j}.txt
+    The basic directory structure is as follows::
 
-    Parameters:
+        source_dir/
+        ├── output_dir/
+        │   ├── your_run_script.py
+        │   ├── analysis_script.py
+        │   └── step_{i}/
+        │       ├── analysis_output.csv
+        │       └── job_{j}/
+        │           ├── output_of_your_run_script.extension
+        │           └── stdout{j}.txt
+
+    Parameters
     ----------
     experiment : Experiment
-        The :obj:Experiment that is being run.
+        The :obj:`Experiment` that is being run.
     step_number : int
         The number of the current step.
     job_number : int

@@ -16,8 +16,9 @@ from yotse.pre import Experiment
 class TestGAOpt(unittest.TestCase):
     @staticmethod
     def _paraboloid(ga_instance: GA, solution: List[float], sol_index: int) -> float:
-        """
-        A simple paraboloid function. Has one global minimum:
+        """A simple paraboloid function.
+
+        Has one global minimum:
         f(x1,x2)=0.0; (x1,x2)=(0.0, 0.0)
         :param solution: List of x and y variables
         :param sol_index: index related to this solution
@@ -29,8 +30,9 @@ class TestGAOpt(unittest.TestCase):
 
     @staticmethod
     def _sixhump(ga_instance: GA, solution: List[float], sol_index: int) -> float:
-        """
-        The six-hump camel back function. Has two global minimums:
+        """The six-hump camel back function.
+
+        Has two global minimums:
         f(x1,x2)=-1.0316; (x1,x2)=(-0.0898,0.7126), (0.0898,-0.7126)
         :param solution: List of x and y variables
         :param sol_index: index related to this solution
@@ -46,8 +48,9 @@ class TestGAOpt(unittest.TestCase):
 
     @staticmethod
     def _rosenbrock(ga_instance: GA, solution: List[float], sol_index: int) -> float:
-        """
-        The Rosenbrock function. Has one global minimum:
+        """The Rosenbrock function.
+
+        Has one global minimum:
         f(x1,x2)=0.0; (x1,x2)=(1.0, 1.0)
         :param solution: List of x and y variables
         :param sol_index: index related to this solution
@@ -59,8 +62,9 @@ class TestGAOpt(unittest.TestCase):
 
     @staticmethod
     def _rastrigin(ga_instance: GA, solution: List[float], sol_index: int) -> Any:
-        """
-        The Rastrigin function. Has one global minimum:
+        """The Rastrigin function.
+
+        Has one global minimum:
         f(x1,x2)=0.0; (x1,x2)=(0.0, 0.0)
         :param solution: List of x and y variables
         :param sol_index: index related to this solution

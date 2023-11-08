@@ -13,6 +13,7 @@ from typing import Callable
 
 
 def main() -> None:
+    """Run all examples except the blueprint example, which takes long."""
     path_to_here = os.path.dirname(os.path.abspath(__file__))
     total_execution_time = 0.0
     for root, folders, files in os.walk(path_to_here):
@@ -26,6 +27,7 @@ def main() -> None:
 
 
 def run_blueprint_example() -> None:
+    """Run only the blueprint example."""
     print(" --- Executing NlBlueprint Example --- ")
     path_to_here = os.path.dirname(os.path.abspath(__file__))
     total_execution_time = 0.0
@@ -40,6 +42,7 @@ def run_blueprint_example() -> None:
 
 
 def _run_example(filepath: str) -> float:  # Modified return type to float
+    """Run the example specified in `filepath`."""
     cwd = os.getcwd()
     sys.path.append(os.path.dirname(filepath))
     example_module_name = os.path.basename(filepath)[: -len(".py")]
@@ -63,6 +66,7 @@ def _run_example(filepath: str) -> float:  # Modified return type to float
 
 
 def _has_no_output_arg(func: Callable[..., Any]) -> bool:
+    """Check if `func` has no output."""
     return "no_output" in inspect.getfullargspec(func).args
 
 

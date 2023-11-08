@@ -1,6 +1,5 @@
-from example_wobbly_main import remove_files_after_run
-from example_wobbly_main import wobbly_pre
-
+from examples.wobbly_function.example_wobbly_main import remove_files_after_run
+from examples.wobbly_function.example_wobbly_main import wobbly_pre
 from yotse.execution import Executor
 
 

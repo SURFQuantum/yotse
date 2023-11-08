@@ -4,6 +4,7 @@
 ![CI/CD](https://github.com/SURFQuantum/yotse/actions/workflows/main_pipeline.yml/badge.svg)
 ![Integration](https://github.com/SURFQuantum/yotse/actions/workflows/integration.yml/badge.svg)
 ![Coverage](https://github.com/SURFQuantum/yotse/blob/main/coverage.svg?raw=1)
+![docs: numpy](https://img.shields.io/badge/docstyle-numpy-green)
 
 # YOTSE - Your Optimization Tool for Scientific Experiments
 <p align="center">

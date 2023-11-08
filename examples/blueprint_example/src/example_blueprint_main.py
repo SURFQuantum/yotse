@@ -102,7 +102,7 @@ def blueprint_input():
                 number_points=2,
                 distribution="uniform",
                 param_type="continuous",
-                depends_on={"name": "carbon_T2", "function": linear_dep}
+                depends_on={"name": "carbon_T2", "function": linear_dep},
                 # todo: test if this dependency is also used in each generation
             ),
         ],
