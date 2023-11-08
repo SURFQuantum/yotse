@@ -25,7 +25,10 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "sphinx_rtd_theme",
+    "myst_parser",
+    "sphinxcontrib.mermaid",
 ]
+myst_fence_as_directive = ["mermaid"]
 
 templates_path = ["_templates"]
 exclude_patterns: List[str] = []

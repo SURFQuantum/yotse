@@ -47,6 +47,7 @@ repos:
     hooks:
       - id: interrogate
         args: [--fail-under=50, --verbose, --ignore-init-method,--ignore-init-module]
+        exclude: "^docs"
   - repo: https://github.com/PyCQA/docformatter
     rev: v1.7.1
     hooks:
