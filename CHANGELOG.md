@@ -3,10 +3,11 @@ CHANGELOG
 
 [//]: # (For more details refer to the [documentation]&#40;&#41;.)
 
-Upcoming:
+2023-11-08 (0.3.1):
 ---
 * fixed SLURM workflow in `yotse.pre.SystemSetup`
 * added documentation about usage with SLURM to `README.md`
+* added GitHub pages documentation at https://surfquantum.github.io/yotse/
 
 
 2023-11-02 (0.3.0)
