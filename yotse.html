@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>yotse package &mdash; YOTSE  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="yotse.optimization package" href="yotse.optimization.html" />
+    <link rel="prev" title="Welcome to the official YOTSE documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            YOTSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">yotse package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="yotse.optimization.html">yotse.optimization package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="yotse.utils.html">yotse.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-yotse.execution">yotse.execution module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#yotse.execution.CustomExecutor"><code class="docutils literal notranslate"><span class="pre">CustomExecutor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.__init__"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.collect_data"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.collect_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.create_points_based_on_optimization"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.create_points_based_on_optimization()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.generate_optimizer"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.generate_optimizer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.load_executor_state"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.load_executor_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.pre_submission_analysis"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.pre_submission_analysis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.pre_submission_setup_per_job"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.pre_submission_setup_per_job()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.run"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.save_executor_state"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.save_executor_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.submit"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.submit()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#yotse.execution.Executor"><code class="docutils literal notranslate"><span class="pre">Executor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.__init__"><code class="docutils literal notranslate"><span class="pre">Executor.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.collect_data"><code class="docutils literal notranslate"><span class="pre">Executor.collect_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.create_points_based_on_optimization"><code class="docutils literal notranslate"><span class="pre">Executor.create_points_based_on_optimization()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.generate_optimizer"><code class="docutils literal notranslate"><span class="pre">Executor.generate_optimizer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.load_executor_state"><code class="docutils literal notranslate"><span class="pre">Executor.load_executor_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.pre_submission_analysis"><code class="docutils literal notranslate"><span class="pre">Executor.pre_submission_analysis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.pre_submission_setup_per_job"><code class="docutils literal notranslate"><span class="pre">Executor.pre_submission_setup_per_job()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.run"><code class="docutils literal notranslate"><span class="pre">Executor.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.save_executor_state"><code class="docutils literal notranslate"><span class="pre">Executor.save_executor_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.submit"><code class="docutils literal notranslate"><span class="pre">Executor.submit()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-yotse.post">yotse.post module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#yotse.post.plot_cost_function"><code class="docutils literal notranslate"><span class="pre">plot_cost_function()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#yotse.post.plot_opt_steps"><code class="docutils literal notranslate"><span class="pre">plot_opt_steps()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-yotse.pre">yotse.pre module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#yotse.pre.ConstraintDict"><code class="docutils literal notranslate"><span class="pre">ConstraintDict</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ConstraintDict.__init__"><code class="docutils literal notranslate"><span class="pre">ConstraintDict.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ConstraintDict.clear"><code class="docutils literal notranslate"><span class="pre">ConstraintDict.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ConstraintDict.copy"><code class="docutils literal notranslate"><span class="pre">ConstraintDict.copy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ConstraintDict.fromkeys"><code class="docutils literal notranslate"><span class="pre">ConstraintDict.fromkeys()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ConstraintDict.get"><code class="docutils literal notranslate"><span class="pre">ConstraintDict.get()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ConstraintDict.high"><code class="docutils literal notranslate"><span class="pre">ConstraintDict.high</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ConstraintDict.items"><code class="docutils literal notranslate"><span class="pre">ConstraintDict.items()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ConstraintDict.keys"><code class="docutils literal notranslate"><span class="pre">ConstraintDict.keys()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ConstraintDict.low"><code class="docutils literal notranslate"><span class="pre">ConstraintDict.low</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ConstraintDict.pop"><code class="docutils literal notranslate"><span class="pre">ConstraintDict.pop()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ConstraintDict.popitem"><code class="docutils literal notranslate"><span class="pre">ConstraintDict.popitem()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ConstraintDict.setdefault"><code class="docutils literal notranslate"><span class="pre">ConstraintDict.setdefault()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ConstraintDict.step"><code class="docutils literal notranslate"><span class="pre">ConstraintDict.step</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ConstraintDict.update"><code class="docutils literal notranslate"><span class="pre">ConstraintDict.update()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ConstraintDict.values"><code class="docutils literal notranslate"><span class="pre">ConstraintDict.values()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#yotse.pre.Experiment"><code class="docutils literal notranslate"><span class="pre">Experiment</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.Experiment.data_points"><code class="docutils literal notranslate"><span class="pre">Experiment.data_points</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.Experiment.__init__"><code class="docutils literal notranslate"><span class="pre">Experiment.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.Experiment.add_optimization_info"><code class="docutils literal notranslate"><span class="pre">Experiment.add_optimization_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.Experiment.add_parameter"><code class="docutils literal notranslate"><span class="pre">Experiment.add_parameter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.Experiment.cost_function"><code class="docutils literal notranslate"><span class="pre">Experiment.cost_function</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.Experiment.create_datapoint_c_product"><code class="docutils literal notranslate"><span class="pre">Experiment.create_datapoint_c_product()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.Experiment.generate_slurm_script"><code class="docutils literal notranslate"><span class="pre">Experiment.generate_slurm_script()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.Experiment.parse_slurm_arg"><code class="docutils literal notranslate"><span class="pre">Experiment.parse_slurm_arg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.Experiment.qcgpilot_commandline"><code class="docutils literal notranslate"><span class="pre">Experiment.qcgpilot_commandline()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#yotse.pre.OptimizationInfo"><code class="docutils literal notranslate"><span class="pre">OptimizationInfo</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.OptimizationInfo.__init__"><code class="docutils literal notranslate"><span class="pre">OptimizationInfo.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#yotse.pre.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.Parameter.data_points"><code class="docutils literal notranslate"><span class="pre">Parameter.data_points</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.Parameter.__init__"><code class="docutils literal notranslate"><span class="pre">Parameter.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.Parameter.generate_data_points"><code class="docutils literal notranslate"><span class="pre">Parameter.generate_data_points()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.Parameter.generate_initial_data_points"><code class="docutils literal notranslate"><span class="pre">Parameter.generate_initial_data_points()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.Parameter.is_active"><code class="docutils literal notranslate"><span class="pre">Parameter.is_active</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.Parameter.update_parameter_through_dependency"><code class="docutils literal notranslate"><span class="pre">Parameter.update_parameter_through_dependency()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#yotse.pre.ParameterDependencyDict"><code class="docutils literal notranslate"><span class="pre">ParameterDependencyDict</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ParameterDependencyDict.__init__"><code class="docutils literal notranslate"><span class="pre">ParameterDependencyDict.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ParameterDependencyDict.clear"><code class="docutils literal notranslate"><span class="pre">ParameterDependencyDict.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ParameterDependencyDict.copy"><code class="docutils literal notranslate"><span class="pre">ParameterDependencyDict.copy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ParameterDependencyDict.fromkeys"><code class="docutils literal notranslate"><span class="pre">ParameterDependencyDict.fromkeys()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ParameterDependencyDict.function"><code class="docutils literal notranslate"><span class="pre">ParameterDependencyDict.function</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ParameterDependencyDict.get"><code class="docutils literal notranslate"><span class="pre">ParameterDependencyDict.get()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ParameterDependencyDict.items"><code class="docutils literal notranslate"><span class="pre">ParameterDependencyDict.items()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ParameterDependencyDict.keys"><code class="docutils literal notranslate"><span class="pre">ParameterDependencyDict.keys()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ParameterDependencyDict.name"><code class="docutils literal notranslate"><span class="pre">ParameterDependencyDict.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ParameterDependencyDict.pop"><code class="docutils literal notranslate"><span class="pre">ParameterDependencyDict.pop()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ParameterDependencyDict.popitem"><code class="docutils literal notranslate"><span class="pre">ParameterDependencyDict.popitem()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ParameterDependencyDict.setdefault"><code class="docutils literal notranslate"><span class="pre">ParameterDependencyDict.setdefault()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ParameterDependencyDict.update"><code class="docutils literal notranslate"><span class="pre">ParameterDependencyDict.update()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.ParameterDependencyDict.values"><code class="docutils literal notranslate"><span class="pre">ParameterDependencyDict.values()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#yotse.pre.SystemSetup"><code class="docutils literal notranslate"><span class="pre">SystemSetup</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.SystemSetup.__init__"><code class="docutils literal notranslate"><span class="pre">SystemSetup.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.SystemSetup.cmdline_dict_to_list"><code class="docutils literal notranslate"><span class="pre">SystemSetup.cmdline_dict_to_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.pre.SystemSetup.current_step_directory"><code class="docutils literal notranslate"><span class="pre">SystemSetup.current_step_directory</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#yotse.pre.set_basic_directory_structure_for_job"><code class="docutils literal notranslate"><span class="pre">set_basic_directory_structure_for_job()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-yotse">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Yotse Examples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">YOTSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">yotse package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/yotse.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="yotse-package">
+<h1>yotse package<a class="headerlink" href="#yotse-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="yotse.optimization.html">yotse.optimization package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="yotse.optimization.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yotse.optimization.html#module-yotse.optimization.algorithms">yotse.optimization.algorithms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yotse.optimization.html#module-yotse.optimization.ga">yotse.optimization.ga module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yotse.optimization.html#module-yotse.optimization.generic_optimization">yotse.optimization.generic_optimization module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yotse.optimization.html#module-yotse.optimization.optimizer">yotse.optimization.optimizer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yotse.optimization.html#module-yotse.optimization">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="yotse.utils.html">yotse.utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="yotse.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yotse.utils.html#module-yotse.utils.blueprint_tools">yotse.utils.blueprint_tools module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yotse.utils.html#yotse-utils-prediction-module">yotse.utils.prediction module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yotse.utils.html#module-yotse.utils.utils">yotse.utils.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yotse.utils.html#module-yotse.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-yotse.execution">
+<span id="yotse-execution-module"></span><h2>yotse.execution module<a class="headerlink" href="#module-yotse.execution" title="Link to this heading"></a></h2>
+<p>Defines classes and functions for the execution of your experiment.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="yotse.execution.CustomExecutor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yotse.execution.</span></span><span class="sig-name descname"><span class="pre">CustomExecutor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#yotse.pre.Experiment" title="yotse.pre.Experiment"><span class="pre">Experiment</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/execution.html#CustomExecutor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.execution.CustomExecutor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#yotse.execution.Executor" title="yotse.execution.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.CustomExecutor.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#yotse.pre.Experiment" title="yotse.pre.Experiment"><span class="pre">Experiment</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/execution.html#CustomExecutor.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.execution.CustomExecutor.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.CustomExecutor.collect_data">
+<span class="sig-name descname"><span class="pre">collect_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#yotse.execution.CustomExecutor.collect_data" title="Link to this definition"></a></dt>
+<dd><p>Collects data from output.csv (or the output of the scripts) and combines it
+into a dataframe which has as first column the associated cost and as the other
+columns the input parameters (order the same way is input to the experiment).
+The rows of the dataframe follow the same ordering as the jobs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> – Pandas dataframe containing the combined outputs of the individual jobs in the form above.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pandas.Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.CustomExecutor.create_points_based_on_optimization">
+<span class="sig-name descname"><span class="pre">create_points_based_on_optimization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evolutionary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#yotse.execution.CustomExecutor.create_points_based_on_optimization" title="Link to this definition"></a></dt>
+<dd><p>Applies an optimization algorithm to process the collected data and create
+new data points from it which is then directly written into the experiments
+attributes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>pandas.Dataframe</em>) – A pandas dataframe containing the collected data in the format cost_value init_param_1 … init_param_n.</p></li>
+<li><p><strong>evolutionary</strong> (<em>bool</em><em> , </em><em>optional</em>) – Overwrite the type of construction to be used for the new points. If evolutionary=None the optimization
+algorithm determines whether the point creation is evolutionary or based on the best solution.
+Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.CustomExecutor.generate_optimizer">
+<span class="sig-name descname"><span class="pre">generate_optimizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="yotse.optimization.html#yotse.optimization.optimizer.Optimizer" title="yotse.optimization.optimizer.Optimizer"><span class="pre">Optimizer</span></a></span></span><a class="headerlink" href="#yotse.execution.CustomExecutor.generate_optimizer" title="Link to this definition"></a></dt>
+<dd><p>Sets the optimization algorithm for the run by translating information in the
+optimization_info.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>optimization_alg</strong> – Object of subclass of <cite>:class:GenericOptimization</cite>, the optimization algorithm to be used by this runner.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="yotse.optimization.html#yotse.optimization.generic_optimization.GenericOptimization" title="yotse.optimization.generic_optimization.GenericOptimization">GenericOptimization</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.CustomExecutor.load_executor_state">
+<span class="sig-name descname"><span class="pre">load_executor_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aux_directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#yotse.execution.CustomExecutor.load_executor_state" title="Link to this definition"></a></dt>
+<dd><p>Load the state of the Executor to be able to resume.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.CustomExecutor.pre_submission_analysis">
+<span class="sig-name descname"><span class="pre">pre_submission_analysis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#yotse.execution.CustomExecutor.pre_submission_analysis" title="Link to this definition"></a></dt>
+<dd><p>Executes any necessary steps before the analysis script and returns the QCG-
+Pilot command line list for it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>analysis_commandline</strong> (<em>list</em>) – The list of command line arguments for the QCG-Pilot job submission for the program.</p></li>
+<li><p><strong>Note</strong> (<em>Overwrite this function if you need other directory structure or pre-submission functionality for your</em>)</p></li>
+<li><p><em>analysis script.</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.CustomExecutor.pre_submission_setup_per_job">
+<span class="sig-name descname"><span class="pre">pre_submission_setup_per_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datapoint_item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#yotse.execution.CustomExecutor.pre_submission_setup_per_job" title="Link to this definition"></a></dt>
+<dd><p>Sets up the basic directory structure for a job and returns the QCG- Pilot
+command line list for it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datapoint_item</strong> (<em>list</em>) – Single item of data points for the job as a list.</p></li>
+<li><p><strong>step_number</strong> (<em>int</em>) – The number of the step in the experiment.</p></li>
+<li><p><strong>job_number</strong> (<em>int</em>) – The number of the job within the step.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>program_commandline</strong> (<em>list</em>) – The list of command line arguments for the QCG-Pilot job submission for the program.</p></li>
+<li><p><strong>Note</strong> (<em>Overwrite this function if you need other directory structure or pre-submission functionality.</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.CustomExecutor.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evolutionary_point_generation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/execution.html#CustomExecutor.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.execution.CustomExecutor.run" title="Link to this definition"></a></dt>
+<dd><p>Submits jobs to the LocalManager, collects the output, creates new data
+points, and finishes the run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step_number</strong> (<em>int</em><em> (</em><em>optional</em><em>)</em>) – Step number to submit to QCGPilot. Should be used for e.g. running different optimization steps.
+Defaults to 0.</p></li>
+<li><p><strong>evolutionary_point_generation</strong> (<em>bool</em><em> (</em><em>optional</em><em>)</em>) – Overwrite the type of construction to be used for the new points. If None the optimization
+algorithm determines whether the point creation is evolutionary or based on the best solution.
+Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.CustomExecutor.save_executor_state">
+<span class="sig-name descname"><span class="pre">save_executor_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#yotse.execution.CustomExecutor.save_executor_state" title="Link to this definition"></a></dt>
+<dd><p>Save state of the Executor to be able to resume later.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.CustomExecutor.submit">
+<span class="sig-name descname"><span class="pre">submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#yotse.execution.CustomExecutor.submit" title="Link to this definition"></a></dt>
+<dd><p>Submits jobs to the LocalManager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>step_number</strong> (<em>int</em><em>, </em><em>optional</em>) – Step number to submit to QCGPilot. Should be used for e.g. running different optimization steps.
+Defaults to 0.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>job_ids</strong> – A list of job IDs submitted to the LocalManager.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="yotse.execution.Executor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yotse.execution.</span></span><span class="sig-name descname"><span class="pre">Executor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#yotse.pre.Experiment" title="yotse.pre.Experiment"><span class="pre">Experiment</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/execution.html#Executor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.execution.Executor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.Executor.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#yotse.pre.Experiment" title="yotse.pre.Experiment"><span class="pre">Experiment</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/execution.html#Executor.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.execution.Executor.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.Executor.collect_data">
+<span class="sig-name descname"><span class="pre">collect_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/yotse/execution.html#Executor.collect_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.execution.Executor.collect_data" title="Link to this definition"></a></dt>
+<dd><p>Collects data from output.csv (or the output of the scripts) and combines it
+into a dataframe which has as first column the associated cost and as the other
+columns the input parameters (order the same way is input to the experiment).
+The rows of the dataframe follow the same ordering as the jobs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> – Pandas dataframe containing the combined outputs of the individual jobs in the form above.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pandas.Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.Executor.create_points_based_on_optimization">
+<span class="sig-name descname"><span class="pre">create_points_based_on_optimization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evolutionary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/execution.html#Executor.create_points_based_on_optimization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.execution.Executor.create_points_based_on_optimization" title="Link to this definition"></a></dt>
+<dd><p>Applies an optimization algorithm to process the collected data and create
+new data points from it which is then directly written into the experiments
+attributes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>pandas.Dataframe</em>) – A pandas dataframe containing the collected data in the format cost_value init_param_1 … init_param_n.</p></li>
+<li><p><strong>evolutionary</strong> (<em>bool</em><em> , </em><em>optional</em>) – Overwrite the type of construction to be used for the new points. If evolutionary=None the optimization
+algorithm determines whether the point creation is evolutionary or based on the best solution.
+Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.Executor.generate_optimizer">
+<span class="sig-name descname"><span class="pre">generate_optimizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="yotse.optimization.html#yotse.optimization.optimizer.Optimizer" title="yotse.optimization.optimizer.Optimizer"><span class="pre">Optimizer</span></a></span></span><a class="reference internal" href="_modules/yotse/execution.html#Executor.generate_optimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.execution.Executor.generate_optimizer" title="Link to this definition"></a></dt>
+<dd><p>Sets the optimization algorithm for the run by translating information in the
+optimization_info.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>optimization_alg</strong> – Object of subclass of <cite>:class:GenericOptimization</cite>, the optimization algorithm to be used by this runner.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="yotse.optimization.html#yotse.optimization.generic_optimization.GenericOptimization" title="yotse.optimization.generic_optimization.GenericOptimization">GenericOptimization</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.Executor.load_executor_state">
+<span class="sig-name descname"><span class="pre">load_executor_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aux_directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/execution.html#Executor.load_executor_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.execution.Executor.load_executor_state" title="Link to this definition"></a></dt>
+<dd><p>Load the state of the Executor to be able to resume.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.Executor.pre_submission_analysis">
+<span class="sig-name descname"><span class="pre">pre_submission_analysis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/yotse/execution.html#Executor.pre_submission_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.execution.Executor.pre_submission_analysis" title="Link to this definition"></a></dt>
+<dd><p>Executes any necessary steps before the analysis script and returns the QCG-
+Pilot command line list for it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>analysis_commandline</strong> (<em>list</em>) – The list of command line arguments for the QCG-Pilot job submission for the program.</p></li>
+<li><p><strong>Note</strong> (<em>Overwrite this function if you need other directory structure or pre-submission functionality for your</em>)</p></li>
+<li><p><em>analysis script.</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.Executor.pre_submission_setup_per_job">
+<span class="sig-name descname"><span class="pre">pre_submission_setup_per_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datapoint_item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/yotse/execution.html#Executor.pre_submission_setup_per_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.execution.Executor.pre_submission_setup_per_job" title="Link to this definition"></a></dt>
+<dd><p>Sets up the basic directory structure for a job and returns the QCG- Pilot
+command line list for it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datapoint_item</strong> (<em>list</em>) – Single item of data points for the job as a list.</p></li>
+<li><p><strong>step_number</strong> (<em>int</em>) – The number of the step in the experiment.</p></li>
+<li><p><strong>job_number</strong> (<em>int</em>) – The number of the job within the step.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>program_commandline</strong> (<em>list</em>) – The list of command line arguments for the QCG-Pilot job submission for the program.</p></li>
+<li><p><strong>Note</strong> (<em>Overwrite this function if you need other directory structure or pre-submission functionality.</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.Executor.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evolutionary_point_generation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/execution.html#Executor.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.execution.Executor.run" title="Link to this definition"></a></dt>
+<dd><p>Submits jobs to the LocalManager, collects the output, creates new data
+points, and finishes the run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step_number</strong> (<em>int</em><em> (</em><em>optional</em><em>)</em>) – Step number to submit to QCGPilot. Should be used for e.g. running different optimization steps.
+Defaults to 0.</p></li>
+<li><p><strong>evolutionary_point_generation</strong> (<em>bool</em><em> (</em><em>optional</em><em>)</em>) – Overwrite the type of construction to be used for the new points. If None the optimization
+algorithm determines whether the point creation is evolutionary or based on the best solution.
+Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.Executor.save_executor_state">
+<span class="sig-name descname"><span class="pre">save_executor_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/execution.html#Executor.save_executor_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.execution.Executor.save_executor_state" title="Link to this definition"></a></dt>
+<dd><p>Save state of the Executor to be able to resume later.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.Executor.submit">
+<span class="sig-name descname"><span class="pre">submit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/yotse/execution.html#Executor.submit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.execution.Executor.submit" title="Link to this definition"></a></dt>
+<dd><p>Submits jobs to the LocalManager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>step_number</strong> (<em>int</em><em>, </em><em>optional</em>) – Step number to submit to QCGPilot. Should be used for e.g. running different optimization steps.
+Defaults to 0.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>job_ids</strong> – A list of job IDs submitted to the LocalManager.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-yotse.post">
+<span id="yotse-post-module"></span><h2>yotse.post module<a class="headerlink" href="#module-yotse.post" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="yotse.post.plot_cost_function">
+<span class="sig-prename descclassname"><span class="pre">yotse.post.</span></span><span class="sig-name descname"><span class="pre">plot_cost_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/post.html#plot_cost_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.post.plot_cost_function" title="Link to this definition"></a></dt>
+<dd><p>Plot the cost function.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="yotse.post.plot_opt_steps">
+<span class="sig-prename descclassname"><span class="pre">yotse.post.</span></span><span class="sig-name descname"><span class="pre">plot_opt_steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#yotse.pre.Experiment" title="yotse.pre.Experiment"><span class="pre">Experiment</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/post.html#plot_opt_steps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.post.plot_opt_steps" title="Link to this definition"></a></dt>
+<dd><p>Plot the optimization steps.</p>
+</dd></dl>
+
+</section>
+<section id="module-yotse.pre">
+<span id="yotse-pre-module"></span><h2>yotse.pre module<a class="headerlink" href="#module-yotse.pre" title="Link to this heading"></a></h2>
+<p>Defines classes and functions for the setup of your experiment.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="yotse.pre.ConstraintDict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yotse.pre.</span></span><span class="sig-name descname"><span class="pre">ConstraintDict</span></span><a class="reference internal" href="_modules/yotse/pre.html#ConstraintDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.ConstraintDict" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TypedDict</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ConstraintDict.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#yotse.pre.ConstraintDict.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ConstraintDict.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None.</span>&#160; <span class="pre">Remove</span> <span class="pre">all</span> <span class="pre">items</span> <span class="pre">from</span> <span class="pre">D.</span></span></span><a class="headerlink" href="#yotse.pre.ConstraintDict.clear" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ConstraintDict.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">shallow</span> <span class="pre">copy</span> <span class="pre">of</span> <span class="pre">D</span></span></span><a class="headerlink" href="#yotse.pre.ConstraintDict.copy" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ConstraintDict.fromkeys">
+<span class="sig-name descname"><span class="pre">fromkeys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#yotse.pre.ConstraintDict.fromkeys" title="Link to this definition"></a></dt>
+<dd><p>Create a new dictionary with keys from iterable and values set to value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ConstraintDict.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#yotse.pre.ConstraintDict.get" title="Link to this definition"></a></dt>
+<dd><p>Return the value for key if key is in the dictionary, else default.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="yotse.pre.ConstraintDict.high">
+<span class="sig-name descname"><span class="pre">high</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#yotse.pre.ConstraintDict.high" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ConstraintDict.items">
+<span class="sig-name descname"><span class="pre">items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">items</span></span></span><a class="headerlink" href="#yotse.pre.ConstraintDict.items" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ConstraintDict.keys">
+<span class="sig-name descname"><span class="pre">keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">keys</span></span></span><a class="headerlink" href="#yotse.pre.ConstraintDict.keys" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="yotse.pre.ConstraintDict.low">
+<span class="sig-name descname"><span class="pre">low</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#yotse.pre.ConstraintDict.low" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ConstraintDict.pop">
+<span class="sig-name descname"><span class="pre">pop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="optional">[</span>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="optional">]</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">v,</span> <span class="pre">remove</span> <span class="pre">specified</span> <span class="pre">key</span> <span class="pre">and</span> <span class="pre">return</span> <span class="pre">the</span> <span class="pre">corresponding</span> <span class="pre">value.</span></span></span><a class="headerlink" href="#yotse.pre.ConstraintDict.pop" title="Link to this definition"></a></dt>
+<dd><p>If the key is not found, return the default if given; otherwise,
+raise a KeyError.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ConstraintDict.popitem">
+<span class="sig-name descname"><span class="pre">popitem</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#yotse.pre.ConstraintDict.popitem" title="Link to this definition"></a></dt>
+<dd><p>Remove and return a (key, value) pair as a 2-tuple.</p>
+<p>Pairs are returned in LIFO (last-in, first-out) order.
+Raises KeyError if the dict is empty.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ConstraintDict.setdefault">
+<span class="sig-name descname"><span class="pre">setdefault</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#yotse.pre.ConstraintDict.setdefault" title="Link to this definition"></a></dt>
+<dd><p>Insert key with a value of default if key is not in the dictionary.</p>
+<p>Return the value for key if key is in the dictionary, else default.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="yotse.pre.ConstraintDict.step">
+<span class="sig-name descname"><span class="pre">step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#yotse.pre.ConstraintDict.step" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ConstraintDict.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param"><span class="n"><span class="pre">E</span></span></em>, <span class="optional">]</span><em class="sig-param"><span class="n"><span class="pre">**F</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None.</span>&#160; <span class="pre">Update</span> <span class="pre">D</span> <span class="pre">from</span> <span class="pre">dict/iterable</span> <span class="pre">E</span> <span class="pre">and</span> <span class="pre">F.</span></span></span><a class="headerlink" href="#yotse.pre.ConstraintDict.update" title="Link to this definition"></a></dt>
+<dd><p>If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]
+If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v
+In either case, this is followed by: for k in F:  D[k] = F[k]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ConstraintDict.values">
+<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">an</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">values</span></span></span><a class="headerlink" href="#yotse.pre.ConstraintDict.values" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="yotse.pre.Experiment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yotse.pre.</span></span><span class="sig-name descname"><span class="pre">Experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_setup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#yotse.pre.SystemSetup" title="yotse.pre.SystemSetup"><span class="pre">SystemSetup</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#yotse.pre.Parameter" title="yotse.pre.Parameter"><span class="pre">Parameter</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_info_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#yotse.pre.OptimizationInfo" title="yotse.pre.OptimizationInfo"><span class="pre">OptimizationInfo</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/pre.html#Experiment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.Experiment" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class that contains the whole experiment, including ExperimentalSystemSetup, all
+Parameters and a list of optimization steps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment_name</strong> (<em>str</em>) – Descriptive name for the experiment.</p></li>
+<li><p><strong>system_setup</strong> (<a class="reference internal" href="#yotse.pre.SystemSetup" title="yotse.pre.SystemSetup"><em>SystemSetup</em></a>) – Instance of the SystemSetup class that contains the setup of the experimental system.</p></li>
+<li><p><strong>parameters</strong> (<em>list</em><em> of </em><a class="reference internal" href="#yotse.pre.Parameter" title="yotse.pre.Parameter"><em>Parameter</em></a><em>, </em><em>optional</em>) – List of Parameter instances that define the parameters to be varied in the experiment.
+Defaults to an empty list.
+Note: If one wants to first optimize over a subset of parameters then set the remaining parameters as inactive
+<cite>for param not in params_to_opt_over: param.parameter_active = False</cite>. To later also optimize over the
+other subset just set them to active again.</p></li>
+<li><p><strong>opt_info_list</strong> (<em>list</em><em>, </em><em>optional</em>) – List of OptimizationInfo objects describing the different optimization algorithms to be used and their
+parameters.
+Defaults to an empty list.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="yotse.pre.Experiment.data_points">
+<span class="sig-name descname"><span class="pre">data_points</span></span><a class="headerlink" href="#yotse.pre.Experiment.data_points" title="Link to this definition"></a></dt>
+<dd><p>MxN array where M is the total number of combinations of parameter data points and N is the number of
+parameters. Each row represents a unique combination of parameter values to be explored in the experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.Experiment.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_setup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#yotse.pre.SystemSetup" title="yotse.pre.SystemSetup"><span class="pre">SystemSetup</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#yotse.pre.Parameter" title="yotse.pre.Parameter"><span class="pre">Parameter</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_info_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#yotse.pre.OptimizationInfo" title="yotse.pre.OptimizationInfo"><span class="pre">OptimizationInfo</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/pre.html#Experiment.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.Experiment.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.Experiment.add_optimization_info">
+<span class="sig-name descname"><span class="pre">add_optimization_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimization_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#yotse.pre.OptimizationInfo" title="yotse.pre.OptimizationInfo"><span class="pre">OptimizationInfo</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/pre.html#Experiment.add_optimization_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.Experiment.add_optimization_info" title="Link to this definition"></a></dt>
+<dd><p>Adds OptimizationInfo to the experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>optimization_info</strong> (<a class="reference internal" href="#yotse.pre.OptimizationInfo" title="yotse.pre.OptimizationInfo"><em>OptimizationInfo</em></a>) – The optimization step to add to the experiment.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.Experiment.add_parameter">
+<span class="sig-name descname"><span class="pre">add_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#yotse.pre.Parameter" title="yotse.pre.Parameter"><span class="pre">Parameter</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/pre.html#Experiment.add_parameter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.Experiment.add_parameter" title="Link to this definition"></a></dt>
+<dd><p>Adds a parameter to the experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>parameter</strong> (<a class="reference internal" href="#yotse.pre.Parameter" title="yotse.pre.Parameter"><em>Parameter</em></a>) – The parameter to add to the experiment.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="yotse.pre.Experiment.cost_function">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cost_function</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#yotse.pre.Experiment.cost_function" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.Experiment.create_datapoint_c_product">
+<span class="sig-name descname"><span class="pre">create_datapoint_c_product</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/yotse/pre.html#Experiment.create_datapoint_c_product"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.Experiment.create_datapoint_c_product" title="Link to this definition"></a></dt>
+<dd><p>Create initial set of points as Cartesian product of all active parameters.</p>
+<p>Overwrite if other combination is needed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.Experiment.generate_slurm_script">
+<span class="sig-name descname"><span class="pre">generate_slurm_script</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/pre.html#Experiment.generate_slurm_script"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.Experiment.generate_slurm_script" title="Link to this definition"></a></dt>
+<dd><p>Generate slurm script to execute the file through slurm.</p>
+<p>Note: after the file has been created the process can be started by calling <cite>sbatch slurm.job</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – Name of the file to be executed through SLURM</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.Experiment.parse_slurm_arg">
+<span class="sig-name descname"><span class="pre">parse_slurm_arg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/pre.html#Experiment.parse_slurm_arg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.Experiment.parse_slurm_arg" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.Experiment.qcgpilot_commandline">
+<span class="sig-name descname"><span class="pre">qcgpilot_commandline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datapoint_item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/yotse/pre.html#Experiment.qcgpilot_commandline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.Experiment.qcgpilot_commandline" title="Link to this definition"></a></dt>
+<dd><p>Creates a command line for the QCG-PilotJob executor based on the experiment
+configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>datapoint_item</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Datapoint containing the specific values for each parameter e.g. (x1, y2, z1).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of strings representing the command line arguments for the QCG-PilotJob executor.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="yotse.pre.OptimizationInfo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yotse.pre.</span></span><span class="sig-name descname"><span class="pre">OptimizationInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_active</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/pre.html#OptimizationInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.OptimizationInfo" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class that is optional as input to the Experiment, if the run is supposed to
+execute an optimization it will look here for the parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the optimization algorithm to be used, e.g. “GA” (genetic algorithm), “GD” (gradient descent).</p></li>
+<li><p><strong>opt_parameters</strong> (<em>dict</em>) – Dictionary containing all necessary parameters for the optimization.</p></li>
+<li><p><strong>is_active</strong> (<em>bool</em>) – Whether this is the currently active optimization algorithm. Can be used to perform sequential optimization with
+different optimization algorithms that can all be defined in a single Experiment.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.OptimizationInfo.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_active</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/pre.html#OptimizationInfo.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.OptimizationInfo.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="yotse.pre.Parameter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yotse.pre.</span></span><span class="sig-name descname"><span class="pre">Parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#yotse.pre.ConstraintDict" title="yotse.pre.ConstraintDict"><span class="pre">ConstraintDict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter_active</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'continuous'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depends_on</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#yotse.pre.ParameterDependencyDict" title="yotse.pre.ParameterDependencyDict"><span class="pre">ParameterDependencyDict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/pre.html#Parameter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.Parameter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Defines a class for any type of parameter we want to vary in our simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the parameter.</p></li>
+<li><p><strong>param_range</strong> (<em>list</em><em>(</em><em>min</em><em>, </em><em>max</em><em>)</em>) – List with the min and max value of the parameter; min and max are floats.</p></li>
+<li><p><strong>number_points</strong> (<em>int</em>) – Number of points to be explored.</p></li>
+<li><p><strong>distribution</strong> (<em>str</em>) – Type of distribution of the points. Currently supports ‘linear’, ‘uniform’, ‘normal’, ‘log’ or ‘custom’.
+If ‘custom’ is specified then parameter custom_distribution is required.</p></li>
+<li><p><strong>constraints</strong> (<em>dict</em><em> or </em><em>np.ndarray</em><em> (</em><em>optional</em><em>)</em>) – Dictionary with constraints. Keys can be ‘low’, ‘high’ and ‘step’. Alternatively np.ndarray with acceptable
+values. Defaults to None.</p></li>
+<li><p><strong>weights</strong> (<em>list</em><em> (</em><em>optional</em><em>)</em>) – List of weights for the parameters, defaults to None.</p></li>
+<li><p><strong>parameter_active</strong> (<em>bool</em><em> (</em><em>optional</em><em>)</em>) – Whether this parameter should be used a varied parameter in this optimization step. Can be used to perform
+sequential optimization of different parameters with only one pre-step. Defaults to True.</p></li>
+<li><p><strong>custom_distribution</strong> (<em>function</em><em> (</em><em>optional if distribution!='custom'</em><em>)</em>) – Custom distribution function that takes as arguments (min_value: float, max_value: float, number_points: int)
+and returns a Tuple of float points.
+Defaults to None.</p></li>
+<li><p><strong>param_type</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – <dl class="simple">
+<dt>Type of parameter: ‘discrete’ or ‘continuous’.</dt><dd><p>Defaults to ‘continuous’.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>scale_factor</strong> (<em>float</em><em> (</em><em>optional</em><em>)</em>) – Scale factor to apply to the parameter when generating new points.
+Defaults to 1.0.</p></li>
+<li><p><strong>todo</strong> (<em>#</em>) – </p></li>
+<li><p><strong>depends_on</strong> (<em>dict</em><em> (</em><em>optional</em><em>)</em>) – Dictionary containing the two keys ‘name’ and ‘function’, specifying the parameter name it depends on and a
+function of the form function(parameter_value: float, parameter_it_depends_on_value: float) -&gt; float.
+Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="yotse.pre.Parameter.data_points">
+<span class="sig-name descname"><span class="pre">data_points</span></span><a class="headerlink" href="#yotse.pre.Parameter.data_points" title="Link to this definition"></a></dt>
+<dd><p>Data points for this parameter, stored in an np.ndarray for efficient computation and memory usage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray (1D)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.Parameter.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#yotse.pre.ConstraintDict" title="yotse.pre.ConstraintDict"><span class="pre">ConstraintDict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter_active</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'continuous'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depends_on</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#yotse.pre.ParameterDependencyDict" title="yotse.pre.ParameterDependencyDict"><span class="pre">ParameterDependencyDict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/pre.html#Parameter.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.Parameter.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.Parameter.generate_data_points">
+<span class="sig-name descname"><span class="pre">generate_data_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/yotse/pre.html#Parameter.generate_data_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.Parameter.generate_data_points" title="Link to this definition"></a></dt>
+<dd><p>Generate set of n=num_points data points based on the specified distribution,
+range, and param_type of this parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>num_points</strong> (<em>int</em>) – Number of datapoints to generate.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>data_points are not sorted.</p></li>
+<li><p>data_points are not guaranteed to be unique.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.Parameter.generate_initial_data_points">
+<span class="sig-name descname"><span class="pre">generate_initial_data_points</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/yotse/pre.html#Parameter.generate_initial_data_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.Parameter.generate_initial_data_points" title="Link to this definition"></a></dt>
+<dd><p>Generate initial data points based on the specified distribution and
+range.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="yotse.pre.Parameter.is_active">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_active</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#yotse.pre.Parameter.is_active" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.Parameter.update_parameter_through_dependency">
+<span class="sig-name descname"><span class="pre">update_parameter_through_dependency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#yotse.pre.Parameter" title="yotse.pre.Parameter"><span class="pre">Parameter</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/pre.html#Parameter.update_parameter_through_dependency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.Parameter.update_parameter_through_dependency" title="Link to this definition"></a></dt>
+<dd><p>Update data points and constraints for this parameter based on another
+parameter’s data points and constraints.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>parameter_list</strong> (<em>list</em>) – List of (all) Parameter objects in the experiment. Should at least contain the parameter that this
+parameter depends on.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p># todo : this will only be applied once before the start of the experiment. Is that useful?</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="yotse.pre.ParameterDependencyDict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yotse.pre.</span></span><span class="sig-name descname"><span class="pre">ParameterDependencyDict</span></span><a class="reference internal" href="_modules/yotse/pre.html#ParameterDependencyDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.ParameterDependencyDict" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TypedDict</span></code></p>
+<p>Data structure to explicitly specify how to define parameter dependencies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the parameter the initial parameter depends on. E.g. if <cite>fidelity</cite> depends on <cite>time</cite>, name = ‘time’.</p></li>
+<li><p><strong>function</strong> (<em>Callable</em>) – Dependency function of the form function(parameter_value: float, parameter_it_depends_on_value: float) -&gt; float</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ParameterDependencyDict.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#yotse.pre.ParameterDependencyDict.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ParameterDependencyDict.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None.</span>&#160; <span class="pre">Remove</span> <span class="pre">all</span> <span class="pre">items</span> <span class="pre">from</span> <span class="pre">D.</span></span></span><a class="headerlink" href="#yotse.pre.ParameterDependencyDict.clear" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ParameterDependencyDict.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">shallow</span> <span class="pre">copy</span> <span class="pre">of</span> <span class="pre">D</span></span></span><a class="headerlink" href="#yotse.pre.ParameterDependencyDict.copy" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ParameterDependencyDict.fromkeys">
+<span class="sig-name descname"><span class="pre">fromkeys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#yotse.pre.ParameterDependencyDict.fromkeys" title="Link to this definition"></a></dt>
+<dd><p>Create a new dictionary with keys from iterable and values set to value.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="yotse.pre.ParameterDependencyDict.function">
+<span class="sig-name descname"><span class="pre">function</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#yotse.pre.ParameterDependencyDict.function" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ParameterDependencyDict.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#yotse.pre.ParameterDependencyDict.get" title="Link to this definition"></a></dt>
+<dd><p>Return the value for key if key is in the dictionary, else default.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ParameterDependencyDict.items">
+<span class="sig-name descname"><span class="pre">items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">items</span></span></span><a class="headerlink" href="#yotse.pre.ParameterDependencyDict.items" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ParameterDependencyDict.keys">
+<span class="sig-name descname"><span class="pre">keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">keys</span></span></span><a class="headerlink" href="#yotse.pre.ParameterDependencyDict.keys" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="yotse.pre.ParameterDependencyDict.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#yotse.pre.ParameterDependencyDict.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ParameterDependencyDict.pop">
+<span class="sig-name descname"><span class="pre">pop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="optional">[</span>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="optional">]</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">v,</span> <span class="pre">remove</span> <span class="pre">specified</span> <span class="pre">key</span> <span class="pre">and</span> <span class="pre">return</span> <span class="pre">the</span> <span class="pre">corresponding</span> <span class="pre">value.</span></span></span><a class="headerlink" href="#yotse.pre.ParameterDependencyDict.pop" title="Link to this definition"></a></dt>
+<dd><p>If the key is not found, return the default if given; otherwise,
+raise a KeyError.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ParameterDependencyDict.popitem">
+<span class="sig-name descname"><span class="pre">popitem</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#yotse.pre.ParameterDependencyDict.popitem" title="Link to this definition"></a></dt>
+<dd><p>Remove and return a (key, value) pair as a 2-tuple.</p>
+<p>Pairs are returned in LIFO (last-in, first-out) order.
+Raises KeyError if the dict is empty.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ParameterDependencyDict.setdefault">
+<span class="sig-name descname"><span class="pre">setdefault</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#yotse.pre.ParameterDependencyDict.setdefault" title="Link to this definition"></a></dt>
+<dd><p>Insert key with a value of default if key is not in the dictionary.</p>
+<p>Return the value for key if key is in the dictionary, else default.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ParameterDependencyDict.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param"><span class="n"><span class="pre">E</span></span></em>, <span class="optional">]</span><em class="sig-param"><span class="n"><span class="pre">**F</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None.</span>&#160; <span class="pre">Update</span> <span class="pre">D</span> <span class="pre">from</span> <span class="pre">dict/iterable</span> <span class="pre">E</span> <span class="pre">and</span> <span class="pre">F.</span></span></span><a class="headerlink" href="#yotse.pre.ParameterDependencyDict.update" title="Link to this definition"></a></dt>
+<dd><p>If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]
+If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v
+In either case, this is followed by: for k in F:  D[k] = F[k]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.ParameterDependencyDict.values">
+<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">an</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">values</span></span></span><a class="headerlink" href="#yotse.pre.ParameterDependencyDict.values" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="yotse.pre.SystemSetup">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yotse.pre.</span></span><span class="sig-name descname"><span class="pre">SystemSetup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">program_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command_line_arguments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analysis_script</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">executor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'python'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_extension</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">venv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slurm_venv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alloc_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'00:15:00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slurm_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qcg_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/pre.html#SystemSetup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.SystemSetup" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Defines a class for the setup of the system parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_directory</strong> (<em>str</em>) – Path of the source directory.</p></li>
+<li><p><strong>program_name</strong> (<em>str</em>) – Name of the script that should be used for the experiment.</p></li>
+<li><p><strong>command_line_arguments</strong> (<em>dict</em><em> (</em><em>optional</em><em>)</em>) – Dictionaries containing as keys the reference of the line argument and as values their value. Defaults to an
+empty dictionary.</p></li>
+<li><p><strong>analysis_script</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – Name of the script that is used to analyse the output of the program script. Defaults to None.</p></li>
+<li><p><strong>executor</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – Executor to be passed when submitting jobs. Defaults to ‘python’.</p></li>
+<li><p><strong>output_dir_name</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – Name of the directory the output should be stored in. Defaults to ‘output’.</p></li>
+<li><p><strong>output_extension</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – Extension of the output files to be picked up by the analysis_script, e.g ‘csv’ or ‘json’. Defaults to ‘csv’.</p></li>
+<li><p><strong>venv</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – Path to the virtual environment that should be initialized before the QCGPilot job is started. Defaults to None.</p></li>
+<li><p><strong>slurm_venv</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – Path to the environment that slurm should activate before executing yotse. This needs to have yotse installed.
+Defaults to None.</p></li>
+<li><p><strong>num_nodes</strong> (<em>int</em><em> (</em><em>optional</em><em>)</em>) – Number of nodes to allocate on the HPC cluster. Defaults to 1.</p></li>
+<li><p><strong>alloc_time</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – Time to allocate on the HPC cluster in the format HH:MM:SS (or HHH:MM:SS and so forth). Defaults to ‘00:15:00’.</p></li>
+<li><p><strong>slurm_args</strong> (<em>list</em><em> (</em><em>optional</em><em>)</em>) – Additional arguments to pass to SLURM, e.g. ‘–exclusive’. Defaults to None</p></li>
+<li><p><strong>qcg_cfg</strong> (<em>dict</em><em> (</em><em>optional</em><em>)</em>) – Configuration to pass to the QCG-PilotJob manager. Dict with supported keys ‘init_timeout’, ‘poll_delay’,
+‘log_file’, ‘log_level’. See docstring of <cite>qcg.pilotjob.api.manager.LocalManager</cite>. If None QCG defaults are
+used. Defaults to None.</p></li>
+<li><p><strong>modules</strong> (<em>list</em><em> (</em><em>optional</em><em>)</em>) – Modules to load on the HPC cluster. Defaults to None.</p></li>
+<li><p><strong>Attributes</strong> – </p></li>
+<li><p><strong>----------</strong> – </p></li>
+<li><p><strong>stdout_basename</strong> (<em>str</em>) – Basename of the file that the standard output steam (stdout) of the script should be written to.
+The final filename will be of the form ‘&lt;stdout_basename&gt;&lt;unique_job_identifier&gt;.txt’. O</p></li>
+<li><p><strong>working_directory</strong> (<em>str</em>) – Name of the current working directory to be passed to QCGPilotJob.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.SystemSetup.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">program_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command_line_arguments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analysis_script</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">executor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'python'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_extension</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">venv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slurm_venv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alloc_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'00:15:00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slurm_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qcg_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/pre.html#SystemSetup.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.SystemSetup.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.pre.SystemSetup.cmdline_dict_to_list">
+<span class="sig-name descname"><span class="pre">cmdline_dict_to_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/yotse/pre.html#SystemSetup.cmdline_dict_to_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.SystemSetup.cmdline_dict_to_list" title="Link to this definition"></a></dt>
+<dd><p>Convert the dictionary of commandline arguments to a list for QCGPilot.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="yotse.pre.SystemSetup.current_step_directory">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">current_step_directory</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#yotse.pre.SystemSetup.current_step_directory" title="Link to this definition"></a></dt>
+<dd><p>Returns the path of the current optimization step.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="yotse.pre.set_basic_directory_structure_for_job">
+<span class="sig-prename descclassname"><span class="pre">yotse.pre.</span></span><span class="sig-name descname"><span class="pre">set_basic_directory_structure_for_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#yotse.pre.Experiment" title="yotse.pre.Experiment"><span class="pre">Experiment</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/pre.html#set_basic_directory_structure_for_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.set_basic_directory_structure_for_job" title="Link to this definition"></a></dt>
+<dd><p>Creates a new directory for the given step number and updates the experiment’s
+working directory accordingly.</p>
+<p>The basic directory structure is as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>source_dir/
+├── output_dir/
+│   ├── your_run_script.py
+│   ├── analysis_script.py
+│   └── step_{i}/
+│       ├── analysis_output.csv
+│       └── job_{j}/
+│           ├── output_of_your_run_script.extension
+│           └── stdout{j}.txt
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment</strong> (<a class="reference internal" href="#yotse.pre.Experiment" title="yotse.pre.Experiment"><em>Experiment</em></a>) – The <a class="reference internal" href="#yotse.pre.Experiment" title="yotse.pre.Experiment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Experiment</span></code></a> that is being run.</p></li>
+<li><p><strong>step_number</strong> (<em>int</em>) – The number of the current step.</p></li>
+<li><p><strong>job_number</strong> (<em>int</em>) – The number of the current job.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-yotse">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-yotse" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to the official YOTSE documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="yotse.optimization.html" class="btn btn-neutral float-right" title="yotse.optimization package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, SURFQuantum.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

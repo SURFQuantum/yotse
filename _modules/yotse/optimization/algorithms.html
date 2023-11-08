@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>yotse.optimization.algorithms &mdash; YOTSE  documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            YOTSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../yotse.html">yotse package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Yotse Examples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">YOTSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">yotse.optimization.algorithms</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for yotse.optimization.algorithms</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Collection of Subclasses of :class:GenericOptimization implementing different</span>
+<span class="sd">optimization algorithms.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pygad.pygad</span> <span class="kn">import</span> <span class="n">GA</span>
+
+<span class="kn">from</span> <span class="nn">yotse.optimization.ga</span> <span class="kn">import</span> <span class="n">ModGA</span>  <span class="c1"># type: ignore[attr-defined]</span>
+<span class="kn">from</span> <span class="nn">yotse.optimization.generic_optimization</span> <span class="kn">import</span> <span class="n">GenericOptimization</span>
+<span class="kn">from</span> <span class="nn">yotse.pre</span> <span class="kn">import</span> <span class="n">ConstraintDict</span>
+<span class="kn">from</span> <span class="nn">yotse.utils.utils</span> <span class="kn">import</span> <span class="n">ndarray_to_list</span>
+
+
+<div class="viewcode-block" id="GAOpt">
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.algorithms.GAOpt">[docs]</a>
+<span class="k">class</span> <span class="nc">GAOpt</span><span class="p">(</span><span class="n">GenericOptimization</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Genetic algorithm.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fitness_func : function</span>
+<span class="sd">        Fitness/objective/cost function.</span>
+<span class="sd">    initial_data_points: np.ndarray</span>
+<span class="sd">        Initial population of data points to start the optimization with.</span>
+<span class="sd">    num_generations : int</span>
+<span class="sd">        Number of generations in the genetic algorithm.</span>
+<span class="sd">    num_parents_mating : int</span>
+<span class="sd">        Number of solutions to be selected as parents in the genetic algorithm.</span>
+<span class="sd">    gene_space : dict or list (optional)</span>
+<span class="sd">        Dictionary with constraints. Keys can be &#39;low&#39;, &#39;high&#39; and &#39;step&#39;. Alternatively list with acceptable values or</span>
+<span class="sd">        list of dicts. If only single object is passed it will be applied for all input parameters, otherwise a</span>
+<span class="sd">        separate list or dict has to be supplied for each parameter.</span>
+<span class="sd">        Defaults to None.</span>
+<span class="sd">    refinement_factors : list (optional)</span>
+<span class="sd">        Refinement factors for each active parameter in the optimization in range [0.,1.] to be used for manual</span>
+<span class="sd">        grid point generation.</span>
+<span class="sd">        Defaults to None.</span>
+<span class="sd">    logging_level : int (optional)</span>
+<span class="sd">        Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything.</span>
+<span class="sd">        Defaults to 1.</span>
+<span class="sd">    allow_duplicate_genes : Bool (optional)</span>
+<span class="sd">        If True, then a solution/chromosome may have duplicate gene values.</span>
+<span class="sd">        If False, then each gene will have a unique value in its solution.</span>
+<span class="sd">        Defaults to False.</span>
+<span class="sd">    pygad_kwargs : (optional)</span>
+<span class="sd">        Optional pygad arguments to be passed to `pygad.GA`.</span>
+<span class="sd">        See https://pygad.readthedocs.io/en/latest/README_pygad_ReadTheDocs.html#pygad-ga-class for documentation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="GAOpt.__init__">
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.algorithms.GAOpt.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">initial_data_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">num_generations</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">num_parents_mating</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">gene_space</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ConstraintDict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">refinement_factors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">logging_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">allow_duplicate_genes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">fitness_func</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">pygad_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">fitness_func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fitness_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_params_to_cost_value</span>
+
+        <span class="c1"># Note: number of new points is determined by initial population</span>
+        <span class="c1"># gene_space to limit space in which new genes are formed = constraints</span>
+        <span class="n">ga_instance</span> <span class="o">=</span> <span class="n">ModGA</span><span class="p">(</span>
+            <span class="n">fitness_func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_objective_func</span><span class="p">,</span>
+            <span class="n">initial_population</span><span class="o">=</span><span class="n">ndarray_to_list</span><span class="p">(</span><span class="n">initial_data_points</span><span class="p">),</span>
+            <span class="n">num_generations</span><span class="o">=</span><span class="n">num_generations</span><span class="p">,</span>
+            <span class="n">num_parents_mating</span><span class="o">=</span><span class="n">num_parents_mating</span><span class="p">,</span>
+            <span class="c1"># todo : gene_type/_space are exactly data_type/constraints of the params, see core.py</span>
+            <span class="c1"># gene_type=gene_type,</span>
+            <span class="n">gene_space</span><span class="o">=</span><span class="n">gene_space</span><span class="p">,</span>
+            <span class="n">save_best_solutions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">allow_duplicate_genes</span><span class="o">=</span><span class="n">allow_duplicate_genes</span><span class="p">,</span>
+            <span class="n">mutation_by_replacement</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">pygad_kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">=</span> <span class="n">gene_space</span>
+        <span class="c1"># todo : why if save_solutions=True the optimization doesn&#39;t converge anymore?</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">function</span><span class="o">=</span><span class="n">fitness_func</span><span class="p">,</span>
+            <span class="n">opt_instance</span><span class="o">=</span><span class="n">ga_instance</span><span class="p">,</span>
+            <span class="n">refinement_factors</span><span class="o">=</span><span class="n">refinement_factors</span><span class="p">,</span>
+            <span class="n">logging_level</span><span class="o">=</span><span class="n">logging_level</span><span class="p">,</span>
+            <span class="n">extrema</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MINIMUM</span><span class="p">,</span>
+            <span class="n">evolutionary</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GAOpt._objective_func">
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.algorithms.GAOpt._objective_func">[docs]</a>
+    <span class="k">def</span> <span class="nf">_objective_func</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ga_instance</span><span class="p">:</span> <span class="n">GA</span><span class="p">,</span> <span class="n">solution</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">solution_idx</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fitness function to be called from PyGAD.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ga_instance</span>
+<span class="sd">            # todo : add docstring</span>
+<span class="sd">        solution : list</span>
+<span class="sd">            List of solutions.</span>
+<span class="sd">        solution_idx : int</span>
+<span class="sd">            Index of solution.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Fitness value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Invert function to find the minimum, if needed</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrema</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">MINIMUM</span><span class="p">:</span>
+            <span class="n">factor</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+
+        <span class="n">fitness</span> <span class="o">=</span> <span class="n">factor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">ga_instance</span><span class="p">,</span> <span class="n">solution</span><span class="p">,</span> <span class="n">solution_idx</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging_level</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">solution</span><span class="p">,</span> <span class="n">solution_idx</span><span class="p">,</span> <span class="n">fitness</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fitness</span></div>
+
+
+<div class="viewcode-block" id="GAOpt.execute">
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.algorithms.GAOpt.execute">[docs]</a>
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute single step in the genetic algorithm.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">run_single_generation</span><span class="p">()</span>
+
+        <span class="c1"># Report convergence</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging_level</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">plot_fitness</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="GAOpt.get_best_solution">
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.algorithms.GAOpt.get_best_solution">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_best_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>  <span class="c1"># type: ignore[override]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the best solution. We don&#39;t yet know the fitness for the solution</span>
+<span class="sd">        (because we have not run the simulation for those values yet), so just return</span>
+<span class="sd">        the point.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        solution, solution_fitness, solution_idx</span>
+<span class="sd">            Solution its fitness and its index in the list of cost function solutions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;GA instance not initialized.&quot;</span><span class="p">)</span>
+        <span class="n">best_solution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">best_solutions</span><span class="o">.</span><span class="n">tolist</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># solution_idx = self.ga_instance.population.tolist().index(best_solution)</span>
+        <span class="k">return</span> <span class="n">best_solution</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span></div>
+
+        <span class="c1"># todo: this could also instead return solution and fitness of the best solution one generation back?</span>
+
+<div class="viewcode-block" id="GAOpt.get_new_points">
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.algorithms.GAOpt.get_new_points">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_new_points</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get new points from the GA (aka return the next population).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        new_points : np.ndarray</span>
+<span class="sd">            New points for the next iteration of the optimization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">population</span>
+        <span class="c1"># todo: see if we check constraints somewhere else, might be redundant</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># double check constraints are kept</span>
+            <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">new_points</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">point</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="k">assert</span> <span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;low&quot;</span><span class="p">]</span>
+                                <span class="o">&lt;=</span> <span class="n">value</span>
+                                <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;high&quot;</span><span class="p">]</span>
+                            <span class="p">)</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                        <span class="k">assert</span> <span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">]</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unacceptable type </span><span class="si">{</span><span class="nb">type</span><span class="si">}</span><span class="s2"> for constraints.&quot;</span><span class="p">)</span>
+        <span class="n">new_points</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">point</span><span class="p">)</span> <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">new_points</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_points</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GAOpt.overwrite_internal_data_points">
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.algorithms.GAOpt.overwrite_internal_data_points">[docs]</a>
+    <span class="k">def</span> <span class="nf">overwrite_internal_data_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">population</span> <span class="o">=</span> <span class="n">data_points</span></div>
+
+
+<div class="viewcode-block" id="GAOpt.input_params_to_cost_value">
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.algorithms.GAOpt.input_params_to_cost_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">input_params_to_cost_value</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ga_instance</span><span class="p">:</span> <span class="n">GA</span><span class="p">,</span> <span class="n">solution</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">solution_idx</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return value of cost function for given set of input parameter values and</span>
+<span class="sd">        their index in the set of points.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solution : list</span>
+<span class="sd">            Set of input parameter values of shape [param_1, param_2, .., param_n].</span>
+<span class="sd">        solution_idx : int</span>
+<span class="sd">            Index of the solution within the set of points.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># todo: input parameters of this are highly GA specific and should be made general</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_param_cost_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">solution_idx</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">solution</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">solution</span><span class="p">))</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="n">row</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Solution </span><span class="si">{</span><span class="n">solution</span><span class="si">}</span><span class="s2"> was not found in internal dataframe row </span><span class="si">{</span><span class="n">solution_idx</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span></div>
+</div>
+
+
+
+<span class="c1"># class CGOpt(GenericOptimization):</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     CG algorithm</span>
+<span class="c1">#     #todo: fill this with more info</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     def __init__(self, function, num_iterations=100, logging_level=1):</span>
+<span class="c1">#         &quot;&quot;&quot;</span>
+<span class="c1">#         Default constructor</span>
+<span class="c1">#</span>
+<span class="c1">#         Parameters</span>
+<span class="c1">#         ----------</span>
+<span class="c1">#         function : function</span>
+<span class="c1">#             Fitness/objective/cost function.</span>
+<span class="c1">#         num_iterations : int (optional)</span>
+<span class="c1">#             Number of iterations.</span>
+<span class="c1">#             Defaults to 100.</span>
+<span class="c1">#         logging_level : int (optional)</span>
+<span class="c1">#             Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything.</span>
+<span class="c1">#             Defaults to 1.</span>
+<span class="c1">#         &quot;&quot;&quot;</span>
+<span class="c1">#         super().__init__(function, logging_level, self.MINIMUM)</span>
+<span class="c1">#         self.num_iterations = num_iterations</span>
+<span class="c1">#</span>
+<span class="c1">#     def _objective_func(self, solution):</span>
+<span class="c1">#         &quot;&quot;&quot;</span>
+<span class="c1">#         Fitness function to be called from PyGAD</span>
+<span class="c1">#         Parameters</span>
+<span class="c1">#         ----------</span>
+<span class="c1">#         solution : list</span>
+<span class="c1">#             List of solutions.</span>
+<span class="c1">#</span>
+<span class="c1">#         Returns</span>
+<span class="c1">#         -------</span>
+<span class="c1">#             Fitness value.</span>
+<span class="c1">#         &quot;&quot;&quot;</span>
+<span class="c1">#         x, y = solution</span>
+<span class="c1">#         # x_fixed, y_fixed = args</span>
+<span class="c1">#</span>
+<span class="c1">#         # Invert function to find the minimum, if needed</span>
+<span class="c1">#         factor = 1.</span>
+<span class="c1">#         if self.extrema == self.MAXIMUM:</span>
+<span class="c1">#             factor = -1.</span>
+<span class="c1">#</span>
+<span class="c1">#         obj = factor * self.function([x, y])</span>
+<span class="c1">#</span>
+<span class="c1">#         # err = []</span>
+<span class="c1">#         # for n in range(0, len(x_fixed)):</span>
+<span class="c1">#         #     err.append(np.abs(obj - self.function([x_fixed[n], y_fixed[n]])))</span>
+<span class="c1">#         #</span>
+<span class="c1">#         # error = np.sum(err)</span>
+<span class="c1">#         # print(x, y, error)</span>
+<span class="c1">#</span>
+<span class="c1">#         return obj</span>
+<span class="c1">#</span>
+<span class="c1">#         # # Invert function to find the minimum, if needed</span>
+<span class="c1">#         # factor = 1.</span>
+<span class="c1">#         # if self.extrema == self.MINIMUM:</span>
+<span class="c1">#         #     factor = -1.</span>
+<span class="c1">#         #</span>
+<span class="c1">#         # fitness = factor * self.function([x, y])</span>
+<span class="c1">#         #</span>
+<span class="c1">#         # if self.logging_level &gt;= 3:</span>
+<span class="c1">#         #     print(solution, solution_idx, fitness)</span>
+<span class="c1">#         #</span>
+<span class="c1">#         # return obj</span>
+<span class="c1">#</span>
+<span class="c1">#     def execute(self):</span>
+<span class="c1">#         &quot;&quot;&quot;</span>
+<span class="c1">#         Execute optimization.</span>
+<span class="c1">#</span>
+<span class="c1">#         Returns</span>
+<span class="c1">#         -------</span>
+<span class="c1">#         solution, solution_fitness, solution_idx</span>
+<span class="c1">#             Solution its fitness and its index in the list of cost function solutions.</span>
+<span class="c1">#         &quot;&quot;&quot;</span>
+<span class="c1">#         x = self.data[0]</span>
+<span class="c1">#         y = self.data[1]</span>
+<span class="c1">#</span>
+<span class="c1">#         # function_inputs = np.array([x, y]).T</span>
+<span class="c1">#</span>
+<span class="c1">#         # gene_space_min_x = np.min(x)</span>
+<span class="c1">#         # gene_space_max_x = np.max(x)</span>
+<span class="c1">#         # gene_space_min_y = np.min(y)</span>
+<span class="c1">#         # gene_space_max_y = np.max(y)</span>
+<span class="c1">#         #</span>
+<span class="c1">#         # ga_instance = pygad.GA(num_generations=self.num_generations,</span>
+<span class="c1">#         #                        num_parents_mating=5,</span>
+<span class="c1">#         #                        initial_data_points=function_inputs,</span>
+<span class="c1">#         #                        sol_per_pop=10,</span>
+<span class="c1">#         #                        num_genes=len(function_inputs),</span>
+<span class="c1">#         #                        gene_type=float,</span>
+<span class="c1">#         #                        parent_selection_type=&#39;sss&#39;,</span>
+<span class="c1">#         #                        gene_space=[</span>
+<span class="c1">#         #                            {&quot;low&quot;: gene_space_min_x, &quot;high&quot;: gene_space_max_x},</span>
+<span class="c1">#         #                            {&quot;low&quot;: gene_space_min_y, &quot;high&quot;: gene_space_max_y}</span>
+<span class="c1">#         #                        ],</span>
+<span class="c1">#         #                        keep_parents=-1,</span>
+<span class="c1">#         #                        mutation_by_replacement=True,</span>
+<span class="c1">#         #                        mutation_num_genes=1,</span>
+<span class="c1">#         #                        # mutation_type=None,</span>
+<span class="c1">#         #                        fitness_func=self._objective_func)</span>
+<span class="c1">#         #</span>
+<span class="c1">#         # ga_instance.run()</span>
+<span class="c1">#</span>
+<span class="c1">#         # print(function_inputs)</span>
+<span class="c1">#</span>
+<span class="c1">#         min_x = np.min(x)</span>
+<span class="c1">#         max_x = np.max(x)</span>
+<span class="c1">#         min_y = np.min(y)</span>
+<span class="c1">#         max_y = np.max(y)</span>
+<span class="c1">#         x0 = [min_x, min_y]</span>
+<span class="c1">#</span>
+<span class="c1">#         res = scipy.optimize.minimize(self._objective_func, x0,</span>
+<span class="c1">#                                       # args=[x, y],</span>
+<span class="c1">#                                       bounds=[(min_x, max_x), (min_y, max_y)],</span>
+<span class="c1">#                                       method=&#39;trust-constr&#39;,</span>
+<span class="c1">#                                       options={&#39;maxiter&#39;: self.num_iterations})</span>
+<span class="c1">#         # res = scipy.optimize.minimize(self.function, x0, method=&#39;L-BFGS-B&#39;,</span>
+<span class="c1">#         #                               # bounds=bnds,</span>
+<span class="c1">#         #                               options={&#39;maxiter&#39;: self.num_iterations})</span>
+<span class="c1">#         # res = scipy.optimize.fminbound(self.function, x, y)</span>
+<span class="c1">#</span>
+<span class="c1">#         # # Report convergence</span>
+<span class="c1">#         # if self.logging_level &gt;= 2:</span>
+<span class="c1">#         #     ga_instance.plot_fitness()</span>
+<span class="c1">#         #</span>
+<span class="c1">#         if self.logging_level &gt;= 1:</span>
+<span class="c1">#             print(&#39;\n&#39;)</span>
+<span class="c1">#             print(&#39;Solution:     &#39;, res.x)</span>
+<span class="c1">#             print(&#39;Fitness value: {fun}&#39;.format(fun=res.fun))</span>
+<span class="c1">#</span>
+<span class="c1">#         return None, None, None</span>
+<span class="c1">#</span>
+<span class="c1">#         # return solution, solution_fitness</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, SURFQuantum.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>yotse.optimization.optimizer &mdash; YOTSE  documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            YOTSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../yotse.html">yotse package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Yotse Examples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">YOTSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">yotse.optimization.optimizer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for yotse.optimization.optimizer</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">yotse.optimization.generic_optimization</span> <span class="kn">import</span> <span class="n">GenericOptimization</span>
+<span class="kn">from</span> <span class="nn">yotse.pre</span> <span class="kn">import</span> <span class="n">Experiment</span>
+
+
+<div class="viewcode-block" id="Optimizer">
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.optimizer.Optimizer">[docs]</a>
+<span class="k">class</span> <span class="nc">Optimizer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Optimizer class that wraps around a generic optimization algorithm.</span>
+
+<span class="sd">    This class serves as a facilitator for running optimization algorithms</span>
+<span class="sd">    which are defined as subclasses of `GenericOptimization`. It ensures that</span>
+<span class="sd">    the provided optimization algorithm is valid and manages the execution</span>
+<span class="sd">    state of the optimization process.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    optimization_algorithm : GenericOptimization</span>
+<span class="sd">        The optimization algorithm instance that will be executed.</span>
+<span class="sd">    _is_executed : bool</span>
+<span class="sd">        Internal flag to track whether the optimization has been executed.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the optimization_algorithm is not an instance of GenericOptimization.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Optimizer.__init__">
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.optimizer.Optimizer.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimization_algorithm</span><span class="p">:</span> <span class="n">GenericOptimization</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the Optimizer with the given optimization algorithm.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        optimization_algorithm : GenericOptimization</span>
+<span class="sd">            An instance of GenericOptimization or its subclass that defines</span>
+<span class="sd">            the optimization algorithm to be executed.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the given optimization_algorithm is not an instance or subclass</span>
+<span class="sd">            of GenericOptimization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">optimization_algorithm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">optimization_algorithm</span><span class="p">,</span> <span class="n">GenericOptimization</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Optimization algorithm must be a subclass of GenericOptimization.&quot;</span>
+                <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimization_algorithm</span> <span class="o">=</span> <span class="n">optimization_algorithm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_executed</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="Optimizer.optimize">
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.optimizer.Optimizer.optimize">[docs]</a>
+    <span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Executes the optimization algorithm.</span>
+
+<span class="sd">        This method calls the `execute` method of the optimization_algorithm and</span>
+<span class="sd">        sets the `_is_executed` flag to True upon successful completion. This method</span>
+<span class="sd">        should be invoked to perform the optimization process.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_executed</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="Optimizer.suggest_best_solution">
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.optimizer.Optimizer.suggest_best_solution">[docs]</a>
+    <span class="k">def</span> <span class="nf">suggest_best_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Suggest the best solution found by the optimization algorithm.</span>
+
+<span class="sd">        This method queries the underlying optimization algorithm for the best solution</span>
+<span class="sd">        it has discovered so far, along with the corresponding fitness value and the</span>
+<span class="sd">        index of the solution.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Tuple[List[float], float, int]</span>
+<span class="sd">            A tuple containing the best solution as a list of floats, the fitness value</span>
+<span class="sd">            of this solution as a float, and the index of the solution within the</span>
+<span class="sd">            population as an integer.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The &#39;best_solution&#39; represents the variables of the optimum result according to</span>
+<span class="sd">        the objective function used in the optimization algorithm. The &#39;solution_fitness&#39;</span>
+<span class="sd">        is a numerical value representing how &#39;good&#39; the solution is - the higher/lower the</span>
+<span class="sd">        better depending on the problem. The &#39;solution_index&#39; indicates the</span>
+<span class="sd">        position of the best solution in the population if applicable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">get_best_solution</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Optimizer.construct_points">
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.optimizer.Optimizer.construct_points">[docs]</a>
+    <span class="k">def</span> <span class="nf">construct_points</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">experiment</span><span class="p">:</span> <span class="n">Experiment</span><span class="p">,</span>
+        <span class="n">evolutionary</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">points_per_param</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs new set of values around the solution and write them to the</span>
+<span class="sd">        Experiment.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        experiment : Experiment</span>
+<span class="sd">            Object of Experiment that the points should be constructed for.</span>
+<span class="sd">        evolutionary : bool</span>
+<span class="sd">            True if the optimization algorithm is evolutionary and generates a new set of points.</span>
+<span class="sd">            False if the optimization algorithm generates a best point and points should be constructed around it.</span>
+<span class="sd">        points_per_param : int (optional)</span>
+<span class="sd">            Number of points to construct for each parameter. If None then for each parameter the initially specified</span>
+<span class="sd">            number of points `Parameter.number_points` will be created. Only used when `evolutionary=False`.</span>
+<span class="sd">            Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_executed</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;construct_points was called before the optimization was executed.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">evolutionary</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">can_create_points_evolutionary</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s2">&quot;trying to construct_points evolutionary for an algorithm that does not support it.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">experiment</span><span class="o">.</span><span class="n">data_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">get_new_points</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Warning: Grid based point generation currently not supporting constraints!&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid_based_point_creation</span><span class="p">(</span>
+                <span class="n">experiment</span><span class="o">=</span><span class="n">experiment</span><span class="p">,</span> <span class="n">points_per_param</span><span class="o">=</span><span class="n">points_per_param</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Optimizer.grid_based_point_creation">
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.optimizer.Optimizer.grid_based_point_creation">[docs]</a>
+    <span class="k">def</span> <span class="nf">grid_based_point_creation</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">:</span> <span class="n">Experiment</span><span class="p">,</span> <span class="n">points_per_param</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Refines the parameter search space based on the best solution and creates new</span>
+<span class="sd">        data points for the next round of optimization.</span>
+
+<span class="sd">        This method uses the best solution found so far to refine the parameter</span>
+<span class="sd">        ranges and generate a new grid of data points for further exploration.</span>
+<span class="sd">        New points are created around the best solution using the refinement</span>
+<span class="sd">        factors defined in the optimization algorithm.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        experiment : Experiment</span>
+<span class="sd">            The experiment object containing the parameters and current data points.</span>
+<span class="sd">        points_per_param : Optional[int], optional</span>
+<span class="sd">            The number of points to generate for each parameter. If None, the</span>
+<span class="sd">            number specified in each parameter object is used, by default None.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AssertionError</span>
+<span class="sd">            If the refinement factors are not defined in the optimization algorithm.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the number of refinement factors does not match the number of</span>
+<span class="sd">            parameters in the experiment.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The method first retrieves the best solution from the optimization algorithm</span>
+<span class="sd">        and uses the associated fitness value to guide the creation of a refined</span>
+<span class="sd">        parameter space. It then updates the ranges of each active parameter based</span>
+<span class="sd">        on the refinement factors and generates a new set of data points accordingly.</span>
+<span class="sd">        The new data points are then used to overwrite the internal data points</span>
+<span class="sd">        of the optimization algorithm.</span>
+
+<span class="sd">        This method must be called after the optimization algorithm has found an</span>
+<span class="sd">        initial best solution. It modifies the `experiment` object&#39;s parameters</span>
+<span class="sd">        in-place, adjusting their ranges and data points without returning any value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">solution</span><span class="p">,</span> <span class="n">solution_fitness</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">get_best_solution</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">logging_level</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Solution:     &quot;</span><span class="p">,</span> <span class="n">solution</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fitness value: </span><span class="si">{</span><span class="n">solution_fitness</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ref_factors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">refinement_factors</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="n">ref_factors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">),</span> <span class="s2">&quot;refinement factors can not be None for grid_bases_point_creation.&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ref_factors</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">parameters</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Length of refinement factors </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ref_factors</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;should be the same as number of parameters </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># todo make absolutely sure the index of the solution corresponds with the job number</span>
+        <span class="c1"># opt_input_datapoint = experiment.data_points[solution_index]  # (x, y, z)</span>
+        <span class="n">opt_input_datapoint</span> <span class="o">=</span> <span class="n">solution</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">parameters</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">is_active</span><span class="p">:</span>
+                <span class="c1"># calculate new ranges for each active param</span>
+                <span class="n">delta_param</span> <span class="o">=</span> <span class="n">ref_factors</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">param</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.5</span>
+                <span class="n">opt_range</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">opt_input_datapoint</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">delta_param</span><span class="p">,</span>
+                    <span class="n">opt_input_datapoint</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">delta_param</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="c1"># write updated parameter range to each active param</span>
+                <span class="n">param</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="n">opt_range</span>
+                <span class="c1"># create new points on each active param</span>
+                <span class="k">if</span> <span class="n">points_per_param</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># generate same amount of points for each param</span>
+                    <span class="n">param</span><span class="o">.</span><span class="n">data_points</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">generate_data_points</span><span class="p">(</span>
+                        <span class="n">num_points</span><span class="o">=</span><span class="n">points_per_param</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># generate different amounts of points for each param</span>
+                    <span class="n">param</span><span class="o">.</span><span class="n">data_points</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">generate_data_points</span><span class="p">(</span>
+                        <span class="n">num_points</span><span class="o">=</span><span class="n">param</span><span class="o">.</span><span class="n">number_points</span>
+                    <span class="p">)</span>
+        <span class="c1"># update data points points on the experiment</span>
+        <span class="n">experiment</span><span class="o">.</span><span class="n">data_points</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">create_datapoint_c_product</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">overwrite_internal_data_points</span><span class="p">(</span>
+            <span class="n">experiment</span><span class="o">.</span><span class="n">data_points</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_executed</span> <span class="o">=</span> <span class="kc">False</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, SURFQuantum.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

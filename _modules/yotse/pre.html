@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>yotse.pre &mdash; YOTSE  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            YOTSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../yotse.html">yotse package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Yotse Examples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">YOTSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">yotse.pre</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for yotse.pre</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Defines classes and functions for the setup of your experiment.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypedDict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="ParameterDependencyDict">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.ParameterDependencyDict">[docs]</a>
+<span class="k">class</span> <span class="nc">ParameterDependencyDict</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Data structure to explicitly specify how to define parameter dependencies.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name: str</span>
+<span class="sd">        Name of the parameter the initial parameter depends on. E.g. if `fidelity` depends on `time`, name = &#39;time&#39;.</span>
+<span class="sd">    function : Callable</span>
+<span class="sd">        Dependency function of the form function(parameter_value: float, parameter_it_depends_on_value: float) -&gt; float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="ConstraintDict">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.ConstraintDict">[docs]</a>
+<span class="k">class</span> <span class="nc">ConstraintDict</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">low</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">high</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="Parameter">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.Parameter">[docs]</a>
+<span class="k">class</span> <span class="nc">Parameter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defines a class for any type of parameter we want to vary in our simulation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of the parameter.</span>
+<span class="sd">    param_range : list(min, max)</span>
+<span class="sd">        List with the min and max value of the parameter; min and max are floats.</span>
+<span class="sd">    number_points: int</span>
+<span class="sd">        Number of points to be explored.</span>
+<span class="sd">    distribution : str</span>
+<span class="sd">        Type of distribution of the points. Currently supports &#39;linear&#39;, &#39;uniform&#39;, &#39;normal&#39;, &#39;log&#39; or &#39;custom&#39;.</span>
+<span class="sd">        If &#39;custom&#39; is specified then parameter custom_distribution is required.</span>
+<span class="sd">    constraints : dict or np.ndarray (optional)</span>
+<span class="sd">        Dictionary with constraints. Keys can be &#39;low&#39;, &#39;high&#39; and &#39;step&#39;. Alternatively np.ndarray with acceptable</span>
+<span class="sd">        values. Defaults to None.</span>
+<span class="sd">    weights : list (optional)</span>
+<span class="sd">        List of weights for the parameters, defaults to None.</span>
+<span class="sd">    parameter_active: bool (optional)</span>
+<span class="sd">        Whether this parameter should be used a varied parameter in this optimization step. Can be used to perform</span>
+<span class="sd">        sequential optimization of different parameters with only one pre-step. Defaults to True.</span>
+<span class="sd">    custom_distribution : function (optional if distribution!=&#39;custom&#39;)</span>
+<span class="sd">        Custom distribution function that takes as arguments (min_value: float, max_value: float, number_points: int)</span>
+<span class="sd">        and returns a Tuple of float points.</span>
+<span class="sd">        Defaults to None.</span>
+<span class="sd">    param_type: str (optional)</span>
+<span class="sd">        Type of parameter: &#39;discrete&#39; or &#39;continuous&#39;.</span>
+<span class="sd">         Defaults to &#39;continuous&#39;.</span>
+<span class="sd">    scale_factor : float (optional)</span>
+<span class="sd">        Scale factor to apply to the parameter when generating new points.</span>
+<span class="sd">        Defaults to 1.0.</span>
+<span class="sd">    # todo : check if this is what we intend to do actually?</span>
+<span class="sd">    depends_on : dict (optional)</span>
+<span class="sd">        Dictionary containing the two keys &#39;name&#39; and &#39;function&#39;, specifying the parameter name it depends on and a</span>
+<span class="sd">        function of the form function(parameter_value: float, parameter_it_depends_on_value: float) -&gt; float.</span>
+<span class="sd">        Defaults to None.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data_points : np.ndarray (1D)</span>
+<span class="sd">        Data points for this parameter, stored in an np.ndarray for efficient computation and memory usage.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Parameter.__init__">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.Parameter.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">param_range</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+        <span class="n">number_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">distribution</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">constraints</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ConstraintDict</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">weights</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">parameter_active</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">custom_distribution</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">param_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;continuous&quot;</span><span class="p">,</span>
+        <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">depends_on</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ParameterDependencyDict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="n">param_range</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_points</span> <span class="o">=</span> <span class="n">number_points</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span>
+        <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;weights not implemented...yet.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">=</span> <span class="n">constraints</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameter_active</span> <span class="o">=</span> <span class="n">parameter_active</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(())</span>
+        <span class="k">if</span> <span class="n">custom_distribution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">distribution</span> <span class="o">!=</span> <span class="s2">&quot;custom&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Custom distribution supplied but distribution set to </span><span class="si">{</span><span class="n">distribution</span><span class="si">}</span><span class="s2">!&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span> <span class="o">=</span> <span class="n">distribution</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">custom_distribution</span> <span class="o">=</span> <span class="n">custom_distribution</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param_type</span> <span class="o">=</span> <span class="n">param_type</span>
+        <span class="k">if</span> <span class="n">scale_factor</span> <span class="o">!=</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;scale_factor not implemented yet.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_factor</span> <span class="o">=</span> <span class="n">scale_factor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depends_on</span> <span class="o">=</span> <span class="n">depends_on</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_initial_data_points</span><span class="p">()</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_active</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameter_active</span>
+
+<div class="viewcode-block" id="Parameter.generate_data_points">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.Parameter.generate_data_points">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_data_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate set of n=num_points data points based on the specified distribution,</span>
+<span class="sd">        range, and param_type of this parameter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        num_points : int</span>
+<span class="sd">            Number of datapoints to generate.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - data_points are not sorted.</span>
+<span class="sd">        - data_points are not guaranteed to be unique.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_type</span> <span class="o">==</span> <span class="s2">&quot;continuous&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span> <span class="o">==</span> <span class="s2">&quot;linear&quot;</span><span class="p">:</span>
+                <span class="n">data_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_points</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span> <span class="o">==</span> <span class="s2">&quot;uniform&quot;</span><span class="p">:</span>
+                <span class="n">data_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_points</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span> <span class="o">==</span> <span class="s2">&quot;normal&quot;</span><span class="p">:</span>
+                <span class="n">data_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                    <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span>
+                    <span class="n">num_points</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span> <span class="o">==</span> <span class="s2">&quot;log&quot;</span><span class="p">:</span>
+                <span class="n">data_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">num_points</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span> <span class="o">==</span> <span class="s2">&quot;custom&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_distribution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">data_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_distribution</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_points</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_points</span><span class="p">)</span> <span class="o">!=</span> <span class="n">num_points</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Custom distribution returned invalid number of points </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data_points</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">assert</span> <span class="nb">min</span><span class="p">(</span><span class="n">data_points</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">data_points</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Invalid distribution specified: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="si">}</span><span class="s2"> for continuous parameter.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_type</span> <span class="o">==</span> <span class="s2">&quot;discrete&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span> <span class="o">==</span> <span class="s2">&quot;linear&quot;</span><span class="p">:</span>
+                <span class="n">data_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_points</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span> <span class="o">==</span> <span class="s2">&quot;uniform&quot;</span><span class="p">:</span>
+                <span class="n">data_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span>
+                    <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num_points</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span> <span class="o">==</span> <span class="s2">&quot;normal&quot;</span><span class="p">:</span>
+                <span class="n">data_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                    <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span>
+                    <span class="n">num_points</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="c1"># for discrete normal distribution round floats to the nearest int</span>
+                <span class="n">data_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">data_points</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span> <span class="o">==</span> <span class="s2">&quot;log&quot;</span><span class="p">:</span>
+                <span class="c1"># data_points = np.unique(</span>
+                <span class="c1">#     np.geomspace(self.range[0], self.range[1], num_points, dtype=int))</span>
+                <span class="n">data_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                    <span class="n">num_points</span><span class="p">,</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span> <span class="o">==</span> <span class="s2">&quot;custom&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_distribution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">data_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_distribution</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_points</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_points</span><span class="p">)</span> <span class="o">!=</span> <span class="n">num_points</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Custom distribution returned invalid number of points </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data_points</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">assert</span> <span class="nb">all</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">p</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">data_points</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Invalid distribution specified: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="si">}</span><span class="s2"> for discrete parameter.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid parameter type specified: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">param_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">data_points</span></div>
+
+
+<div class="viewcode-block" id="Parameter.generate_initial_data_points">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.Parameter.generate_initial_data_points">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_initial_data_points</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate initial data points based on the specified distribution and</span>
+<span class="sd">        range.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_data_points</span><span class="p">(</span><span class="n">num_points</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">number_points</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Parameter.update_parameter_through_dependency">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.Parameter.update_parameter_through_dependency">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_parameter_through_dependency</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">parameter_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update data points and constraints for this parameter based on another</span>
+<span class="sd">        parameter&#39;s data points and constraints.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parameter_list : list</span>
+<span class="sd">            List of (all) Parameter objects in the experiment. Should at least contain the parameter that this</span>
+<span class="sd">            parameter depends on.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        # todo : this will only be applied once before the start of the experiment. Is that useful?</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">depends_on</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;self.depends_on is None, but it needs to be a dict to proceed.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">target_parameter</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">parameter_list</span> <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">depends_on</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># update data points</span>
+        <span class="n">new_data_points</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">depends_on</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">](</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_points</span><span class="p">,</span> <span class="n">target_parameter</span><span class="o">.</span><span class="n">data_points</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="c1"># update constraints</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="n">target_parameter</span><span class="o">.</span><span class="n">constraints</span><span class="p">,</span> <span class="nb">dict</span>
+            <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">depends_on</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">](</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">],</span> <span class="n">target_parameter</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">depends_on</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">](</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">],</span> <span class="n">target_parameter</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                        <span class="ow">and</span> <span class="n">target_parameter</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="p">):</span>
+                        <span class="c1"># step is not necessary to specify</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">depends_on</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">](</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">],</span>
+                            <span class="n">target_parameter</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">],</span>
+                        <span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="n">target_parameter</span><span class="o">.</span><span class="n">constraints</span><span class="p">,</span> <span class="nb">tuple</span>
+            <span class="p">):</span>
+                <span class="n">updated_constraints</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_parameter</span><span class="o">.</span><span class="n">constraints</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Can not compute dependency for parameter with different number of allowed values.&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">):</span>
+                    <span class="n">updated_constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">depends_on</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">](</span>
+                            <span class="n">value</span><span class="p">,</span> <span class="n">target_parameter</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">updated_constraints</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;For parameters that depend on each other the constraints must be of the same type and not &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">target_parameter</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_points</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_data_points</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SystemSetup">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.SystemSetup">[docs]</a>
+<span class="k">class</span> <span class="nc">SystemSetup</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defines a class for the setup of the system parameters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    source_directory : str</span>
+<span class="sd">        Path of the source directory.</span>
+<span class="sd">    program_name : str</span>
+<span class="sd">        Name of the script that should be used for the experiment.</span>
+<span class="sd">    command_line_arguments : dict (optional)</span>
+<span class="sd">        Dictionaries containing as keys the reference of the line argument and as values their value. Defaults to an</span>
+<span class="sd">        empty dictionary.</span>
+<span class="sd">    analysis_script : str (optional)</span>
+<span class="sd">        Name of the script that is used to analyse the output of the program script. Defaults to None.</span>
+<span class="sd">    executor : str (optional)</span>
+<span class="sd">        Executor to be passed when submitting jobs. Defaults to &#39;python&#39;.</span>
+<span class="sd">    output_dir_name : str (optional)</span>
+<span class="sd">        Name of the directory the output should be stored in. Defaults to &#39;output&#39;.</span>
+<span class="sd">    output_extension : str (optional)</span>
+<span class="sd">        Extension of the output files to be picked up by the analysis_script, e.g &#39;csv&#39; or &#39;json&#39;. Defaults to &#39;csv&#39;.</span>
+<span class="sd">    venv : str (optional)</span>
+<span class="sd">        Path to the virtual environment that should be initialized before the QCGPilot job is started. Defaults to None.</span>
+<span class="sd">    slurm_venv : str (optional)</span>
+<span class="sd">        Path to the environment that slurm should activate before executing yotse. This needs to have yotse installed.</span>
+<span class="sd">        Defaults to None.</span>
+<span class="sd">    num_nodes : int (optional)</span>
+<span class="sd">        Number of nodes to allocate on the HPC cluster. Defaults to 1.</span>
+<span class="sd">    alloc_time : str (optional)</span>
+<span class="sd">        Time to allocate on the HPC cluster in the format HH:MM:SS (or HHH:MM:SS and so forth). Defaults to &#39;00:15:00&#39;.</span>
+<span class="sd">    slurm_args : list (optional)</span>
+<span class="sd">        Additional arguments to pass to SLURM, e.g. &#39;--exclusive&#39;. Defaults to None</span>
+<span class="sd">    qcg_cfg : dict (optional)</span>
+<span class="sd">        Configuration to pass to the QCG-PilotJob manager. Dict with supported keys &#39;init_timeout&#39;, &#39;poll_delay&#39;,</span>
+<span class="sd">        &#39;log_file&#39;, &#39;log_level&#39;. See docstring of `qcg.pilotjob.api.manager.LocalManager`. If None QCG defaults are</span>
+<span class="sd">        used. Defaults to None.</span>
+<span class="sd">    modules : list (optional)</span>
+<span class="sd">        Modules to load on the HPC cluster. Defaults to None.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">    ----------</span>
+<span class="sd">    stdout_basename : str</span>
+<span class="sd">        Basename of the file that the standard output steam (stdout) of the script should be written to.</span>
+<span class="sd">        The final filename will be of the form &#39;&lt;stdout_basename&gt;&lt;unique_job_identifier&gt;.txt&#39;. O</span>
+<span class="sd">    working_directory : str</span>
+<span class="sd">        Name of the current working directory to be passed to QCGPilotJob.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SystemSetup.__init__">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.SystemSetup.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">source_directory</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">program_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">command_line_arguments</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">analysis_script</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">executor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span>
+        <span class="n">output_dir_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">output_extension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span>
+        <span class="n">venv</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">slurm_venv</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">num_nodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">alloc_time</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;00:15:00&quot;</span><span class="p">,</span>
+        <span class="n">slurm_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">qcg_cfg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">modules</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">source_directory</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid source_directory path: </span><span class="si">{</span><span class="n">source_directory</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source_directory</span><span class="p">,</span> <span class="n">program_name</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid program_name: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source_directory</span><span class="p">,</span><span class="w"> </span><span class="n">program_name</span><span class="p">)</span><span class="si">}</span><span class="s2"> is not a file.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">analysis_script</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source_directory</span><span class="p">,</span> <span class="n">analysis_script</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Invalid analysis_script:&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source_directory</span><span class="p">,</span><span class="w"> </span><span class="n">analysis_script</span><span class="p">)</span><span class="si">}</span><span class="s2"> is not a file.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">output_extension</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="s2">&quot;pickle&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;`output_extension`=</span><span class="si">{</span><span class="n">output_extension</span><span class="si">}</span><span class="s2"> not implemented yet.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">source_directory</span> <span class="o">=</span> <span class="n">source_directory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">program_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source_directory</span><span class="p">,</span> <span class="n">program_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmdline_arguments</span> <span class="o">=</span> <span class="n">command_line_arguments</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="c1"># replace paths in cmdline args with absolute paths</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmdline_arguments</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">value</span><span class="p">)[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cmdline_arguments</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source_directory</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis_script</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source_directory</span><span class="p">,</span> <span class="n">analysis_script</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">analysis_script</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">job_args</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;exec&quot;</span><span class="p">:</span> <span class="n">executor</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_dir_name</span> <span class="o">=</span> <span class="n">output_dir_name</span> <span class="ow">or</span> <span class="s2">&quot;output&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_extension</span> <span class="o">=</span> <span class="n">output_extension</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stdout_basename</span> <span class="o">=</span> <span class="s2">&quot;stdout&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">working_directory</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">venv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">job_args</span><span class="p">[</span><span class="s2">&quot;venv&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">venv</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">venv</span> <span class="o">=</span> <span class="n">venv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_nodes</span> <span class="o">=</span> <span class="n">num_nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alloc_time</span> <span class="o">=</span> <span class="n">alloc_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slurm_venv</span> <span class="o">=</span> <span class="n">slurm_venv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slurm_args</span> <span class="o">=</span> <span class="n">slurm_args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qcg_cfg</span> <span class="o">=</span> <span class="n">qcg_cfg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modules</span> <span class="o">=</span> <span class="n">modules</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">current_step_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the path of the current optimization step.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_directory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">working_directory</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Could not get current step directory. Working directory is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">working_directory</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="SystemSetup.cmdline_dict_to_list">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.SystemSetup.cmdline_dict_to_list">[docs]</a>
+    <span class="k">def</span> <span class="nf">cmdline_dict_to_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the dictionary of commandline arguments to a list for QCGPilot.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">item</span>
+            <span class="k">for</span> <span class="n">key_value_pair</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmdline_arguments</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">key_value_pair</span>
+        <span class="p">]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="OptimizationInfo">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.OptimizationInfo">[docs]</a>
+<span class="k">class</span> <span class="nc">OptimizationInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class that is optional as input to the Experiment, if the run is supposed to</span>
+<span class="sd">    execute an optimization it will look here for the parameters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of the optimization algorithm to be used, e.g. &quot;GA&quot; (genetic algorithm), &quot;GD&quot; (gradient descent).</span>
+<span class="sd">    opt_parameters : dict</span>
+<span class="sd">        Dictionary containing all necessary parameters for the optimization.</span>
+<span class="sd">    is_active : bool</span>
+<span class="sd">        Whether this is the currently active optimization algorithm. Can be used to perform sequential optimization with</span>
+<span class="sd">        different optimization algorithms that can all be defined in a single Experiment.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="OptimizationInfo.__init__">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.OptimizationInfo.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">opt_parameters</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">is_active</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">opt_parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_active</span> <span class="o">=</span> <span class="n">is_active</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Experiment">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.Experiment">[docs]</a>
+<span class="k">class</span> <span class="nc">Experiment</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class that contains the whole experiment, including ExperimentalSystemSetup, all</span>
+<span class="sd">    Parameters and a list of optimization steps.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    experiment_name : str</span>
+<span class="sd">        Descriptive name for the experiment.</span>
+<span class="sd">    system_setup : SystemSetup</span>
+<span class="sd">        Instance of the SystemSetup class that contains the setup of the experimental system.</span>
+<span class="sd">    parameters : list of Parameter, optional</span>
+<span class="sd">        List of Parameter instances that define the parameters to be varied in the experiment.</span>
+<span class="sd">        Defaults to an empty list.</span>
+<span class="sd">        Note: If one wants to first optimize over a subset of parameters then set the remaining parameters as inactive</span>
+<span class="sd">        `for param not in params_to_opt_over: param.parameter_active = False`. To later also optimize over the</span>
+<span class="sd">        other subset just set them to active again.</span>
+<span class="sd">    opt_info_list : list, optional</span>
+<span class="sd">        List of OptimizationInfo objects describing the different optimization algorithms to be used and their</span>
+<span class="sd">        parameters.</span>
+<span class="sd">        Defaults to an empty list.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data_points : ndarray</span>
+<span class="sd">        MxN array where M is the total number of combinations of parameter data points and N is the number of</span>
+<span class="sd">        parameters. Each row represents a unique combination of parameter values to be explored in the experiment.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Experiment.__init__">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.Experiment.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">experiment_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">system_setup</span><span class="p">:</span> <span class="n">SystemSetup</span><span class="p">,</span>
+        <span class="n">parameters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">opt_info_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">OptimizationInfo</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">experiment_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system_setup</span> <span class="o">=</span> <span class="n">system_setup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">parameters</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimization_information_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">opt_info_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">opt_info_list</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">OptimizationInfo</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Items in opt_info_list should be of type OptimizationInfo not </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimization_information_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">opt_info_list</span><span class="p">)</span>
+        <span class="c1"># todo: to avoid confusion maybe it is useful to call the datapoints of the exp different than those of params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_datapoint_c_product</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cost_function</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cost_function</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cost_function</span>
+
+    <span class="nd">@cost_function</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">cost_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isfunction</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">&quot;&lt;locals&gt;&quot;</span> <span class="ow">in</span> <span class="n">func</span><span class="o">.</span><span class="vm">__qualname__</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Local functions are not supported for serialization by pickle. Therefore your&quot;</span>
+                    <span class="s2">&quot; optimization will not be able to save its state. Please define your cost_function&quot;</span>
+                    <span class="s2">&quot; outside the main() function of your script.&quot;</span>
+                <span class="p">)</span>
+                <span class="c1"># todo: or should we just switch to dill instead of pickle?</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input cost_function is not a function.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cost_function</span> <span class="o">=</span> <span class="n">func</span>
+
+<div class="viewcode-block" id="Experiment.create_datapoint_c_product">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.Experiment.create_datapoint_c_product">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_datapoint_c_product</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create initial set of points as Cartesian product of all active parameters.</span>
+
+<span class="sd">        Overwrite if other combination is needed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s2">&quot;Parameters are not list.&quot;</span>
+            <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;One of the parameters is not of correct type &#39;Parameter&#39;, but is </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">param</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">depends_on</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">param</span><span class="o">.</span><span class="n">update_parameter_through_dependency</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+            <span class="n">active_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">is_active</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">active_params</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># single param -&gt; reshape to 2D array where each row is a single data point</span>
+                <span class="n">data_points</span> <span class="o">=</span> <span class="n">active_params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data_points</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># multiple params -&gt; cartesian product and conversion to np.ndarray</span>
+                <span class="n">data_points_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                    <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">data_points</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">active_params</span><span class="p">])</span>
+                <span class="p">)</span>
+                <span class="n">data_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data_points_list</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">data_points</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(())</span></div>
+
+
+<div class="viewcode-block" id="Experiment.add_parameter">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.Experiment.add_parameter">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds a parameter to the experiment.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parameter : Parameter</span>
+<span class="sd">            The parameter to add to the experiment.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Can not add parameter that is not of type Parameter.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Experiment.add_optimization_info">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.Experiment.add_optimization_info">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_optimization_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimization_info</span><span class="p">:</span> <span class="n">OptimizationInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds OptimizationInfo to the experiment.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        optimization_info : OptimizationInfo</span>
+<span class="sd">            The optimization step to add to the experiment.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">optimization_info</span><span class="p">,</span> <span class="n">OptimizationInfo</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Can not add parameter that is not of type Parameter.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimization_information_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">optimization_info</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Experiment.generate_slurm_script">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.Experiment.generate_slurm_script">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_slurm_script</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate slurm script to execute the file through slurm.</span>
+
+<span class="sd">        Note: after the file has been created the process can be started by calling `sbatch slurm.job`</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str (optional)</span>
+<span class="sd">            Name of the file to be executed through SLURM</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">num_nodes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Slurm script can not be generated without num_nodes.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">alloc_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Slurm script can not be generated without alloc_time.&quot;</span><span class="p">)</span>
+
+        <span class="n">script</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;#!/bin/bash</span><span class="se">\n</span><span class="s2">#SBATCH --nodes=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">num_nodes</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">slurm_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">slurm_arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">slurm_args</span><span class="p">:</span>
+                <span class="n">script</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;#SBATCH </span><span class="si">{</span><span class="n">slurm_arg</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">script</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;#SBATCH --time=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">alloc_time</span><span class="si">}</span><span class="se">\n\n\n</span><span class="s2">&quot;</span>
+        <span class="n">script</span> <span class="o">+=</span> <span class="s2">&quot;module purge</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">modules</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
+                <span class="n">script</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;module load </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">slurm_venv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">script</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;source </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">slurm_venv</span><span class="p">,</span><span class="s1">&#39;bin/activate&#39;</span><span class="p">)</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="n">script</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;python </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">source_directory</span><span class="p">,</span> <span class="s2">&quot;slurm.job&quot;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">script</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Experiment.parse_slurm_arg">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.Experiment.parse_slurm_arg">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_slurm_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--slurm&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Generate slurm.job file&quot;</span>
+        <span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">slurm</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_slurm_script</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="n">border</span> <span class="o">=</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">border</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[1;92mSLURM execution script </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> successfully created. Execute with &#39;sbatch </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39;.</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">border</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">exit</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Experiment.qcgpilot_commandline">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.Experiment.qcgpilot_commandline">[docs]</a>
+    <span class="k">def</span> <span class="nf">qcgpilot_commandline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datapoint_item</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a command line for the QCG-PilotJob executor based on the experiment</span>
+<span class="sd">        configuration.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        datapoint_item : List[float]</span>
+<span class="sd">            Datapoint containing the specific values for each parameter e.g. (x1, y2, z1).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            A list of strings representing the command line arguments for the QCG-PilotJob executor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cmdline</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">source_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">program_name</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+        <span class="c1"># add parameters</span>
+        <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">is_active</span><span class="p">:</span>
+                <span class="n">cmdline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--</span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">cmdline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">datapoint_item</span><span class="p">[</span><span class="n">p</span><span class="p">])</span>
+        <span class="c1"># add fixed cmdline arguments</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">cmdline_arguments</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">cmdline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">cmdline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">cmdline</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="set_basic_directory_structure_for_job">
+<a class="viewcode-back" href="../../yotse.html#yotse.pre.set_basic_directory_structure_for_job">[docs]</a>
+<span class="k">def</span> <span class="nf">set_basic_directory_structure_for_job</span><span class="p">(</span>
+    <span class="n">experiment</span><span class="p">:</span> <span class="n">Experiment</span><span class="p">,</span> <span class="n">step_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">job_number</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates a new directory for the given step number and updates the experiment&#39;s</span>
+<span class="sd">    working directory accordingly.</span>
+
+<span class="sd">    The basic directory structure is as follows::</span>
+
+<span class="sd">        source_dir/</span>
+<span class="sd">        ├── output_dir/</span>
+<span class="sd">        │   ├── your_run_script.py</span>
+<span class="sd">        │   ├── analysis_script.py</span>
+<span class="sd">        │   └── step_{i}/</span>
+<span class="sd">        │       ├── analysis_output.csv</span>
+<span class="sd">        │       └── job_{j}/</span>
+<span class="sd">        │           ├── output_of_your_run_script.extension</span>
+<span class="sd">        │           └── stdout{j}.txt</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    experiment : Experiment</span>
+<span class="sd">        The :obj:`Experiment` that is being run.</span>
+<span class="sd">    step_number : int</span>
+<span class="sd">        The number of the current step.</span>
+<span class="sd">    job_number : int</span>
+<span class="sd">        The number of the current job.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">source_dir</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">source_directory</span>
+    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">output_dir_name</span>
+    <span class="n">new_working_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">source_dir</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;step</span><span class="si">{</span><span class="n">step_number</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;job</span><span class="si">{</span><span class="n">job_number</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">new_working_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">new_working_dir</span><span class="p">)</span>
+    <span class="n">experiment</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">working_directory</span> <span class="o">=</span> <span class="n">new_working_dir</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, SURFQuantum.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

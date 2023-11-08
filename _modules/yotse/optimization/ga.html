@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>yotse.optimization.ga &mdash; YOTSE  documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            YOTSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../yotse.html">yotse package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Yotse Examples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">YOTSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">yotse.optimization.ga</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for yotse.optimization.ga</h1><div class="highlight"><pre>
+<span></span><span class="c1"># type: ignore</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">pygad</span> <span class="kn">import</span> <span class="n">GA</span>
+
+
+<div class="viewcode-block" id="ModGA">
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.ga.ModGA">[docs]</a>
+<span class="k">class</span> <span class="nc">ModGA</span><span class="p">(</span><span class="n">GA</span><span class="p">):</span>
+<div class="viewcode-block" id="ModGA.run_single_generation">
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.ga.ModGA.run_single_generation">[docs]</a>
+    <span class="k">def</span> <span class="nf">run_single_generation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">num_generations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_generations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_generations</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_generations</span> <span class="o">=</span> <span class="n">num_generations</span></div>
+
+
+<div class="viewcode-block" id="ModGA.run">
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.ga.ModGA.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the genetic algorithm.</span>
+
+<span class="sd">        This is the main method in which the genetic algorithm is evolved through a</span>
+<span class="sd">        number of generations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid_parameters</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Error calling the run() method: </span><span class="se">\n</span><span class="s2">The run() method cannot be executed with invalid parameters. &quot;</span>
+                <span class="s2">&quot;Please check the parameters passed while creating an instance of the GA class.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="s2">&quot;Error calling the run() method: </span><span class="se">\n</span><span class="s2">The run() method cannot be executed with invalid parameters. &quot;</span>
+                <span class="s2">&quot;Please check the parameters passed while creating an instance of the GA class.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Starting from PyGAD 2.18.0, the 4 properties (best_solutions, best_solutions_fitness, solutions,</span>
+        <span class="c1"># and solutions_fitness) are no longer reset with each call to the run() method. Instead, they are extended.</span>
+        <span class="c1"># For example, if there are 50 generations and the user set save_best_solutions=True, then the length of the</span>
+        <span class="c1"># 2 properties best_solutions and best_solutions_fitness will be 50 after the first call to the run() method,</span>
+        <span class="c1"># then 100 after the second call, 150 after the third, and so on.</span>
+
+        <span class="c1"># self.best_solutions: Holds the best solution in each generation.</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_solutions</span><span class="p">)</span> <span class="ow">is</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_solutions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_solutions</span><span class="p">)</span>
+        <span class="c1"># self.best_solutions_fitness: A list holding the fitness value of the best solution for each generation.</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_solutions_fitness</span><span class="p">)</span> <span class="ow">is</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_solutions_fitness</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_solutions_fitness</span><span class="p">)</span>
+        <span class="c1"># self.solutions: Holds the solutions in each generation.</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solutions</span><span class="p">)</span> <span class="ow">is</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solutions</span><span class="p">)</span>
+        <span class="c1"># self.solutions_fitness: Holds the fitness of the solutions in each generation.</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solutions_fitness</span><span class="p">)</span> <span class="ow">is</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">solutions_fitness</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solutions_fitness</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="n">stop_run</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># To continue from where we stopped, the first generation index should start from the value of the</span>
+        <span class="c1"># &#39;self.generations_completed&#39; parameter.</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generations_completed</span> <span class="o">!=</span> <span class="mi">0</span>
+            <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generations_completed</span><span class="p">)</span> <span class="ow">in</span> <span class="n">GA</span><span class="o">.</span><span class="n">supported_int_types</span>
+        <span class="p">):</span>
+            <span class="c1"># If the &#39;self.generations_completed&#39; parameter is not &#39;0&#39;, then this means we continue execution.</span>
+            <span class="n">generation_first_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generations_completed</span>
+            <span class="n">generation_last_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_generations</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">generations_completed</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># If the &#39;self.generations_completed&#39; parameter is &#39;0&#39;, then stat from scratch.</span>
+            <span class="n">generation_first_idx</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">generation_last_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_generations</span>
+
+        <span class="c1"># Measuring the fitness of each chromosome in the population. Save the fitness in the last_generation_fitness</span>
+        <span class="c1"># attribute.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_fitness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cal_pop_fitness</span><span class="p">()</span>
+
+        <span class="n">best_solution</span><span class="p">,</span> <span class="n">best_solution_fitness</span><span class="p">,</span> <span class="n">best_match_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_solution</span><span class="p">(</span>
+            <span class="n">pop_fitness</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_fitness</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Appending the best solution in the initial population to the best_solutions list.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_best_solutions</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_solutions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_solution</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">generation</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">generation_first_idx</span><span class="p">,</span> <span class="n">generation_last_idx</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_fitness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">on_fitness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_fitness</span><span class="p">)</span>
+
+            <span class="c1"># Appending the fitness value of the best solution in the current generation to the best_solutions_fitness</span>
+            <span class="c1"># attribute.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_solutions_fitness</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_solution_fitness</span><span class="p">)</span>
+
+            <span class="c1"># Appending the solutions in the current generation to the solutions list.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_solutions</span><span class="p">:</span>
+                <span class="c1"># self.solutions.extend(self.population.copy())</span>
+                <span class="n">population_as_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">population_as_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">population_as_list</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">population_as_list</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">solutions_fitness</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_fitness</span><span class="p">)</span>
+
+            <span class="c1"># Selecting the best parents in the population for mating.</span>
+            <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent_selection_type</span><span class="p">):</span>
+                <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents_indices</span><span class="p">,</span>
+                <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_parents</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_fitness</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_parents_mating</span><span class="p">,</span> <span class="bp">self</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="s2">&quot;The type of the iterable holding the selected parents is expected to be (numpy.ndarray) but &quot;</span>
+                        <span class="s2">&quot;</span><span class="si">{last_generation_parents_type}</span><span class="s2"> found.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">last_generation_parents_type</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                        <span class="s2">&quot;The type of the iterable holding the selected parents is expected to be (numpy.ndarray) but &quot;</span>
+                        <span class="s2">&quot;</span><span class="si">{last_generation_parents_type}</span><span class="s2"> found.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">last_generation_parents_type</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents_indices</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="s2">&quot;The type of the iterable holding the selected parents&#39; indices is expected to be &quot;</span>
+                        <span class="s2">&quot;(numpy.ndarray) but </span><span class="si">{last_generation_parents_indices_type}</span><span class="s2"> found.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">last_generation_parents_indices_type</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents_indices</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                        <span class="s2">&quot;The type of the iterable holding the selected parents&#39; indices is expected to be &quot;</span>
+                        <span class="s2">&quot;(numpy.ndarray) but </span><span class="si">{last_generation_parents_indices_type}</span><span class="s2"> found.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">last_generation_parents_indices_type</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents_indices</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents_indices</span><span class="p">,</span>
+                <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_parents</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_fitness</span><span class="p">,</span> <span class="n">num_parents</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_parents_mating</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Validate the output of the parent selection step: self.select_parents()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">num_parents_mating</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_parents_mating</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="s2">&quot;Size mismatch between the size of the selected parents </span><span class="si">{parents_size_actual}</span><span class="s2"> and the expected &quot;</span>
+                        <span class="s2">&quot;size </span><span class="si">{parents_size_expected}</span><span class="s2">. It is expected to select (</span><span class="si">{num_parents_mating}</span><span class="s2">) parents but &quot;</span>
+                        <span class="s2">&quot;(</span><span class="si">{num_parents_mating_selected}</span><span class="s2">) selected.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">parents_size_actual</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                            <span class="n">parents_size_expected</span><span class="o">=</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">num_parents_mating</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                            <span class="p">),</span>
+                            <span class="n">num_parents_mating</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_parents_mating</span><span class="p">,</span>
+                            <span class="n">num_parents_mating_selected</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span>
+                                <span class="mi">0</span>
+                            <span class="p">],</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Size mismatch between the size of the selected parents </span><span class="si">{parents_size_actual}</span><span class="s2"> and the expected &quot;</span>
+                        <span class="s2">&quot;size </span><span class="si">{parents_size_expected}</span><span class="s2">. It is expected to select (</span><span class="si">{num_parents_mating}</span><span class="s2">) parents but &quot;</span>
+                        <span class="s2">&quot;(</span><span class="si">{num_parents_mating_selected}</span><span class="s2">) selected.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">parents_size_actual</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                            <span class="n">parents_size_expected</span><span class="o">=</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">num_parents_mating</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                            <span class="p">),</span>
+                            <span class="n">num_parents_mating</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_parents_mating</span><span class="p">,</span>
+                            <span class="n">num_parents_mating_selected</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span>
+                                <span class="mi">0</span>
+                            <span class="p">],</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="s2">&quot;Size mismatch between the size of the selected parents </span><span class="si">{parents_size_actual}</span><span class="s2"> and the expected &quot;</span>
+                        <span class="s2">&quot;size </span><span class="si">{parents_size_expected}</span><span class="s2">. Parents are expected to have (</span><span class="si">{num_genes}</span><span class="s2">) genes but &quot;</span>
+                        <span class="s2">&quot;(</span><span class="si">{num_genes_selected}</span><span class="s2">) produced.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">parents_size_actual</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                            <span class="n">parents_size_expected</span><span class="o">=</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">num_parents_mating</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                            <span class="p">),</span>
+                            <span class="n">num_genes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                            <span class="n">num_genes_selected</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Size mismatch between the size of the selected parents </span><span class="si">{parents_size_actual}</span><span class="s2"> and the expected &quot;</span>
+                        <span class="s2">&quot;size </span><span class="si">{parents_size_expected}</span><span class="s2">. Parents are expected to have (</span><span class="si">{num_genes}</span><span class="s2">) genes but &quot;</span>
+                        <span class="s2">&quot;(</span><span class="si">{num_genes_selected}</span><span class="s2">) produced.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">parents_size_actual</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                            <span class="n">parents_size_expected</span><span class="o">=</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">num_parents_mating</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                            <span class="p">),</span>
+                            <span class="n">num_genes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                            <span class="n">num_genes_selected</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents_indices</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;The iterable holding the selected parents indices is expected to have 1 dimension but &quot;</span>
+                    <span class="s2">&quot;(</span><span class="si">{parents_indices_ndim}</span><span class="s2">) found.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">parents_indices_ndim</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents_indices</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;The iterable holding the selected parents indices is expected to have 1 dimension but &quot;</span>
+                    <span class="s2">&quot;(</span><span class="si">{parents_indices_ndim}</span><span class="s2">) found.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">parents_indices_ndim</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents_indices</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents_indices</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_parents_mating</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;The iterable holding the selected parents indices is expected to have (</span><span class="si">{num_parents_mating}</span><span class="s2">) &quot;</span>
+                    <span class="s2">&quot;values but (</span><span class="si">{num_parents_mating_selected}</span><span class="s2">) found.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">num_parents_mating</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_parents_mating</span><span class="p">,</span>
+                        <span class="n">num_parents_mating_selected</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents_indices</span>
+                        <span class="p">),</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;The iterable holding the selected parents indices is expected to have (</span><span class="si">{num_parents_mating}</span><span class="s2">) &quot;</span>
+                    <span class="s2">&quot;values but (</span><span class="si">{num_parents_mating_selected}</span><span class="s2">) found.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">num_parents_mating</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_parents_mating</span><span class="p">,</span>
+                        <span class="n">num_parents_mating_selected</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents_indices</span>
+                        <span class="p">),</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_parents</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">on_parents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="p">)</span>
+
+            <span class="c1"># If self.crossover_type=None, then no crossover is applied and thus no offspring will be created in the</span>
+            <span class="c1"># next generations. The next generation will use the solutions in the current population.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crossover_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_elitism</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">num_parents_to_keep</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">num_parents_mating</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_parents</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
+                        <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_parents</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span> <span class="o">&lt;=</span> <span class="n">num_parents_to_keep</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="p">[</span><span class="mi">0</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span><span class="p">]</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                            <span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="p">[</span>
+                                    <span class="mi">0</span> <span class="p">:</span> <span class="p">(</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span>
+                                        <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                                    <span class="p">)</span>
+                                <span class="p">],</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># The steady_state_selection() function is called to select the best solutions (i.e. elitism). The</span>
+                    <span class="c1"># keep_elitism parameter defines the number of these solutions.</span>
+                    <span class="c1"># The steady_state_selection() function is still called here even if its output may not be used</span>
+                    <span class="c1"># given that the condition of the next if statement is True. The reason is that it will be used</span>
+                    <span class="c1"># later.</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_elitism</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady_state_selection</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_fitness</span><span class="p">,</span> <span class="n">num_parents</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_elitism</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_elitism</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="p">[</span><span class="mi">0</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span><span class="p">]</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                            <span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_elitism</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="p">[</span>
+                                    <span class="mi">0</span> <span class="p">:</span> <span class="p">(</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span>
+                                        <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_elitism</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                                    <span class="p">)</span>
+                                <span class="p">],</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Generating offspring using crossover.</span>
+                <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crossover_type</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="p">,</span>
+                        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">),</span>
+                        <span class="bp">self</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span><span class="p">)</span>
+                        <span class="ow">is</span> <span class="ow">not</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>
+                    <span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                            <span class="s2">&quot;The output of the crossover step is expected to be of type (numpy.ndarray) but &quot;</span>
+                            <span class="s2">&quot;</span><span class="si">{last_generation_offspring_crossover_type}</span><span class="s2"> found.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">last_generation_offspring_crossover_type</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                            <span class="s2">&quot;The output of the crossover step is expected to be of type (numpy.ndarray) but &quot;</span>
+                            <span class="s2">&quot;</span><span class="si">{last_generation_offspring_crossover_type}</span><span class="s2"> found.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">last_generation_offspring_crossover_type</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="p">,</span>
+                        <span class="n">offspring_size</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">),</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                <span class="p">):</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span>
+                    <span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                            <span class="s2">&quot;Size mismatch between the crossover output </span><span class="si">{crossover_actual_size}</span><span class="s2"> and the expected &quot;</span>
+                            <span class="s2">&quot;crossover output </span><span class="si">{crossover_expected_size}</span><span class="s2">. It is expected to produce (</span><span class="si">{num_offspring}</span><span class="s2">) &quot;</span>
+                            <span class="s2">&quot;offspring but (</span><span class="si">{num_offspring_produced}</span><span class="s2">) produced.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">crossover_actual_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                                <span class="n">crossover_expected_size</span><span class="o">=</span><span class="p">(</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                                <span class="p">),</span>
+                                <span class="n">num_offspring</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span><span class="p">,</span>
+                                <span class="n">num_offspring_produced</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span>
+                                    <span class="mi">0</span>
+                                <span class="p">],</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s2">&quot;Size mismatch between the crossover output </span><span class="si">{crossover_actual_size}</span><span class="s2"> and the expected &quot;</span>
+                            <span class="s2">&quot;crossover output </span><span class="si">{crossover_expected_size}</span><span class="s2">. It is expected to produce (</span><span class="si">{num_offspring}</span><span class="s2">) &quot;</span>
+                            <span class="s2">&quot;offspring but (</span><span class="si">{num_offspring_produced}</span><span class="s2">) produced.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">crossover_actual_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                                <span class="n">crossover_expected_size</span><span class="o">=</span><span class="p">(</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                                <span class="p">),</span>
+                                <span class="n">num_offspring</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span><span class="p">,</span>
+                                <span class="n">num_offspring_produced</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span>
+                                    <span class="mi">0</span>
+                                <span class="p">],</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="k">elif</span> <span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span>
+                    <span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                            <span class="s2">&quot;Size mismatch between the crossover output </span><span class="si">{crossover_actual_size}</span><span class="s2"> and the expected &quot;</span>
+                            <span class="s2">&quot;crossover output </span><span class="si">{crossover_expected_size}</span><span class="s2">. It is expected that the offspring has &quot;</span>
+                            <span class="s2">&quot;(</span><span class="si">{num_genes}</span><span class="s2">) genes but (</span><span class="si">{num_genes_produced}</span><span class="s2">) produced.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">crossover_actual_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                                <span class="n">crossover_expected_size</span><span class="o">=</span><span class="p">(</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                                <span class="p">),</span>
+                                <span class="n">num_genes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                                <span class="n">num_genes_produced</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span>
+                                    <span class="mi">1</span>
+                                <span class="p">],</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s2">&quot;Size mismatch between the crossover output </span><span class="si">{crossover_actual_size}</span><span class="s2"> and the expected &quot;</span>
+                            <span class="s2">&quot;crossover output </span><span class="si">{crossover_expected_size}</span><span class="s2">. It is expected that the offspring has &quot;</span>
+                            <span class="s2">&quot;(</span><span class="si">{num_genes}</span><span class="s2">) genes but (</span><span class="si">{num_genes_produced}</span><span class="s2">) produced.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">crossover_actual_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                                <span class="n">crossover_expected_size</span><span class="o">=</span><span class="p">(</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                                <span class="p">),</span>
+                                <span class="n">num_genes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                                <span class="n">num_genes_produced</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span>
+                                    <span class="mi">1</span>
+                                <span class="p">],</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+
+            <span class="c1"># PyGAD 2.18.2 // The on_crossover() callback function is called even if crossover_type is None.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_crossover</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">on_crossover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span><span class="p">)</span>
+
+            <span class="c1"># If self.mutation_type=None, then no mutation is applied and thus no changes are applied to the offspring</span>
+            <span class="c1"># created using the crossover operation. The offspring will be used unchanged in the next generation.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutation_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Adding some variations to the offspring using mutation.</span>
+                <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mutation_type</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutation</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span><span class="p">,</span> <span class="bp">self</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span><span class="p">)</span>
+                        <span class="ow">is</span> <span class="ow">not</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>
+                    <span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                            <span class="s2">&quot;The output of the mutation step is expected to be of type (numpy.ndarray) but &quot;</span>
+                            <span class="s2">&quot;</span><span class="si">{last_generation_offspring_mutation_type}</span><span class="s2"> found.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">last_generation_offspring_mutation_type</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                            <span class="s2">&quot;The output of the mutation step is expected to be of type (numpy.ndarray) but &quot;</span>
+                            <span class="s2">&quot;</span><span class="si">{last_generation_offspring_mutation_type}</span><span class="s2"> found.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">last_generation_offspring_mutation_type</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutation</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_crossover</span>
+                    <span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                <span class="p">):</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span>
+                    <span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                            <span class="s2">&quot;Size mismatch between the mutation output </span><span class="si">{mutation_actual_size}</span><span class="s2"> and the expected mutation&quot;</span>
+                            <span class="s2">&quot; output </span><span class="si">{mutation_expected_size}</span><span class="s2">. It is expected to produce (</span><span class="si">{num_offspring}</span><span class="s2">) offspring&quot;</span>
+                            <span class="s2">&quot; but (</span><span class="si">{num_offspring_produced}</span><span class="s2">) produced.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">mutation_actual_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                                <span class="n">mutation_expected_size</span><span class="o">=</span><span class="p">(</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                                <span class="p">),</span>
+                                <span class="n">num_offspring</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span><span class="p">,</span>
+                                <span class="n">num_offspring_produced</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span>
+                                    <span class="mi">0</span>
+                                <span class="p">],</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s2">&quot;Size mismatch between the mutation output </span><span class="si">{mutation_actual_size}</span><span class="s2"> and the expected mutation&quot;</span>
+                            <span class="s2">&quot; output </span><span class="si">{mutation_expected_size}</span><span class="s2">. It is expected to produce (</span><span class="si">{num_offspring}</span><span class="s2">) offspring&quot;</span>
+                            <span class="s2">&quot; but (</span><span class="si">{num_offspring_produced}</span><span class="s2">) produced.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">mutation_actual_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                                <span class="n">mutation_expected_size</span><span class="o">=</span><span class="p">(</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                                <span class="p">),</span>
+                                <span class="n">num_offspring</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span><span class="p">,</span>
+                                <span class="n">num_offspring_produced</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span>
+                                    <span class="mi">0</span>
+                                <span class="p">],</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="k">elif</span> <span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span>
+                    <span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                            <span class="s2">&quot;Size mismatch between the mutation output </span><span class="si">{mutation_actual_size}</span><span class="s2"> and the expected mutation&quot;</span>
+                            <span class="s2">&quot; output </span><span class="si">{mutation_expected_size}</span><span class="s2">. It is expected that the offspring has (</span><span class="si">{num_genes}</span><span class="s2">)&quot;</span>
+                            <span class="s2">&quot; genes but (</span><span class="si">{num_genes_produced}</span><span class="s2">) produced.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">mutation_actual_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                                <span class="n">mutation_expected_size</span><span class="o">=</span><span class="p">(</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                                <span class="p">),</span>
+                                <span class="n">num_genes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                                <span class="n">num_genes_produced</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span>
+                                    <span class="mi">1</span>
+                                <span class="p">],</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s2">&quot;Size mismatch between the mutation output </span><span class="si">{mutation_actual_size}</span><span class="s2"> and the expected mutation&quot;</span>
+                            <span class="s2">&quot; output </span><span class="si">{mutation_expected_size}</span><span class="s2">. It is expected that the offspring has (</span><span class="si">{num_genes}</span><span class="s2">)&quot;</span>
+                            <span class="s2">&quot; genes but (</span><span class="si">{num_genes_produced}</span><span class="s2">) produced.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">mutation_actual_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                                <span class="n">mutation_expected_size</span><span class="o">=</span><span class="p">(</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">num_offspring</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                                <span class="p">),</span>
+                                <span class="n">num_genes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_genes</span><span class="p">,</span>
+                                <span class="n">num_genes_produced</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span>
+                                    <span class="mi">1</span>
+                                <span class="p">],</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+
+            <span class="c1"># PyGAD 2.18.2 // The on_mutation() callback function is called even if mutation_type is None.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_mutation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">on_mutation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span><span class="p">)</span>
+
+            <span class="c1"># Update the population attribute according to the offspring generated.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_elitism</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># If the keep_elitism parameter is 0, then the keep_parents parameter will be used to decide if the</span>
+                <span class="c1"># parents are kept in the next generation.</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_parents</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">population</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_parents</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="c1"># Creating the new population based on the parents and offspring.</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="p">[</span>
+                        <span class="mi">0</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">:</span>
+                    <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_parents</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:,</span> <span class="p">:</span>
+                    <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_parents</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">parents_to_keep</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady_state_selection</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_fitness</span><span class="p">,</span> <span class="n">num_parents</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_parents</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="p">[</span><span class="mi">0</span> <span class="p">:</span> <span class="n">parents_to_keep</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">parents_to_keep</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="p">[</span>
+                        <span class="n">parents_to_keep</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:,</span> <span class="p">:</span>
+                    <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_elitism</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_elitism_indices</span><span class="p">,</span>
+                <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">steady_state_selection</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_fitness</span><span class="p">,</span> <span class="n">num_parents</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_elitism</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="p">[</span>
+                    <span class="mi">0</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_elitism</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">:</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_elitism</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_elitism</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:,</span> <span class="p">:</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_offspring_mutation</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">generations_completed</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">generation</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="p">)</span>  <span class="c1"># The generations_completed attribute holds the number of the</span>
+            <span class="c1"># last completed generation.</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">previous_generation_fitness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_fitness</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="c1"># Measuring the fitness of each chromosome in the population. Save the fitness in the</span>
+            <span class="c1"># last_generation_fitness attribute.</span>
+
+            <span class="c1"># todo: ### Modified past this line:</span>
+            <span class="c1"># since we are not interested in the fitness of the latest generation nor the solution just skip this</span>
+            <span class="c1"># self.last_generation_fitness = self.cal_pop_fitness()</span>
+            <span class="c1"># ### end of modification</span>
+            <span class="n">best_solution</span><span class="p">,</span> <span class="n">best_solution_fitness</span><span class="p">,</span> <span class="n">best_match_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_solution</span><span class="p">(</span>
+                <span class="n">pop_fitness</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_fitness</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Appending the best solution in the current generation to the best_solutions list.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_best_solutions</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">best_solutions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_solution</span><span class="p">)</span>
+
+            <span class="c1"># If the on_generation attribute is not None, then cal the callback function after the generation.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_generation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_generation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;stop&quot;</span><span class="p">:</span>
+                    <span class="c1"># Before aborting the loop, save the fitness value of the best solution.</span>
+                    <span class="c1"># _, best_solution_fitness, _ = self.best_solution()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">best_solutions_fitness</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_solution_fitness</span><span class="p">)</span>
+                    <span class="k">break</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_criteria</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">criterion</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_criteria</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">criterion</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;reach&quot;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_fitness</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">criterion</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                            <span class="n">stop_run</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="k">break</span>
+                    <span class="k">elif</span> <span class="n">criterion</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;saturate&quot;</span><span class="p">:</span>
+                        <span class="n">criterion</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">criterion</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">generations_completed</span> <span class="o">&gt;=</span> <span class="n">criterion</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                            <span class="k">if</span> <span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">best_solutions_fitness</span><span class="p">[</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">generations_completed</span> <span class="o">-</span> <span class="n">criterion</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                                <span class="p">]</span>
+                                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_solutions_fitness</span><span class="p">[</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">generations_completed</span> <span class="o">-</span> <span class="mi">1</span>
+                                <span class="p">]</span>
+                            <span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                                <span class="n">stop_run</span> <span class="o">=</span> <span class="kc">True</span>
+                                <span class="k">break</span>
+
+            <span class="k">if</span> <span class="n">stop_run</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delay_after_gen</span><span class="p">)</span>
+
+        <span class="c1"># Save the fitness of the last generation.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_solutions</span><span class="p">:</span>
+            <span class="c1"># self.solutions.extend(self.population.copy())</span>
+            <span class="n">population_as_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">population_as_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">population_as_list</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">solutions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">population_as_list</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">solutions_fitness</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_generation_fitness</span><span class="p">)</span>
+
+        <span class="c1"># todo : if executing single_runs this will always append the solution a second time after every run</span>
+        <span class="c1"># Save the fitness value of the best solution.</span>
+        <span class="c1"># _, best_solution_fitness, _ = self.best_solution(pop_fitness=self.last_generation_fitness)</span>
+        <span class="c1"># self.best_solutions_fitness.append(best_solution_fitness)</span>
+        <span class="c1"># ### end of modification</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_solution_generation</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_solutions_fitness</span><span class="p">)</span>
+            <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_solutions_fitness</span><span class="p">))</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># After the run() method completes, the run_completed flag is changed from False to True.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_completed</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="kc">True</span>  <span class="c1"># Set to True only after the run() method completes gracefully.</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_stop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_generation_fitness</span><span class="p">)</span>
+
+        <span class="c1"># Converting the &#39;best_solutions&#39; list into a NumPy array.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_solutions</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_solutions</span><span class="p">)</span></div>
+</div>
+
+
+        <span class="c1"># Converting the &#39;solutions&#39; list into a NumPy array.</span>
+        <span class="c1"># self.solutions = numpy.array(self.solutions)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, SURFQuantum.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

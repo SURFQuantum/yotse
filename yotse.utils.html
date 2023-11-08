@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>yotse.utils package &mdash; YOTSE  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Yotse Examples" href="examples.html" />
+    <link rel="prev" title="yotse.optimization package" href="yotse.optimization.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            YOTSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="yotse.html">yotse package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="yotse.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="yotse.optimization.html">yotse.optimization package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">yotse.utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-yotse.utils.blueprint_tools">yotse.utils.blueprint_tools module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse-utils-prediction-module">yotse.utils.prediction module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-yotse.utils.utils">yotse.utils.utils module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-yotse.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="yotse.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yotse.html#module-yotse.execution">yotse.execution module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yotse.html#module-yotse.post">yotse.post module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yotse.html#module-yotse.pre">yotse.pre module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yotse.html#module-yotse">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Yotse Examples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">YOTSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="yotse.html">yotse package</a></li>
+      <li class="breadcrumb-item active">yotse.utils package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/yotse.utils.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="yotse-utils-package">
+<h1>yotse.utils package<a class="headerlink" href="#yotse-utils-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-yotse.utils.blueprint_tools">
+<span id="yotse-utils-blueprint-tools-module"></span><h2>yotse.utils.blueprint_tools module<a class="headerlink" href="#module-yotse.utils.blueprint_tools" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="yotse.utils.blueprint_tools.create_separate_files_for_job">
+<span class="sig-prename descclassname"><span class="pre">yotse.utils.blueprint_tools.</span></span><span class="sig-name descname"><span class="pre">create_separate_files_for_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="yotse.html#yotse.pre.Experiment" title="yotse.pre.Experiment"><span class="pre">Experiment</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">datapoint_item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/yotse/utils/blueprint_tools.html#create_separate_files_for_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.utils.blueprint_tools.create_separate_files_for_job" title="Link to this definition"></a></dt>
+<dd><p>Create separate parameter and configuration files for a job and prepare for
+execution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment</strong> (<a class="reference internal" href="yotse.html#yotse.pre.Experiment" title="yotse.pre.Experiment"><em>Experiment</em></a>) – The experiment object containing information about the experiment.</p></li>
+<li><p><strong>datapoint_item</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – A single item of data points for the job, represented as a list.</p></li>
+<li><p><strong>step_number</strong> (<em>int</em>) – The number of the step in the experiment.</p></li>
+<li><p><strong>job_number</strong> (<em>int</em>) – The number of the job within the step.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>job_cmdline</strong> – The command line arguments for running the job.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function creates separate parameter and configuration files for a job based on the provided experiment,
+datapoint item, step number, and job number. It prepares the job for execution by setting up the necessary files
+and returning the command line arguments for running the job. The function returns the command line arguments
+as a list for use with QCG-Pilotjob.</p>
+<p>The created files will be saved in the experiment’s directory, under a subdirectory for the step and job.
+The parameter file will have a name like “params_stepY_jobX.yaml” and the configuration file will have a name like
+“config_stepY_jobX.yaml”, where “X” is the job number and “Y” the step number.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="yotse.utils.blueprint_tools.replace_include_param_file">
+<span class="sig-prename descclassname"><span class="pre">yotse.utils.blueprint_tools.</span></span><span class="sig-name descname"><span class="pre">replace_include_param_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configfile_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paramfile_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/utils/blueprint_tools.html#replace_include_param_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.utils.blueprint_tools.replace_include_param_file" title="Link to this definition"></a></dt>
+<dd><p>Replace the INCLUDE keyword in a YAML config file with a reference to a parameter
+file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>configfile_name</strong> (<em>str</em>) – The name of the YAML configuration file to modify.</p></li>
+<li><p><strong>paramfile_name</strong> (<em>str</em>) – The name of the parameter file to include in the configuration file.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function replaces an INCLUDE keyword in a YAML configuration file with a reference to a parameter file.
+It loads the YAML config file, searches recursively for an INCLUDE keyword, and replaces it with a reference
+to the specified parameter file. If the INCLUDE keyword is not found, an error is raised.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="yotse.utils.blueprint_tools.represent_scalar_node">
+<span class="sig-prename descclassname"><span class="pre">yotse.utils.blueprint_tools.</span></span><span class="sig-name descname"><span class="pre">represent_scalar_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dumper</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dumper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ScalarNode</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ScalarNode</span></span></span><a class="reference internal" href="_modules/yotse/utils/blueprint_tools.html#represent_scalar_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.utils.blueprint_tools.represent_scalar_node" title="Link to this definition"></a></dt>
+<dd><p>Represent a ScalarNode object as a scalar value in a YAML file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dumper</strong> (<em>yaml.Dumper</em>) – The YAML dumper object being used to write the file.</p></li>
+<li><p><strong>data</strong> (<em>yaml.ScalarNode</em>) – The ScalarNode object being represented.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>scalar</strong> – The scalar value of the ScalarNode object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="yotse.utils.blueprint_tools.setup_optimization_dir">
+<span class="sig-prename descclassname"><span class="pre">yotse.utils.blueprint_tools.</span></span><span class="sig-name descname"><span class="pre">setup_optimization_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="yotse.html#yotse.pre.Experiment" title="yotse.pre.Experiment"><span class="pre">Experiment</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/utils/blueprint_tools.html#setup_optimization_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.utils.blueprint_tools.setup_optimization_dir" title="Link to this definition"></a></dt>
+<dd><p>Create the directory structure for an optimization step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment</strong> (<a class="reference internal" href="yotse.html#yotse.pre.Experiment" title="yotse.pre.Experiment"><em>Experiment</em></a>) – The Experiment object for which the directory structure should be set up.</p></li>
+<li><p><strong>step_number</strong> (<em>int</em>) – The number of the current optimization step.</p></li>
+<li><p><strong>job_number</strong> (<em>int</em>) – The number of the job within the optimization step.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function creates the directory structure for an optimization step within an experiment. The structure
+includes a <cite>src</cite> directory containing several files related to the optimization, and an <cite>output</cite> directory
+containing directories for each step and job. The function does not return anything but modifies the file system
+to create the necessary directories.</p>
+<p>The directory structure for the optimization step is as follows (for m optimization steps and n jobs):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>src/
+├── unified_script.py
+├── processing_function.py
+├── config.yaml
+├── baseline_params.yaml
+├── qiapt_runscript.py
+output/
+├── experiment_name_timestamp_str/
+│   ├── step0/
+│   │   ├── job0/
+│   │   │   ├── stdout0.txt
+│   │   │   ├── dataframe_holder.pickle
+│   │   │   ├── baseline_params_job0.yaml
+│   │   │   └── config_job0.yaml
+│   │   ...
+│   │   └── jobn/
+│   ...
+│   └── stepm/
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="yotse.utils.blueprint_tools.update_yaml_params">
+<span class="sig-prename descclassname"><span class="pre">yotse.utils.blueprint_tools.</span></span><span class="sig-name descname"><span class="pre">update_yaml_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paramfile_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/utils/blueprint_tools.html#update_yaml_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.utils.blueprint_tools.update_yaml_params" title="Link to this definition"></a></dt>
+<dd><p>Update parameter values in a YAML file and save the updated file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param_list</strong> (<em>List</em><em>[</em><em>Tuple</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – A list of tuples containing parameter names and their updated values.</p></li>
+<li><p><strong>paramfile_name</strong> (<em>str</em>) – The name of the YAML file containing the parameters to update.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="yotse-utils-prediction-module">
+<h2>yotse.utils.prediction module<a class="headerlink" href="#yotse-utils-prediction-module" title="Link to this heading"></a></h2>
+</section>
+<section id="module-yotse.utils.utils">
+<span id="yotse-utils-utils-module"></span><h2>yotse.utils.utils module<a class="headerlink" href="#module-yotse.utils.utils" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="yotse.utils.utils.file_list_to_single_df">
+<span class="sig-prename descclassname"><span class="pre">yotse.utils.utils.</span></span><span class="sig-name descname"><span class="pre">file_list_to_single_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/yotse/utils/utils.html#file_list_to_single_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.utils.utils.file_list_to_single_df" title="Link to this definition"></a></dt>
+<dd><p>Reads CSV, json or pickle files from a list and combines their content in a
+single pandas dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>files</strong> (<em>list</em>) – A list of files to read.</p></li>
+<li><p><strong>extension</strong> (<em>str</em>) – File extension of the files in the list.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>df</strong> – Pandas dataframe containing the combined contents of all the files.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="yotse.utils.utils.get_files_by_extension">
+<span class="sig-prename descclassname"><span class="pre">yotse.utils.utils.</span></span><span class="sig-name descname"><span class="pre">get_files_by_extension</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/yotse/utils/utils.html#get_files_by_extension"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.utils.utils.get_files_by_extension" title="Link to this definition"></a></dt>
+<dd><p>Returns a list of files in the given directory with the specified extension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>directory</strong> (<em>str</em>) – The directory to search for files in.</p></li>
+<li><p><strong>extension</strong> (<em>str</em>) – The file extension to search for.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of files (and their actual location) in the given directory with the specified extension.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="yotse.utils.utils.list_to_numpy_array">
+<span class="sig-prename descclassname"><span class="pre">yotse.utils.utils.</span></span><span class="sig-name descname"><span class="pre">list_to_numpy_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/yotse/utils/utils.html#list_to_numpy_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.utils.utils.list_to_numpy_array" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="yotse.utils.utils.ndarray_to_list">
+<span class="sig-prename descclassname"><span class="pre">yotse.utils.utils.</span></span><span class="sig-name descname"><span class="pre">ndarray_to_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">numpy_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/yotse/utils/utils.html#ndarray_to_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.utils.utils.ndarray_to_list" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-yotse.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-yotse.utils" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="yotse.optimization.html" class="btn btn-neutral float-left" title="yotse.optimization package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="examples.html" class="btn btn-neutral float-right" title="Yotse Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, SURFQuantum.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>yotse.utils.blueprint_tools &mdash; YOTSE  documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            YOTSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../yotse.html">yotse package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Yotse Examples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">YOTSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">yotse.utils.blueprint_tools</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for yotse.utils.blueprint_tools</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">yaml</span>  <span class="c1"># type: ignore[import-untyped]</span>
+<span class="kn">from</span> <span class="nn">ruamel.yaml</span> <span class="kn">import</span> <span class="n">YAML</span>
+<span class="kn">from</span> <span class="nn">ruamel.yaml.nodes</span> <span class="kn">import</span> <span class="n">ScalarNode</span>
+
+<span class="kn">from</span> <span class="nn">yotse.pre</span> <span class="kn">import</span> <span class="n">Experiment</span>
+
+
+<div class="viewcode-block" id="setup_optimization_dir">
+<a class="viewcode-back" href="../../../yotse.utils.html#yotse.utils.blueprint_tools.setup_optimization_dir">[docs]</a>
+<span class="k">def</span> <span class="nf">setup_optimization_dir</span><span class="p">(</span>
+    <span class="n">experiment</span><span class="p">:</span> <span class="n">Experiment</span><span class="p">,</span> <span class="n">step_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">job_number</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the directory structure for an optimization step.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    experiment : Experiment</span>
+<span class="sd">        The Experiment object for which the directory structure should be set up.</span>
+<span class="sd">    step_number : int</span>
+<span class="sd">        The number of the current optimization step.</span>
+<span class="sd">    job_number : int</span>
+<span class="sd">        The number of the job within the optimization step.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function creates the directory structure for an optimization step within an experiment. The structure</span>
+<span class="sd">    includes a `src` directory containing several files related to the optimization, and an `output` directory</span>
+<span class="sd">    containing directories for each step and job. The function does not return anything but modifies the file system</span>
+<span class="sd">    to create the necessary directories.</span>
+
+<span class="sd">    The directory structure for the optimization step is as follows (for m optimization steps and n jobs)::</span>
+
+<span class="sd">        src/</span>
+<span class="sd">        ├── unified_script.py</span>
+<span class="sd">        ├── processing_function.py</span>
+<span class="sd">        ├── config.yaml</span>
+<span class="sd">        ├── baseline_params.yaml</span>
+<span class="sd">        ├── qiapt_runscript.py</span>
+<span class="sd">        output/</span>
+<span class="sd">        ├── experiment_name_timestamp_str/</span>
+<span class="sd">        │   ├── step0/</span>
+<span class="sd">        │   │   ├── job0/</span>
+<span class="sd">        │   │   │   ├── stdout0.txt</span>
+<span class="sd">        │   │   │   ├── dataframe_holder.pickle</span>
+<span class="sd">        │   │   │   ├── baseline_params_job0.yaml</span>
+<span class="sd">        │   │   │   └── config_job0.yaml</span>
+<span class="sd">        │   │   ...</span>
+<span class="sd">        │   │   └── jobn/</span>
+<span class="sd">        │   ...</span>
+<span class="sd">        │   └── stepm/</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">output_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">experiment</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">source_directory</span><span class="p">,</span>
+        <span class="s2">&quot;..&quot;</span><span class="p">,</span>
+        <span class="n">experiment</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">output_dir_name</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">output_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">output_directory</span><span class="p">)</span>  <span class="c1"># clean path of &#39;..&#39;</span>
+    <span class="k">if</span> <span class="n">step_number</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">job_number</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># for first step create timestamped project directory</span>
+        <span class="n">timestamp_str</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">_%H:%M:%S&quot;</span><span class="p">)</span>
+        <span class="n">name_project_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">output_directory</span><span class="p">,</span> <span class="n">experiment</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">timestamp_str</span>
+        <span class="p">)</span>
+        <span class="n">new_working_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">name_project_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;step</span><span class="si">{</span><span class="n">step_number</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;job</span><span class="si">{</span><span class="n">job_number</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">working_directory</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;job&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;The current working directory does not start with &#39;job&#39;. &quot;</span>
+                <span class="s2">&quot;New working directory can&#39;t be set up properly.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">new_working_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">experiment</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">working_directory</span><span class="p">,</span>
+            <span class="s2">&quot;../..&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;step</span><span class="si">{</span><span class="n">step_number</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;job</span><span class="si">{</span><span class="n">job_number</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">new_working_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">new_working_dir</span><span class="p">)</span>  <span class="c1"># clean path of &#39;..&#39;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">new_working_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">new_working_dir</span><span class="p">)</span>
+    <span class="n">experiment</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">working_directory</span> <span class="o">=</span> <span class="n">new_working_dir</span></div>
+
+
+
+<div class="viewcode-block" id="update_yaml_params">
+<a class="viewcode-back" href="../../../yotse.utils.html#yotse.utils.blueprint_tools.update_yaml_params">[docs]</a>
+<span class="k">def</span> <span class="nf">update_yaml_params</span><span class="p">(</span><span class="n">param_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">paramfile_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Update parameter values in a YAML file and save the updated file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    param_list : List[Tuple[str, Any]]</span>
+<span class="sd">        A list of tuples containing parameter names and their updated values.</span>
+<span class="sd">    paramfile_name : str</span>
+<span class="sd">        The name of the YAML file containing the parameters to update.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Load the YAML file</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">paramfile_name</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="c1"># Update each parameter value</span>
+    <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">param_value</span> <span class="ow">in</span> <span class="n">param_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="n">params</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">param_value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Parameter name &#39;</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2">&#39; not found in YAML file&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Save the updated YAML file</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">paramfile_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="represent_scalar_node">
+<a class="viewcode-back" href="../../../yotse.utils.html#yotse.utils.blueprint_tools.represent_scalar_node">[docs]</a>
+<span class="k">def</span> <span class="nf">represent_scalar_node</span><span class="p">(</span><span class="n">dumper</span><span class="p">:</span> <span class="n">yaml</span><span class="o">.</span><span class="n">Dumper</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">yaml</span><span class="o">.</span><span class="n">ScalarNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScalarNode</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represent a ScalarNode object as a scalar value in a YAML file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dumper : yaml.Dumper</span>
+<span class="sd">        The YAML dumper object being used to write the file.</span>
+<span class="sd">    data : yaml.ScalarNode</span>
+<span class="sd">        The ScalarNode object being represented.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    scalar : str</span>
+<span class="sd">        The scalar value of the ScalarNode object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">dumper</span><span class="o">.</span><span class="n">represent_scalar</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="replace_include_param_file">
+<a class="viewcode-back" href="../../../yotse.utils.html#yotse.utils.blueprint_tools.replace_include_param_file">[docs]</a>
+<span class="k">def</span> <span class="nf">replace_include_param_file</span><span class="p">(</span><span class="n">configfile_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">paramfile_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Replace the INCLUDE keyword in a YAML config file with a reference to a parameter</span>
+<span class="sd">    file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    configfile_name : str</span>
+<span class="sd">        The name of the YAML configuration file to modify.</span>
+<span class="sd">    paramfile_name : str</span>
+<span class="sd">        The name of the parameter file to include in the configuration file.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function replaces an INCLUDE keyword in a YAML configuration file with a reference to a parameter file.</span>
+<span class="sd">    It loads the YAML config file, searches recursively for an INCLUDE keyword, and replaces it with a reference</span>
+<span class="sd">    to the specified parameter file. If the INCLUDE keyword is not found, an error is raised.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">yaml</span> <span class="o">=</span> <span class="n">YAML</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s2">&quot;rt&quot;</span><span class="p">)</span>
+    <span class="n">yaml</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="n">mapping</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sequence</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">yaml</span><span class="o">.</span><span class="n">representer</span><span class="o">.</span><span class="n">add_representer</span><span class="p">(</span><span class="n">ScalarNode</span><span class="p">,</span> <span class="n">represent_scalar_node</span><span class="p">)</span>
+
+    <span class="c1"># Load the YAML config file</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">configfile_name</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">old_config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="c1"># Find the line with the INCLUDE keyword recursively</span>
+    <span class="k">def</span> <span class="nf">replace_include</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">replace_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">found</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Recursively search a dictionary or list for an INCLUDE keyword and replace it</span>
+<span class="sd">        with a reference to a parameter file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : dict or list</span>
+<span class="sd">            The dictionary or list to search for an INCLUDE keyword.</span>
+<span class="sd">        replace_str : str</span>
+<span class="sd">            The name of the parameter file to include in place of the INCLUDE keyword.</span>
+<span class="sd">        found : bool, optional</span>
+<span class="sd">            A boolean flag indicating whether an INCLUDE keyword has already been found and replaced. Defaults to False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        found : bool</span>
+<span class="sd">            True if an INCLUDE keyword was found and replaced in the dictionary or list, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="s2">&quot;INCLUDE&quot;</span><span class="p">:</span>
+                    <span class="n">found</span> <span class="o">=</span> <span class="n">replace_include</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">replace_str</span><span class="p">,</span> <span class="n">found</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;INCLUDE&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+                    <span class="n">config</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">ScalarNode</span><span class="p">(</span>
+                        <span class="n">tag</span><span class="o">=</span><span class="s2">&quot;!include&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">replace_str</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="kc">None</span>
+                    <span class="p">)</span>
+                    <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;INCLUDE&quot;</span> <span class="ow">and</span> <span class="n">found</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">config</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="p">)):</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">replace_include</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">replace_str</span><span class="p">,</span> <span class="n">found</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">found</span>
+
+    <span class="n">found_include</span> <span class="o">=</span> <span class="n">replace_include</span><span class="p">(</span><span class="n">old_config</span><span class="p">,</span> <span class="n">paramfile_name</span><span class="p">)</span>
+
+    <span class="c1"># Check if the INCLUDE keyword was found</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">found_include</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;INCLUDE statement not found in &#39;</span><span class="si">{</span><span class="n">configfile_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Save the updated YAML config file</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">configfile_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">old_config</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_separate_files_for_job">
+<a class="viewcode-back" href="../../../yotse.utils.html#yotse.utils.blueprint_tools.create_separate_files_for_job">[docs]</a>
+<span class="k">def</span> <span class="nf">create_separate_files_for_job</span><span class="p">(</span>
+    <span class="n">experiment</span><span class="p">:</span> <span class="n">Experiment</span><span class="p">,</span>
+    <span class="n">datapoint_item</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">step_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">job_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create separate parameter and configuration files for a job and prepare for</span>
+<span class="sd">    execution.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    experiment : Experiment</span>
+<span class="sd">        The experiment object containing information about the experiment.</span>
+<span class="sd">    datapoint_item : List[float]</span>
+<span class="sd">        A single item of data points for the job, represented as a list.</span>
+<span class="sd">    step_number : int</span>
+<span class="sd">        The number of the step in the experiment.</span>
+<span class="sd">    job_number : int</span>
+<span class="sd">        The number of the job within the step.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    job_cmdline : list</span>
+<span class="sd">        The command line arguments for running the job.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function creates separate parameter and configuration files for a job based on the provided experiment,</span>
+<span class="sd">    datapoint item, step number, and job number. It prepares the job for execution by setting up the necessary files</span>
+<span class="sd">    and returning the command line arguments for running the job. The function returns the command line arguments</span>
+<span class="sd">    as a list for use with QCG-Pilotjob.</span>
+
+<span class="sd">    The created files will be saved in the experiment&#39;s directory, under a subdirectory for the step and job.</span>
+<span class="sd">    The parameter file will have a name like &quot;params_stepY_jobX.yaml&quot; and the configuration file will have a name like</span>
+<span class="sd">    &quot;config_stepY_jobX.yaml&quot;, where &quot;X&quot; is the job number and &quot;Y&quot; the step number.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># this should execute after the directory for the specific job is set up by setup_optimization_dir</span>
+    <span class="c1"># 1 - copy the original param and config file to the created dir</span>
+    <span class="n">source_directory</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">source_directory</span>
+    <span class="n">working_directory</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">working_directory</span>
+    <span class="n">old_cmdline_args</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">cmdline_arguments</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">paramfile_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">old_cmdline_args</span><span class="p">[</span><span class="s2">&quot;paramfile&quot;</span><span class="p">])</span>
+    <span class="n">configfile_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">old_cmdline_args</span><span class="p">[</span><span class="s2">&quot;configfile&quot;</span><span class="p">])</span>
+    <span class="c1"># delete unnecessary args from dict copy</span>
+    <span class="k">del</span> <span class="n">old_cmdline_args</span><span class="p">[</span><span class="s2">&quot;paramfile&quot;</span><span class="p">]</span>
+    <span class="k">del</span> <span class="n">old_cmdline_args</span><span class="p">[</span><span class="s2">&quot;configfile&quot;</span><span class="p">]</span>
+    <span class="n">job_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;job</span><span class="si">{</span><span class="n">job_number</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">step_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;step</span><span class="si">{</span><span class="n">step_number</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="c1"># Copy paramfile_name to working_directory</span>
+    <span class="n">paramfile_base_name</span><span class="p">,</span> <span class="n">paramfile_ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">paramfile_name</span><span class="p">)</span>
+    <span class="n">paramfile_new_name</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">paramfile_base_name</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">step_name</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">job_name</span> <span class="o">+</span> <span class="n">paramfile_ext</span>
+    <span class="p">)</span>
+    <span class="n">paramfile_source_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source_directory</span><span class="p">,</span> <span class="n">paramfile_name</span><span class="p">)</span>
+    <span class="n">paramfile_dest_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">working_directory</span><span class="p">,</span> <span class="n">paramfile_new_name</span><span class="p">)</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">paramfile_source_path</span><span class="p">,</span> <span class="n">paramfile_dest_path</span><span class="p">)</span>
+
+    <span class="c1"># Copy configfile_name to working_directory</span>
+    <span class="n">configfile_base_name</span><span class="p">,</span> <span class="n">configfile_ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">configfile_name</span><span class="p">)</span>
+    <span class="n">configfile_new_name</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">configfile_base_name</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">step_name</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">job_name</span> <span class="o">+</span> <span class="n">configfile_ext</span>
+    <span class="p">)</span>
+    <span class="n">configfile_source_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source_directory</span><span class="p">,</span> <span class="n">configfile_name</span><span class="p">)</span>
+    <span class="n">configfile_dest_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">working_directory</span><span class="p">,</span> <span class="n">configfile_new_name</span><span class="p">)</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">configfile_source_path</span><span class="p">,</span> <span class="n">configfile_dest_path</span><span class="p">)</span>
+
+    <span class="c1"># 2 - take the data_point for the current step + the active parameters/cmdlineargs and then overwrite those</span>
+    <span class="c1"># in the respective param file</span>
+    <span class="n">param_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">parameters</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">is_active</span><span class="p">:</span>
+            <span class="n">param_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">datapoint_item</span><span class="p">[</span><span class="n">p</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">datapoint_item</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">&quot;Datapoint has different length then list of parameters to be changes in paramfile.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">update_yaml_params</span><span class="p">(</span><span class="n">param_list</span><span class="o">=</span><span class="n">param_list</span><span class="p">,</span> <span class="n">paramfile_name</span><span class="o">=</span><span class="n">paramfile_dest_path</span><span class="p">)</span>
+
+    <span class="c1"># 3 - overwrite the name of the paramfile inside the configfile with the new paramfile name</span>
+    <span class="n">replace_include_param_file</span><span class="p">(</span>
+        <span class="n">configfile_name</span><span class="o">=</span><span class="n">configfile_dest_path</span><span class="p">,</span> <span class="n">paramfile_name</span><span class="o">=</span><span class="n">paramfile_dest_path</span>
+    <span class="p">)</span>
+    <span class="c1"># 4 - construct new cmdline such that it no longer contains the varied params, but instead the correct paths to</span>
+    <span class="c1"># the new param and config files</span>
+    <span class="n">cmdline</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">experiment</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">source_directory</span><span class="p">,</span>
+            <span class="n">experiment</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">program_name</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">cmdline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">configfile_dest_path</span><span class="p">)</span>
+    <span class="n">cmdline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--paramfile&quot;</span><span class="p">)</span>
+    <span class="n">cmdline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">paramfile_dest_path</span><span class="p">)</span>
+    <span class="c1"># add fixed cmdline arguments</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">old_cmdline_args</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">cmdline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">cmdline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">cmdline</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, SURFQuantum.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
