@@ -64,7 +64,6 @@ def parameter_cost(row: pd.Series, baseline_parameters: dict) -> float:
     -------
     float
         The hardware parameter cost.
-
     """
     parameter_cost = 0
     baseline_prob_no_error_dict = {}
@@ -96,7 +95,8 @@ def total_cost_squared_difference(
     rate_threshold: float,
     baseline_parameters: dict,
 ) -> float:
-    """Computes total cost, which includes hardware parameter cost and penalties for not meeting target metrics.
+    """Computes total cost, which includes hardware parameter cost and penalties for not
+    meeting target metrics.
 
     A square difference penalty is used, ensuring that the penalty is higher the furthest away from the target a
     parameter set's performance was.
@@ -116,7 +116,6 @@ def total_cost_squared_difference(
     -------
     total_cost : float
         Total cost, including hardware parameter cost and penalties.
-
     """
     fid_cost = (
         1 + (fidelity_threshold - row["teleportation_fidelity_average"]) ** 2
@@ -165,8 +164,9 @@ def total_cost_squared_difference(
 def get_baseline_parameters(
     baseline_parameter_file: str, parameter_list: List[str]
 ) -> Dict[str, float]:
-    """Identifies baseline values of the parameters in `parameter_list`, i.e. the parameters that were optimized over.
-    Removes tunable parameters, as those are not relevant for computing the cost.
+    """Identifies baseline values of the parameters in `parameter_list`, i.e. the
+    parameters that were optimized over. Removes tunable parameters, as those are not
+    relevant for computing the cost.
 
     Parameters
     ----------
@@ -179,7 +179,6 @@ def get_baseline_parameters(
     -------
     baseline_parameters : dict
         Dictionary where the keys are names of optimized hardware parameters and the values are their baseline values.
-
     """
     tunable_parameters = [
         "cutoff_time",
@@ -215,7 +214,6 @@ def process_data(parameter_list: list, root_dir: str = ".") -> pd.DataFrame:
     -------
     processed_data : :class:`pandas.DataFrame`
         Dataframe holding processed data.
-
     """
     processed_data = pd.DataFrame()
 

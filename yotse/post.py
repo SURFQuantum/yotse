@@ -1,9 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from pre import Experiment
+
+from yotse.pre import Experiment
 
 
 def plot_cost_function(x: np.ndarray, y: np.ndarray, z: np.ndarray) -> None:
+    """Plot the cost function."""
     ax = plt.figure().add_subplot(projection="3d")
     ax.plot_surface(
         x, y, z, edgecolor="royalblue", lw=0.5, rstride=8, cstride=8, alpha=0.3
@@ -22,6 +24,7 @@ def plot_cost_function(x: np.ndarray, y: np.ndarray, z: np.ndarray) -> None:
 def plot_opt_steps(
     experiment: Experiment, x: np.ndarray, y: np.ndarray, z: np.ndarray
 ) -> None:
+    """Plot the optimization steps."""
     # data = collect_all_data()
 
     ax = plt.figure().add_subplot(projection="3d")

@@ -1,3 +1,5 @@
+"""Collection of Subclasses of :class:GenericOptimization implementing different
+optimization algorithms."""
 import math
 from typing import Any
 from typing import Callable
@@ -15,10 +17,9 @@ from yotse.utils.utils import ndarray_to_list
 
 
 class GAOpt(GenericOptimization):
-    """
-    Genetic algorithm.
+    """Genetic algorithm.
 
-    Parameters:
+    Parameters
     ----------
     fitness_func : function
         Fitness/objective/cost function.
@@ -93,21 +94,20 @@ class GAOpt(GenericOptimization):
     def _objective_func(
         self, ga_instance: GA, solution: List[float], solution_idx: int
     ) -> float:
-        """
-        Fitness function to be called from PyGAD
+        """Fitness function to be called from PyGAD.
 
-        Parameters:
+        Parameters
         ----------
-        ga_instance :
+        ga_instance
             # todo : add docstring
         solution : list
             List of solutions.
         solution_idx : int
             Index of solution.
 
-        Returns:
+        Returns
         -------
-            Fitness value.
+        Fitness value.
         """
         # Invert function to find the minimum, if needed
         factor = 1.0
@@ -122,9 +122,7 @@ class GAOpt(GenericOptimization):
         return fitness
 
     def execute(self) -> None:
-        """
-        Execute single step in the genetic algorithm.
-        """
+        """Execute single step in the genetic algorithm."""
         self.optimization_instance.run_single_generation()
 
         # Report convergence
@@ -132,11 +130,11 @@ class GAOpt(GenericOptimization):
             self.optimization_instance.plot_fitness()
 
     def get_best_solution(self) -> Tuple[List[float], None, None]:  # type: ignore[override]
-        """
-        Get the best solution. We don't yet know the fitness for the solution (because we have not run the simulation
-        for those values yet), so just return the point.
+        """Get the best solution. We don't yet know the fitness for the solution
+        (because we have not run the simulation for those values yet), so just return
+        the point.
 
-        Returns:
+        Returns
         -------
         solution, solution_fitness, solution_idx
             Solution its fitness and its index in the list of cost function solutions.
@@ -149,10 +147,9 @@ class GAOpt(GenericOptimization):
         # todo: this could also instead return solution and fitness of the best solution one generation back?
 
     def get_new_points(self) -> np.ndarray:
-        """
-        Get new points from the GA (aka return the next population).
+        """Get new points from the GA (aka return the next population).
 
-        Returns:
+        Returns
         -------
         new_points : np.ndarray
             New points for the next iteration of the optimization.
@@ -186,9 +183,10 @@ class GAOpt(GenericOptimization):
     def input_params_to_cost_value(
         self, ga_instance: GA, solution: List[float], solution_idx: int
     ) -> Any:
-        """Return value of cost function for given set of input parameter values and their index in the set of points.
+        """Return value of cost function for given set of input parameter values and
+        their index in the set of points.
 
-        Parameters:
+        Parameters
         ----------
         solution : list
             Set of input parameter values of shape [param_1, param_2, .., param_n].
@@ -214,7 +212,7 @@ class GAOpt(GenericOptimization):
 #         """
 #         Default constructor
 #
-#         Parameters:
+#         Parameters
 #         ----------
 #         function : function
 #             Fitness/objective/cost function.
@@ -231,12 +229,12 @@ class GAOpt(GenericOptimization):
 #     def _objective_func(self, solution):
 #         """
 #         Fitness function to be called from PyGAD
-#         Parameters:
+#         Parameters
 #         ----------
 #         solution : list
 #             List of solutions.
 #
-#         Returns:
+#         Returns
 #         -------
 #             Fitness value.
 #         """
@@ -275,7 +273,7 @@ class GAOpt(GenericOptimization):
 #         """
 #         Execute optimization.
 #
-#         Returns:
+#         Returns
 #         -------
 #         solution, solution_fitness, solution_idx
 #             Solution its fitness and its index in the list of cost function solutions.

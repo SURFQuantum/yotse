@@ -1,3 +1,4 @@
+"""Defines classes and functions for the execution of your experiment."""
 import os
 import pickle
 from typing import Any
@@ -34,9 +35,10 @@ class Executor:
             )
 
     def generate_optimizer(self) -> Optimizer:
-        """Sets the optimization algorithm for the run by translating information in the optimization_info.
+        """Sets the optimization algorithm for the run by translating information in the
+        optimization_info.
 
-        Returns:
+        Returns
         -------
         optimization_alg : GenericOptimization
             Object of subclass of `:class:GenericOptimization`, the optimization algorithm to be used by this runner.
@@ -93,10 +95,11 @@ class Executor:
     def run(
         self, step_number: int = 0, evolutionary_point_generation: Optional[bool] = None
     ) -> None:
-        """Submits jobs to the LocalManager, collects the output, creates new data points, and finishes the run.
+        """Submits jobs to the LocalManager, collects the output, creates new data
+        points, and finishes the run.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         step_number : int (optional)
             Step number to submit to QCGPilot. Should be used for e.g. running different optimization steps.
             Defaults to 0.
@@ -119,24 +122,23 @@ class Executor:
     def pre_submission_setup_per_job(
         self, datapoint_item: List[float], step_number: int, job_number: int
     ) -> List[Union[str, Any]]:
-        """Sets up the basic directory structure for a job and returns the QCG-Pilot command line list for it.
+        """Sets up the basic directory structure for a job and returns the QCG- Pilot
+        command line list for it.
 
-        Parameters:
+        Parameters
         ----------
         datapoint_item : list
             Single item of data points for the job as a list.
         step_number : int
             The number of the step in the experiment.
-        job_number: int
+        job_number : int
             The number of the job within the step.
 
-        Returns:
+        Returns
         -------
         program_commandline : list
             The list of command line arguments for the QCG-Pilot job submission for the program.
-
         Note: Overwrite this function if you need other directory structure or pre-submission functionality.
-
         """
         assert not isinstance(
             datapoint_item, np.ndarray
@@ -148,13 +150,13 @@ class Executor:
         return program_commandline
 
     def pre_submission_analysis(self) -> List[Union[str, Any]]:
-        """Executes any necessary steps before the analysis script and returns the QCG-Pilot command line list for it.
+        """Executes any necessary steps before the analysis script and returns the QCG-
+        Pilot command line list for it.
 
-        Returns:
+        Returns
         -------
         analysis_commandline : list
             The list of command line arguments for the QCG-Pilot job submission for the program.
-
         Note: Overwrite this function if you need other directory structure or pre-submission functionality for your
         analysis script.
         """
@@ -168,20 +170,20 @@ class Executor:
         return analysis_commandline
 
     def submit(self, step_number: int = 0) -> List[str]:
-        """
-        Submits jobs to the LocalManager.
+        """Submits jobs to the LocalManager.
 
-        Parameters:
+        Parameters
         ----------
-        step_number : int (optional)
+        step_number : int, optional
             Step number to submit to QCGPilot. Should be used for e.g. running different optimization steps.
             Defaults to 0.
 
-        Returns:
-        --------
+        Returns
+        -------
         job_ids : list
             A list of job IDs submitted to the LocalManager.
         """
+
         manager = LocalManager(cfg=self.experiment.system_setup.qcg_cfg)
         stdout = self.experiment.system_setup.stdout_basename
         instance_id = manager.system_status()["System"]["InstanceId"]
@@ -228,17 +230,15 @@ class Executor:
         return job_ids  # type: ignore[no-any-return]
 
     def collect_data(self) -> pandas.DataFrame:
-        """
-        Collects data from output.csv (or the output of the scripts) and combines it into a dataframe which has as
-        first column the associated cost and as the other columns the input parameters (order the same way is input to
-        the experiment).
+        """Collects data from output.csv (or the output of the scripts) and combines it
+        into a dataframe which has as first column the associated cost and as the other
+        columns the input parameters (order the same way is input to the experiment).
         The rows of the dataframe follow the same ordering as the jobs.
 
-        Returns:
+        Returns
         -------
         data : pandas.Dataframe
             Pandas dataframe containing the combined outputs of the individual jobs in the form above.
-
         """
         if self.experiment.system_setup.analysis_script is None:
             # no analysis script: extract data from output files in job dirs and combine to single dataframe
@@ -268,15 +268,15 @@ class Executor:
     def create_points_based_on_optimization(
         self, data: pandas.DataFrame, evolutionary: Optional[bool] = None
     ) -> None:
-        """
-        Applies an optimization algorithm to process the collected data and create new data points from it which is then
-        directly written into the experiments attributes.
+        """Applies an optimization algorithm to process the collected data and create
+        new data points from it which is then directly written into the experiments
+        attributes.
 
-        Parameters:
+        Parameters
         ----------
         data : pandas.Dataframe
             A pandas dataframe containing the collected data in the format cost_value init_param_1 ... init_param_n.
-        evolutionary : bool (optional)
+        evolutionary : bool , optional
             Overwrite the type of construction to be used for the new points. If evolutionary=None the optimization
             algorithm determines whether the point creation is evolutionary or based on the best solution.
             Defaults to None.

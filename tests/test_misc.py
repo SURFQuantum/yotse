@@ -165,7 +165,8 @@ class TestGA(unittest.TestCase):
         reason="pygad can not guarantee uniqueness of genes even with allow_duplicate_genes=False."
     )
     def test_non_uniqueness(self) -> None:
-        """Minimal working example to demonstrate how mutation ruins the gene_space and allow_duplicate_genes params."""
+        """Minimal working example to demonstrate how mutation ruins the gene_space and
+        allow_duplicate_genes params."""
         import pygad
         import numpy
         import itertools

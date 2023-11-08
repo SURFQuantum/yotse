@@ -10,10 +10,7 @@ from sklearn.preprocessing import PolynomialFeatures
 
 class Predict:
     def __init__(self, model_name: str = "LR"):
-        """
-        Deafault constructor
-        :param model_name:Regression model name
-        """
+        """Deafault constructor :param model_name:Regression model name."""
         if model_name == "LR":
             self.model = LinearRegression()
         elif model_name == "BR":
@@ -23,12 +20,9 @@ class Predict:
         pass
 
     def learn(self, x: np.ndarray, y: np.ndarray) -> None:
-        """
-        Execute learning process
-        :param x: Training data, ndarray of shape (n_samples, n_features)
-        :param y: Target values, ndarray of shape (n_samples,)
-        :return: None
-        """
+        """Execute learning process :param x: Training data, ndarray of shape
+        (n_samples, n_features) :param y: Target values, ndarray of shape (n_samples,)
+        :return: None."""
         poly = PolynomialFeatures(degree=2, include_bias=False)
         poly_features = poly.fit_transform(x)
         self.model.fit(poly_features, y)
@@ -51,11 +45,9 @@ class Predict:
         plt.show()
 
     def predict(self, x_new: np.ndarray) -> np.ndarray:
-        """
-        Predict value(s) using linear model
-        :param x_new: Samples, ndarray of shape (n_samples, n_features)
-        :return: Mean of predictive distribution of query points
-        """
+        """Predict value(s) using linear model :param x_new: Samples, ndarray of shape
+        (n_samples, n_features) :return: Mean of predictive distribution of query
+        points."""
         return self.model.predict(x_new)
 
 

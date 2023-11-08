@@ -124,7 +124,8 @@ class TestExecutor(unittest.TestCase):
         self.assertEqual(jobs_failed, 0)
 
     def test_executor_submit_with_analysis(self) -> None:
-        """Check that when using an analysis script the right number of jobs are created as well."""
+        """Check that when using an analysis script the right number of jobs are created
+        as well."""
         analysis_exp = Experiment(
             experiment_name="default_exp",
             system_setup=SystemSetup(
@@ -334,7 +335,8 @@ class TestExecutor(unittest.TestCase):
             self.assertIsInstance(new_points, np.ndarray)  # correct type
             self.assertEqual(len(new_points), initial_num_points)  # correct num points
             [
-                self.assertEqual(len(point), 2) for point in new_points  # type: ignore[func-returns-value]
+                self.assertEqual(len(point), 2)  # type: ignore[func-returns-value]
+                for point in new_points
             ]  # each point has two param values
             # s = set([tuple(x) for x in new_points])
             # self.assertEqual(len(s), initial_num_points)                    # all points are unique

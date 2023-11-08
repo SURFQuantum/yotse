@@ -7,7 +7,6 @@ from typing import List
 from typing import Tuple
 from typing import Union
 
-import numpy as np
 import yaml  # type: ignore[import-untyped]
 from ruamel.yaml import YAML
 from ruamel.yaml.nodes import ScalarNode
@@ -20,42 +19,44 @@ def setup_optimization_dir(
 ) -> None:
     """Create the directory structure for an optimization step.
 
-    Parameters:
+    Parameters
     ----------
     experiment : Experiment
-        The Experiment object for which the directory structure should be set up/
+        The Experiment object for which the directory structure should be set up.
     step_number : int
         The number of the current optimization step.
-    job_number: int
+    job_number : int
         The number of the job within the optimization step.
 
-    Note:
+    Notes
     -----
     This function creates the directory structure for an optimization step within an experiment. The structure
     includes a `src` directory containing several files related to the optimization, and an `output` directory
-    containing directories for each step and job. The function does not return anything, but modifies the file system
+    containing directories for each step and job. The function does not return anything but modifies the file system
     to create the necessary directories.
 
-    The directory structure for the optimization step is as follows (for m optimization steps and n jobs):
-    > src
-        - unified_script.py
-        - processing_function.py
-        - config.yaml
-        - baseline_params.yaml
-        - qiapt_runscript.py
-    > output
-        > experiment_name_timestamp_str
-            > step0
-                > job0
-                    - stdout0.txt
-                    - dataframe_holder.pickle (?)
-                    - baseline_params_job0.yaml
-                    - config_job0.yaml
-                ...
-                > jobn
-            ...
-            > stepm
+    The directory structure for the optimization step is as follows (for m optimization steps and n jobs)::
+
+        src/
+        ├── unified_script.py
+        ├── processing_function.py
+        ├── config.yaml
+        ├── baseline_params.yaml
+        ├── qiapt_runscript.py
+        output/
+        ├── experiment_name_timestamp_str/
+        │   ├── step0/
+        │   │   ├── job0/
+        │   │   │   ├── stdout0.txt
+        │   │   │   ├── dataframe_holder.pickle
+        │   │   │   ├── baseline_params_job0.yaml
+        │   │   │   └── config_job0.yaml
+        │   │   ...
+        │   │   └── jobn/
+        │   ...
+        │   └── stepm/
     """
+
     output_directory = os.path.join(
         experiment.system_setup.source_directory,
         "..",
@@ -95,7 +96,7 @@ def setup_optimization_dir(
 def update_yaml_params(param_list: List[Tuple[str, Any]], paramfile_name: str) -> None:
     """Update parameter values in a YAML file and save the updated file.
 
-    Parameters:
+    Parameters
     ----------
     param_list : List[Tuple[str, Any]]
         A list of tuples containing parameter names and their updated values.
@@ -122,14 +123,14 @@ def update_yaml_params(param_list: List[Tuple[str, Any]], paramfile_name: str) -
 def represent_scalar_node(dumper: yaml.Dumper, data: yaml.ScalarNode) -> ScalarNode:
     """Represent a ScalarNode object as a scalar value in a YAML file.
 
-    Parameters:
+    Parameters
     ----------
     dumper : yaml.Dumper
         The YAML dumper object being used to write the file.
     data : yaml.ScalarNode
         The ScalarNode object being represented.
 
-    Returns:
+    Returns
     -------
     scalar : str
         The scalar value of the ScalarNode object.
@@ -138,16 +139,17 @@ def represent_scalar_node(dumper: yaml.Dumper, data: yaml.ScalarNode) -> ScalarN
 
 
 def replace_include_param_file(configfile_name: str, paramfile_name: str) -> None:
-    """Replace the INCLUDE keyword in a YAML config file with a reference to a parameter file.
+    """Replace the INCLUDE keyword in a YAML config file with a reference to a parameter
+    file.
 
-    Parameters:
+    Parameters
     ----------
     configfile_name : str
         The name of the YAML configuration file to modify.
     paramfile_name : str
         The name of the parameter file to include in the configuration file.
 
-    Note:
+    Notes
     -----
     This function replaces an INCLUDE keyword in a YAML configuration file with a reference to a parameter file.
     It loads the YAML config file, searches recursively for an INCLUDE keyword, and replaces it with a reference
@@ -165,10 +167,10 @@ def replace_include_param_file(configfile_name: str, paramfile_name: str) -> Non
     def replace_include(
         config: Union[List[Any], Dict[str, Any]], replace_str: str, found: bool = False
     ) -> bool:
-        """Recursively search a dictionary or list for an INCLUDE keyword and replace it with a reference to a parameter
-         file.
+        """Recursively search a dictionary or list for an INCLUDE keyword and replace it
+        with a reference to a parameter file.
 
-        Parameters:
+        Parameters
         ----------
         config : dict or list
             The dictionary or list to search for an INCLUDE keyword.
@@ -177,7 +179,7 @@ def replace_include_param_file(configfile_name: str, paramfile_name: str) -> Non
         found : bool, optional
             A boolean flag indicating whether an INCLUDE keyword has already been found and replaced. Defaults to False.
 
-        Returns:
+        Returns
         -------
         found : bool
             True if an INCLUDE keyword was found and replaced in the dictionary or list, False otherwise.
@@ -216,9 +218,10 @@ def create_separate_files_for_job(
     step_number: int,
     job_number: int,
 ) -> List[Any]:
-    """Create separate parameter and configuration files for a job and prepare for execution.
+    """Create separate parameter and configuration files for a job and prepare for
+    execution.
 
-    Parameters:
+    Parameters
     ----------
     experiment : Experiment
         The experiment object containing information about the experiment.
@@ -226,24 +229,24 @@ def create_separate_files_for_job(
         A single item of data points for the job, represented as a list.
     step_number : int
         The number of the step in the experiment.
-    job_number: int
+    job_number : int
         The number of the job within the step.
 
-    Returns:
+    Returns
     -------
     job_cmdline : list
         The command line arguments for running the job.
 
-    Note:
+    Notes
     -----
     This function creates separate parameter and configuration files for a job based on the provided experiment,
     datapoint item, step number, and job number. It prepares the job for execution by setting up the necessary files
     and returning the command line arguments for running the job. The function returns the command line arguments
-     as a list for use with QCG-Pilotjob.
+    as a list for use with QCG-Pilotjob.
 
     The created files will be saved in the experiment's directory, under a subdirectory for the step and job.
     The parameter file will have a name like "params_stepY_jobX.yaml" and the configuration file will have a name like
-     "config_stepY_jobX.yaml", where "X" is the job number and "Y" the step number.
+    "config_stepY_jobX.yaml", where "X" is the job number and "Y" the step number.
     """
     # this should execute after the directory for the specific job is set up by setup_optimization_dir
     # 1 - copy the original param and config file to the created dir
