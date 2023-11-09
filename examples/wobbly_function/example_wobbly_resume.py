@@ -1,9 +1,22 @@
+"""This module demonstrates the process to stop an ongoing experiment and resume it
+using the Yotse framework.
+
+It initializes the optimization process, runs for a few generations, and then showcases
+how to resume the process from where it left off.
+"""
 from examples.wobbly_function.example_wobbly_main import remove_files_after_run
 from examples.wobbly_function.example_wobbly_main import wobbly_pre
 from yotse.execution import Executor
 
 
 def main() -> None:
+    """Executes the stopping and resuming of an optimization experiment for a 'wobbly
+    function'.
+
+    This function first runs a part of the optimization process, simulates a stop, and
+    then resumes the optimization from the last saved state, finally cleaning up any
+    residual files after completion.
+    """
     print(" --- Running Wobbly-Stop->Resume Example. --- ")
     # Note: Here, we show how a stopped experiment can be resumed from a save file
     stop_resume_experiment = wobbly_pre()
