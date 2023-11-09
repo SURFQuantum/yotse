@@ -72,7 +72,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for examples.wobbly_function.example_wobbly_resume</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">examples.wobbly_function.example_wobbly_main</span> <span class="kn">import</span> <span class="n">remove_files_after_run</span>
+<span></span><span class="sd">&quot;&quot;&quot;This module demonstrates the process to stop an ongoing experiment and resume it</span>
+<span class="sd">using the Yotse framework.</span>
+
+<span class="sd">It initializes the optimization process, runs for a few generations, and then showcases</span>
+<span class="sd">how to resume the process from where it left off.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">examples.wobbly_function.example_wobbly_main</span> <span class="kn">import</span> <span class="n">remove_files_after_run</span>
 <span class="kn">from</span> <span class="nn">examples.wobbly_function.example_wobbly_main</span> <span class="kn">import</span> <span class="n">wobbly_pre</span>
 <span class="kn">from</span> <span class="nn">yotse.execution</span> <span class="kn">import</span> <span class="n">Executor</span>
 
@@ -80,6 +86,13 @@
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../examples.wobbly_function.html#examples.wobbly_function.example_wobbly_resume.main">[docs]</a>
 <span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Executes the stopping and resuming of an optimization experiment for a &#39;wobbly</span>
+<span class="sd">    function&#39;.</span>
+
+<span class="sd">    This function first runs a part of the optimization process, simulates a stop, and</span>
+<span class="sd">    then resumes the optimization from the last saved state, finally cleaning up any</span>
+<span class="sd">    residual files after completion.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; --- Running Wobbly-Stop-&gt;Resume Example. --- &quot;</span><span class="p">)</span>
     <span class="c1"># Note: Here, we show how a stopped experiment can be resumed from a save file</span>
     <span class="n">stop_resume_experiment</span> <span class="o">=</span> <span class="n">wobbly_pre</span><span class="p">()</span>

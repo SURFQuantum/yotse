@@ -72,7 +72,12 @@
            <div itemprop="articleBody">
              
   <h1>Source code for examples.wobbly_function.example_wobbly_main</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Example script for execution of a wobbly_function.py experiment.&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;This module sets up and executes an optimization experiment using the Yotse</span>
+<span class="sd">framework, specifically designed to optimize a &#39;wobbly function&#39;.</span>
+
+<span class="sd">It leverages genetic algorithms for the optimization process, handles file management,</span>
+<span class="sd">and cleans up after execution, showcasing a very basic use-case.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 
@@ -82,12 +87,17 @@
 <span class="kn">from</span> <span class="nn">yotse.pre</span> <span class="kn">import</span> <span class="n">Parameter</span>
 <span class="kn">from</span> <span class="nn">yotse.pre</span> <span class="kn">import</span> <span class="n">SystemSetup</span>
 
-<span class="c1"># import matplotlib</span>
-
 
 <div class="viewcode-block" id="wobbly_pre">
 <a class="viewcode-back" href="../../../examples.wobbly_function.html#examples.wobbly_function.example_wobbly_main.wobbly_pre">[docs]</a>
 <span class="k">def</span> <span class="nf">wobbly_pre</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Experiment</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configures and returns an experiment setup for optimizing a wobbly function.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Experiment</span>
+<span class="sd">        The configured Experiment object for the wobbly function optimization.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">wobbly_experiment</span> <span class="o">=</span> <span class="n">Experiment</span><span class="p">(</span>
         <span class="n">experiment_name</span><span class="o">=</span><span class="s2">&quot;wobbly_example&quot;</span><span class="p">,</span>
         <span class="n">system_setup</span><span class="o">=</span><span class="n">SystemSetup</span><span class="p">(</span>
@@ -145,6 +155,7 @@
 <div class="viewcode-block" id="remove_files_after_run">
 <a class="viewcode-back" href="../../../examples.wobbly_function.html#examples.wobbly_function.example_wobbly_main.remove_files_after_run">[docs]</a>
 <span class="k">def</span> <span class="nf">remove_files_after_run</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Removes output directories and QCG temporary files after the optimization run.&quot;&quot;&quot;</span>
     <span class="c1"># remove files and directories</span>
     <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="s2">&quot;output&quot;</span><span class="p">)</span>
     <span class="n">dirs</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span> <span class="k">if</span> <span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.qcg&quot;</span><span class="p">))]</span>
@@ -156,6 +167,8 @@
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../examples.wobbly_function.html#examples.wobbly_function.example_wobbly_main.main">[docs]</a>
 <span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main execution function that initializes the experiment and executes the</span>
+<span class="sd">    optimization steps.&quot;&quot;&quot;</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; --- Running Wobbly-Main Example. --- &quot;</span><span class="p">)</span>
     <span class="n">experiment</span> <span class="o">=</span> <span class="n">wobbly_pre</span><span class="p">()</span>
     <span class="n">wobbly_example</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">(</span><span class="n">experiment</span><span class="o">=</span><span class="n">experiment</span><span class="p">)</span>

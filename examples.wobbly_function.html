@@ -102,29 +102,53 @@
 </section>
 <section id="module-examples.wobbly_function.example_wobbly_main">
 <span id="examples-wobbly-function-example-wobbly-main-module"></span><h2>examples.wobbly_function.example_wobbly_main module<a class="headerlink" href="#module-examples.wobbly_function.example_wobbly_main" title="Link to this heading"></a></h2>
-<p>Example script for execution of a wobbly_function.py experiment.</p>
+<p>This module sets up and executes an optimization experiment using the Yotse
+framework, specifically designed to optimize a ‘wobbly function’.</p>
+<p>It leverages genetic algorithms for the optimization process, handles file management,
+and cleans up after execution, showcasing a very basic use-case.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="examples.wobbly_function.example_wobbly_main.main">
 <span class="sig-prename descclassname"><span class="pre">examples.wobbly_function.example_wobbly_main.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/examples/wobbly_function/example_wobbly_main.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.wobbly_function.example_wobbly_main.main" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Main execution function that initializes the experiment and executes the
+optimization steps.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="examples.wobbly_function.example_wobbly_main.remove_files_after_run">
 <span class="sig-prename descclassname"><span class="pre">examples.wobbly_function.example_wobbly_main.</span></span><span class="sig-name descname"><span class="pre">remove_files_after_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/examples/wobbly_function/example_wobbly_main.html#remove_files_after_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.wobbly_function.example_wobbly_main.remove_files_after_run" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Removes output directories and QCG temporary files after the optimization run.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="examples.wobbly_function.example_wobbly_main.wobbly_pre">
 <span class="sig-prename descclassname"><span class="pre">examples.wobbly_function.example_wobbly_main.</span></span><span class="sig-name descname"><span class="pre">wobbly_pre</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="yotse.html#yotse.pre.Experiment" title="yotse.pre.Experiment"><span class="pre">Experiment</span></a></span></span><a class="reference internal" href="_modules/examples/wobbly_function/example_wobbly_main.html#wobbly_pre"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.wobbly_function.example_wobbly_main.wobbly_pre" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Configures and returns an experiment setup for optimizing a wobbly function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The configured Experiment object for the wobbly function optimization.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="yotse.html#yotse.pre.Experiment" title="yotse.pre.Experiment">Experiment</a></p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-examples.wobbly_function.example_wobbly_resume">
 <span id="examples-wobbly-function-example-wobbly-resume-module"></span><h2>examples.wobbly_function.example_wobbly_resume module<a class="headerlink" href="#module-examples.wobbly_function.example_wobbly_resume" title="Link to this heading"></a></h2>
+<p>This module demonstrates the process to stop an ongoing experiment and resume it
+using the Yotse framework.</p>
+<p>It initializes the optimization process, runs for a few generations, and then showcases
+how to resume the process from where it left off.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="examples.wobbly_function.example_wobbly_resume.main">
 <span class="sig-prename descclassname"><span class="pre">examples.wobbly_function.example_wobbly_resume.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/examples/wobbly_function/example_wobbly_resume.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.wobbly_function.example_wobbly_resume.main" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Executes the stopping and resuming of an optimization experiment for a ‘wobbly
+function’.</p>
+<p>This function first runs a part of the optimization process, simulates a stop, and
+then resumes the optimization from the last saved state, finally cleaning up any
+residual files after completion.</p>
+</dd></dl>
 
 </section>
 <section id="module-examples.wobbly_function.wobbly_function">
