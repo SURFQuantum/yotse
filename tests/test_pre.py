@@ -1,3 +1,5 @@
+"""Unit tests for the `yotse.pre` package's `Parameter`, `SystemSetup`, and `Experiment`
+classes."""
 import itertools
 import os
 import unittest
@@ -24,7 +26,7 @@ def valid_function() -> None:
 
 
 class TestParameters(unittest.TestCase):
-    """Test the parameters class."""
+    """A set of tests to validate the `Parameter` class from the `yotse.pre` package."""
 
     @staticmethod
     def create_default_param(
@@ -38,6 +40,8 @@ class TestParameters(unittest.TestCase):
         parameter_active: bool = True,
         depends_on: Optional[ParameterDependencyDict] = None,
     ) -> Parameter:
+        """Static method that creates a default `Parameter` instance with specified
+        properties."""
         return Parameter(
             name=name,
             param_range=parameter_range,
@@ -51,6 +55,7 @@ class TestParameters(unittest.TestCase):
         )
 
     def test_initialization(self) -> None:
+        """Test to verify correct initialization of `Parameter` instances."""
         test_parameter = self.create_default_param()
         self.assertEqual(len(test_parameter.data_points), test_parameter.number_points)
         np.testing.assert_almost_equal(
@@ -58,13 +63,18 @@ class TestParameters(unittest.TestCase):
         )
 
     def test_invalid_distribution(self) -> None:
+        """Test to verify that an exception is raised for invalid distributions."""
         with self.assertRaises(ValueError):
             self.create_default_param(distribution="invalid")
 
     def test_custom_distribution(self) -> None:
+        """Test to check the functionality of providing a custom distribution for
+        `Parameter` instances."""
+
         def mock_distribution(
             min_value: float, max_value: float, number_points: int
         ) -> np.ndarray:
+            """Mock custom distribution that outputs fixed set of floats."""
             return np.array((0.1, 0.5, 0.8))
 
         for param_type in ["continuous", "discrete"]:
@@ -91,6 +101,8 @@ class TestParameters(unittest.TestCase):
                 self.create_default_param(param_type="something")
 
     def test_initial_data_points_within_range(self) -> None:
+        """Test to ensure that initial data points are within the specified range for
+        different distributions."""
         for param_type in ["continuous", "discrete"]:
             linear_param = self.create_default_param(
                 distribution="linear", param_type=param_type, parameter_range=[1.0, 9.0]
@@ -110,13 +122,18 @@ class TestParameters(unittest.TestCase):
                 self.assertLessEqual(min(dist_param.data_points), dist_param.range[1])
 
     def test_generate_data_points(self) -> None:
+        """Test the generation of data points for a `Parameter`."""
         test_parameter = self.create_default_param(number_points=5)
         test_parameter.data_points = test_parameter.generate_data_points(num_points=3)
         self.assertEqual(len(test_parameter.data_points), 3)
         np.testing.assert_almost_equal(test_parameter.data_points, [0.1, 0.5, 0.9])
 
     def test_generate_dependent_data_points(self) -> None:
+        """Test the generation of data points for a `Parameter` that depends on another
+        parameter."""
+
         def linear_dep(x: float, y: float) -> float:
+            """Linear function for parameter dependency."""
             return x * y
 
         param1 = self.create_default_param(
@@ -137,6 +154,7 @@ class TestParameters(unittest.TestCase):
         assert np.array_equal(param2.data_points, np.array((1, 4, 9, 16)))
 
         def fancy_dep(x: float, y: float) -> float:
+            """More 'fancy' function for parameter dependency."""
             return float(2 * x**y)
 
         param3 = self.create_default_param(
@@ -151,6 +169,7 @@ class TestParameters(unittest.TestCase):
         assert np.array_equal(param3.data_points, np.array((2, 8, 54, 512)))
 
     def test_is_active_property(self) -> None:
+        """Test to verify the `is_active` property of a `Parameter`."""
         active_param = self.create_default_param(parameter_active=True)
         inactive_param = self.create_default_param(parameter_active=False)
         self.assertTrue(active_param.is_active)
@@ -158,17 +177,20 @@ class TestParameters(unittest.TestCase):
 
 
 class TestSystemSetup(unittest.TestCase):
-    """Test the SystemSetup class."""
+    """A set of tests to validate the `SystemSetup` class from the `yotse.pre`
+    package."""
 
     def setUp(self) -> None:
+        """Hook method for setting up the test fixture before exercising it."""
         with open(DUMMY_FILE, "wt") as f:
             f.write("This is a dummy experiment file for test_pre.")
 
     def tearDown(self) -> None:
+        """Hook method for deconstructing the test fixture after testing it."""
         os.remove(DUMMY_FILE)
 
     def test_invalid_directory_or_files(self) -> None:
-        """Test if an invalid source_directory will correctly be caught."""
+        """Test to ensure that invalid directories or files are properly handled."""
         invalid_directory = "/invalid/source_directory"
 
         with self.assertRaises(ValueError):
@@ -181,6 +203,8 @@ class TestSystemSetup(unittest.TestCase):
         SystemSetup(os.getcwd(), DUMMY_FILE, {"--arg1": 0.1, "--arg2": "value2"})
 
     def test_init(self) -> None:
+        """Test the initialization of a `SystemSetup` instance with various
+        configurations."""
         test_system = SystemSetup(
             source_directory=os.getcwd(),
             program_name=DUMMY_FILE,
@@ -211,7 +235,8 @@ class TestSystemSetup(unittest.TestCase):
         assert test_system.modules == ["PYTHON3.10"]
 
     def test_cmdline_to_list(self) -> None:
-        """Test if the dict of cmdline args is correctly converted to a list."""
+        """Test conversion of command line arguments from a dictionary to a list
+        format."""
 
         test_setup = SystemSetup(
             os.getcwd(),
@@ -229,13 +254,16 @@ class TestSystemSetup(unittest.TestCase):
 
 
 class TestExperiment(unittest.TestCase):
-    """Test the Experiment class."""
+    """A set of tests to validate the `Experiment` class from the `yotse.pre`
+    package."""
 
     def setUp(self) -> None:
+        """Hook method for setting up the test fixture before exercising it."""
         with open(DUMMY_FILE, "wt") as f:
             f.write("This is a dummy experiment file for test_pre.")
 
     def tearDown(self) -> None:
+        """Hook method for deconstructing the test fixture after testing it."""
         os.remove(DUMMY_FILE)
 
     @staticmethod
@@ -243,7 +271,7 @@ class TestExperiment(unittest.TestCase):
         parameters: Optional[List[Parameter]] = None,
         optimization_info: Optional[List[OptimizationInfo]] = None,
     ) -> Experiment:
-        """Helper function to set up a default experiment for the tests."""
+        """Static method to set up a default `Experiment` instance for testing."""
         return Experiment(
             experiment_name="default_exp",
             system_setup=SystemSetup(
@@ -256,7 +284,7 @@ class TestExperiment(unittest.TestCase):
         )
 
     def test_cost_function_setter_and_getter(self) -> None:
-        """Test whether setting and getting of the cost function works as expected."""
+        """Test setting and getting the cost function in an `Experiment`."""
         test_exp = self.create_default_experiment()
 
         test_exp.cost_function = valid_function  # type: ignore[assignment]
@@ -264,7 +292,10 @@ class TestExperiment(unittest.TestCase):
 
         # Test setting and getting a local function
         def main() -> None:
+            """Mocking main with local function."""
+
             def local_function() -> None:
+                """Mocked local function."""
                 pass
 
             with self.assertRaises(ValueError):
@@ -280,7 +311,8 @@ class TestExperiment(unittest.TestCase):
         )
 
     def test_c_product(self) -> None:
-        """Test whether Cartesian product is correctly formed from active Parameters."""
+        """Test the creation of a Cartesian product of data points from active
+        `Parameter` instances."""
         test_exp = self.create_default_experiment()
         test_exp.add_parameter(
             Parameter(
@@ -346,7 +378,7 @@ class TestExperiment(unittest.TestCase):
         assert np.array_equal(test_exp.data_points, np.array([[11.0], [12.0], [13.0]]))
 
     def test_add_parameter(self) -> None:
-        """Test adding Parameters to an Experiment."""
+        """Test the addition of `Parameter` instances to an `Experiment`."""
         test_exp = self.create_default_experiment()
         self.assertEqual(len(test_exp.parameters), 0)
         test_param = TestParameters.create_default_param()
@@ -354,7 +386,7 @@ class TestExperiment(unittest.TestCase):
         self.assertEqual(len(test_exp.parameters), 1)
 
     def test_add_optimization_information(self) -> None:
-        """Test adding OptimizationInfo to an Experiment."""
+        """Test the addition of `OptimizationInfo` to an `Experiment`."""
         test_exp = self.create_default_experiment()
         self.assertEqual(len(test_exp.optimization_information_list), 0)
 
@@ -372,7 +404,7 @@ class TestExperiment(unittest.TestCase):
         self.assertEqual(test_opt.optimization_information_list[-1].name, "GD")
 
     def test_generate_slurm_script(self) -> None:
-        """Test generation of a default slurm script for the Experiment."""
+        """Test the generation of a default SLURM script for an `Experiment`."""
         test_exp = self.create_default_experiment()
         test_exp.system_setup.num_nodes = 42
         test_exp.system_setup.alloc_time = "01:00:00"
@@ -412,8 +444,8 @@ class TestExperiment(unittest.TestCase):
             ), f"Line {line_num} of the generated slurm.job file does not match the expected output."
 
         # Ensure that the number of lines in the generated file matches the expected number of lines
-        assert len(script_contents) == len(
-            expected_output
+        assert (
+            len(script_contents) == len(expected_output)
         ), "The generated slurm.job file has a different number of lines than the expected output."
 
         os.remove("slurm.job")

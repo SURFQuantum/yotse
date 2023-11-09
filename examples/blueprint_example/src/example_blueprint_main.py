@@ -219,9 +219,7 @@ def main(plot=False):
         (
             fig,
             ax,
-        ) = (
-            blueprint_example.optimizer.optimization_algorithm.optimization_instance.plot_fitness()
-        )
+        ) = blueprint_example.optimizer.optimization_algorithm.optimization_instance.plot_fitness()
         fig.savefig("fitness.png")
 
     # clean up

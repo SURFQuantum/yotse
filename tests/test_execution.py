@@ -1,3 +1,4 @@
+"""Unit tests for the `yotse.execution` package's `Executor` class."""
 import json
 import math
 import os
@@ -38,6 +39,7 @@ def create_default_param(
     constraints: Union[ConstraintDict, np.ndarray, None] = None,
     custom_distribution: Optional[Callable[[float, float, int], np.ndarray]] = None,
 ) -> Parameter:
+    """Return a default Parameter instance with optional custom settings."""
     return Parameter(
         name=name,
         param_range=parameter_range,
@@ -52,6 +54,8 @@ def create_default_experiment(
     parameters: Optional[List[Parameter]] = None,
     opt_info_list: Optional[List[OptimizationInfo]] = None,
 ) -> Experiment:
+    """Return a default Experiment instance with optional parameters and optimization
+    info."""
     return Experiment(
         experiment_name="default_exp",
         system_setup=SystemSetup(
@@ -65,18 +69,21 @@ def create_default_experiment(
 
 
 def create_default_executor(experiment: Experiment) -> Executor:
+    """Instantiate and return an Executor with the given experiment."""
     return Executor(experiment=experiment)
 
 
 class TestExecutor(unittest.TestCase):
-    """Test the executor class."""
+    """Define tests for the Executor class of the YOTSE framework."""
 
     def setUp(self) -> None:
+        """Prepare resources before each test."""
         self.path: Optional[str] = None  # path for tearDown
         self.test_points = np.array([[1], [2], [3], [4]])
         # self.tearDown()
 
     def tearDown(self) -> None:
+        """Clean up resources after each test."""
         for i in range(4):
             if os.path.exists(f"stdout{i}.txt"):
                 os.remove(f"stdout{i}.txt")
@@ -89,12 +96,15 @@ class TestExecutor(unittest.TestCase):
             self.path = None
 
     def test_executor_experiment_input(self) -> None:
+        """Ensure the Executor can correctly store an Experiment instance."""
         test_exp = create_default_experiment()
         test_exec = create_default_executor(experiment=test_exp)
         self.assertTrue(isinstance(test_exec.experiment, Experiment))
         self.assertEqual(test_exec.experiment, test_exp)
 
     def test_executor_submit(self) -> None:
+        """Check the Executor's ability to submit experiments and track their
+        completion."""
         test_exp = create_default_experiment()
         test_exec = create_default_executor(experiment=test_exp)
         test_points = self.test_points
@@ -124,8 +134,7 @@ class TestExecutor(unittest.TestCase):
         self.assertEqual(jobs_failed, 0)
 
     def test_executor_submit_with_analysis(self) -> None:
-        """Check that when using an analysis script the right number of jobs are created
-        as well."""
+        """Verify Executor's job submission and handling with an analysis script."""
         analysis_exp = Experiment(
             experiment_name="default_exp",
             system_setup=SystemSetup(
@@ -179,6 +188,7 @@ class TestExecutor(unittest.TestCase):
         self.assertEqual(jobs_failed, 0)
 
     def test_executor_run(self) -> None:
+        """Test the run method of Executor for proper execution flow."""
         test_exec = create_default_executor(experiment=create_default_experiment())
         test_points = self.test_points
         test_exec.experiment.data_points = test_points
@@ -189,6 +199,8 @@ class TestExecutor(unittest.TestCase):
         )  # path for tearDown
 
     def test_executor_collect_data(self) -> None:
+        """Ensure the Executor can collect and process data from completed jobs."""
+
         def tear_down_dirs(testpath: str, outputfile: str) -> None:
             """Helper function to tear down the temporary test dir."""
             try:
@@ -274,11 +286,13 @@ class TestExecutor(unittest.TestCase):
             tear_down_dirs(test_path, output_file)
 
     def test_executor_create_points(self) -> None:
-        """Test create_points_based_on_optimization."""
+        """Test the point creation based on optimization results in the Executor."""
 
         def mock_function(
             ga_instance: GA, solution: List[float], solution_idx: int
         ) -> float:
+            """Mock fitness function for GA optimization, computes the sum of squares of
+            the solution."""
             return solution[0] ** 2 + solution[1] ** 2
 
         for evolutionary in [None, True, False]:
@@ -307,9 +321,7 @@ class TestExecutor(unittest.TestCase):
             opt = Optimizer(ga_opt)
             test_executor.optimizer = opt
             test_executor.optimizer.optimization_algorithm = ga_opt
-            test_executor.optimizer.optimization_algorithm.can_create_points_evolutionary = (
-                True
-            )
+            test_executor.optimizer.optimization_algorithm.can_create_points_evolutionary = True
 
             x_list = [x for x, y in ga_opt.optimization_instance.population]
             y_list = [y for x, y in ga_opt.optimization_instance.population]
@@ -356,12 +368,14 @@ class TestExecutor(unittest.TestCase):
         reason="pygad can not guarantee uniqueness of genes even with allow_duplicate_genes=False."
     )
     def test_executor_create_points_uniqueness(self) -> None:
-        """Test create_points_based_on_optimization."""
+        """Check the uniqueness of generated points in the optimization process."""
         # todo: merge this test with the above once uniqueness is fixed
 
         def mock_function(
             ga_instance: GA, solution: List[float], solution_idx: int
         ) -> Any:
+            """Mock fitness function for GA optimization, computes the sum of squares of
+            the solution."""
             return solution[0] ** 2 + solution[1] ** 2
 
         for evolutionary in [None, True, False]:
@@ -390,9 +404,7 @@ class TestExecutor(unittest.TestCase):
             opt = Optimizer(ga_opt)
             test_executor.optimizer = opt
             test_executor.optimizer.optimization_algorithm = ga_opt
-            test_executor.optimizer.optimization_algorithm.can_create_points_evolutionary = (
-                True
-            )
+            test_executor.optimizer.optimization_algorithm.can_create_points_evolutionary = True
 
             x_list = [x for x, y in ga_opt.optimization_instance.population]
             y_list = [y for x, y in ga_opt.optimization_instance.population]
