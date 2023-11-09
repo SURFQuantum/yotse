@@ -1,3 +1,12 @@
+"""This module provides a blueprint for setting up and executing an optimization problem
+within the NlBlueprint setup of the Quantum Internet Alliance project using a genetic
+algorithm (GA) and the Yotse execution framework.
+
+It defines the experiment setup, including the system configuration, optimization
+parameters, and the GA optimization information. The module also includes a custom
+executor class tailored for the NlBlueprint team and utility functions for pre-
+submission setup and post-run cleanup.
+"""
 import os
 import shutil
 from typing import Any
@@ -16,6 +25,19 @@ from yotse.utils.blueprint_tools import setup_optimization_dir
 
 
 def blueprint_input():
+    """Constructs and returns an Experiment instance configured for the NlBlueprint use-
+    case.
+
+    This includes the system setup, parameter configuration for the experiment, and optimization
+    information specific to a genetic algorithm. Some parameters have been commented out to simplify
+    the example; they can be uncommented and adjusted for actual optimization scenarios.
+
+    Returns
+    -------
+    Experiment
+        The configured Experiment object with system setup, parameter specification,
+        and genetic algorithm optimization information.
+    """
     blueprint_experiment = Experiment(
         experiment_name="DelftEindhovenNVSURFDoubleClick",
         system_setup=SystemSetup(
@@ -133,10 +155,26 @@ def blueprint_input():
 
 
 def linear_dep(x, y):
+    """A sample linear dependency function that returns the product of two input values.
+
+    Parameters
+    ----------
+    x : float
+        The first input value.
+    y : float
+        The second input value.
+
+    Returns
+    -------
+    float
+        The product of `x` and `y`.
+    """
     return x * y
 
 
 def remove_files_after_run():
+    """Cleans up by removing output directories and QCG-related directories created
+    during the run."""
     # remove files and directories
     shutil.rmtree("../output")
     dirs = [f for f in os.listdir(os.getcwd()) if (f.startswith(".qcg"))]
@@ -145,11 +183,37 @@ def remove_files_after_run():
 
 
 class BlueprintCore(Executor):
-    """Executor implementation using adaptions for NLBlueprint."""
+    """An Executor subclass tailored for the NlBlueprint, with adaptations for specific
+    setup requirements and analysis preparation before job submission.
+
+    Methods
+    -------
+    pre_submission_setup_per_job(datapoint_item, step_number, job_number)
+        Configures optimization directories and creates separate job files.
+    pre_submission_analysis()
+        Prepares analysis command line arguments before job submission.
+    """
 
     def pre_submission_setup_per_job(
         self, datapoint_item: List[float], step_number: int, job_number: int
     ) -> List[Union[str, Any]]:
+        """Sets up optimization directories and creates separate files for each job as
+        part of pre-submission setup.
+
+        Parameters
+        ----------
+        datapoint_item : list of float
+            The data point for the job.
+        step_number : int
+            The step number in the optimization process.
+        job_number : int
+            The job number for the current step.
+
+        Returns
+        -------
+        list of str or any
+            The modified command line arguments for the job.
+        """
         setup_optimization_dir(
             experiment=self.experiment, step_number=step_number, job_number=job_number
         )
@@ -163,6 +227,14 @@ class BlueprintCore(Executor):
         return new_cmdline
 
     def pre_submission_analysis(self) -> List[Union[str, Any]]:
+        """Prepares the analysis command line before submission, ensuring the analysis
+        script and necessary arguments are included.
+
+        Returns
+        -------
+        list of str or any
+            The command line arguments for the analysis script.
+        """
         assert self.experiment.system_setup.analysis_script is not None
         analysis_commandline = [
             os.path.join(
@@ -182,19 +254,61 @@ class BlueprintCore(Executor):
 
 
 class BlueprintExecutor(BlueprintCore):
+    """The primary executor class for running the blueprint example.
+
+    Inherits from BlueprintCore and provides a run method to execute the experiment.
+    """
+
     def __init__(self, experiment: Experiment):
+        """Initializes the BlueprintExecutor with the given experiment setup.
+
+        Parameters
+        ----------
+        experiment : Experiment
+            The experiment configuration for execution.
+        """
         super().__init__(experiment)
 
     def run(self, step=0, evolutionary_point_generation=None) -> None:
+        """Runs the optimization for a given step, delegating to the parent class's run
+        method.
+
+        Parameters
+        ----------
+        step : int, optional
+            The current optimization step number, by default 0.
+        evolutionary_point_generation : optional
+            Method of generating new points based on evolutionary principles, by default None.
+        """
         super().run(step, evolutionary_point_generation)
 
 
 def cost_function(f):
-    """Important note: Cost function should not be defined within main."""
+    """Defines a cost function for the optimization process. Note that this should not
+    be defined within the main scope.
+
+    Parameters
+    ----------
+    f : any
+        Input to the cost function, typically a measure of quality like fitness.
+
+    Returns
+    -------
+    any
+        The calculated cost for the input `f`.
+    """
     return f
 
 
 def main(plot=False):
+    """The main execution function for the blueprint example. Sets up the experiment,
+    runs the optimization process, and handles the output and cleanup.
+
+    Parameters
+    ----------
+    plot : bool, optional
+        Whether to plot the fitness graph at the end of the execution, by default False.
+    """
     experiment = blueprint_input()
     experiment.cost_function = cost_function
     blueprint_example = BlueprintExecutor(experiment=experiment)
