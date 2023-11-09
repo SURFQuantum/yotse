@@ -1,4 +1,9 @@
-"""Example script for execution of a wobbly_function.py experiment."""
+"""This module sets up and executes an optimization experiment using the Yotse
+framework, specifically designed to optimize a 'wobbly function'.
+
+It leverages genetic algorithms for the optimization process, handles file management,
+and cleans up after execution, showcasing a very basic use-case.
+"""
 import os
 import shutil
 
@@ -8,10 +13,15 @@ from yotse.pre import OptimizationInfo
 from yotse.pre import Parameter
 from yotse.pre import SystemSetup
 
-# import matplotlib
-
 
 def wobbly_pre() -> Experiment:
+    """Configures and returns an experiment setup for optimizing a wobbly function.
+
+    Returns
+    -------
+    Experiment
+        The configured Experiment object for the wobbly function optimization.
+    """
     wobbly_experiment = Experiment(
         experiment_name="wobbly_example",
         system_setup=SystemSetup(
@@ -66,6 +76,7 @@ def wobbly_pre() -> Experiment:
 
 
 def remove_files_after_run() -> None:
+    """Removes output directories and QCG temporary files after the optimization run."""
     # remove files and directories
     shutil.rmtree("output")
     dirs = [f for f in os.listdir(os.getcwd()) if (f.startswith(".qcg"))]
@@ -74,6 +85,8 @@ def remove_files_after_run() -> None:
 
 
 def main() -> None:
+    """Main execution function that initializes the experiment and executes the
+    optimization steps."""
     print(" --- Running Wobbly-Main Example. --- ")
     experiment = wobbly_pre()
     wobbly_example = Executor(experiment=experiment)
