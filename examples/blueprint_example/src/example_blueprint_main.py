@@ -283,23 +283,6 @@ class BlueprintExecutor(BlueprintCore):
         super().run(step, evolutionary_point_generation)
 
 
-def cost_function(f):
-    """Defines a cost function for the optimization process. Note that this should not
-    be defined within the main scope.
-
-    Parameters
-    ----------
-    f : any
-        Input to the cost function, typically a measure of quality like fitness.
-
-    Returns
-    -------
-    any
-        The calculated cost for the input `f`.
-    """
-    return f
-
-
 def main(plot=False):
     """The main execution function for the blueprint example. Sets up the experiment,
     runs the optimization process, and handles the output and cleanup.
@@ -310,8 +293,10 @@ def main(plot=False):
         Whether to plot the fitness graph at the end of the execution, by default False.
     """
     experiment = blueprint_input()
-    experiment.cost_function = cost_function
     blueprint_example = BlueprintExecutor(experiment=experiment)
+    # Note: For the blueprint example we are not defining a cost function in yotse, as the cost funtion is defined in
+    # the module `processing_function.py` and is based on parameters yotse never extracts. Yotse only takes the
+    # associated cost returned by `processing_function.py` and minimizes that.
 
     experiment.parse_slurm_arg("example_blueprint_main.py")
 

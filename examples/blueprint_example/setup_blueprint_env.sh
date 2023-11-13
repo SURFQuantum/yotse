@@ -24,7 +24,6 @@ check_status  # Check the exit status after changing the directory
 
 # Install the dependencies
 which python
-pip cache purge
 python --version
 poetry config http-basic.netsquid-pypi ${USERNAME} ${PASSWORD}
 poetry install
