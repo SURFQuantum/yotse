@@ -3,7 +3,7 @@
 ![Python Version](https://img.shields.io/badge/Python-3.9%20%E2%86%92%203.12-blue)
 ![CI/CD](https://github.com/SURFQuantum/yotse/actions/workflows/main_pipeline.yml/badge.svg)
 ![Integration](https://github.com/SURFQuantum/yotse/actions/workflows/integration.yml/badge.svg)
-![Coverage](https://github.com/SURFQuantum/yotse/blob/main/coverage.svg?raw=1)
+[![Coverage](https://coveralls.io/repos/github/SURFQuantum/yotse/badge.svg?branch=main)](https://coveralls.io/github/SURFQuantum/yotse?branch=main)
 ![docs: numpy](https://img.shields.io/badge/docstyle-numpy-green)
 
 # YOTSE - Your Optimization Tool for Scientific Experiments
