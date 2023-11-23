@@ -51,44 +51,11 @@ jobs:
     - name: Install the project dependencies
       run: poetry install
     - name: Run the automated tests (ignore deprecation errors )
-      run: poetry run pytest -W ignore::DeprecationWarning --cov-report xml --cov=yotse tests/
+      run: poetry run pytest -W ignore::DeprecationWarning --cov-report lcov --cov=yotse tests/
     - name: Run the examples (except nlblueprint)
       run: poetry run examples
-
-    # the following is coverage stuff that should only run on pull requests
-    - name: Debug environment
-      run: |
-        env
-        pwd
-    - name: List directory contents
-      run: |
-        ls -al
-    - name: Get Coverage
-      if: github.event_name == 'pull_request' && matrix.task == 'run-tests'
-      uses: orgoro/coverage@v3.1
+    - name: Upload results to Coveralls (only on Python3.10 job)
+      if: matrix.python-version == '3.10'
+      uses: coverallsapp/github-action@v2
       with:
-          coverageFile: coverage.xml
-          token: ${{ secrets.GITHUB_TOKEN }}
-    - name: Coverage Badge
-      if: github.event_name == 'pull_request' && matrix.task == 'run-tests'
-      uses: tj-actions/coverage-badge-py@v2
-    - name: Verify Changed files
-      if: github.event_name == 'pull_request' && matrix.task == 'run-tests'
-      uses: tj-actions/verify-changed-files@v16
-      id: verify-changed-files
-      with:
-        files: coverage.svg
-    - name: Commit files
-      if: github.event_name == 'pull_request' && steps.verify-changed-files.outputs.files_changed == 'true'  && matrix.task == 'run-tests'
-      run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        git add coverage.svg
-        git commit -m "Updated coverage.svg"
-    - name: Push changes
-      if: github.event_name == 'pull_request' && steps.verify-changed-files.outputs.files_changed == 'true'  && matrix.task == 'run-tests'
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ github.head_ref }}
-        force: true
+        github-token: ${{ secrets.GITHUB_TOKEN }}
