@@ -14,10 +14,7 @@ def main() -> None:
         "tests/",
     ]
     try:
-        # Set a timeout for the tests in case some qcg process doesn't terminate
-        subprocess.run(command, check=True, timeout=300)
-    except subprocess.TimeoutExpired:
-        print("The tests did not complete within the timeout period.")
+        subprocess.run(command, check=True)
     except subprocess.CalledProcessError as e:
         print(f"Tests failed with error: {e}")
 
