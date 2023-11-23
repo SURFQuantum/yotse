@@ -251,12 +251,22 @@ class Executor:
                 },
                 **self.experiment.system_setup.job_args,
             )
-        # set up LocalManager and submit
-        job_manager = self._set_job_manager()
-        # TODO: somehow with these changes the job manager process never terminates and stays open indefinitely!!
-        self.aux_dir = self.extract_aux_dir(job_manager=job_manager)
+        job_manager = None
+        try:
+            # set up LocalManager and submit
+            job_manager = self._set_job_manager()
+            # TODO: somehow with these changes the job manager process never terminates and stays open indefinitely!!
+            self.aux_dir = self.extract_aux_dir(job_manager=job_manager)
 
-        job_ids = self._submit(manager=job_manager, jobs=jobs)
+            job_ids = self._submit(manager=job_manager, jobs=jobs)
+        except Exception as e:
+            # Handle other exceptions that might occur
+            logging.error(f"An unexpected error occurred during job submission: {e}")
+            raise RuntimeError("Unknown error during job submission.")
+        finally:
+            if job_manager:
+                job_manager.finish()
+                job_manager.cleanup()
         return job_ids
 
     def _submit(self, manager: LocalManager, jobs: Jobs) -> List[str]:
@@ -269,9 +279,6 @@ class Executor:
 
         assert self._check_job_status(job_status=manager.status(job_ids))
         logging.debug(f"DEBUG: job_info: {manager.info(job_ids)}")
-        manager.finish()
-        manager.cleanup()
-
         return job_ids  # type: ignore[no-any-return]
 
     @staticmethod
