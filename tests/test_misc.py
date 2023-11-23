@@ -27,6 +27,8 @@ else:
 
 
 class TestNewOpt(unittest.TestCase):
+    """Test the new Optimization Class."""
+
     @staticmethod
     def create_default_param(
         name: str = "bright_state_parameter",
@@ -36,6 +38,7 @@ class TestNewOpt(unittest.TestCase):
         constraints: Union[ConstraintDict, np.ndarray, None] = None,
         custom_distribution: Optional[Callable[[float, float, int], np.ndarray]] = None,
     ) -> Parameter:
+        """Return a default Parameter instance with optional custom settings."""
         return Parameter(
             name=name,
             param_range=parameter_range,
@@ -50,6 +53,8 @@ class TestNewOpt(unittest.TestCase):
         parameters: Optional[List[Parameter]] = None,
         opt_info_list: Optional[List[OptimizationInfo]] = None,
     ) -> Experiment:
+        """Return a default Experiment instance with optional parameters and
+        optimization info."""
         return Experiment(
             experiment_name="default_exp",
             system_setup=SystemSetup(
@@ -63,9 +68,11 @@ class TestNewOpt(unittest.TestCase):
 
     @staticmethod
     def create_default_executor(experiment: Experiment) -> Executor:
+        """Instantiate and return an Executor with the given experiment."""
         return Executor(experiment=experiment)
 
     def setUp(self) -> None:
+        """Prepare resources before each test."""
         self.lookup_dict = {
             (1, 2, 3): 1,
             (2, 3, 4): 1.2,
@@ -90,6 +97,7 @@ class TestNewOpt(unittest.TestCase):
         initial_pop: List[Tuple[float, ...]],
         num_gen: int,
     ) -> ModGA:
+        """Set up GA instance for test."""
         return ModGA(
             num_generations=num_gen,
             num_parents_mating=2,
@@ -102,9 +110,11 @@ class TestNewOpt(unittest.TestCase):
     def cost_func(
         self, ga_instance: Any, solution: Tuple[float, ...], sol_idx: int
     ) -> Any:
+        """Set mock cost function."""
         return -1 * (solution[0] ** 2 + solution[1] ** 2 + solution[2] ** 2)
 
     def test_population_lookup(self) -> None:
+        """Test population lookup."""
         # todo : this test seems to still test something that no other test picks up (aka the input_to_cost_value func)
         print("Initial pop has size", len(self.initial_pop))
         test_param = [TestNewOpt.create_default_param() for _ in range(3)]
@@ -143,6 +153,7 @@ class TestNewOpt(unittest.TestCase):
         )
 
     def test_new_population_func(self) -> None:
+        """Test new population function."""
         num_generations = 100
 
         ga_instance = self.setup_ga_instance(
@@ -172,23 +183,27 @@ class TestGA(unittest.TestCase):
         import itertools
 
         def mock_function(ga_instance: Any, solution: List[float], sol_idx: int) -> Any:
+            """Mock cost function."""
             return -1 * (solution[0] ** 2 + solution[1] ** 2)
 
-        range = [0.1, 1.0]
-        param_values = numpy.linspace(range[0], range[1], 10).tolist()
+        interval = [0.1, 1.0]
+        param_values = numpy.linspace(interval[0], interval[1], 10).tolist()
         initial_population = list(
-            {element for element in itertools.product(param_values, param_values)}
+            {
+                tuple(element)
+                for element in itertools.product(param_values, param_values)
+            }
         )
 
         # Remove duplicates from the initial population.
         for idx, sol in enumerate(initial_population):
-            sol = list(sol)
+            # Create a new tuple with the modified second element if they are the same
             if sol[0] == sol[1]:
                 if sol[1] < 0.101:
-                    sol[1] = sol[1] + 0.001
+                    new_sol = (sol[0], sol[1] + 0.001)
                 else:
-                    sol[1] = sol[1] - 0.001
-            initial_population[idx] = sol.copy()
+                    new_sol = (sol[0], sol[1] - 0.001)
+                initial_population[idx] = new_sol
 
         ga = pygad.GA(
             num_generations=100,
@@ -196,7 +211,7 @@ class TestGA(unittest.TestCase):
             sol_per_pop=100,
             num_genes=2,
             gene_type=float,
-            gene_space={"low": range[0], "high": range[1]},
+            gene_space={"low": interval[0], "high": interval[1]},
             fitness_func=mock_function,
             initial_population=initial_population,
             mutation_probability=0.2,  # this is the line that makes or brakes it
@@ -211,10 +226,10 @@ class TestGA(unittest.TestCase):
         print(f"Best solution is {ga.best_solution()[0]}.")
         for point in new_points:
             for x in point:
-                if range[0] > x:
-                    print(f"Point {x} is outside gene_space ({range}).")
-                elif x > range[1]:
-                    print(f"Point {x} is outside gene_space ({range}).")
+                if interval[0] > x:
+                    print(f"Point {x} is outside gene_space ({interval}).")
+                elif x > interval[1]:
+                    print(f"Point {x} is outside gene_space ({interval}).")
             # self.assertTrue(all(range[0] <= x <= range[1] for x in point))
         self.assertEqual(len(initial_population), len(unique_points))
 
