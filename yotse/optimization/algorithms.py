@@ -1,6 +1,7 @@
 """Collection of Subclasses of :class:GenericOptimization implementing different
 optimization algorithms."""
 import math
+import random
 from typing import Any
 from typing import Callable
 from typing import List
@@ -8,6 +9,9 @@ from typing import Optional
 from typing import Tuple
 
 import numpy as np
+from deap import base
+from deap import creator
+from deap import tools
 from pygad.pygad import GA
 
 from yotse.optimization.ga import ModGA  # type: ignore[attr-defined]
@@ -203,6 +207,181 @@ class GAOpt(GenericOptimization):
             raise ValueError(
                 f"Solution {solution} was not found in internal dataframe row {solution_idx}."
             )
+
+
+class DEAPGAOpt(GenericOptimization):
+    """Implementation of GA using DEAP."""
+
+    def __init__(
+        self,
+        initial_population: np.ndarray,
+        num_generations: int,
+        num_parents_mating: int,
+        gene_space: Optional[ConstraintDict] = None,
+        refinement_factors: Optional[List[float]] = None,
+        logging_level: int = 1,
+        allow_duplicate_genes: bool = False,
+        fitness_func: Optional[Callable[..., float]] = None,
+        **deap_kwargs: Any,
+    ):
+        if fitness_func is None:
+            fitness_func = self.input_params_to_cost_value
+
+        # Define crossover and mutation probabilities
+        self.cxpb = deap_kwargs.get("cxpb", 0.5)  # Crossover probability
+        self.mutpb = deap_kwargs.get("mutpb", 0.2)  # Mutation probability
+
+        self.num_generations = num_generations
+        self.num_parents_mating = num_parents_mating
+        self.deap_kwargs = deap_kwargs
+        self.constraints = gene_space
+        self.allow_duplicate_genes = allow_duplicate_genes
+        self.current_generation = 0
+
+        # Define the fitness and individual classes using DEAP's creator
+        creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+        creator.create("Individual", list, fitness=creator.FitnessMax)
+
+        self.toolbox = base.Toolbox()
+        self.toolbox.register(
+            "attr_float", random.uniform, 0, 1
+        )  # Example of attribute generator
+        self.toolbox.register(
+            "individual",
+            tools.initRepeat,
+            creator.Individual,
+            self.toolbox.attr_float,
+            n=len(initial_population[0]),
+        )
+        self.toolbox.register(
+            "population", tools.initRepeat, list, self.toolbox.individual
+        )
+
+        # Register the genetic operators
+        self.toolbox.register("mate", tools.cxTwoPoint)
+        self.toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1, indpb=0.1)
+        self.toolbox.register("select", tools.selTournament, tournsize=3)
+        self.toolbox.register("evaluate", fitness_func)
+
+        # Initialize the population
+        self.population = self.toolbox.population(n=len(initial_population))
+
+        # Assign the initial population if given
+        for i, ind in enumerate(self.population):
+            ind[:] = initial_population[i]
+
+        super().__init__(
+            function=fitness_func,
+            refinement_factors=refinement_factors,
+            logging_level=logging_level,
+            extrema=self.MINIMUM,
+            evolutionary=True,
+            opt_instance=self.toolbox,
+        )
+
+    def execute(self) -> None:
+        """Execute single step in the genetic algorithm."""
+        if self.current_generation < self.num_generations:
+            # Select the next generation individuals
+            selected = self.toolbox.select(self.population, len(self.population))
+            # Clone the selected individuals
+            offspring = list(map(self.toolbox.clone, selected))
+
+            # Apply crossover and mutation on the offspring
+            for child1, child2 in zip(offspring[::2], offspring[1::2]):
+                if random.random() < self.cxpb:
+                    self.toolbox.mate(child1, child2)
+                    del child1.fitness.values
+                    del child2.fitness.values
+
+            for mutant in offspring:
+                if random.random() < self.mutpb:
+                    self.toolbox.mutate(mutant)
+                    del mutant.fitness.values
+
+            # Evaluate the individuals with an invalid fitness
+            invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+            fitnesses = self.toolbox.map(self.toolbox.evaluate, invalid_ind)
+            for ind, fit in zip(invalid_ind, fitnesses):
+                ind.fitness.values = fit
+
+            # The population is entirely replaced by the offspring
+            self.population[:] = offspring
+            self.current_generation += 1
+        else:
+            print("All generations completed.")
+
+    def get_best_solution(self) -> Tuple[List[float], None, None]:  # type: ignore[override]
+        """Get the best solution from the population."""
+        best_ind = tools.selBest(self.population, 1)[0]
+        # Convert the individual's gene values to a list of floats
+        best_solution_genes = list(map(float, best_ind))
+        # Assuming the fitness.values is a tuple with one float, extract the float.
+        best_solution_fitness = best_ind.fitness.values[0]
+        # Return the best solution genes and fitness, with None for the third element
+        return best_solution_genes, best_solution_fitness, None
+
+    def get_new_points(self) -> np.ndarray:
+        """Get new points from the GA (aka return the next population).
+
+        Returns
+        -------
+        np.ndarray
+            New points for the next iteration of the optimization.
+        """
+        # Convert the population into a numpy array for returning
+        new_points = np.array([ind for ind in self.population])
+        # Check constraints if any
+        if self.constraints is not None:
+            self._check_constraints(new_points)
+        return new_points
+
+    def _check_constraints(self, points: np.ndarray) -> None:
+        """Check if the points satisfy the constraints.
+
+        Parameters
+        ----------
+        points : np.ndarray
+            Points to check against the constraints.
+        """
+        for point in points:
+            for index, value in enumerate(point):
+                if isinstance(self.constraints, list):
+                    if self.constraints[index] is not None:
+                        if not (
+                            self.constraints[index]["low"]
+                            <= value
+                            <= self.constraints[index]["high"]
+                        ):
+                            raise ValueError("Constraint violation.")
+                elif isinstance(self.constraints, dict):
+                    if not (
+                        self.constraints["low"] <= value <= self.constraints["high"]
+                    ):
+                        raise ValueError("Constraint violation.")
+                else:
+                    raise TypeError(
+                        f"Unacceptable type {type(self.constraints)} for constraints."
+                    )
+
+    def overwrite_internal_data_points(self, data_points: np.ndarray) -> None:
+        """Overwrite the current population with new data points.
+
+        Parameters
+        ----------
+        data_points : np.ndarray
+            New data points to replace the current population.
+        """
+        # Ensure the new data points are the same length as the individual size
+        if not all(len(ind) == len(data_points[0]) for ind in self.population):
+            raise ValueError("New data points do not match individual size.")
+
+        # Update the population with the new data points
+        for ind, new_data_point in zip(self.population, data_points):
+            ind[:] = new_data_point
+        # Invalidate the fitness of the new individuals
+        for ind in self.population:
+            del ind.fitness.values
 
 
 # class CGOpt(GenericOptimization):
