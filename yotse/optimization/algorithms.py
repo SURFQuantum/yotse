@@ -212,15 +212,6 @@ class GAOpt(GenericOptimization):
 class DEAPGAOpt(GenericOptimization):
     """Implementation of GA using DEAP."""
 
-    @staticmethod
-    def create_individual(
-        cr: creator, input_values: List[float], index: Optional[int] = None
-    ) -> creator:
-        """Create individual."""
-        individual = cr(input_values)
-        individual.sol_idx = index
-        return individual
-
     def __init__(
         self,
         initial_population: np.ndarray,
@@ -233,11 +224,12 @@ class DEAPGAOpt(GenericOptimization):
         fitness_func: Optional[Callable[..., float]] = None,
         **deap_kwargs: Any,
     ):
-        if deap_kwargs is None:
-            deap_kwargs = {}
-
         if fitness_func is None:
             fitness_func = self.input_params_to_cost_value
+
+        # Define crossover and mutation probabilities
+        self.cxpb = deap_kwargs.get("cxpb", 0.5)  # Crossover probability
+        self.mutpb = deap_kwargs.get("mutpb", 0.2)  # Mutation probability
 
         self.num_generations = num_generations
         self.num_parents_mating = num_parents_mating
@@ -246,97 +238,56 @@ class DEAPGAOpt(GenericOptimization):
         self.allow_duplicate_genes = allow_duplicate_genes
         self.current_generation = 0
 
-        self.cxpb = deap_kwargs.get("cxpb", 0.5)
-        self.mutpb = deap_kwargs.get("mutpb", 0.2)
-
-        creator.create(
-            "FitnessMax",
-            base.Fitness,
-            weights=(-1.0 if self.extrema == self.MINIMUM else 1.0,),
-        )
-        creator.create("Individual", list, fitness=creator.FitnessMax, sol_idx=None)
+        # Define the fitness and individual classes using DEAP's creator
+        creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+        creator.create("Individual", list, fitness=creator.FitnessMax)
 
         self.toolbox = base.Toolbox()
-
-        self.toolbox.register("mate", tools.cxTwoPoint)
         self.toolbox.register(
-            "mutate",
-            tools.mutUniformInt,
-            low=0,
-            up=len(initial_population) - 1,
-            indpb=0.5,
+            "attr_float", random.uniform, 0, 1
+        )  # Example of attribute generator
+        self.toolbox.register(
+            "individual",
+            tools.initRepeat,
+            creator.Individual,
+            self.toolbox.attr_float,
+            n=len(initial_population[0]),
         )
-        self.toolbox.register("select", tools.selBest)
-        self.toolbox.register("evaluate", self._objective_func)
+        self.toolbox.register(
+            "population", tools.initRepeat, list, self.toolbox.individual
+        )
 
-        # Create the initial population using the create_individual method
-        self.population = [
-            self.create_individual(creator.Individual, ind, index=idx)
-            for idx, ind in enumerate(initial_population)
-        ]
+        # Register the genetic operators
+        self.toolbox.register("mate", tools.cxTwoPoint)
+        self.toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=1, indpb=0.1)
+        self.toolbox.register("select", tools.selTournament, tournsize=3)
+        self.toolbox.register("evaluate", fitness_func)
+
+        # Initialize the population
+        self.population = self.toolbox.population(n=len(initial_population))
+
+        # Assign the initial population if given
+        for i, ind in enumerate(self.population):
+            ind[:] = initial_population[i]
+
         super().__init__(
             function=fitness_func,
             refinement_factors=refinement_factors,
             logging_level=logging_level,
             extrema=self.MINIMUM,
             evolutionary=True,
-            opt_instance=self.toolbox,  # todo: check if this is what we want
+            opt_instance=self.toolbox,
         )
-
-    def _objective_func(
-        self, individual: creator.Individual, sol_idx: int
-    ) -> Tuple[float,]:
-        """Objective function for DEAP."""
-        if self.constraints is not None and not self._check_constraints(individual):
-            return (float("-inf"),)
-        print(individual, sol_idx, individual.sol_idx)
-        fitness = self.function(None, individual, sol_idx)
-        return (fitness,)
-
-    def _check_constraints(self, individual: List[creator]) -> bool:
-        if isinstance(self.constraints, list):
-            for index, value in enumerate(individual):
-                if self.constraints[index] is not None:
-                    if not (
-                        self.constraints[index]["low"]
-                        <= value
-                        <= self.constraints[index]["high"]
-                    ):
-                        return False
-        elif isinstance(self.constraints, dict):
-            for value in individual:
-                if not (self.constraints["low"] <= value <= self.constraints["high"]):
-                    return False
-        else:
-            raise TypeError(
-                f"Unacceptable type {type(self.constraints)} for gene_space."
-            )
-        return True
-
-    def _check_uniqueness(self, population: np.ndarray) -> np.ndarray:
-        seen = set()
-        new_population = []
-        for ind in population:
-            key = tuple(ind)
-            if key not in seen or self.allow_duplicate_genes:
-                seen.add(key)
-                new_population.append(ind)
-            else:
-                while key in seen:
-                    new_ind = self.toolbox.individual()
-                    key = tuple(new_ind)
-                seen.add(key)
-                new_population.append(new_ind)
-        return new_population
 
     def execute(self) -> None:
         """Execute single step in the genetic algorithm."""
         if self.current_generation < self.num_generations:
-            offspring = self.toolbox.select(self.population, len(self.population))
-            # todo: somehow something still goes wrong with the indexing.. can we get rid of the awkward indexing
-            # todo: restrictions at this point? maybe this while struggle is no longer required in this project?
-            offspring = list(offspring)
+            # Select the next generation individuals
+            selected = self.toolbox.select(self.population, len(self.population))
+            # Clone the selected individuals
+            offspring = list(map(self.toolbox.clone, selected))
 
+            # Apply crossover and mutation on the offspring
             for child1, child2 in zip(offspring[::2], offspring[1::2]):
                 if random.random() < self.cxpb:
                     self.toolbox.mate(child1, child2)
@@ -348,66 +299,89 @@ class DEAPGAOpt(GenericOptimization):
                     self.toolbox.mutate(mutant)
                     del mutant.fitness.values
 
+            # Evaluate the individuals with an invalid fitness
             invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-            # Update fitnesses with the correct sol_idx
-            fitnesses = [self._objective_func(ind, ind.sol_idx) for ind in invalid_ind]
+            fitnesses = self.toolbox.map(self.toolbox.evaluate, invalid_ind)
             for ind, fit in zip(invalid_ind, fitnesses):
                 ind.fitness.values = fit
 
-            # Update sol_idx for the new population
-            new_population = self.toolbox.select(
-                self.population + offspring, len(self.population)
-            )
-            for idx, ind in enumerate(new_population):
-                ind.sol_idx = idx
-
-            self.population = new_population
-            self.population = self._check_uniqueness(self.population)
+            # The population is entirely replaced by the offspring
+            self.population[:] = offspring
             self.current_generation += 1
         else:
             print("All generations completed.")
 
     def get_best_solution(self) -> Tuple[List[float], None, None]:  # type: ignore[override]
+        """Get the best solution from the population."""
         best_ind = tools.selBest(self.population, 1)[0]
-        best_fitness = best_ind.fitness.values[0]
-        best_solution = best_ind[:]
-        best_solution_idx = self.population.index(best_ind)
-        return best_solution, best_fitness, best_solution_idx  # type: ignore[return-value]
+        # Convert the individual's gene values to a list of floats
+        best_solution_genes = list(map(float, best_ind))
+        # Assuming the fitness.values is a tuple with one float, extract the float.
+        best_solution_fitness = best_ind.fitness.values[0]
+        # Return the best solution genes and fitness, with None for the third element
+        return best_solution_genes, best_solution_fitness, None
 
     def get_new_points(self) -> np.ndarray:
         """Get new points from the GA (aka return the next population).
 
         Returns
         -------
-        new_points : np.ndarray
+        np.ndarray
             New points for the next iteration of the optimization.
         """
-        new_points = self.optimization_instance.population
-        # todo: see if we check constraints somewhere else, might be redundant
+        # Convert the population into a numpy array for returning
+        new_points = np.array([ind for ind in self.population])
+        # Check constraints if any
         if self.constraints is not None:
-            # double check constraints are kept
-            for point in new_points:
-                for index, value in enumerate(point):
-                    if isinstance(self.constraints, list):
-                        if self.constraints[index] is not None:
-                            assert (
-                                self.constraints[index]["low"]
-                                <= value
-                                <= self.constraints[index]["high"]
-                            )
-                    elif isinstance(self.constraints, dict):
-                        assert (
-                            self.constraints["low"] <= value <= self.constraints["high"]
-                        )
-                    else:
-                        raise TypeError(f"Unacceptable type {type} for constraints.")
-        new_points = [tuple(point) for point in new_points]
+            self._check_constraints(new_points)
+        return new_points
 
-        return np.array(new_points)
+    def _check_constraints(self, points: np.ndarray) -> None:
+        """Check if the points satisfy the constraints.
+
+        Parameters
+        ----------
+        points : np.ndarray
+            Points to check against the constraints.
+        """
+        for point in points:
+            for index, value in enumerate(point):
+                if isinstance(self.constraints, list):
+                    if self.constraints[index] is not None:
+                        if not (
+                            self.constraints[index]["low"]
+                            <= value
+                            <= self.constraints[index]["high"]
+                        ):
+                            raise ValueError("Constraint violation.")
+                elif isinstance(self.constraints, dict):
+                    if not (
+                        self.constraints["low"] <= value <= self.constraints["high"]
+                    ):
+                        raise ValueError("Constraint violation.")
+                else:
+                    raise TypeError(
+                        f"Unacceptable type {type(self.constraints)} for constraints."
+                    )
 
     def overwrite_internal_data_points(self, data_points: np.ndarray) -> None:
-        self.population = [creator.Individual(point) for point in data_points]
-        self.population = list(map(self.toolbox.clone, self.population))
+        """Overwrite the current population with new data points.
+
+        Parameters
+        ----------
+        data_points : np.ndarray
+            New data points to replace the current population.
+        """
+        # Ensure the new data points are the same length as the individual size
+        if not all(len(ind) == len(data_points[0]) for ind in self.population):
+            raise ValueError("New data points do not match individual size.")
+
+        # Update the population with the new data points
+        for ind, new_data_point in zip(self.population, data_points):
+            ind[:] = new_data_point
+        # Invalidate the fitness of the new individuals
+        for ind in self.population:
+            del ind.fitness.values
 
 
 # class CGOpt(GenericOptimization):
