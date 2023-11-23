@@ -11,7 +11,8 @@ import pandas
 from qcg.pilotjob.api.job import Jobs
 from qcg.pilotjob.api.manager import LocalManager
 
-from yotse.optimization.algorithms import GAOpt, DEAPGAOpt
+from yotse.optimization.algorithms import DEAPGAOpt
+from yotse.optimization.algorithms import GAOpt
 from yotse.optimization.optimizer import Optimizer
 from yotse.pre import Experiment
 from yotse.pre import set_basic_directory_structure_for_job
@@ -85,12 +86,13 @@ class Executor:
                     gene_space=constraints,  # type: ignore
                     **opt_info.parameters,
                 )
-            elif opt_info.name == 'DEAPGA':
-                optimization_alg = DEAPGAOpt(initial_population=self.experiment.data_points,
-                                             fitness_func=self.input_params_to_cost_value,
-                                             # gene_type=param_types,
-                                             gene_space=constraints,
-                                             **opt_info.parameters)
+            elif opt_info.name == "DEAPGA":
+                optimization_alg = DEAPGAOpt(  # type: ignore[assignment]
+                    initial_population=self.experiment.data_points,
+                    # gene_type=param_types,
+                    gene_space=constraints,  # type: ignore
+                    **opt_info.parameters,
+                )
             else:
                 raise ValueError("Unknown optimization algorithm.")
         else:

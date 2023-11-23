@@ -1,15 +1,18 @@
 """Collection of Subclasses of :class:GenericOptimization implementing different
 optimization algorithms."""
 import math
+import random
 from typing import Any
 from typing import Callable
 from typing import List
 from typing import Optional
-from typing import Tuple, Union, Dict
+from typing import Tuple
 
 import numpy as np
+from deap import base
+from deap import creator
+from deap import tools
 from pygad.pygad import GA
-from deap import base, creator, tools
 
 from yotse.optimization.ga import ModGA  # type: ignore[attr-defined]
 from yotse.optimization.generic_optimization import GenericOptimization
@@ -207,68 +210,110 @@ class GAOpt(GenericOptimization):
 
 
 class DEAPGAOpt(GenericOptimization):
+    """Implementation of GA using DEAP."""
+
     @staticmethod
-    def create_individual(creator, input_values: List[float], index=None):
-        individual = creator(input_values)
+    def create_individual(
+        cr: creator, input_values: List[float], index: Optional[int] = None
+    ) -> creator:
+        """Create individual."""
+        individual = cr(input_values)
         individual.sol_idx = index
         return individual
 
-    def __init__(self, fitness_func: Callable, initial_population: np.ndarray, num_generations: int, num_parents_mating: int,
-                 gene_space: Union[Dict, List] = None, refinement_factors=None, logging_level=1,
-                 allow_duplicate_genes=False, **deap_kwargs):
-        super().__init__(function=fitness_func, refinement_factors=refinement_factors, logging_level=logging_level,
-                         extrema=self.MINIMUM, evolutionary=True)
-
+    def __init__(
+        self,
+        initial_population: np.ndarray,
+        num_generations: int,
+        num_parents_mating: int,
+        gene_space: Optional[ConstraintDict] = None,
+        refinement_factors: Optional[List[float]] = None,
+        logging_level: int = 1,
+        allow_duplicate_genes: bool = False,
+        fitness_func: Optional[Callable[..., float]] = None,
+        **deap_kwargs: Any,
+    ):
         if deap_kwargs is None:
             deap_kwargs = {}
+
+        if fitness_func is None:
+            fitness_func = self.input_params_to_cost_value
 
         self.num_generations = num_generations
         self.num_parents_mating = num_parents_mating
         self.deap_kwargs = deap_kwargs
-        self.gene_space = gene_space
+        self.constraints = gene_space
         self.allow_duplicate_genes = allow_duplicate_genes
         self.current_generation = 0
 
         self.cxpb = deap_kwargs.get("cxpb", 0.5)
         self.mutpb = deap_kwargs.get("mutpb", 0.2)
 
-        creator.create("FitnessMax", base.Fitness, weights=(-1.0 if self.extrema == self.MINIMUM else 1.0,))
+        creator.create(
+            "FitnessMax",
+            base.Fitness,
+            weights=(-1.0 if self.extrema == self.MINIMUM else 1.0,),
+        )
         creator.create("Individual", list, fitness=creator.FitnessMax, sol_idx=None)
 
         self.toolbox = base.Toolbox()
 
         self.toolbox.register("mate", tools.cxTwoPoint)
-        self.toolbox.register("mutate", tools.mutUniformInt, low=0, up=len(initial_population) - 1, indpb=0.5)
+        self.toolbox.register(
+            "mutate",
+            tools.mutUniformInt,
+            low=0,
+            up=len(initial_population) - 1,
+            indpb=0.5,
+        )
         self.toolbox.register("select", tools.selBest)
         self.toolbox.register("evaluate", self._objective_func)
 
         # Create the initial population using the create_individual method
-        self.population = [self.create_individual(creator.Individual, ind, index=idx)
-                           for idx, ind in enumerate(initial_population)]
+        self.population = [
+            self.create_individual(creator.Individual, ind, index=idx)
+            for idx, ind in enumerate(initial_population)
+        ]
+        super().__init__(
+            function=fitness_func,
+            refinement_factors=refinement_factors,
+            logging_level=logging_level,
+            extrema=self.MINIMUM,
+            evolutionary=True,
+            opt_instance=self.toolbox,  # todo: check if this is what we want
+        )
 
-
-    def _objective_func(self, individual, sol_idx) -> Tuple[float,]:
-        if self.gene_space is not None and not self._check_constraints(individual):
-            return (float('-inf'),)
+    def _objective_func(
+        self, individual: creator.Individual, sol_idx: int
+    ) -> Tuple[float,]:
+        """Objective function for DEAP."""
+        if self.constraints is not None and not self._check_constraints(individual):
+            return (float("-inf"),)
         print(individual, sol_idx, individual.sol_idx)
         fitness = self.function(None, individual, sol_idx)
         return (fitness,)
 
-    def _check_constraints(self, individual: List) -> bool:
-        if isinstance(self.gene_space, list):
+    def _check_constraints(self, individual: List[creator]) -> bool:
+        if isinstance(self.constraints, list):
             for index, value in enumerate(individual):
-                if self.gene_space[index] is not None:
-                    if not (self.gene_space[index]['low'] <= value <= self.gene_space[index]['high']):
+                if self.constraints[index] is not None:
+                    if not (
+                        self.constraints[index]["low"]
+                        <= value
+                        <= self.constraints[index]["high"]
+                    ):
                         return False
-        elif isinstance(self.gene_space, dict):
+        elif isinstance(self.constraints, dict):
             for value in individual:
-                if not (self.gene_space['low'] <= value <= self.gene_space['high']):
+                if not (self.constraints["low"] <= value <= self.constraints["high"]):
                     return False
         else:
-            raise TypeError(f"Unacceptable type {type(self.gene_space)} for gene_space.")
+            raise TypeError(
+                f"Unacceptable type {type(self.constraints)} for gene_space."
+            )
         return True
 
-    def _check_uniqueness(self, population: List) -> List:
+    def _check_uniqueness(self, population: np.ndarray) -> np.ndarray:
         seen = set()
         new_population = []
         for ind in population:
@@ -285,6 +330,7 @@ class DEAPGAOpt(GenericOptimization):
         return new_population
 
     def execute(self) -> None:
+        """Execute single step in the genetic algorithm."""
         if self.current_generation < self.num_generations:
             offspring = self.toolbox.select(self.population, len(self.population))
             # todo: somehow something still goes wrong with the indexing.. can we get rid of the awkward indexing
@@ -309,7 +355,9 @@ class DEAPGAOpt(GenericOptimization):
                 ind.fitness.values = fit
 
             # Update sol_idx for the new population
-            new_population = self.toolbox.select(self.population + offspring, len(self.population))
+            new_population = self.toolbox.select(
+                self.population + offspring, len(self.population)
+            )
             for idx, ind in enumerate(new_population):
                 ind.sol_idx = idx
 
@@ -319,19 +367,49 @@ class DEAPGAOpt(GenericOptimization):
         else:
             print("All generations completed.")
 
-    def get_best_solution(self) -> Tuple[List, float, int]:
+    def get_best_solution(self) -> Tuple[List[float], None, None]:  # type: ignore[override]
         best_ind = tools.selBest(self.population, 1)[0]
         best_fitness = best_ind.fitness.values[0]
         best_solution = best_ind[:]
         best_solution_idx = self.population.index(best_ind)
-        return best_solution, best_fitness, best_solution_idx
+        return best_solution, best_fitness, best_solution_idx  # type: ignore[return-value]
 
-    def get_new_points(self) -> List[Tuple]:
-        return [tuple(ind) for ind in self.population]
+    def get_new_points(self) -> np.ndarray:
+        """Get new points from the GA (aka return the next population).
 
-    def overwrite_internal_data_points(self, data_points: List) -> None:
+        Returns
+        -------
+        new_points : np.ndarray
+            New points for the next iteration of the optimization.
+        """
+        new_points = self.optimization_instance.population
+        # todo: see if we check constraints somewhere else, might be redundant
+        if self.constraints is not None:
+            # double check constraints are kept
+            for point in new_points:
+                for index, value in enumerate(point):
+                    if isinstance(self.constraints, list):
+                        if self.constraints[index] is not None:
+                            assert (
+                                self.constraints[index]["low"]
+                                <= value
+                                <= self.constraints[index]["high"]
+                            )
+                    elif isinstance(self.constraints, dict):
+                        assert (
+                            self.constraints["low"] <= value <= self.constraints["high"]
+                        )
+                    else:
+                        raise TypeError(f"Unacceptable type {type} for constraints.")
+        new_points = [tuple(point) for point in new_points]
+
+        return np.array(new_points)
+
+    def overwrite_internal_data_points(self, data_points: np.ndarray) -> None:
         self.population = [creator.Individual(point) for point in data_points]
         self.population = list(map(self.toolbox.clone, self.population))
+
+
 # class CGOpt(GenericOptimization):
 #     """
 #     CG algorithm
