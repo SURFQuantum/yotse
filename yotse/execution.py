@@ -1,7 +1,9 @@
 """Defines classes and functions for the execution of your experiment."""
+import logging
 import os
 import pickle
 from typing import Any
+from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Union
@@ -18,6 +20,8 @@ from yotse.pre import set_basic_directory_structure_for_job
 from yotse.utils.utils import file_list_to_single_df
 from yotse.utils.utils import get_files_by_extension
 
+logger = logging.getLogger(__name__)
+
 
 class Executor:
     def __init__(self, experiment: Experiment):
@@ -26,13 +30,37 @@ class Executor:
         self.aux_dir: str = ""
 
         if "--resume" in self.experiment.system_setup.cmdline_arguments:
-            assert isinstance(
-                self.experiment.system_setup.cmdline_arguments["--resume"], str
-            ), "--resume keyword must be passed a string describing the path to the aux directory."
-            # if resuming the simulation, load state from file
-            self.load_executor_state(
-                aux_directory=self.experiment.system_setup.cmdline_arguments["--resume"]
-            )
+            resume_arg = self.experiment.system_setup.cmdline_arguments["--resume"]
+            if not isinstance(resume_arg, str):
+                logger.error(
+                    "--resume keyword must be passed a string describing the path to the aux directory."
+                )
+                raise ValueError(
+                    "--resume keyword must be passed a string describing the path to the aux directory."
+                )
+            else:
+                # if resuming the simulation, load state from file
+                self.load_executor_state(aux_directory=resume_arg)
+
+    def _set_job_manager(self) -> LocalManager:
+        """Set the job manager that will be used for this Executor."""
+        # Note: if this is set on init, a process is started and never finishes, so only set up just before submit
+        # Note: this is rather annoying as this means a new LocalManager needs to be created every iteration
+        logger.info("Setting up LocalManager.")
+        manager = LocalManager(
+            ["--log", "error"], cfg=self.experiment.system_setup.qcg_cfg
+        )
+        logger.info(f"QCQ-PiloJob reports available resources: {manager.resources()}")
+        return manager
+
+    @staticmethod
+    def extract_aux_dir(job_manager: LocalManager) -> str:
+        """Helper function to extract the auxiliary directory where qcg-pilotjob files
+        and saves are stored."""
+        logger.info("Getting aux_dir.")
+        instance_id = job_manager.system_status()["System"]["InstanceId"]
+        aux_dir = os.path.join(os.getcwd(), ".qcgpjm-service-{}".format(instance_id))
+        return aux_dir
 
     def generate_optimizer(self) -> Optimizer:
         """Sets the optimization algorithm for the run by translating information in the
@@ -108,7 +136,7 @@ class Executor:
             algorithm determines whether the point creation is evolutionary or based on the best solution.
             Defaults to None.
         """
-        print(
+        logger.info(
             f"Starting default run of {self.experiment.name} (step{step_number}): submit, collect, create."
         )
         self.submit(step_number=step_number)
@@ -117,7 +145,7 @@ class Executor:
             data=data, evolutionary=evolutionary_point_generation
         )
         self.save_executor_state()
-        print(f"Finished run of {self.experiment.name} (step{step_number}).")
+        logger.info(f"Finished run of {self.experiment.name} (step{step_number}).")
 
     def pre_submission_setup_per_job(
         self, datapoint_item: List[float], step_number: int, job_number: int
@@ -183,12 +211,7 @@ class Executor:
         job_ids : list
             A list of job IDs submitted to the LocalManager.
         """
-
-        manager = LocalManager(cfg=self.experiment.system_setup.qcg_cfg)
         stdout = self.experiment.system_setup.stdout_basename
-        instance_id = manager.system_status()["System"]["InstanceId"]
-        aux_dir = os.path.join(os.getcwd(), ".qcgpjm-service-{}".format(instance_id))
-        self.aux_dir = aux_dir
 
         jobs = Jobs()
         if self.experiment.data_points.size == 0:
@@ -223,11 +246,44 @@ class Executor:
                 },
                 **self.experiment.system_setup.job_args,
             )
+
+        # set up LocalManager and submit
+        job_manager = self._set_job_manager()
+        self.aux_dir = self.extract_aux_dir(job_manager=job_manager)
+
+        job_ids = self._submit(manager=job_manager, jobs=jobs)
+        job_manager.finish()
+        job_manager.cleanup()
+        return job_ids
+
+    def _submit(self, manager: LocalManager, jobs: Jobs) -> List[str]:
+        """Private function submitting the jobs."""
+        logging.info("Submitting jobs.")
         job_ids = manager.submit(jobs)
+        logging.info(f"QCQPilotJob submitted jobs: {str(job_ids)}")
+
         manager.wait4(job_ids)
-        manager.finish()
-        manager.cleanup()
+
+        assert self._check_job_status(job_status=manager.status(job_ids))
+        logging.debug(f"DEBUG: job_info: {manager.info(job_ids)}")
         return job_ids  # type: ignore[no-any-return]
+
+    @staticmethod
+    def _check_job_status(job_status: Dict[str, Any]) -> bool:
+        """Check the status of the jobs and raise RuntimeError immediately if any
+        fail."""
+        logging.info(f"Job status after wait: {job_status}")
+        if not all(
+            job["data"]["status"] == "SUCCEED" for job in job_status["jobs"].values()
+        ):
+            failed_job = next(
+                job
+                for job in job_status["jobs"].values()
+                if job["data"]["status"] != "SUCCEED"
+            )
+            raise RuntimeError(f"Job {failed_job['id']} did not succeed")
+        logging.info("All Jobs succeeded.")
+        return True
 
     def collect_data(self) -> pandas.DataFrame:
         """Collects data from output.csv (or the output of the scripts) and combines it
