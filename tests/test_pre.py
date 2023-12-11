@@ -390,16 +390,30 @@ class TestExperiment(unittest.TestCase):
         test_exp = self.create_default_experiment()
         self.assertEqual(len(test_exp.optimization_information_list), 0)
 
+        def linear_dep(x: float, y: float) -> float:
+            """Linear function for analytical optimization."""
+            return x * y
+
         test_opt = self.create_default_experiment(
             optimization_info=[
                 OptimizationInfo(
-                    name="GA", opt_parameters={"pop_size": 5}, is_active=True
+                    name="GA",
+                    blackbox_optimization=True,
+                    opt_parameters={"pop_size": 5},
+                    is_active=True,
                 )
             ]
         )
         test_opt.add_optimization_info(
-            OptimizationInfo(name="GD", opt_parameters={}, is_active=False)
+            OptimizationInfo(
+                name="GD",
+                blackbox_optimization=False,
+                opt_parameters={},
+                is_active=False,
+                function=linear_dep,
+            )
         )
+
         self.assertEqual(len(test_opt.optimization_information_list), 2)
         self.assertEqual(test_opt.optimization_information_list[-1].name, "GD")
 

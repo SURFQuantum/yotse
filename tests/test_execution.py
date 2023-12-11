@@ -306,6 +306,7 @@ class TestExecutor(unittest.TestCase):
             )
             initial_num_points = len(test_executor.experiment.data_points)
             ga_opt = GAOpt(
+                blackbox_optimization=False,
                 initial_data_points=test_executor.experiment.data_points,
                 num_generations=100,
                 num_parents_mating=9,
@@ -389,6 +390,7 @@ class TestExecutor(unittest.TestCase):
             )
             initial_num_points = len(test_executor.experiment.data_points)
             ga_opt = GAOpt(
+                blackbox_optimization=False,
                 initial_data_points=test_executor.experiment.data_points,
                 num_generations=100,
                 num_parents_mating=9,

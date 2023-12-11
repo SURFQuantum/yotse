@@ -123,6 +123,7 @@ class TestNewOpt(unittest.TestCase):
             opt_info_list=[
                 OptimizationInfo(
                     name="GA",
+                    blackbox_optimization=True,
                     opt_parameters={
                         "num_generations": 10,
                         "num_parents_mating": 2,

@@ -60,6 +60,7 @@ def wobbly_pre() -> Experiment:
         opt_info_list=[
             OptimizationInfo(
                 name="GA",
+                blackbox_optimization=True,
                 opt_parameters={
                     "num_generations": 10,  # number of iterations of the algorithm
                     # "num_points": 10,            # number of points per param to re-create , now determined by initial
@@ -93,7 +94,7 @@ def main() -> None:
 
     for i in range(
         wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed,
-        experiment.optimization_information_list[0].parameters["num_generations"],
+        experiment.optimization_information_list[0].opt_parameters["num_generations"],
     ):
         assert (
             wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed

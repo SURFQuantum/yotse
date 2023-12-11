@@ -21,14 +21,16 @@ class GAOpt(GenericOptimization):
 
     Parameters
     ----------
-    fitness_func : function
-        Fitness/objective/cost function.
+    blackbox_optimization: bool
+        Whether this is used as a blackbox optimization.
     initial_data_points: np.ndarray
         Initial population of data points to start the optimization with.
     num_generations : int
         Number of generations in the genetic algorithm.
     num_parents_mating : int
         Number of solutions to be selected as parents in the genetic algorithm.
+    fitness_func : function (optional)
+        Fitness/objective/cost function. Only needed if `blackbox_optimization=False`. Default is None.
     gene_space : dict or list (optional)
         Dictionary with constraints. Keys can be 'low', 'high' and 'step'. Alternatively list with acceptable values or
         list of dicts. If only single object is passed it will be applied for all input parameters, otherwise a
@@ -41,7 +43,7 @@ class GAOpt(GenericOptimization):
     logging_level : int (optional)
         Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything.
         Defaults to 1.
-    allow_duplicate_genes : Bool (optional)
+    allow_duplicate_genes : bool (optional)
         If True, then a solution/chromosome may have duplicate gene values.
         If False, then each gene will have a unique value in its solution.
         Defaults to False.
@@ -52,6 +54,7 @@ class GAOpt(GenericOptimization):
 
     def __init__(
         self,
+        blackbox_optimization: bool,
         initial_data_points: np.ndarray,
         num_generations: int,
         num_parents_mating: int,
@@ -62,7 +65,11 @@ class GAOpt(GenericOptimization):
         fitness_func: Optional[Callable[..., float]] = None,
         **pygad_kwargs: Any,
     ):
-        if fitness_func is None:
+        if blackbox_optimization:
+            if fitness_func is not None:
+                raise ValueError(
+                    "blackbox_optimization set to True, but fitness_func is not None."
+                )
             fitness_func = self.input_params_to_cost_value
 
         # Note: number of new points is determined by initial population
@@ -83,7 +90,7 @@ class GAOpt(GenericOptimization):
         self.constraints = gene_space
         # todo : why if save_solutions=True the optimization doesn't converge anymore?
         super().__init__(
-            function=fitness_func,
+            function=fitness_func,  # type: ignore [arg-type]
             opt_instance=ga_instance,
             refinement_factors=refinement_factors,
             logging_level=logging_level,
