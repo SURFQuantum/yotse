@@ -18,8 +18,6 @@ class Optimizer:
     ----------
     optimization_algorithm : GenericOptimization
         The optimization algorithm instance that will be executed.
-    discrete : bool (Optional)
-        Whether we are using discrete values underlying the optimization algorithm instead of continuous function.
     _is_executed : bool
         Internal flag to track whether the optimization has been executed.
 

@@ -10,8 +10,8 @@ from typing import Tuple
 import numpy as np
 from pygad.pygad import GA
 
-from yotse.optimization.modded_pygad_ga import ModGA  # type: ignore[attr-defined]
 from yotse.optimization.generic_optimization import GenericOptimization
+from yotse.optimization.modded_pygad_ga import ModGA  # type: ignore[attr-defined]
 from yotse.pre import ConstraintDict
 from yotse.utils.utils import ndarray_to_list
 
