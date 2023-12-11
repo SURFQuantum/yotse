@@ -12,7 +12,7 @@ import pandas as pd
 import pytest
 
 from yotse.execution import Executor
-from yotse.optimization.ga import ModGA  # type: ignore[attr-defined]
+from yotse.optimization.modded_pygad_ga import ModGA  # type: ignore[attr-defined]
 from yotse.pre import ConstraintDict
 from yotse.pre import Experiment
 from yotse.pre import OptimizationInfo
