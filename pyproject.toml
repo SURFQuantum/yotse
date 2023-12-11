@@ -44,7 +44,7 @@ sphinxcontrib-mermaid = "^0.9.2"
 
 [tool.poetry.scripts]
 tests = "tests.run_tests:main"
-examples = "examples.run_examples:main"
+examples = "examples.run_examples:run_examples"
 blueprint = "examples.run_examples:run_blueprint_example"
 show-cov = "tests.run_tests:open_coverage_report"
 

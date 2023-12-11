@@ -87,7 +87,7 @@ def remove_files_after_run() -> None:
 def main() -> None:
     """Main execution function that initializes the experiment and executes the
     optimization steps."""
-    print(" --- Running Wobbly-Main Example. --- ")
+    print("\033[93m --- Executing Wobbly-Main Example. --- \033[0m")
     experiment = wobbly_pre()
     wobbly_example = Executor(experiment=experiment)
 

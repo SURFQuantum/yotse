@@ -292,6 +292,8 @@ def main(plot=False):
     plot : bool, optional
         Whether to plot the fitness graph at the end of the execution, by default False.
     """
+    print("\033[93m --- Executing NlBlueprint Example --- \033[0m")
+
     experiment = blueprint_input()
     blueprint_example = BlueprintExecutor(experiment=experiment)
     # Note: For the blueprint example we are not defining a cost function in yotse, as the cost funtion is defined in
