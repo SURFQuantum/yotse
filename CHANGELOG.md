@@ -3,6 +3,10 @@ CHANGELOG
 
 [//]: # (For more details refer to the [documentation]&#40;&#41;.)
 
+upcoming (1.0.0):
+---
+* separated optimizations in blackbox and analytical (where the function is known).
+
 2023-11-08 (0.3.1):
 ---
 * fixed SLURM workflow in `yotse.pre.SystemSetup`
