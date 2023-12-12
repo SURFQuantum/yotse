@@ -303,9 +303,7 @@ def main(plot=False):
 
     experiment.parse_slurm_arg("example_blueprint_main.py")
 
-    for i in range(
-        experiment.optimization_information_list[0].opt_parameters["num_generations"]
-    ):
+    for i in range(experiment.opt_info_list[0].opt_parameters["num_generations"]):
         blueprint_example.run(step=i)
 
     # output

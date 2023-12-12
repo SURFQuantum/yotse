@@ -388,7 +388,7 @@ class TestExperiment(unittest.TestCase):
     def test_add_optimization_information(self) -> None:
         """Test the addition of `OptimizationInfo` to an `Experiment`."""
         test_exp = self.create_default_experiment()
-        self.assertEqual(len(test_exp.optimization_information_list), 0)
+        self.assertEqual(len(test_exp.opt_info_list), 0)
 
         def linear_dep(x: float, y: float) -> float:
             """Linear function for analytical optimization."""
@@ -408,14 +408,13 @@ class TestExperiment(unittest.TestCase):
             OptimizationInfo(
                 name="GD",
                 blackbox_optimization=False,
-                opt_parameters={},
+                opt_parameters={"fun": linear_dep},
                 is_active=False,
-                function=linear_dep,
             )
         )
 
-        self.assertEqual(len(test_opt.optimization_information_list), 2)
-        self.assertEqual(test_opt.optimization_information_list[-1].name, "GD")
+        self.assertEqual(len(test_opt.opt_info_list), 2)
+        self.assertEqual(test_opt.opt_info_list[-1].name, "GD")
 
     def test_generate_slurm_script(self) -> None:
         """Test the generation of a default SLURM script for an `Experiment`."""

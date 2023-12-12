@@ -38,6 +38,37 @@ class Executor:
                 aux_directory=self.experiment.system_setup.cmdline_arguments["--resume"]
             )
 
+    def next_optimization(self) -> None:
+        """Switch to the next active optimization in the list.
+
+        Deactivates the current active optimization and activates the next one in the list.
+
+        Raises:
+            RuntimeError: If there are multiple active optimizations or none at all.
+        """
+        active_optimizations: List[OptimizationInfo] = [
+            opt for opt in self.experiment.opt_info_list if opt.is_active
+        ]
+
+        if len(active_optimizations) == 1:
+            active_optimization = active_optimizations[0]
+            active_index = self.experiment.opt_info_list.index(active_optimization)
+            next_index = (active_index + 1) % len(self.experiment.opt_info_list)
+
+            # Deactivate the current optimization
+            active_optimization.is_active = False
+
+            # Activate the next optimization
+            self.experiment.opt_info_list[next_index].is_active = True
+        elif len(active_optimizations) > 1:
+            raise RuntimeError(
+                "Multiple active optimization steps. Please set all but one to active=False"
+            )
+        else:
+            raise RuntimeError("No active optimization steps found.")
+
+        self.optimizer = self.generate_optimizer()
+
     def get_active_optimization(self) -> OptimizationInfo:
         """Get the active optimization step.
 
@@ -55,9 +86,7 @@ class Executor:
         """
 
         active_optimizations = [
-            opt
-            for opt in self.experiment.optimization_information_list
-            if opt.is_active
+            opt for opt in self.experiment.opt_info_list if opt.is_active
         ]
 
         if len(active_optimizations) == 1:
@@ -80,7 +109,7 @@ class Executor:
         """
         optimization_alg: Optional[GenericOptimization] = None
 
-        if self.experiment.optimization_information_list:
+        if self.experiment.opt_info_list:
             opt_info = self.get_active_optimization()
 
             if opt_info.blackbox_optimization:
@@ -113,6 +142,8 @@ class Executor:
                         gene_space=constraints,  # type: ignore
                         **opt_info.opt_parameters,
                     )
+                elif opt_info.name.lower() == "test":
+                    optimization_alg = None
                 else:
                     raise ValueError(
                         f"Unknown blackbox optimization algorithm: {opt_info.name}"
@@ -131,6 +162,8 @@ class Executor:
                 #     )
                 if opt_info.name.lower() == "scipy":
                     optimization_alg = SciPyOptimization(**opt_info.opt_parameters)
+                elif opt_info.name.lower() == "test":
+                    optimization_alg = None
                 else:
                     raise ValueError(
                         f"Unknown whitebox optimization algorithm: {opt_info.name}"

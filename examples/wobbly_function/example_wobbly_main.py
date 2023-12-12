@@ -6,6 +6,10 @@ and cleans up after execution, showcasing a very basic use-case.
 """
 import os
 import shutil
+from typing import Any
+
+import numpy as np
+import scipy
 
 from yotse.execution import Executor
 from yotse.pre import Experiment
@@ -70,10 +74,41 @@ def wobbly_pre() -> Experiment:
                     "logging_level": 1,
                 },
                 is_active=True,
-            )
+            ),
+            OptimizationInfo(
+                name="scipy",
+                blackbox_optimization=False,
+                opt_parameters={
+                    "method": "Nelder-Mead",
+                    "bounds": None,
+                    "options": {"maxiter": 1000, "disp": True},
+                },
+                is_active=False,
+            ),
         ],
     )
     return wobbly_experiment
+
+
+def ackley_function_2d(x: np.ndarray, *args: Any) -> float:
+    """Returns function value of the 2d ackley function."""
+    if len(x) != 2:
+        raise ValueError("Input array x must have shape (2,).")
+
+    x, y = x[0], x[1]
+    f = float(
+        -20 * np.exp(-0.2 * np.sqrt(0.5 * (x**2 + y**2)))
+        - np.exp(0.5 * (np.cos(2 * np.pi * x) + np.cos(2 * np.pi * y)))
+        + np.e
+        + 20
+    )
+    return f
+
+
+def scipy_callback(intermediate_result: scipy.optimize.OptimizeResult) -> None:
+    print("Current x", intermediate_result.x)
+    print("Current fun", intermediate_result.fun)
+    return
 
 
 def remove_files_after_run() -> None:
@@ -94,7 +129,7 @@ def main() -> None:
 
     for i in range(
         wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed,
-        experiment.optimization_information_list[0].opt_parameters["num_generations"],
+        experiment.opt_info_list[0].opt_parameters["num_generations"],
     ):
         assert (
             wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed
@@ -105,10 +140,24 @@ def main() -> None:
         wobbly_example.run(step_number=i, evolutionary_point_generation=True)
 
     solution = wobbly_example.optimizer.suggest_best_solution()
-    print("Solution: ", solution)
+    print("Solution after GA: ", solution)
     # matplotlib.use('Qt5Agg')
     # wobbly_example.optimization_alg.ga_instance.plot_new_solution_rate()
     # wobbly_example.optimization_alg.ga_instance.plot_fitness()
+
+    # add remaining params to second optimization
+    experiment.opt_info_list[1].opt_parameters["fun"] = ackley_function_2d
+    experiment.opt_info_list[1].opt_parameters["callback"] = scipy_callback
+    experiment.opt_info_list[1].opt_parameters["x0"] = np.array(solution[0])
+    print(experiment.opt_info_list[1].opt_parameters["x0"])
+
+    wobbly_example.next_optimization()
+
+    wobbly_example.run()
+
+    solution = wobbly_example.optimizer.suggest_best_solution()
+    print("Solution after SciPy: ", solution)
+
     remove_files_after_run()
 
 

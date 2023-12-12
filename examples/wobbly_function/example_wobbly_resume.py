@@ -34,9 +34,7 @@ def main() -> None:
     resume_example = Executor(experiment=resume_experiment)
     for i in range(
         resume_example.optimizer.optimization_algorithm.optimization_instance.generations_completed,
-        resume_experiment.optimization_information_list[0].opt_parameters[
-            "num_generations"
-        ],
+        resume_experiment.opt_info_list[0].opt_parameters["num_generations"],
     ):
         assert (
             resume_example.optimizer.optimization_algorithm.optimization_instance.generations_completed

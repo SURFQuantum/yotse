@@ -56,9 +56,9 @@ def main() -> None:
         is_active=True,
     )
     # deactivate other optimization
-    whitebox_experiment.optimization_information_list[0].is_active = False
+    whitebox_experiment.opt_info_list[0].is_active = False
     # append new active whitebox optimization
-    whitebox_experiment.optimization_information_list.append(whitebox_opt)
+    whitebox_experiment.opt_info_list.append(whitebox_opt)
 
     wobbly_whitebox = Executor(experiment=whitebox_experiment)
 
