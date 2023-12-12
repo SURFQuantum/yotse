@@ -78,9 +78,10 @@ class Executor:
         optimization_alg : GenericOptimization
             Object of subclass of `:class:GenericOptimization`, the optimization algorithm to be used by this runner.
         """
+        optimization_alg: Optional[GenericOptimization] = None
+
         if self.experiment.optimization_information_list:
             opt_info = self.get_active_optimization()
-            optimization_alg: Optional[GenericOptimization] = None
 
             if opt_info.blackbox_optimization:
                 self.blackbox_optimization = True
