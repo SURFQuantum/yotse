@@ -60,6 +60,7 @@ def wobbly_pre() -> Experiment:
         opt_info_list=[
             OptimizationInfo(
                 name="GA",
+                blackbox_optimization=True,
                 opt_parameters={
                     "num_generations": 10,  # number of iterations of the algorithm
                     # "num_points": 10,            # number of points per param to re-create , now determined by initial
@@ -87,13 +88,13 @@ def remove_files_after_run() -> None:
 def main() -> None:
     """Main execution function that initializes the experiment and executes the
     optimization steps."""
-    print(" --- Running Wobbly-Main Example. --- ")
+    print("\033[93m --- Executing Wobbly-Main Example. --- \033[0m")
     experiment = wobbly_pre()
     wobbly_example = Executor(experiment=experiment)
 
     for i in range(
         wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed,
-        experiment.optimization_information_list[0].parameters["num_generations"],
+        experiment.optimization_information_list[0].opt_parameters["num_generations"],
     ):
         assert (
             wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed

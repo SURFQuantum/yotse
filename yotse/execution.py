@@ -79,12 +79,23 @@ class Executor:
             #     param_types = param_types[0]
             # todo: figure out what's nicer for user constraint or data_type? both seems redundant?
             if opt_info.name == "GA":
-                optimization_alg = GAOpt(
-                    initial_data_points=self.experiment.data_points,
-                    # gene_type=param_types,
-                    gene_space=constraints,  # type: ignore
-                    **opt_info.parameters,
-                )
+                if opt_info.blackbox_optimization:
+                    optimization_alg = GAOpt(
+                        blackbox_optimization=True,
+                        initial_data_points=self.experiment.data_points,
+                        # gene_type=param_types,
+                        gene_space=constraints,  # type: ignore
+                        **opt_info.opt_parameters,
+                    )
+                else:
+                    optimization_alg = GAOpt(
+                        blackbox_optimization=False,
+                        fitness_func=opt_info.function,
+                        initial_data_points=self.experiment.data_points,
+                        # gene_type=param_types,
+                        gene_space=constraints,  # type: ignore
+                        **opt_info.opt_parameters,
+                    )
             else:
                 raise ValueError("Unknown optimization algorithm.")
         else:

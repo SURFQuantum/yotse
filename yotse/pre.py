@@ -428,16 +428,33 @@ class OptimizationInfo:
     ----------
     name : str
         Name of the optimization algorithm to be used, e.g. "GA" (genetic algorithm), "GD" (gradient descent).
+    blackbox_optimization : bool
+        Whether the optimization should be a black-box optimization. (If False: a function must be supplied.)
     opt_parameters : dict
         Dictionary containing all necessary parameters for the optimization.
     is_active : bool
         Whether this is the currently active optimization algorithm. Can be used to perform sequential optimization with
         different optimization algorithms that can all be defined in a single Experiment.
+    function : callable, optional
+        The objective function to be optimized. Required if blackbox_optimization is False.
     """
 
-    def __init__(self, name: str, opt_parameters: Dict[str, Any], is_active: bool):
+    def __init__(
+        self,
+        name: str,
+        blackbox_optimization: bool,
+        opt_parameters: Dict[str, Any],
+        is_active: bool,
+        function: Optional[Callable[..., float]] = None,
+    ):
         self.name = name
-        self.parameters = opt_parameters
+        self.blackbox_optimization = blackbox_optimization
+        if not blackbox_optimization and function is None:
+            raise ValueError(
+                "A non-blackbox optimization was specified without a function. PLease provide a function or set blackbox_optimization=True."
+            )
+        self.function = function
+        self.opt_parameters = opt_parameters if opt_parameters else {}
         self.is_active = is_active
 
 

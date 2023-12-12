@@ -131,6 +131,7 @@ def blueprint_input():
         opt_info_list=[
             OptimizationInfo(
                 name="GA",
+                blackbox_optimization=True,
                 opt_parameters={
                     # "num_generations": 200,
                     "num_generations": 2,
@@ -292,6 +293,8 @@ def main(plot=False):
     plot : bool, optional
         Whether to plot the fitness graph at the end of the execution, by default False.
     """
+    print("\033[93m --- Executing NlBlueprint Example --- \033[0m")
+
     experiment = blueprint_input()
     blueprint_example = BlueprintExecutor(experiment=experiment)
     # Note: For the blueprint example we are not defining a cost function in yotse, as the cost funtion is defined in
@@ -301,7 +304,7 @@ def main(plot=False):
     experiment.parse_slurm_arg("example_blueprint_main.py")
 
     for i in range(
-        experiment.optimization_information_list[0].parameters["num_generations"]
+        experiment.optimization_information_list[0].opt_parameters["num_generations"]
     ):
         blueprint_example.run(step=i)
 

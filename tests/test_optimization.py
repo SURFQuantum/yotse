@@ -91,6 +91,7 @@ class TestGAOpt(unittest.TestCase):
             initial_pop.append((float(self.x[i]), float(self.y[i])))
 
         ga_opt = GAOpt(
+            blackbox_optimization=False,
             initial_data_points=np.array(initial_pop),
             num_generations=100,
             num_parents_mating=10,
@@ -172,6 +173,7 @@ class TestGenericOptimization(unittest.TestCase):
 
         test_exp = Experiment(experiment_name="test", system_setup=None)  # type: ignore[arg-type]
         test_optimization = GAOpt(
+            blackbox_optimization=True,
             initial_data_points=np.array([[1], [1]]),
             num_generations=1,
             num_parents_mating=1,
