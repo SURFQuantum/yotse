@@ -445,15 +445,9 @@ class OptimizationInfo:
         blackbox_optimization: bool,
         opt_parameters: Dict[str, Any],
         is_active: bool,
-        function: Optional[Callable[..., float]] = None,
     ):
         self.name = name
         self.blackbox_optimization = blackbox_optimization
-        if not blackbox_optimization and function is None:
-            raise ValueError(
-                "A non-blackbox optimization was specified without a function. PLease provide a function or set blackbox_optimization=True."
-            )
-        self.function = function
         self.opt_parameters = opt_parameters if opt_parameters else {}
         self.is_active = is_active
 
