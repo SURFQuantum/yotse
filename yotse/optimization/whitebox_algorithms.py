@@ -1,0 +1,2 @@
+# local optimzation
+# global minimization

@@ -16,7 +16,7 @@ import pytest
 from pygad.pygad import GA
 
 from yotse.execution import Executor
-from yotse.optimization.algorithms import GAOpt
+from yotse.optimization.blackbox_algorithms import GAOpt
 from yotse.optimization.optimizer import Optimizer
 from yotse.pre import ConstraintDict
 from yotse.pre import Experiment

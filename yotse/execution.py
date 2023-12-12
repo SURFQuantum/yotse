@@ -11,7 +11,7 @@ import pandas
 from qcg.pilotjob.api.job import Jobs
 from qcg.pilotjob.api.manager import LocalManager
 
-from yotse.optimization.algorithms import GAOpt
+from yotse.optimization.blackbox_algorithms import GAOpt
 from yotse.optimization.optimizer import Optimizer
 from yotse.pre import Experiment
 from yotse.pre import set_basic_directory_structure_for_job

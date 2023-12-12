@@ -8,7 +8,7 @@ import numpy as np
 import pandas
 from pygad.pygad import GA
 
-from yotse.optimization.algorithms import GAOpt
+from yotse.optimization.blackbox_algorithms import GAOpt
 from yotse.optimization.optimizer import Optimizer
 from yotse.pre import Experiment
 
