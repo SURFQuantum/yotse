@@ -445,15 +445,9 @@ class OptimizationInfo:
         blackbox_optimization: bool,
         opt_parameters: Dict[str, Any],
         is_active: bool,
-        function: Optional[Callable[..., float]] = None,
     ):
         self.name = name
         self.blackbox_optimization = blackbox_optimization
-        if not blackbox_optimization and function is None:
-            raise ValueError(
-                "A non-blackbox optimization was specified without a function. PLease provide a function or set blackbox_optimization=True."
-            )
-        self.function = function
         self.opt_parameters = opt_parameters if opt_parameters else {}
         self.is_active = is_active
 
@@ -496,14 +490,14 @@ class Experiment:
         self.name = experiment_name
         self.system_setup = system_setup
         self.parameters = parameters or []
-        self.optimization_information_list = []
+        self.opt_info_list = []
         if opt_info_list is not None:
             for item in opt_info_list:
                 if not isinstance(item, OptimizationInfo):
                     raise ValueError(
                         f"Items in opt_info_list should be of type OptimizationInfo not {type(item)}."
                     )
-            self.optimization_information_list = list(opt_info_list)
+            self.opt_info_list = list(opt_info_list)
         # todo: to avoid confusion maybe it is useful to call the datapoints of the exp different than those of params
         self.data_points: np.ndarray = self.create_datapoint_c_product()
         self._cost_function: Optional[Callable[..., float]] = None
@@ -576,7 +570,7 @@ class Experiment:
         """
         if not isinstance(optimization_info, OptimizationInfo):
             raise TypeError("Can not add parameter that is not of type Parameter.")
-        self.optimization_information_list.append(optimization_info)
+        self.opt_info_list.append(optimization_info)
 
     def generate_slurm_script(self, filename: str) -> None:
         """Generate slurm script to execute the file through slurm.
