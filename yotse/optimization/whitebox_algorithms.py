@@ -1,5 +1,6 @@
 from typing import Any
 from typing import Callable
+from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Sequence
@@ -18,14 +19,14 @@ class SciPyOptimization(GenericOptimization):
         self,
         fun: Callable[..., float],
         x0: Any,
-        args: Tuple = (),  # type: ignore [type-arg]
+        args: Optional[Tuple[Any]] = (),  # type: ignore [assignment]
         method: str = "BFGS",
         jac: Optional[Callable[..., Any]] = None,
         bounds: Optional[Sequence[Tuple[float, float]]] = None,
-        constraints: Union[dict, Sequence[dict]] = (),  # type: ignore [type-arg]
+        constraints: Optional[Union[dict, Sequence[dict]]] = (),  # type: ignore [type-arg]
         tol: Optional[float] = None,
         callback: Optional[Callable[..., Any]] = None,
-        options: Optional[dict] = None,  # type: ignore [type-arg]
+        options: Optional[Dict[str, Any]] = None,
     ):
         """Initialize the SciPyOptimization object.
 
