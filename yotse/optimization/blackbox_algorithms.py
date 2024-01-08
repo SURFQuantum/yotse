@@ -3,11 +3,14 @@ optimization algorithms."""
 import math
 from typing import Any
 from typing import Callable
+from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
 
 import numpy as np
+from bayes_opt import BayesianOptimization
+from bayes_opt import UtilityFunction
 from pygad.pygad import GA
 
 from yotse.optimization.generic_optimization import GenericOptimization
@@ -210,6 +213,116 @@ class GAOpt(GenericOptimization):
             raise ValueError(
                 f"Solution {solution} was not found in internal dataframe row {solution_idx}."
             )
+
+
+class BayesOpt(GenericOptimization):
+    """Bayesian optimization."""
+
+    def __init__(
+        self,
+        utility_function: UtilityFunction,
+        pbounds: Dict[str, Tuple[int, int]],
+        refinement_factors: Optional[List[float]] = None,
+        logging_level: int = 1,
+    ) -> None:
+        """Initialize Bayesian optimization."""
+        # pbounds = {'x': (-2, 2), 'y': (-3, 3)}
+        optimizer = BayesianOptimization(
+            f=None,
+            pbounds=pbounds,
+            verbose=2,
+            random_state=1,
+        )
+        self.utility_function = utility_function
+        # set initial point to investigate
+        self.next_point_to_probe = optimizer.suggest(utility_function)
+
+        super().__init__(
+            function=utility_function,
+            opt_instance=optimizer,
+            refinement_factors=refinement_factors,
+            logging_level=logging_level,
+            extrema=self.MINIMUM,
+            evolutionary=True,
+        )
+
+    def execute(self) -> None:
+        """Execute single step in the bayesian optimization."""
+        # Note this should be run after the user script has been executed with input next_point_to_probe
+        self.optimization_instance.register(
+            params=self.next_point_to_probe,
+            target=self.input_param_cost_df,  # todo: this still needs to be replaced
+        )
+
+    def get_best_solution(self) -> Tuple[List[float], float, int]:
+        """Get the best solution. Should be implemented in every derived class.
+
+        Returns
+        -------
+        solution, solution_fitness, solution_idx
+            Solution its fitness and its index in the list of data points.
+        """
+        raise NotImplementedError
+
+    def get_new_points(self) -> np.ndarray:
+        """Get new points from the GA (aka return the next population).
+
+        Returns
+        -------
+        new_points : np.ndarray
+            New points for the next iteration of the optimization.
+        """
+        next_point = self.optimization_instance.suggest(self.utility_function)
+        self.next_point_to_probe = next_point
+        return next_point
+
+    def overwrite_internal_data_points(self, data_points: np.ndarray) -> None:
+        pass
+
+    def input_params_to_cost_value(
+        self, ga_instance: GA, solution: List[float], solution_idx: int
+    ) -> Any:
+        pass
+
+
+class ParallelBayesOpt(GenericOptimization):
+    """Parallelized Bayesian optimization."""
+
+    def __init__(self) -> None:
+        """Initialize Bayesian optimization."""
+        pass
+
+    def execute(self) -> None:
+        """Execute single step in the bayesian optimization."""
+        pass
+
+    def get_best_solution(self) -> Tuple[List[float], float, int]:
+        """Get the best solution. Should be implemented in every derived class.
+
+        Returns
+        -------
+        solution, solution_fitness, solution_idx
+            Solution its fitness and its index in the list of data points.
+        """
+        raise NotImplementedError
+
+    def get_new_points(self) -> np.ndarray:
+        """Get new points from the bayesian optimization (aka return the next
+        population).
+
+        Returns
+        -------
+        new_points : np.ndarray
+            New points for the next iteration of the optimization.
+        """
+
+    def overwrite_internal_data_points(self, data_points: np.ndarray) -> None:
+        pass
+
+    def input_params_to_cost_value(
+        self, ga_instance: GA, solution: List[float], solution_idx: int
+    ) -> Any:
+        pass
 
 
 # class CGOpt(GenericOptimization):

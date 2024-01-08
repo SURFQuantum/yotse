@@ -26,7 +26,9 @@ pygad = ">=3.0.0, <3.1.0"
 ruamel-yaml = "^0.17.40"
 qcg-pilotjob = {git = "https://github.com/psnc-qcg/QCG-PilotJob/", rev = "issue-174_venv_interpreter", subdirectory = "components/core"}
 #qcg-pilotjob = "^0.14.0"  Note: excluded until https://github.com/psnc-qcg/QCG-PilotJob/issues/174 is merged
+bayesian-optimization = "^1.4.3"
 scipy = "^1.11.4"
+hyperopt = "^0.2.7"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.2"
