@@ -15,7 +15,7 @@ from yotse.optimization.blackbox_algorithms import BayesOpt
 from yotse.optimization.blackbox_algorithms import GAOpt
 from yotse.optimization.generic_optimization import GenericOptimization
 from yotse.optimization.optimizer import Optimizer
-from yotse.optimization.whitebox_algorithms import SciPyOptimization
+from yotse.optimization.whitebox_algorithms import SciPyOpt
 from yotse.pre import Experiment
 from yotse.pre import OptimizationInfo
 from yotse.pre import set_basic_directory_structure_for_job
@@ -174,7 +174,7 @@ class Executor:
                 #         **opt_info.opt_parameters,
                 #     )
                 if opt_info.name.lower() == "scipy":
-                    optimization_alg = SciPyOptimization(**opt_info.opt_parameters)
+                    optimization_alg = SciPyOpt(**opt_info.opt_parameters)
                 elif opt_info.name.lower() == "test":
                     optimization_alg = None
                 else:
