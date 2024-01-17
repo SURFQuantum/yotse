@@ -170,6 +170,41 @@ class TestParameters(unittest.TestCase):
         param3.update_parameter_through_dependency(param_list)
         assert np.array_equal(param3.data_points, np.array((2, 8, 54, 512)))
 
+    def test_update_parameter_through_dependency(self) -> None:
+        """Test the update of a `Parameter` that depends on another parameter."""
+        # Create a mock experiment with parameters
+        param_a = Parameter(
+            "A",
+            param_range=[1, 3],
+            number_points=3,
+            distribution="linear",
+            constraints={"low": 0, "high": 5},
+        )
+        param_b = Parameter(
+            "B",
+            param_range=[4, 6],
+            number_points=3,
+            distribution="linear",
+            constraints={"low": 0, "high": 10},
+        )
+
+        # Test when depends_on is not set
+        with self.assertRaises(ValueError):
+            param_a.update_parameter_through_dependency([param_a, param_b])
+
+        # Set up dependency
+        param_a.depends_on = {"name": "B", "function": lambda x, y: x + y}
+
+        # Test the update
+        param_a.update_parameter_through_dependency([param_a, param_b])
+
+        # Check if the data_points were updated correctly
+        self.assertTrue(isinstance(param_a.data_points, np.ndarray))
+        np.testing.assert_array_equal(param_a.data_points, np.array([5, 7, 9]))
+
+        # Check if the constraints were updated correctly
+        self.assertEqual(param_a.constraints, {"low": 0, "high": 15})
+
     def test_is_active_property(self) -> None:
         """Test to verify the `is_active` property of a `Parameter`."""
         active_param = self.create_default_param(parameter_active=True)

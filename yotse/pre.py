@@ -290,7 +290,7 @@ class Parameter:
                     f"{type(self.constraints)} and {type(target_parameter.constraints)}."
                 )
 
-        self.data_points = tuple(new_data_points)
+        self.data_points = np.array(new_data_points)
 
 
 class SystemSetup:
