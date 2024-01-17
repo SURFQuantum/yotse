@@ -3,7 +3,7 @@ CHANGELOG
 
 [//]: # (For more details refer to the [documentation]&#40;&#41;.)
 
-upcoming (1.0.0):
+2024-01-17 (1.0.0):
 ---
 * separated optimizations in blackbox and analytical (where the function is known).
 * added `SciPyOpt` and `BayesOpt` to available optimization algorithms
