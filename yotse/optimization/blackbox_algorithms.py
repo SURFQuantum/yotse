@@ -16,9 +16,6 @@ from yotse.optimization.generic_optimization import GenericOptimization
 from yotse.optimization.modded_pygad_ga import ModGA  # type: ignore[attr-defined]
 from yotse.pre import ConstraintDict
 from yotse.utils.utils import ndarray_to_list
-# from GPyOpt.core.task.space import Design_space
-# from GPyOpt.methods import BayesianOptimization
-# from GPyOpt.core.evaluators import base
 
 
 class GAOpt(GenericOptimization):
@@ -294,7 +291,7 @@ class BayesOpt(GenericOptimization):
         )
 
     def get_new_points(self) -> np.ndarray:
-        """Get new points from the GA (aka return the next population).
+        """Get new points from the BayesianOptimization instance.
 
         Returns
         -------
