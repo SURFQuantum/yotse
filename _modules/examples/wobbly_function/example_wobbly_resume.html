@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../yotse.html">yotse package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yotse.html">Yotse Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Yotse Examples</a></li>
 </ul>
 
@@ -93,7 +93,8 @@
 <span class="sd">    then resumes the optimization from the last saved state, finally cleaning up any</span>
 <span class="sd">    residual files after completion.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; --- Running Wobbly-Stop-&gt;Resume Example. --- &quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[93m --- Executing Wobbly-Stop-&gt;Resume Example. --- </span><span class="se">\033</span><span class="s2">[0m&quot;</span><span class="p">)</span>
+
     <span class="c1"># Note: Here, we show how a stopped experiment can be resumed from a save file</span>
     <span class="n">stop_resume_experiment</span> <span class="o">=</span> <span class="n">wobbly_pre</span><span class="p">()</span>
     <span class="n">stop_resume_example</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">(</span><span class="n">experiment</span><span class="o">=</span><span class="n">stop_resume_experiment</span><span class="p">)</span>
@@ -109,9 +110,7 @@
     <span class="n">resume_example</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">(</span><span class="n">experiment</span><span class="o">=</span><span class="n">resume_experiment</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
         <span class="n">resume_example</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">generations_completed</span><span class="p">,</span>
-        <span class="n">resume_experiment</span><span class="o">.</span><span class="n">optimization_information_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span>
-            <span class="s2">&quot;num_generations&quot;</span>
-        <span class="p">],</span>
+        <span class="n">resume_experiment</span><span class="o">.</span><span class="n">opt_info_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">opt_parameters</span><span class="p">[</span><span class="s2">&quot;num_generations&quot;</span><span class="p">],</span>
     <span class="p">):</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">resume_example</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">generations_completed</span>

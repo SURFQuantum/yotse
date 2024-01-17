@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../yotse.html">yotse package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yotse.html">Yotse Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Yotse Examples</a></li>
 </ul>
 
@@ -89,7 +89,7 @@
 
 
 <div class="viewcode-block" id="GenericOptimization">
-<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.algorithms.GenericOptimization">[docs]</a>
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.GenericOptimization">[docs]</a>
 <span class="k">class</span> <span class="nc">GenericOptimization</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for optimization algorithms.</span>
 
@@ -117,7 +117,7 @@
     <span class="n">MINIMUM</span> <span class="o">=</span> <span class="mi">1</span>
 
 <div class="viewcode-block" id="GenericOptimization.__init__">
-<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.algorithms.GenericOptimization.__init__">[docs]</a>
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.GenericOptimization.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
@@ -138,14 +138,14 @@
 
 
 <div class="viewcode-block" id="GenericOptimization.get_function">
-<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.algorithms.GenericOptimization.get_function">[docs]</a>
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.GenericOptimization.get_function">[docs]</a>
     <span class="k">def</span> <span class="nf">get_function</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the cost function.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span></div>
 
 
 <div class="viewcode-block" id="GenericOptimization.execute">
-<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.algorithms.GenericOptimization.execute">[docs]</a>
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.GenericOptimization.execute">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute method should be implemented in every derived class.&quot;&quot;&quot;</span>
@@ -157,7 +157,7 @@
 
 
 <div class="viewcode-block" id="GenericOptimization.get_best_solution">
-<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.algorithms.GenericOptimization.get_best_solution">[docs]</a>
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.GenericOptimization.get_best_solution">[docs]</a>
     <span class="k">def</span> <span class="nf">get_best_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the best solution. Should be implemented in every derived class.</span>
 
@@ -174,7 +174,7 @@
 
 
 <div class="viewcode-block" id="GenericOptimization.get_new_points">
-<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.algorithms.GenericOptimization.get_new_points">[docs]</a>
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.GenericOptimization.get_new_points">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">get_new_points</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get new points. Should be implemented in every evolutional algorithm.</span>
@@ -193,7 +193,7 @@
 
 
 <div class="viewcode-block" id="GenericOptimization.overwrite_internal_data_points">
-<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.algorithms.GenericOptimization.overwrite_internal_data_points">[docs]</a>
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.GenericOptimization.overwrite_internal_data_points">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">overwrite_internal_data_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Overwrite the internal set of data points with one externally generated. E.g.</span>
@@ -212,7 +212,7 @@
 
 
 <div class="viewcode-block" id="GenericOptimization.update_internal_cost_data">
-<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.algorithms.GenericOptimization.update_internal_cost_data">[docs]</a>
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.GenericOptimization.update_internal_cost_data">[docs]</a>
     <span class="k">def</span> <span class="nf">update_internal_cost_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">:</span> <span class="n">Experiment</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -243,8 +243,18 @@
 
 
 <div class="viewcode-block" id="GenericOptimization.input_params_to_cost_value">
-<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.algorithms.GenericOptimization.input_params_to_cost_value">[docs]</a>
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.GenericOptimization.input_params_to_cost_value">[docs]</a>
     <span class="k">def</span> <span class="nf">input_params_to_cost_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return value of cost function for given set of input parameter values and</span>
+<span class="sd">        their index in the set of points.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solution : list</span>
+<span class="sd">            Set of input parameter values of shape [param_1, param_2, .., param_n].</span>
+<span class="sd">        solution_idx : int</span>
+<span class="sd">            Index of the solution within the set of points.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span>
         <span class="k">assert</span> <span class="n">frame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Failed to get the current frame&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>

@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../yotse.html">yotse package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yotse.html">Yotse Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Yotse Examples</a></li>
 </ul>
 
@@ -85,9 +85,13 @@
 <span class="kn">from</span> <span class="nn">qcg.pilotjob.api.job</span> <span class="kn">import</span> <span class="n">Jobs</span>
 <span class="kn">from</span> <span class="nn">qcg.pilotjob.api.manager</span> <span class="kn">import</span> <span class="n">LocalManager</span>
 
-<span class="kn">from</span> <span class="nn">yotse.optimization.algorithms</span> <span class="kn">import</span> <span class="n">GAOpt</span>
+<span class="kn">from</span> <span class="nn">yotse.optimization.blackbox_algorithms</span> <span class="kn">import</span> <span class="n">BayesOpt</span>
+<span class="kn">from</span> <span class="nn">yotse.optimization.blackbox_algorithms</span> <span class="kn">import</span> <span class="n">GAOpt</span>
+<span class="kn">from</span> <span class="nn">yotse.optimization.generic_optimization</span> <span class="kn">import</span> <span class="n">GenericOptimization</span>
 <span class="kn">from</span> <span class="nn">yotse.optimization.optimizer</span> <span class="kn">import</span> <span class="n">Optimizer</span>
+<span class="kn">from</span> <span class="nn">yotse.optimization.whitebox_algorithms</span> <span class="kn">import</span> <span class="n">SciPyOpt</span>
 <span class="kn">from</span> <span class="nn">yotse.pre</span> <span class="kn">import</span> <span class="n">Experiment</span>
+<span class="kn">from</span> <span class="nn">yotse.pre</span> <span class="kn">import</span> <span class="n">OptimizationInfo</span>
 <span class="kn">from</span> <span class="nn">yotse.pre</span> <span class="kn">import</span> <span class="n">set_basic_directory_structure_for_job</span>
 <span class="kn">from</span> <span class="nn">yotse.utils.utils</span> <span class="kn">import</span> <span class="n">file_list_to_single_df</span>
 <span class="kn">from</span> <span class="nn">yotse.utils.utils</span> <span class="kn">import</span> <span class="n">get_files_by_extension</span>
@@ -100,6 +104,7 @@
 <a class="viewcode-back" href="../../yotse.html#yotse.execution.Executor.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">:</span> <span class="n">Experiment</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="p">:</span> <span class="n">Experiment</span> <span class="o">=</span> <span class="n">experiment</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blackbox_optimization</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="p">:</span> <span class="n">Optimizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_optimizer</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">aux_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
@@ -113,63 +118,156 @@
             <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="Executor.next_optimization">
+<a class="viewcode-back" href="../../yotse.html#yotse.execution.Executor.next_optimization">[docs]</a>
+    <span class="k">def</span> <span class="nf">next_optimization</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Switch to the next active optimization in the list.</span>
+
+<span class="sd">        Deactivates the current active optimization and activates the next one in the list.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If there are multiple active optimizations or none at all.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">active_optimizations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">OptimizationInfo</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">opt</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">opt_info_list</span> <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_active</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">active_optimizations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">active_optimization</span> <span class="o">=</span> <span class="n">active_optimizations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">active_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">opt_info_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">active_optimization</span><span class="p">)</span>
+            <span class="n">next_index</span> <span class="o">=</span> <span class="p">(</span><span class="n">active_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">opt_info_list</span><span class="p">)</span>
+
+            <span class="c1"># Deactivate the current optimization</span>
+            <span class="n">active_optimization</span><span class="o">.</span><span class="n">is_active</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="c1"># Activate the next optimization</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">opt_info_list</span><span class="p">[</span><span class="n">next_index</span><span class="p">]</span><span class="o">.</span><span class="n">is_active</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">active_optimizations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;Multiple active optimization steps. Please set all but one to active=False&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No active optimization steps found.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_optimizer</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Executor.get_active_optimization">
+<a class="viewcode-back" href="../../yotse.html#yotse.execution.Executor.get_active_optimization">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_active_optimization</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptimizationInfo</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the active optimization step.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        OptimizationInfo</span>
+<span class="sd">            The active optimization step.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If there are multiple active optimization steps.</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If no active optimization steps are found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">active_optimizations</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">opt</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">opt_info_list</span> <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_active</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">active_optimizations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">active_optimizations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">active_optimizations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;Multiple active optimization steps. Please set all but one to active=False&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No active optimization steps found.&quot;</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="Executor.generate_optimizer">
 <a class="viewcode-back" href="../../yotse.html#yotse.execution.Executor.generate_optimizer">[docs]</a>
     <span class="k">def</span> <span class="nf">generate_optimizer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optimizer</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the optimization algorithm for the run by translating information in the</span>
-<span class="sd">        optimization_info.</span>
+<span class="sd">        currently &#39;active&#39; optimization_info.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        optimization_alg : GenericOptimization</span>
 <span class="sd">            Object of subclass of `:class:GenericOptimization`, the optimization algorithm to be used by this runner.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">optimization_information_list</span><span class="p">:</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="nb">len</span><span class="p">(</span>
-                    <span class="p">[</span>
-                        <span class="n">opt</span>
-                        <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">optimization_information_list</span>
-                        <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">is_active</span>
-                    <span class="p">]</span>
-                <span class="p">)</span>
-                <span class="o">&gt;</span> <span class="mi">1</span>
-            <span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="s2">&quot;Multiple active optimization steps. Please set all but one to active=False&quot;</span>
-                <span class="p">)</span>
-            <span class="n">opt_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">optimization_information_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="c1"># todo: moving refinement factors to params is also an option</span>
-            <span class="c1"># ref_factors = [param.refinement_factor for param in experiment.parameters if param.is_active]</span>
-            <span class="c1"># if None in ref_factors or len(ref_factors) != len([p for p in experiment.parameters if p.is_active]):</span>
-            <span class="c1">#     raise ValueError(&quot;When using refinement factors they must be specified for all active parameters.&quot;)</span>
+        <span class="n">optimization_alg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">GenericOptimization</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
-            <span class="c1"># Note: param_type could be subsumed into this maybe by giving &#39;step&#39;=1?</span>
-            <span class="n">constraints</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">param</span><span class="o">.</span><span class="n">constraints</span>
-                <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">parameters</span>
-                <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">is_active</span>
-            <span class="p">]</span>
-            <span class="c1"># check if there are no constraints</span>
-            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">constraints</span><span class="p">):</span>
-                <span class="n">constraints</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: ignore</span>
-            <span class="c1"># todo: add more tests that check what happens if only some constraints are None etc.</span>
-            <span class="c1"># param_types = [int if param.param_type == &quot;discrete&quot; else float for param in experiment.parameters</span>
-            <span class="c1">#                if param.is_active]</span>
-            <span class="c1"># if len(set(param_types)) == 1:</span>
-            <span class="c1">#     param_types = param_types[0]</span>
-            <span class="c1"># todo: figure out what&#39;s nicer for user constraint or data_type? both seems redundant?</span>
-            <span class="k">if</span> <span class="n">opt_info</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;GA&quot;</span><span class="p">:</span>
-                <span class="n">optimization_alg</span> <span class="o">=</span> <span class="n">GAOpt</span><span class="p">(</span>
-                    <span class="n">initial_data_points</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">data_points</span><span class="p">,</span>
-                    <span class="c1"># gene_type=param_types,</span>
-                    <span class="n">gene_space</span><span class="o">=</span><span class="n">constraints</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="o">**</span><span class="n">opt_info</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span>
-                <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">opt_info_list</span><span class="p">:</span>
+            <span class="n">opt_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_active_optimization</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">opt_info</span><span class="o">.</span><span class="n">blackbox_optimization</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">blackbox_optimization</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="c1"># todo: moving refinement factors to params is also an option</span>
+                <span class="c1"># ref_factors = [param.refinement_factor for param in experiment.parameters if param.is_active]</span>
+                <span class="c1"># if None in ref_factors or len(ref_factors) != len([p for p in experiment.parameters if p.is_active]):</span>
+                <span class="c1">#     raise ValueError(&quot;When using refinement factors they must be specified for all active parameters.&quot;)</span>
+
+                <span class="c1"># Note: param_type could be subsumed into this maybe by giving &#39;step&#39;=1?</span>
+                <span class="n">constraints</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">param</span><span class="o">.</span><span class="n">constraints</span>
+                    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">parameters</span>
+                    <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">is_active</span>
+                <span class="p">]</span>
+                <span class="c1"># check if there are no constraints</span>
+                <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">constraints</span><span class="p">):</span>
+                    <span class="n">constraints</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: ignore</span>
+                <span class="c1"># todo: add more tests that check what happens if only some constraints are None etc.</span>
+                <span class="c1"># param_types = [int if param.param_type == &quot;discrete&quot; else float for param in experiment.parameters</span>
+                <span class="c1">#                if param.is_active]</span>
+                <span class="c1"># if len(set(param_types)) == 1:</span>
+                <span class="c1">#     param_types = param_types[0]</span>
+                <span class="c1"># todo: figure out what&#39;s nicer for user constraint or data_type? both seems redundant?</span>
+                <span class="k">if</span> <span class="n">opt_info</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ga&quot;</span><span class="p">:</span>
+                    <span class="n">optimization_alg</span> <span class="o">=</span> <span class="n">GAOpt</span><span class="p">(</span>
+                        <span class="n">blackbox_optimization</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">initial_data_points</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">data_points</span><span class="p">,</span>
+                        <span class="c1"># gene_type=param_types,</span>
+                        <span class="n">gene_space</span><span class="o">=</span><span class="n">constraints</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                        <span class="o">**</span><span class="n">opt_info</span><span class="o">.</span><span class="n">opt_parameters</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">opt_info</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;test&quot;</span><span class="p">:</span>
+                    <span class="n">optimization_alg</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">elif</span> <span class="n">opt_info</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;bayesopt&quot;</span><span class="p">:</span>
+                    <span class="n">optimization_alg</span> <span class="o">=</span> <span class="n">BayesOpt</span><span class="p">(</span>
+                        <span class="n">pbounds</span><span class="o">=</span><span class="p">{</span>
+                            <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">(</span>
+                                <span class="nb">int</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                                <span class="nb">int</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                            <span class="p">)</span>  <span class="c1"># cast to int for bayesian opt, see comment in class</span>
+                            <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">parameters</span>
+                        <span class="p">},</span>
+                        <span class="o">**</span><span class="n">opt_info</span><span class="o">.</span><span class="n">opt_parameters</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Unknown blackbox optimization algorithm: </span><span class="si">{</span><span class="n">opt_info</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown optimization algorithm.&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">optimization_alg</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="c1"># whitebox optimization</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">blackbox_optimization</span> <span class="o">=</span> <span class="kc">False</span>
+
+                <span class="c1"># if opt_info.name.lower() == &quot;ga&quot;:</span>
+                <span class="c1">#     optimization_alg = GAOpt(</span>
+                <span class="c1">#         blackbox_optimization=False,</span>
+                <span class="c1">#         fitness_func=opt_info.function,</span>
+                <span class="c1">#         initial_data_points=self.experiment.data_points,</span>
+                <span class="c1">#         # gene_type=param_types,</span>
+                <span class="c1">#         gene_space=constraints,  # type: ignore</span>
+                <span class="c1">#         **opt_info.opt_parameters,</span>
+                <span class="c1">#     )</span>
+                <span class="k">if</span> <span class="n">opt_info</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;scipy&quot;</span><span class="p">:</span>
+                    <span class="n">optimization_alg</span> <span class="o">=</span> <span class="n">SciPyOpt</span><span class="p">(</span><span class="o">**</span><span class="n">opt_info</span><span class="o">.</span><span class="n">opt_parameters</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">opt_info</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;test&quot;</span><span class="p">:</span>
+                    <span class="n">optimization_alg</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Unknown whitebox optimization algorithm: </span><span class="si">{</span><span class="n">opt_info</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">Optimizer</span><span class="p">(</span><span class="n">optimization_algorithm</span><span class="o">=</span><span class="n">optimization_alg</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span></div>
 
@@ -192,16 +290,22 @@
 <span class="sd">            algorithm determines whether the point creation is evolutionary or based on the best solution.</span>
 <span class="sd">            Defaults to None.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Starting default run of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (step</span><span class="si">{</span><span class="n">step_number</span><span class="si">}</span><span class="s2">): submit, collect, create.&quot;</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">step_number</span><span class="o">=</span><span class="n">step_number</span><span class="p">)</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collect_data</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">create_points_based_on_optimization</span><span class="p">(</span>
-            <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">evolutionary</span><span class="o">=</span><span class="n">evolutionary_point_generation</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">save_executor_state</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Finished run of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (step</span><span class="si">{</span><span class="n">step_number</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">blackbox_optimization</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Starting default run of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (step</span><span class="si">{</span><span class="n">step_number</span><span class="si">}</span><span class="s2">): submit, collect, create.&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">step_number</span><span class="o">=</span><span class="n">step_number</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collect_data</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_points_based_on_optimization</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">evolutionary</span><span class="o">=</span><span class="n">evolutionary_point_generation</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_executor_state</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Finished run of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (step</span><span class="si">{</span><span class="n">step_number</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Starting run of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> using whitebox optimization </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_active_optimization</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">whitebox_submit</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="Executor.pre_submission_setup_per_job">
@@ -321,6 +425,18 @@
         <span class="n">manager</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
         <span class="n">manager</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">job_ids</span>  <span class="c1"># type: ignore[no-any-return]</span></div>
+
+
+<div class="viewcode-block" id="Executor.whitebox_submit">
+<a class="viewcode-back" href="../../yotse.html#yotse.execution.Executor.whitebox_submit">[docs]</a>
+    <span class="k">def</span> <span class="nf">whitebox_submit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the white-box optimization process.</span>
+
+<span class="sd">        Currently, this does not use QCGPilotJob but runs locally.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># todo: change this to run using QCQPilotJob</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
+        <span class="k">return</span></div>
 
 
 <div class="viewcode-block" id="Executor.collect_data">

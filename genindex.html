@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="yotse.html">yotse package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yotse.html">Yotse Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Yotse Examples</a></li>
 </ul>
 
@@ -76,6 +76,7 @@
 <div class="genindex-jumpbox">
  <a href="#_"><strong>_</strong></a>
  | <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
@@ -106,13 +107,19 @@
       <ul>
         <li><a href="yotse.html#yotse.execution.Executor.__init__">(yotse.execution.Executor method)</a>
 </li>
-        <li><a href="yotse.optimization.html#yotse.optimization.algorithms.GAOpt.__init__">(yotse.optimization.algorithms.GAOpt method)</a>
+        <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.BayesOpt.__init__">(yotse.optimization.blackbox_algorithms.BayesOpt method)</a>
 </li>
-        <li><a href="yotse.optimization.html#yotse.optimization.ga.ModGA.__init__">(yotse.optimization.ga.ModGA method)</a>
+        <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.GAOpt.__init__">(yotse.optimization.blackbox_algorithms.GAOpt method)</a>
+</li>
+        <li><a href="yotse.optimization.html#yotse.optimization.fitting.FuncFit.__init__">(yotse.optimization.fitting.FuncFit method)</a>
 </li>
         <li><a href="yotse.optimization.html#yotse.optimization.generic_optimization.GenericOptimization.__init__">(yotse.optimization.generic_optimization.GenericOptimization method)</a>
 </li>
+        <li><a href="yotse.optimization.html#yotse.optimization.modded_pygad_ga.ModGA.__init__">(yotse.optimization.modded_pygad_ga.ModGA method)</a>
+</li>
         <li><a href="yotse.optimization.html#yotse.optimization.optimizer.Optimizer.__init__">(yotse.optimization.optimizer.Optimizer method)</a>
+</li>
+        <li><a href="yotse.optimization.html#yotse.optimization.whitebox_algorithms.SciPyOpt.__init__">(yotse.optimization.whitebox_algorithms.SciPyOpt method)</a>
 </li>
         <li><a href="yotse.html#yotse.pre.ConstraintDict.__init__">(yotse.pre.ConstraintDict method)</a>
 </li>
@@ -126,6 +133,8 @@
 </li>
         <li><a href="yotse.html#yotse.pre.SystemSetup.__init__">(yotse.pre.SystemSetup method)</a>
 </li>
+        <li><a href="yotse.utils.html#yotse.utils.prediction.Predict.__init__">(yotse.utils.prediction.Predict method)</a>
+</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -133,7 +142,7 @@
 </li>
       <li><a href="yotse.optimization.html#yotse.optimization.optimizer.Optimizer._is_executed">_is_executed (yotse.optimization.optimizer.Optimizer attribute)</a>
 </li>
-      <li><a href="yotse.optimization.html#yotse.optimization.algorithms.GAOpt._objective_func">_objective_func() (yotse.optimization.algorithms.GAOpt method)</a>
+      <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.GAOpt._objective_func">_objective_func() (yotse.optimization.blackbox_algorithms.GAOpt method)</a>
 </li>
       <li><a href="examples.html#examples.run_examples._run_example">_run_example() (in module examples.run_examples)</a>
 </li>
@@ -143,10 +152,18 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="examples.wobbly_function.html#examples.wobbly_function.wobbly_function.ackley_function_2d">ackley_function_2d() (in module examples.wobbly_function.wobbly_function)</a>
+      <li><a href="examples.wobbly_function.html#examples.wobbly_function.example_wobbly_main.ackley_function_2d">ackley_function_2d() (in module examples.wobbly_function.example_wobbly_main)</a>
+
+      <ul>
+        <li><a href="examples.wobbly_function.html#examples.wobbly_function.example_wobbly_whitebox.ackley_function_2d">(in module examples.wobbly_function.example_wobbly_whitebox)</a>
 </li>
+        <li><a href="examples.wobbly_function.html#examples.wobbly_function.wobbly_function.ackley_function_2d">(in module examples.wobbly_function.wobbly_function)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="yotse.optimization.html#yotse.optimization.fitting.FuncFit.add_noise">add_noise() (yotse.optimization.fitting.FuncFit static method)</a>
+</li>
       <li><a href="yotse.html#yotse.pre.Experiment.add_optimization_info">add_optimization_info() (yotse.pre.Experiment method)</a>
 </li>
       <li><a href="yotse.html#yotse.pre.Experiment.add_parameter">add_parameter() (yotse.pre.Experiment method)</a>
@@ -154,9 +171,19 @@
   </ul></td>
 </tr></table>
 
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.BayesOpt">BayesOpt (class in yotse.optimization.blackbox_algorithms)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="yotse.optimization.html#yotse.optimization.fitting.FuncFit.chi_square">chi_square() (yotse.optimization.fitting.FuncFit static method)</a>
+</li>
       <li><a href="yotse.html#yotse.pre.ConstraintDict.clear">clear() (yotse.pre.ConstraintDict method)</a>
 
       <ul>
@@ -175,14 +202,14 @@
 </li>
       <li><a href="yotse.optimization.html#yotse.optimization.optimizer.Optimizer.construct_points">construct_points() (yotse.optimization.optimizer.Optimizer method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="yotse.html#yotse.pre.ConstraintDict.copy">copy() (yotse.pre.ConstraintDict method)</a>
 
       <ul>
         <li><a href="yotse.html#yotse.pre.ParameterDependencyDict.copy">(yotse.pre.ParameterDependencyDict method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="yotse.html#yotse.pre.Experiment.cost_function">cost_function (yotse.pre.Experiment property)</a>
 </li>
       <li><a href="yotse.html#yotse.pre.Experiment.create_datapoint_c_product">create_datapoint_c_product() (yotse.pre.Experiment method)</a>
@@ -217,6 +244,8 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="yotse.optimization.html#yotse.optimization.fitting.FuncFit.err">err() (yotse.optimization.fitting.FuncFit static method)</a>
+</li>
       <li>
     examples
 
@@ -225,10 +254,10 @@
 </li>
       </ul></li>
       <li>
-    examples.blueprint_example
+    examples.blueprint_example.src
 
       <ul>
-        <li><a href="examples.blueprint_example.html#module-examples.blueprint_example">module</a>
+        <li><a href="examples.blueprint_example.html#module-examples.blueprint_example.src">module</a>
 </li>
       </ul></li>
       <li>
@@ -252,6 +281,13 @@
         <li><a href="examples.wobbly_function.html#module-examples.wobbly_function.analyse_function_output">module</a>
 </li>
       </ul></li>
+      <li>
+    examples.wobbly_function.example_wobbly_bayesian
+
+      <ul>
+        <li><a href="examples.wobbly_function.html#module-examples.wobbly_function.example_wobbly_bayesian">module</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li>
@@ -269,16 +305,27 @@
 </li>
       </ul></li>
       <li>
+    examples.wobbly_function.example_wobbly_whitebox
+
+      <ul>
+        <li><a href="examples.wobbly_function.html#module-examples.wobbly_function.example_wobbly_whitebox">module</a>
+</li>
+      </ul></li>
+      <li>
     examples.wobbly_function.wobbly_function
 
       <ul>
         <li><a href="examples.wobbly_function.html#module-examples.wobbly_function.wobbly_function">module</a>
 </li>
       </ul></li>
-      <li><a href="yotse.optimization.html#yotse.optimization.algorithms.GAOpt.execute">execute() (yotse.optimization.algorithms.GAOpt method)</a>
+      <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.BayesOpt.execute">execute() (yotse.optimization.blackbox_algorithms.BayesOpt method)</a>
 
       <ul>
+        <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.GAOpt.execute">(yotse.optimization.blackbox_algorithms.GAOpt method)</a>
+</li>
         <li><a href="yotse.optimization.html#yotse.optimization.generic_optimization.GenericOptimization.execute">(yotse.optimization.generic_optimization.GenericOptimization method)</a>
+</li>
+        <li><a href="yotse.optimization.html#yotse.optimization.whitebox_algorithms.SciPyOpt.execute">(yotse.optimization.whitebox_algorithms.SciPyOpt method)</a>
 </li>
       </ul></li>
       <li><a href="yotse.html#yotse.execution.Executor">Executor (class in yotse.execution)</a>
@@ -293,6 +340,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="yotse.utils.html#yotse.utils.utils.file_list_to_single_df">file_list_to_single_df() (in module yotse.utils.utils)</a>
 </li>
+      <li><a href="yotse.optimization.html#yotse.optimization.fitting.FuncFit.find_poly_fit">find_poly_fit() (yotse.optimization.fitting.FuncFit method)</a>
+</li>
       <li><a href="yotse.html#yotse.pre.ConstraintDict.fromkeys">fromkeys() (yotse.pre.ConstraintDict method)</a>
 
       <ul>
@@ -301,6 +350,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="yotse.optimization.html#yotse.optimization.fitting.FuncFit">FuncFit (class in yotse.optimization.fitting)</a>
+</li>
       <li><a href="yotse.html#yotse.pre.ParameterDependencyDict.function">function (yotse.pre.ParameterDependencyDict attribute)</a>
 </li>
       <li><a href="examples.wobbly_function.html#examples.wobbly_function.wobbly_function.function">function() (in module examples.wobbly_function.wobbly_function)</a>
@@ -311,7 +362,7 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="yotse.optimization.html#yotse.optimization.algorithms.GAOpt">GAOpt (class in yotse.optimization.algorithms)</a>
+      <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.GAOpt">GAOpt (class in yotse.optimization.blackbox_algorithms)</a>
 </li>
       <li><a href="yotse.html#yotse.pre.Parameter.generate_data_points">generate_data_points() (yotse.pre.Parameter method)</a>
 </li>
@@ -333,26 +384,44 @@
         <li><a href="yotse.html#yotse.pre.ParameterDependencyDict.get">(yotse.pre.ParameterDependencyDict method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="yotse.optimization.html#yotse.optimization.algorithms.GAOpt.get_best_solution">get_best_solution() (yotse.optimization.algorithms.GAOpt method)</a>
+      <li><a href="yotse.html#yotse.execution.CustomExecutor.get_active_optimization">get_active_optimization() (yotse.execution.CustomExecutor method)</a>
 
       <ul>
+        <li><a href="yotse.html#yotse.execution.Executor.get_active_optimization">(yotse.execution.Executor method)</a>
+</li>
+      </ul></li>
+      <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.BayesOpt.get_best_solution">get_best_solution() (yotse.optimization.blackbox_algorithms.BayesOpt method)</a>
+
+      <ul>
+        <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.GAOpt.get_best_solution">(yotse.optimization.blackbox_algorithms.GAOpt method)</a>
+</li>
         <li><a href="yotse.optimization.html#yotse.optimization.generic_optimization.GenericOptimization.get_best_solution">(yotse.optimization.generic_optimization.GenericOptimization method)</a>
 </li>
+        <li><a href="yotse.optimization.html#yotse.optimization.whitebox_algorithms.SciPyOpt.get_best_solution">(yotse.optimization.whitebox_algorithms.SciPyOpt method)</a>
+</li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="yotse.utils.html#yotse.utils.utils.get_files_by_extension">get_files_by_extension() (in module yotse.utils.utils)</a>
 </li>
-      <li><a href="yotse.optimization.html#yotse.optimization.algorithms.GAOpt.get_function">get_function() (yotse.optimization.algorithms.GAOpt method)</a>
+      <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.BayesOpt.get_function">get_function() (yotse.optimization.blackbox_algorithms.BayesOpt method)</a>
 
       <ul>
+        <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.GAOpt.get_function">(yotse.optimization.blackbox_algorithms.GAOpt method)</a>
+</li>
         <li><a href="yotse.optimization.html#yotse.optimization.generic_optimization.GenericOptimization.get_function">(yotse.optimization.generic_optimization.GenericOptimization method)</a>
 </li>
+        <li><a href="yotse.optimization.html#yotse.optimization.whitebox_algorithms.SciPyOpt.get_function">(yotse.optimization.whitebox_algorithms.SciPyOpt method)</a>
+</li>
       </ul></li>
-      <li><a href="yotse.optimization.html#yotse.optimization.algorithms.GAOpt.get_new_points">get_new_points() (yotse.optimization.algorithms.GAOpt method)</a>
+      <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.BayesOpt.get_new_points">get_new_points() (yotse.optimization.blackbox_algorithms.BayesOpt method)</a>
 
       <ul>
+        <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.GAOpt.get_new_points">(yotse.optimization.blackbox_algorithms.GAOpt method)</a>
+</li>
         <li><a href="yotse.optimization.html#yotse.optimization.generic_optimization.GenericOptimization.get_new_points">(yotse.optimization.generic_optimization.GenericOptimization method)</a>
+</li>
+        <li><a href="yotse.optimization.html#yotse.optimization.whitebox_algorithms.SciPyOpt.get_new_points">(yotse.optimization.whitebox_algorithms.SciPyOpt method)</a>
 </li>
       </ul></li>
       <li><a href="yotse.optimization.html#yotse.optimization.optimizer.Optimizer.grid_based_point_creation">grid_based_point_creation() (yotse.optimization.optimizer.Optimizer method)</a>
@@ -371,10 +440,16 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="yotse.optimization.html#yotse.optimization.algorithms.GAOpt.input_params_to_cost_value">input_params_to_cost_value() (yotse.optimization.algorithms.GAOpt method)</a>
+      <li><a href="yotse.optimization.html#yotse.optimization.whitebox_algorithms.SciPyOpt.input_param_cost_df">input_param_cost_df (yotse.optimization.whitebox_algorithms.SciPyOpt attribute)</a>
+</li>
+      <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.BayesOpt.input_params_to_cost_value">input_params_to_cost_value() (yotse.optimization.blackbox_algorithms.BayesOpt method)</a>
 
       <ul>
+        <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.GAOpt.input_params_to_cost_value">(yotse.optimization.blackbox_algorithms.GAOpt method)</a>
+</li>
         <li><a href="yotse.optimization.html#yotse.optimization.generic_optimization.GenericOptimization.input_params_to_cost_value">(yotse.optimization.generic_optimization.GenericOptimization method)</a>
+</li>
+        <li><a href="yotse.optimization.html#yotse.optimization.whitebox_algorithms.SciPyOpt.input_params_to_cost_value">(yotse.optimization.whitebox_algorithms.SciPyOpt method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -405,16 +480,18 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="yotse.utils.html#yotse.utils.prediction.Predict.learn">learn() (yotse.utils.prediction.Predict method)</a>
+</li>
       <li><a href="yotse.utils.html#yotse.utils.utils.list_to_numpy_array">list_to_numpy_array() (in module yotse.utils.utils)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="yotse.html#yotse.execution.CustomExecutor.load_executor_state">load_executor_state() (yotse.execution.CustomExecutor method)</a>
 
       <ul>
         <li><a href="yotse.html#yotse.execution.Executor.load_executor_state">(yotse.execution.Executor method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="yotse.html#yotse.pre.ConstraintDict.low">low (yotse.pre.ConstraintDict attribute)</a>
 </li>
   </ul></td>
@@ -423,27 +500,37 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="examples.html#examples.run_examples.main">main() (in module examples.run_examples)</a>
+      <li><a href="examples.wobbly_function.html#examples.wobbly_function.example_wobbly_bayesian.main">main() (in module examples.wobbly_function.example_wobbly_bayesian)</a>
 
       <ul>
         <li><a href="examples.wobbly_function.html#examples.wobbly_function.example_wobbly_main.main">(in module examples.wobbly_function.example_wobbly_main)</a>
 </li>
         <li><a href="examples.wobbly_function.html#examples.wobbly_function.example_wobbly_resume.main">(in module examples.wobbly_function.example_wobbly_resume)</a>
 </li>
+        <li><a href="examples.wobbly_function.html#examples.wobbly_function.example_wobbly_whitebox.main">(in module examples.wobbly_function.example_wobbly_whitebox)</a>
+</li>
       </ul></li>
-      <li><a href="yotse.optimization.html#yotse.optimization.algorithms.GAOpt.MAXIMUM">MAXIMUM (yotse.optimization.algorithms.GAOpt attribute)</a>
+      <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.BayesOpt.MAXIMUM">MAXIMUM (yotse.optimization.blackbox_algorithms.BayesOpt attribute)</a>
 
       <ul>
+        <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.GAOpt.MAXIMUM">(yotse.optimization.blackbox_algorithms.GAOpt attribute)</a>
+</li>
         <li><a href="yotse.optimization.html#yotse.optimization.generic_optimization.GenericOptimization.MAXIMUM">(yotse.optimization.generic_optimization.GenericOptimization attribute)</a>
 </li>
-      </ul></li>
-      <li><a href="yotse.optimization.html#yotse.optimization.algorithms.GAOpt.MINIMUM">MINIMUM (yotse.optimization.algorithms.GAOpt attribute)</a>
-
-      <ul>
-        <li><a href="yotse.optimization.html#yotse.optimization.generic_optimization.GenericOptimization.MINIMUM">(yotse.optimization.generic_optimization.GenericOptimization attribute)</a>
+        <li><a href="yotse.optimization.html#yotse.optimization.whitebox_algorithms.SciPyOpt.MAXIMUM">(yotse.optimization.whitebox_algorithms.SciPyOpt attribute)</a>
 </li>
       </ul></li>
-      <li><a href="yotse.optimization.html#yotse.optimization.ga.ModGA">ModGA (class in yotse.optimization.ga)</a>
+      <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.BayesOpt.MINIMUM">MINIMUM (yotse.optimization.blackbox_algorithms.BayesOpt attribute)</a>
+
+      <ul>
+        <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.GAOpt.MINIMUM">(yotse.optimization.blackbox_algorithms.GAOpt attribute)</a>
+</li>
+        <li><a href="yotse.optimization.html#yotse.optimization.generic_optimization.GenericOptimization.MINIMUM">(yotse.optimization.generic_optimization.GenericOptimization attribute)</a>
+</li>
+        <li><a href="yotse.optimization.html#yotse.optimization.whitebox_algorithms.SciPyOpt.MINIMUM">(yotse.optimization.whitebox_algorithms.SciPyOpt attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="yotse.optimization.html#yotse.optimization.modded_pygad_ga.ModGA">ModGA (class in yotse.optimization.modded_pygad_ga)</a>
 </li>
       <li>
     module
@@ -451,7 +538,7 @@
       <ul>
         <li><a href="examples.html#module-examples">examples</a>
 </li>
-        <li><a href="examples.blueprint_example.html#module-examples.blueprint_example">examples.blueprint_example</a>
+        <li><a href="examples.blueprint_example.html#module-examples.blueprint_example.src">examples.blueprint_example.src</a>
 </li>
         <li><a href="examples.html#module-examples.run_examples">examples.run_examples</a>
 </li>
@@ -459,9 +546,13 @@
 </li>
         <li><a href="examples.wobbly_function.html#module-examples.wobbly_function.analyse_function_output">examples.wobbly_function.analyse_function_output</a>
 </li>
+        <li><a href="examples.wobbly_function.html#module-examples.wobbly_function.example_wobbly_bayesian">examples.wobbly_function.example_wobbly_bayesian</a>
+</li>
         <li><a href="examples.wobbly_function.html#module-examples.wobbly_function.example_wobbly_main">examples.wobbly_function.example_wobbly_main</a>
 </li>
         <li><a href="examples.wobbly_function.html#module-examples.wobbly_function.example_wobbly_resume">examples.wobbly_function.example_wobbly_resume</a>
+</li>
+        <li><a href="examples.wobbly_function.html#module-examples.wobbly_function.example_wobbly_whitebox">examples.wobbly_function.example_wobbly_whitebox</a>
 </li>
         <li><a href="examples.wobbly_function.html#module-examples.wobbly_function.wobbly_function">examples.wobbly_function.wobbly_function</a>
 </li>
@@ -471,13 +562,17 @@
 </li>
         <li><a href="yotse.optimization.html#module-yotse.optimization">yotse.optimization</a>
 </li>
-        <li><a href="yotse.optimization.html#module-yotse.optimization.algorithms">yotse.optimization.algorithms</a>
+        <li><a href="yotse.optimization.html#module-yotse.optimization.blackbox_algorithms">yotse.optimization.blackbox_algorithms</a>
 </li>
-        <li><a href="yotse.optimization.html#module-yotse.optimization.ga">yotse.optimization.ga</a>
+        <li><a href="yotse.optimization.html#module-yotse.optimization.fitting">yotse.optimization.fitting</a>
 </li>
         <li><a href="yotse.optimization.html#module-yotse.optimization.generic_optimization">yotse.optimization.generic_optimization</a>
 </li>
+        <li><a href="yotse.optimization.html#module-yotse.optimization.modded_pygad_ga">yotse.optimization.modded_pygad_ga</a>
+</li>
         <li><a href="yotse.optimization.html#module-yotse.optimization.optimizer">yotse.optimization.optimizer</a>
+</li>
+        <li><a href="yotse.optimization.html#module-yotse.optimization.whitebox_algorithms">yotse.optimization.whitebox_algorithms</a>
 </li>
         <li><a href="yotse.html#module-yotse.post">yotse.post</a>
 </li>
@@ -486,6 +581,8 @@
         <li><a href="yotse.utils.html#module-yotse.utils">yotse.utils</a>
 </li>
         <li><a href="yotse.utils.html#module-yotse.utils.blueprint_tools">yotse.utils.blueprint_tools</a>
+</li>
+        <li><a href="yotse.utils.html#module-yotse.utils.prediction">yotse.utils.prediction</a>
 </li>
         <li><a href="yotse.utils.html#module-yotse.utils.utils">yotse.utils.utils</a>
 </li>
@@ -498,10 +595,16 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="yotse.html#yotse.pre.ParameterDependencyDict.name">name (yotse.pre.ParameterDependencyDict attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="yotse.utils.html#yotse.utils.utils.ndarray_to_list">ndarray_to_list() (in module yotse.utils.utils)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="yotse.html#yotse.execution.CustomExecutor.next_optimization">next_optimization() (yotse.execution.CustomExecutor method)</a>
+
+      <ul>
+        <li><a href="yotse.html#yotse.execution.Executor.next_optimization">(yotse.execution.Executor method)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -514,14 +617,18 @@
 </li>
       <li><a href="yotse.optimization.html#yotse.optimization.optimizer.Optimizer.optimize">optimize() (yotse.optimization.optimizer.Optimizer method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="yotse.optimization.html#yotse.optimization.optimizer.Optimizer">Optimizer (class in yotse.optimization.optimizer)</a>
 </li>
-      <li><a href="yotse.optimization.html#yotse.optimization.algorithms.GAOpt.overwrite_internal_data_points">overwrite_internal_data_points() (yotse.optimization.algorithms.GAOpt method)</a>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.BayesOpt.overwrite_internal_data_points">overwrite_internal_data_points() (yotse.optimization.blackbox_algorithms.BayesOpt method)</a>
 
       <ul>
+        <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.GAOpt.overwrite_internal_data_points">(yotse.optimization.blackbox_algorithms.GAOpt method)</a>
+</li>
         <li><a href="yotse.optimization.html#yotse.optimization.generic_optimization.GenericOptimization.overwrite_internal_data_points">(yotse.optimization.generic_optimization.GenericOptimization method)</a>
+</li>
+        <li><a href="yotse.optimization.html#yotse.optimization.whitebox_algorithms.SciPyOpt.overwrite_internal_data_points">(yotse.optimization.whitebox_algorithms.SciPyOpt method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -566,6 +673,10 @@
         <li><a href="yotse.html#yotse.execution.Executor.pre_submission_setup_per_job">(yotse.execution.Executor method)</a>
 </li>
       </ul></li>
+      <li><a href="yotse.utils.html#yotse.utils.prediction.Predict">Predict (class in yotse.utils.prediction)</a>
+</li>
+      <li><a href="yotse.utils.html#yotse.utils.prediction.Predict.predict">predict() (yotse.utils.prediction.Predict method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -591,14 +702,16 @@
       <ul>
         <li><a href="yotse.html#yotse.execution.Executor.run">(yotse.execution.Executor method)</a>
 </li>
-        <li><a href="yotse.optimization.html#yotse.optimization.ga.ModGA.run">(yotse.optimization.ga.ModGA method)</a>
+        <li><a href="yotse.optimization.html#yotse.optimization.modded_pygad_ga.ModGA.run">(yotse.optimization.modded_pygad_ga.ModGA method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="examples.html#examples.run_examples.run_blueprint_example">run_blueprint_example() (in module examples.run_examples)</a>
 </li>
-      <li><a href="yotse.optimization.html#yotse.optimization.ga.ModGA.run_single_generation">run_single_generation() (yotse.optimization.ga.ModGA method)</a>
+      <li><a href="examples.html#examples.run_examples.run_examples">run_examples() (in module examples.run_examples)</a>
+</li>
+      <li><a href="yotse.optimization.html#yotse.optimization.modded_pygad_ga.ModGA.run_single_generation">run_single_generation() (yotse.optimization.modded_pygad_ga.ModGA method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -612,6 +725,10 @@
         <li><a href="yotse.html#yotse.execution.Executor.save_executor_state">(yotse.execution.Executor method)</a>
 </li>
       </ul></li>
+      <li><a href="examples.wobbly_function.html#examples.wobbly_function.example_wobbly_main.scipy_callback">scipy_callback() (in module examples.wobbly_function.example_wobbly_main)</a>
+</li>
+      <li><a href="yotse.optimization.html#yotse.optimization.whitebox_algorithms.SciPyOpt">SciPyOpt (class in yotse.optimization.whitebox_algorithms)</a>
+</li>
       <li><a href="yotse.html#yotse.pre.set_basic_directory_structure_for_job">set_basic_directory_structure_for_job() (in module yotse.pre)</a>
 </li>
       <li><a href="yotse.html#yotse.pre.ConstraintDict.setdefault">setdefault() (yotse.pre.ConstraintDict method)</a>
@@ -648,10 +765,14 @@
         <li><a href="yotse.html#yotse.pre.ParameterDependencyDict.update">(yotse.pre.ParameterDependencyDict method)</a>
 </li>
       </ul></li>
-      <li><a href="yotse.optimization.html#yotse.optimization.algorithms.GAOpt.update_internal_cost_data">update_internal_cost_data() (yotse.optimization.algorithms.GAOpt method)</a>
+      <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.BayesOpt.update_internal_cost_data">update_internal_cost_data() (yotse.optimization.blackbox_algorithms.BayesOpt method)</a>
 
       <ul>
+        <li><a href="yotse.optimization.html#yotse.optimization.blackbox_algorithms.GAOpt.update_internal_cost_data">(yotse.optimization.blackbox_algorithms.GAOpt method)</a>
+</li>
         <li><a href="yotse.optimization.html#yotse.optimization.generic_optimization.GenericOptimization.update_internal_cost_data">(yotse.optimization.generic_optimization.GenericOptimization method)</a>
+</li>
+        <li><a href="yotse.optimization.html#yotse.optimization.whitebox_algorithms.SciPyOpt.update_internal_cost_data">(yotse.optimization.whitebox_algorithms.SciPyOpt method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -677,6 +798,14 @@
 
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="yotse.html#yotse.execution.CustomExecutor.whitebox_submit">whitebox_submit() (yotse.execution.CustomExecutor method)</a>
+
+      <ul>
+        <li><a href="yotse.html#yotse.execution.Executor.whitebox_submit">(yotse.execution.Executor method)</a>
+</li>
+      </ul></li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="examples.wobbly_function.html#examples.wobbly_function.example_wobbly_main.wobbly_pre">wobbly_pre() (in module examples.wobbly_function.example_wobbly_main)</a>
 </li>
@@ -708,17 +837,17 @@
 </li>
       </ul></li>
       <li>
-    yotse.optimization.algorithms
+    yotse.optimization.blackbox_algorithms
 
       <ul>
-        <li><a href="yotse.optimization.html#module-yotse.optimization.algorithms">module</a>
+        <li><a href="yotse.optimization.html#module-yotse.optimization.blackbox_algorithms">module</a>
 </li>
       </ul></li>
       <li>
-    yotse.optimization.ga
+    yotse.optimization.fitting
 
       <ul>
-        <li><a href="yotse.optimization.html#module-yotse.optimization.ga">module</a>
+        <li><a href="yotse.optimization.html#module-yotse.optimization.fitting">module</a>
 </li>
       </ul></li>
       <li>
@@ -728,13 +857,27 @@
         <li><a href="yotse.optimization.html#module-yotse.optimization.generic_optimization">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    yotse.optimization.modded_pygad_ga
+
+      <ul>
+        <li><a href="yotse.optimization.html#module-yotse.optimization.modded_pygad_ga">module</a>
+</li>
+      </ul></li>
       <li>
     yotse.optimization.optimizer
 
       <ul>
         <li><a href="yotse.optimization.html#module-yotse.optimization.optimizer">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    yotse.optimization.whitebox_algorithms
+
+      <ul>
+        <li><a href="yotse.optimization.html#module-yotse.optimization.whitebox_algorithms">module</a>
 </li>
       </ul></li>
       <li>
@@ -763,6 +906,13 @@
 
       <ul>
         <li><a href="yotse.utils.html#module-yotse.utils.blueprint_tools">module</a>
+</li>
+      </ul></li>
+      <li>
+    yotse.utils.prediction
+
+      <ul>
+        <li><a href="yotse.utils.html#module-yotse.utils.prediction">module</a>
 </li>
       </ul></li>
       <li>

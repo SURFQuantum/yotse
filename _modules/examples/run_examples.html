@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../yotse.html">yotse package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yotse.html">Yotse Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Yotse Examples</a></li>
 </ul>
 
@@ -86,12 +86,13 @@
 <span class="c1"># to avoid creating plots etc.</span>
 
 
-<div class="viewcode-block" id="main">
-<a class="viewcode-back" href="../../examples.html#examples.run_examples.main">[docs]</a>
-<span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="run_examples">
+<a class="viewcode-back" href="../../examples.html#examples.run_examples.run_examples">[docs]</a>
+<span class="k">def</span> <span class="nf">run_examples</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Run all examples except the blueprint example, which takes long.&quot;&quot;&quot;</span>
     <span class="n">path_to_here</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
     <span class="n">total_execution_time</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">passed_examples</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">folders</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">path_to_here</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;example&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.py&quot;</span><span class="p">):</span>
@@ -99,7 +100,9 @@
                     <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
                     <span class="n">example_execution_time</span> <span class="o">=</span> <span class="n">_run_example</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
                     <span class="n">total_execution_time</span> <span class="o">+=</span> <span class="n">example_execution_time</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total execution time for all examples: </span><span class="si">{</span><span class="n">total_execution_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span></div>
+                    <span class="n">passed_examples</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total execution time for all examples: </span><span class="si">{</span><span class="n">total_execution_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[92mAll </span><span class="si">{</span><span class="n">passed_examples</span><span class="si">}</span><span class="s2"> examples passed!</span><span class="se">\033</span><span class="s2">[0m&quot;</span><span class="p">)</span></div>
 
 
 
@@ -107,7 +110,6 @@
 <a class="viewcode-back" href="../../examples.html#examples.run_examples.run_blueprint_example">[docs]</a>
 <span class="k">def</span> <span class="nf">run_blueprint_example</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Run only the blueprint example.&quot;&quot;&quot;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; --- Executing NlBlueprint Example --- &quot;</span><span class="p">)</span>
     <span class="n">path_to_here</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
     <span class="n">total_execution_time</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">folders</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">path_to_here</span><span class="p">):</span>
@@ -117,28 +119,29 @@
                     <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
                     <span class="n">example_execution_time</span> <span class="o">=</span> <span class="n">_run_example</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
                     <span class="n">total_execution_time</span> <span class="o">+=</span> <span class="n">example_execution_time</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Execution time for NlBlueprint example: </span><span class="si">{</span><span class="n">total_execution_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span></div>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Execution time for NlBlueprint example: </span><span class="si">{</span><span class="n">total_execution_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[92mExamples passed ok</span><span class="se">\033</span><span class="s2">[0m&quot;</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="_run_example">
 <a class="viewcode-back" href="../../examples.html#examples.run_examples._run_example">[docs]</a>
-<span class="k">def</span> <span class="nf">_run_example</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>  <span class="c1"># Modified return type to float</span>
+<span class="k">def</span> <span class="nf">_run_example</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the example specified in `filepath`.&quot;&quot;&quot;</span>
     <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filepath</span><span class="p">))</span>
     <span class="n">example_module_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filepath</span><span class="p">)[:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;.py&quot;</span><span class="p">)]</span>
     <span class="n">example_module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">example_module_name</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">example_module</span><span class="p">,</span> <span class="s2">&quot;main&quot;</span><span class="p">):</span>
-        <span class="n">main</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">example_module</span><span class="p">,</span> <span class="s2">&quot;main&quot;</span><span class="p">)</span>
+        <span class="n">example_main</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">example_module</span><span class="p">,</span> <span class="s2">&quot;main&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mf">0.0</span>  <span class="c1"># Return 0.0 if there is no main function</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
     <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filepath</span><span class="p">))</span>
     <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">_has_no_output_arg</span><span class="p">(</span><span class="n">main</span><span class="p">):</span>
-        <span class="n">main</span><span class="p">(</span><span class="n">no_output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">_has_no_output_arg</span><span class="p">(</span><span class="n">example_main</span><span class="p">):</span>
+        <span class="n">example_main</span><span class="p">(</span><span class="n">no_output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">main</span><span class="p">()</span>
+        <span class="n">example_main</span><span class="p">()</span>
     <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
     <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
@@ -157,7 +160,7 @@
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">main</span><span class="p">()</span>
+    <span class="n">run_examples</span><span class="p">()</span>
 </pre></div>
 
            </div>

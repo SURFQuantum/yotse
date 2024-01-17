@@ -21,7 +21,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="yotse package" href="yotse.html" /> 
+    <link rel="next" title="Yotse Package" href="yotse.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -45,7 +45,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="yotse.html">yotse package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yotse.html">Yotse Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Yotse Examples</a></li>
 </ul>
 
@@ -78,7 +78,7 @@
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="yotse.html">yotse package</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="yotse.html">Yotse Package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="yotse.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yotse.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yotse.html#module-yotse.execution">yotse.execution module</a></li>
@@ -100,13 +100,13 @@
 <img alt="Python Version" src="https://img.shields.io/badge/Python-3.9%20%E2%86%92%203.12-blue" />
 <img alt="CI/CD" src="https://github.com/SURFQuantum/yotse/actions/workflows/main_pipeline.yml/badge.svg" />
 <img alt="Integration" src="https://github.com/SURFQuantum/yotse/actions/workflows/integration.yml/badge.svg" />
-<img alt="Coverage" src="https://github.com/SURFQuantum/yotse/blob/main/coverage.svg?raw=1" />
+<a class="reference external" href="https://coveralls.io/github/SURFQuantum/yotse?branch=main"><img alt="Coverage" src="https://coveralls.io/repos/github/SURFQuantum/yotse/badge.svg?branch=main" /></a>
 <img alt="docs: numpy" src="https://img.shields.io/badge/docstyle-numpy-green" /></p>
 <section id="yotse-your-optimization-tool-for-scientific-experiments">
 <h2>YOTSE - Your Optimization Tool for Scientific Experiments<a class="headerlink" href="#yotse-your-optimization-tool-for-scientific-experiments" title="Link to this heading"></a></h2>
-<p align="center">
-<img src="https://github.com/SURFQuantum/yotse/raw/main/YOTSE_Logo.png" alt="drawing" width="400"/>
-</p>
+<div style="text-align:center;">
+    <img src="https://github.com/SURFQuantum/yotse/raw/main/YOTSE_Logo.png" alt="drawing" width="400"/>
+</div>
 <p>YOTSE is a powerful tool designed to enable computational experiments using any software, with a particular emphasis on NetSquid in the context of the Quantum Internet Alliance. This library offers a set of predefined functions for performing parameter explorations and optimizations in a scalable and efficient manner.</p>
 <p>Documentation can be found <a class="reference external" href="https://surfquantum.github.io/yotse/">here</a>.</p>
 <section id="table-of-contents">
@@ -154,7 +154,7 @@ Then install yotse using:</p>
 <section id="general">
 <h4>General<a class="headerlink" href="#general" title="Link to this heading"></a></h4>
 <p>YOTSE is versatile, catering to a wide range of software. While it has a special focus on NetSquid, it is flexible enough to accommodate any software you wish to use for your computational experiments.</p>
-<p>Our library offers predefined functions for parameter exploration and optimization. We base our tools on the QCG-Pilotjob project, a job manager executable both locally and in HPC centers. You can find more information about QCG-Pilotjob in their <a class="reference external" href="https://qcg-pilotjob.readthedocs.io/en/develop/">official docs</a> or in the <a class="reference external" href="https://doi.org/10.1007/978-3-030-77977-1_39">original paper</a>.</p>
+<p>Our library offers predefined functions for parameter exploration and optimization. We base our tools on the QCG-PilotJob project, a job manager executable both locally and in HPC centers. You can find more information about QCG-PilotJob in their <a class="reference external" href="https://qcg-pilotjob.readthedocs.io/en/develop/">official docs</a> or in the <a class="reference external" href="https://doi.org/10.1007/978-3-030-77977-1_39">original paper</a>.</p>
 <p>The optimization component of YOTSE involves a base class that can be used with any external optimization library. This flexibility allows you to tailor your optimization process to your specific needs and preferences.</p>
 <p>Detailed examples of usage are provided in the <code class="docutils literal notranslate"><span class="pre">/examples</span></code> directory.</p>
 <div class="mermaid">
@@ -178,7 +178,7 @@ Then install yotse using:</p>
         </div></section>
 <section id="usage-with-slurm">
 <h4>Usage with SLURM<a class="headerlink" href="#usage-with-slurm" title="Link to this heading"></a></h4>
-<p>In order to make usage with HPC resources and <a class="reference external" href="https://slurm.schedmd.com/documentation.html">SLURM</a> as smooth and simple as possible, yotse can generate it’s own SLURM files ready for execution.</p>
+<p>In order to make usage with HPC resources and <a class="reference external" href="https://slurm.schedmd.com/documentation.html">SLURM</a> as smooth and simple as possible, yotse can generate its own SLURM files ready for execution.</p>
 <p>Simply specify your SLURM parameters (such as required nodes or time) and modules to be imported in the <code class="docutils literal notranslate"><span class="pre">SystemSetup</span></code> and then execute</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>&lt;your_yotse_script.py&gt;<span class="w"> </span>--slurm
 </pre></div>
@@ -256,7 +256,7 @@ Then install yotse using:</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="yotse.html" class="btn btn-neutral float-right" title="yotse package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="yotse.html" class="btn btn-neutral float-right" title="Yotse Package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

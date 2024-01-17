@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>yotse package &mdash; YOTSE  documentation</title>
+  <title>Yotse Package &mdash; YOTSE  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -44,7 +44,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">yotse package</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Yotse Package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="yotse.optimization.html">yotse.optimization package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="yotse.utils.html">yotse.utils package</a></li>
@@ -57,12 +57,15 @@
 <li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.collect_data"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.collect_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.create_points_based_on_optimization"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.create_points_based_on_optimization()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.generate_optimizer"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.generate_optimizer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.get_active_optimization"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.get_active_optimization()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.load_executor_state"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.load_executor_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.next_optimization"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.next_optimization()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.pre_submission_analysis"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.pre_submission_analysis()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.pre_submission_setup_per_job"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.pre_submission_setup_per_job()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.run"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.run()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.save_executor_state"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.save_executor_state()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.submit"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.submit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.CustomExecutor.whitebox_submit"><code class="docutils literal notranslate"><span class="pre">CustomExecutor.whitebox_submit()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#yotse.execution.Executor"><code class="docutils literal notranslate"><span class="pre">Executor</span></code></a><ul>
@@ -70,12 +73,15 @@
 <li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.collect_data"><code class="docutils literal notranslate"><span class="pre">Executor.collect_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.create_points_based_on_optimization"><code class="docutils literal notranslate"><span class="pre">Executor.create_points_based_on_optimization()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.generate_optimizer"><code class="docutils literal notranslate"><span class="pre">Executor.generate_optimizer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.get_active_optimization"><code class="docutils literal notranslate"><span class="pre">Executor.get_active_optimization()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.load_executor_state"><code class="docutils literal notranslate"><span class="pre">Executor.load_executor_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.next_optimization"><code class="docutils literal notranslate"><span class="pre">Executor.next_optimization()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.pre_submission_analysis"><code class="docutils literal notranslate"><span class="pre">Executor.pre_submission_analysis()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.pre_submission_setup_per_job"><code class="docutils literal notranslate"><span class="pre">Executor.pre_submission_setup_per_job()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.run"><code class="docutils literal notranslate"><span class="pre">Executor.run()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.save_executor_state"><code class="docutils literal notranslate"><span class="pre">Executor.save_executor_state()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.submit"><code class="docutils literal notranslate"><span class="pre">Executor.submit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yotse.execution.Executor.whitebox_submit"><code class="docutils literal notranslate"><span class="pre">Executor.whitebox_submit()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -175,7 +181,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">yotse package</li>
+      <li class="breadcrumb-item active">Yotse Package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/yotse.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -186,24 +192,26 @@
            <div itemprop="articleBody">
              
   <section id="yotse-package">
-<h1>yotse package<a class="headerlink" href="#yotse-package" title="Link to this heading"></a></h1>
+<h1>Yotse Package<a class="headerlink" href="#yotse-package" title="Link to this heading"></a></h1>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="yotse.optimization.html">yotse.optimization package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="yotse.optimization.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="yotse.optimization.html#module-yotse.optimization.algorithms">yotse.optimization.algorithms module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="yotse.optimization.html#module-yotse.optimization.ga">yotse.optimization.ga module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yotse.optimization.html#yotse-optimization-blackbox-algorithms-module">yotse.optimization.blackbox_algorithms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yotse.optimization.html#module-yotse.optimization.fitting">yotse.optimization.fitting module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yotse.optimization.html#module-yotse.optimization.generic_optimization">yotse.optimization.generic_optimization module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yotse.optimization.html#yotse-optimization-modded-pygad-ga-module">yotse.optimization.modded_pygad_ga module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yotse.optimization.html#module-yotse.optimization.optimizer">yotse.optimization.optimizer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yotse.optimization.html#yotse-optimization-whitebox-algorithms-module">yotse.optimization.whitebox_algorithms module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yotse.optimization.html#module-yotse.optimization">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="yotse.utils.html">yotse.utils package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="yotse.utils.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yotse.utils.html#module-yotse.utils.blueprint_tools">yotse.utils.blueprint_tools module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="yotse.utils.html#yotse-utils-prediction-module">yotse.utils.prediction module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yotse.utils.html#module-yotse.utils.prediction">yotse.utils.prediction module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yotse.utils.html#module-yotse.utils.utils">yotse.utils.utils module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yotse.utils.html#module-yotse.utils">Module contents</a></li>
 </ul>
@@ -265,7 +273,7 @@ Defaults to None.</p></li>
 <dt class="sig sig-object py" id="yotse.execution.CustomExecutor.generate_optimizer">
 <span class="sig-name descname"><span class="pre">generate_optimizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="yotse.optimization.html#yotse.optimization.optimizer.Optimizer" title="yotse.optimization.optimizer.Optimizer"><span class="pre">Optimizer</span></a></span></span><a class="headerlink" href="#yotse.execution.CustomExecutor.generate_optimizer" title="Link to this definition"></a></dt>
 <dd><p>Sets the optimization algorithm for the run by translating information in the
-optimization_info.</p>
+currently ‘active’ optimization_info.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>optimization_alg</strong> – Object of subclass of <cite>:class:GenericOptimization</cite>, the optimization algorithm to be used by this runner.</p>
@@ -277,9 +285,41 @@ optimization_info.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.CustomExecutor.get_active_optimization">
+<span class="sig-name descname"><span class="pre">get_active_optimization</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#yotse.pre.OptimizationInfo" title="yotse.pre.OptimizationInfo"><span class="pre">OptimizationInfo</span></a></span></span><a class="headerlink" href="#yotse.execution.CustomExecutor.get_active_optimization" title="Link to this definition"></a></dt>
+<dd><p>Get the active optimization step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The active optimization step.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#yotse.pre.OptimizationInfo" title="yotse.pre.OptimizationInfo">OptimizationInfo</a></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – If there are multiple active optimization steps.</p></li>
+<li><p><strong>RuntimeError</strong> – If no active optimization steps are found.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="yotse.execution.CustomExecutor.load_executor_state">
 <span class="sig-name descname"><span class="pre">load_executor_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aux_directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#yotse.execution.CustomExecutor.load_executor_state" title="Link to this definition"></a></dt>
 <dd><p>Load the state of the Executor to be able to resume.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.CustomExecutor.next_optimization">
+<span class="sig-name descname"><span class="pre">next_optimization</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#yotse.execution.CustomExecutor.next_optimization" title="Link to this definition"></a></dt>
+<dd><p>Switch to the next active optimization in the list.</p>
+<p>Deactivates the current active optimization and activates the next one in the list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>RuntimeError</strong> – If there are multiple active optimizations or none at all.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -364,6 +404,13 @@ Defaults to 0.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.CustomExecutor.whitebox_submit">
+<span class="sig-name descname"><span class="pre">whitebox_submit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#yotse.execution.CustomExecutor.whitebox_submit" title="Link to this definition"></a></dt>
+<dd><p>Run the white-box optimization process.</p>
+<p>Currently, this does not use QCGPilotJob but runs locally.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -414,7 +461,7 @@ Defaults to None.</p></li>
 <dt class="sig sig-object py" id="yotse.execution.Executor.generate_optimizer">
 <span class="sig-name descname"><span class="pre">generate_optimizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="yotse.optimization.html#yotse.optimization.optimizer.Optimizer" title="yotse.optimization.optimizer.Optimizer"><span class="pre">Optimizer</span></a></span></span><a class="reference internal" href="_modules/yotse/execution.html#Executor.generate_optimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.execution.Executor.generate_optimizer" title="Link to this definition"></a></dt>
 <dd><p>Sets the optimization algorithm for the run by translating information in the
-optimization_info.</p>
+currently ‘active’ optimization_info.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>optimization_alg</strong> – Object of subclass of <cite>:class:GenericOptimization</cite>, the optimization algorithm to be used by this runner.</p>
@@ -426,9 +473,41 @@ optimization_info.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.Executor.get_active_optimization">
+<span class="sig-name descname"><span class="pre">get_active_optimization</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#yotse.pre.OptimizationInfo" title="yotse.pre.OptimizationInfo"><span class="pre">OptimizationInfo</span></a></span></span><a class="reference internal" href="_modules/yotse/execution.html#Executor.get_active_optimization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.execution.Executor.get_active_optimization" title="Link to this definition"></a></dt>
+<dd><p>Get the active optimization step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The active optimization step.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#yotse.pre.OptimizationInfo" title="yotse.pre.OptimizationInfo">OptimizationInfo</a></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – If there are multiple active optimization steps.</p></li>
+<li><p><strong>RuntimeError</strong> – If no active optimization steps are found.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="yotse.execution.Executor.load_executor_state">
 <span class="sig-name descname"><span class="pre">load_executor_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aux_directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/execution.html#Executor.load_executor_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.execution.Executor.load_executor_state" title="Link to this definition"></a></dt>
 <dd><p>Load the state of the Executor to be able to resume.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.Executor.next_optimization">
+<span class="sig-name descname"><span class="pre">next_optimization</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/execution.html#Executor.next_optimization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.execution.Executor.next_optimization" title="Link to this definition"></a></dt>
+<dd><p>Switch to the next active optimization in the list.</p>
+<p>Deactivates the current active optimization and activates the next one in the list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>RuntimeError</strong> – If there are multiple active optimizations or none at all.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -511,6 +590,13 @@ Defaults to 0.</p>
 <dd class="field-odd"><p>list</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.execution.Executor.whitebox_submit">
+<span class="sig-name descname"><span class="pre">whitebox_submit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/execution.html#Executor.whitebox_submit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.execution.Executor.whitebox_submit" title="Link to this definition"></a></dt>
+<dd><p>Run the white-box optimization process.</p>
+<p>Currently, this does not use QCGPilotJob but runs locally.</p>
 </dd></dl>
 
 </dd></dl>
@@ -707,7 +793,7 @@ parameters. Each row represents a unique combination of parameter values to be e
 <p>Note: after the file has been created the process can be started by calling <cite>sbatch slurm.job</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>filename</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – Name of the file to be executed through SLURM</p>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – Name of the file to be executed through SLURM. Note this is not the filename of the SLURM script itself.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -715,7 +801,14 @@ parameters. Each row represents a unique combination of parameter values to be e
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.pre.Experiment.parse_slurm_arg">
 <span class="sig-name descname"><span class="pre">parse_slurm_arg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/pre.html#Experiment.parse_slurm_arg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.Experiment.parse_slurm_arg" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Parse command-line arguments to determine if a SLURM script should be
+generated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The filename of the script to be executed with SLURM.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.pre.Experiment.qcgpilot_commandline">
@@ -739,7 +832,7 @@ configuration.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="yotse.pre.OptimizationInfo">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yotse.pre.</span></span><span class="sig-name descname"><span class="pre">OptimizationInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_active</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/pre.html#OptimizationInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.OptimizationInfo" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yotse.pre.</span></span><span class="sig-name descname"><span class="pre">OptimizationInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blackbox_optimization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_active</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/pre.html#OptimizationInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.OptimizationInfo" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class that is optional as input to the Experiment, if the run is supposed to
 execute an optimization it will look here for the parameters.</p>
@@ -747,15 +840,17 @@ execute an optimization it will look here for the parameters.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em>) – Name of the optimization algorithm to be used, e.g. “GA” (genetic algorithm), “GD” (gradient descent).</p></li>
+<li><p><strong>blackbox_optimization</strong> (<em>bool</em>) – Whether the optimization should be a black-box optimization. (If False: a function must be supplied.)</p></li>
 <li><p><strong>opt_parameters</strong> (<em>dict</em>) – Dictionary containing all necessary parameters for the optimization.</p></li>
 <li><p><strong>is_active</strong> (<em>bool</em>) – Whether this is the currently active optimization algorithm. Can be used to perform sequential optimization with
 different optimization algorithms that can all be defined in a single Experiment.</p></li>
+<li><p><strong>function</strong> (<em>callable</em><em>, </em><em>optional</em>) – The objective function to be optimized. Required if blackbox_optimization is False.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.pre.OptimizationInfo.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_active</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/pre.html#OptimizationInfo.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.OptimizationInfo.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blackbox_optimization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_active</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/pre.html#OptimizationInfo.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.pre.OptimizationInfo.__init__" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

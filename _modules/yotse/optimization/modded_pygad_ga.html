@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>yotse.optimization.ga &mdash; YOTSE  documentation</title>
+  <title>yotse.optimization.modded_pygad_ga &mdash; YOTSE  documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../yotse.html">yotse package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yotse.html">Yotse Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Yotse Examples</a></li>
 </ul>
 
@@ -62,7 +62,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">yotse.optimization.ga</li>
+      <li class="breadcrumb-item active">yotse.optimization.modded_pygad_ga</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -71,7 +71,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for yotse.optimization.ga</h1><div class="highlight"><pre>
+  <h1>Source code for yotse.optimization.modded_pygad_ga</h1><div class="highlight"><pre>
 <span></span><span class="c1"># type: ignore</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
@@ -80,10 +80,10 @@
 
 
 <div class="viewcode-block" id="ModGA">
-<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.ga.ModGA">[docs]</a>
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.modded_pygad_ga.ModGA">[docs]</a>
 <span class="k">class</span> <span class="nc">ModGA</span><span class="p">(</span><span class="n">GA</span><span class="p">):</span>
 <div class="viewcode-block" id="ModGA.run_single_generation">
-<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.ga.ModGA.run_single_generation">[docs]</a>
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.modded_pygad_ga.ModGA.run_single_generation">[docs]</a>
     <span class="k">def</span> <span class="nf">run_single_generation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">num_generations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_generations</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_generations</span> <span class="o">=</span> <span class="mi">1</span>
@@ -92,7 +92,7 @@
 
 
 <div class="viewcode-block" id="ModGA.run">
-<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.ga.ModGA.run">[docs]</a>
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.modded_pygad_ga.ModGA.run">[docs]</a>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the genetic algorithm.</span>
 

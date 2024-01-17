@@ -44,13 +44,13 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="yotse.html">yotse package</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="yotse.html">Yotse Package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="yotse.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="yotse.optimization.html">yotse.optimization package</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">yotse.utils package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-yotse.utils.blueprint_tools">yotse.utils.blueprint_tools module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#yotse-utils-prediction-module">yotse.utils.prediction module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-yotse.utils.prediction">yotse.utils.prediction module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-yotse.utils.utils">yotse.utils.utils module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-yotse.utils">Module contents</a></li>
 </ul>
@@ -81,7 +81,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="yotse.html">yotse package</a></li>
+          <li class="breadcrumb-item"><a href="yotse.html">Yotse Package</a></li>
       <li class="breadcrumb-item active">yotse.utils package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/yotse.utils.rst.txt" rel="nofollow"> View page source</a>
@@ -225,8 +225,36 @@ output/
 </dd></dl>
 
 </section>
-<section id="yotse-utils-prediction-module">
-<h2>yotse.utils.prediction module<a class="headerlink" href="#yotse-utils-prediction-module" title="Link to this heading"></a></h2>
+<section id="module-yotse.utils.prediction">
+<span id="yotse-utils-prediction-module"></span><h2>yotse.utils.prediction module<a class="headerlink" href="#module-yotse.utils.prediction" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="yotse.utils.prediction.Predict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yotse.utils.prediction.</span></span><span class="sig-name descname"><span class="pre">Predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'LR'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/utils/prediction.html#Predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.utils.prediction.Predict" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.utils.prediction.Predict.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'LR'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/utils/prediction.html#Predict.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.utils.prediction.Predict.__init__" title="Link to this definition"></a></dt>
+<dd><p>Deafault constructor :param model_name:Regression model name.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.utils.prediction.Predict.learn">
+<span class="sig-name descname"><span class="pre">learn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/utils/prediction.html#Predict.learn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.utils.prediction.Predict.learn" title="Link to this definition"></a></dt>
+<dd><p>Execute learning process :param x: Training data, ndarray of shape
+(n_samples, n_features) :param y: Target values, ndarray of shape (n_samples,)
+:return: None.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.utils.prediction.Predict.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_new</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/yotse/utils/prediction.html#Predict.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.utils.prediction.Predict.predict" title="Link to this definition"></a></dt>
+<dd><p>Predict value(s) using linear model :param x_new: Samples, ndarray of shape
+(n_samples, n_features) :return: Mean of predictive distribution of query
+points.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-yotse.utils.utils">
 <span id="yotse-utils-utils-module"></span><h2>yotse.utils.utils module<a class="headerlink" href="#module-yotse.utils.utils" title="Link to this heading"></a></h2>

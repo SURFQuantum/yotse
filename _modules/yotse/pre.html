@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../yotse.html">yotse package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../yotse.html">Yotse Package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Yotse Examples</a></li>
 </ul>
 
@@ -383,7 +383,7 @@
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">target_parameter</span><span class="o">.</span><span class="n">constraints</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
                 <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">data_points</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_data_points</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_data_points</span><span class="p">)</span></div>
 </div>
 
 
@@ -534,18 +534,29 @@
 <span class="sd">    ----------</span>
 <span class="sd">    name : str</span>
 <span class="sd">        Name of the optimization algorithm to be used, e.g. &quot;GA&quot; (genetic algorithm), &quot;GD&quot; (gradient descent).</span>
+<span class="sd">    blackbox_optimization : bool</span>
+<span class="sd">        Whether the optimization should be a black-box optimization. (If False: a function must be supplied.)</span>
 <span class="sd">    opt_parameters : dict</span>
 <span class="sd">        Dictionary containing all necessary parameters for the optimization.</span>
 <span class="sd">    is_active : bool</span>
 <span class="sd">        Whether this is the currently active optimization algorithm. Can be used to perform sequential optimization with</span>
 <span class="sd">        different optimization algorithms that can all be defined in a single Experiment.</span>
+<span class="sd">    function : callable, optional</span>
+<span class="sd">        The objective function to be optimized. Required if blackbox_optimization is False.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="OptimizationInfo.__init__">
 <a class="viewcode-back" href="../../yotse.html#yotse.pre.OptimizationInfo.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">opt_parameters</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">is_active</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">blackbox_optimization</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">opt_parameters</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">is_active</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">opt_parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blackbox_optimization</span> <span class="o">=</span> <span class="n">blackbox_optimization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opt_parameters</span> <span class="o">=</span> <span class="n">opt_parameters</span> <span class="k">if</span> <span class="n">opt_parameters</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_active</span> <span class="o">=</span> <span class="n">is_active</span></div>
 </div>
 
@@ -593,14 +604,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">experiment_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">system_setup</span> <span class="o">=</span> <span class="n">system_setup</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">parameters</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">optimization_information_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opt_info_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">opt_info_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">opt_info_list</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">OptimizationInfo</span><span class="p">):</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;Items in opt_info_list should be of type OptimizationInfo not </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
                     <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">optimization_information_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">opt_info_list</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">opt_info_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">opt_info_list</span><span class="p">)</span>
         <span class="c1"># todo: to avoid confusion maybe it is useful to call the datapoints of the exp different than those of params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_datapoint_c_product</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cost_function</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></div>
@@ -682,7 +693,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">optimization_info</span><span class="p">,</span> <span class="n">OptimizationInfo</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Can not add parameter that is not of type Parameter.&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">optimization_information_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">optimization_info</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opt_info_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">optimization_info</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Experiment.generate_slurm_script">
@@ -695,7 +706,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        filename : str (optional)</span>
-<span class="sd">            Name of the file to be executed through SLURM</span>
+<span class="sd">            Name of the file to be executed through SLURM. Note this is not the filename of the SLURM script itself.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_setup</span><span class="o">.</span><span class="n">num_nodes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Slurm script can not be generated without num_nodes.&quot;</span><span class="p">)</span>
@@ -724,6 +735,14 @@
 <div class="viewcode-block" id="Experiment.parse_slurm_arg">
 <a class="viewcode-back" href="../../yotse.html#yotse.pre.Experiment.parse_slurm_arg">[docs]</a>
     <span class="k">def</span> <span class="nf">parse_slurm_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse command-line arguments to determine if a SLURM script should be</span>
+<span class="sd">        generated.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            The filename of the script to be executed with SLURM.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
             <span class="s2">&quot;--slurm&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Generate slurm.job file&quot;</span>
@@ -734,7 +753,7 @@
             <span class="n">border</span> <span class="o">=</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">border</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[1;92mSLURM execution script </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> successfully created. Execute with &#39;sbatch </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39;.</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[1;92mSLURM execution script for </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> successfully created. Execute with &#39;sbatch slurm.job&#39;.</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
             <span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">border</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">exit</span><span class="p">()</span></div>
