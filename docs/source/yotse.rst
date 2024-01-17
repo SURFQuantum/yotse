@@ -1,4 +1,4 @@
-yotse package
+Yotse Package
 =============
 
 Subpackages

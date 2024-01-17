@@ -17,7 +17,8 @@ def main() -> None:
     then resumes the optimization from the last saved state, finally cleaning up any
     residual files after completion.
     """
-    print(" --- Running Wobbly-Stop->Resume Example. --- ")
+    print("\033[93m --- Executing Wobbly-Stop->Resume Example. --- \033[0m")
+
     # Note: Here, we show how a stopped experiment can be resumed from a save file
     stop_resume_experiment = wobbly_pre()
     stop_resume_example = Executor(experiment=stop_resume_experiment)
@@ -33,9 +34,7 @@ def main() -> None:
     resume_example = Executor(experiment=resume_experiment)
     for i in range(
         resume_example.optimizer.optimization_algorithm.optimization_instance.generations_completed,
-        resume_experiment.optimization_information_list[0].parameters[
-            "num_generations"
-        ],
+        resume_experiment.opt_info_list[0].opt_parameters["num_generations"],
     ):
         assert (
             resume_example.optimizer.optimization_algorithm.optimization_instance.generations_completed
