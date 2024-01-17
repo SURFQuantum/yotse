@@ -11,7 +11,7 @@ from scipy.optimize import LinearConstraint
 
 from yotse.optimization.blackbox_algorithms import GAOpt
 from yotse.optimization.optimizer import Optimizer
-from yotse.optimization.whitebox_algorithms import SciPyOptimization
+from yotse.optimization.whitebox_algorithms import SciPyOpt
 from yotse.pre import Experiment
 
 
@@ -308,7 +308,7 @@ class TestWhiteboxOptimization(unittest.TestCase):
             """Simple shifted quadratic function."""
             return (x - 2) ** 2
 
-        test_scipy = SciPyOptimization(fun=objective_function, x0=0.0, method="BFGS")
+        test_scipy = SciPyOpt(fun=objective_function, x0=0.0, method="BFGS")
         test_scipy.execute()
 
         self.assertTrue(test_scipy.result.success)
@@ -329,7 +329,7 @@ class TestWhiteboxOptimization(unittest.TestCase):
 
         constraint = LinearConstraint([[1]], [3], [np.inf])
 
-        test_scipy = SciPyOptimization(
+        test_scipy = SciPyOpt(
             fun=objective_function,
             x0=[4.0],
             constraints=[constraint],

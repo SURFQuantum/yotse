@@ -290,7 +290,7 @@ class Parameter:
                     f"{type(self.constraints)} and {type(target_parameter.constraints)}."
                 )
 
-        self.data_points = tuple(new_data_points)
+        self.data_points = np.array(new_data_points)
 
 
 class SystemSetup:
@@ -580,7 +580,7 @@ class Experiment:
         Parameters
         ----------
         filename : str (optional)
-            Name of the file to be executed through SLURM
+            Name of the file to be executed through SLURM. Note this is not the filename of the SLURM script itself.
         """
         if self.system_setup.num_nodes is None:
             raise ValueError("Slurm script can not be generated without num_nodes.")
@@ -606,6 +606,14 @@ class Experiment:
             file.write(script)
 
     def parse_slurm_arg(self, filename: str) -> None:
+        """Parse command-line arguments to determine if a SLURM script should be
+        generated.
+
+        Parameters
+        ----------
+        filename : str
+            The filename of the script to be executed with SLURM.
+        """
         parser = argparse.ArgumentParser()
         parser.add_argument(
             "--slurm", action="store_true", help="Generate slurm.job file"
@@ -616,7 +624,7 @@ class Experiment:
             border = "=" * 80
             print("\n" + border)
             print(
-                f"\033[1;92mSLURM execution script {filename} successfully created. Execute with 'sbatch {filename}'.\033[0m"
+                f"\033[1;92mSLURM execution script for {filename} successfully created. Execute with 'sbatch slurm.job'.\033[0m"
             )
             print(border + "\n")
             exit()

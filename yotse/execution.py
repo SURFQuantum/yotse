@@ -11,10 +11,11 @@ import pandas
 from qcg.pilotjob.api.job import Jobs
 from qcg.pilotjob.api.manager import LocalManager
 
+from yotse.optimization.blackbox_algorithms import BayesOpt
 from yotse.optimization.blackbox_algorithms import GAOpt
 from yotse.optimization.generic_optimization import GenericOptimization
 from yotse.optimization.optimizer import Optimizer
-from yotse.optimization.whitebox_algorithms import SciPyOptimization
+from yotse.optimization.whitebox_algorithms import SciPyOpt
 from yotse.pre import Experiment
 from yotse.pre import OptimizationInfo
 from yotse.pre import set_basic_directory_structure_for_job
@@ -144,13 +145,25 @@ class Executor:
                     )
                 elif opt_info.name.lower() == "test":
                     optimization_alg = None
+                elif opt_info.name.lower() == "bayesopt":
+                    optimization_alg = BayesOpt(
+                        pbounds={
+                            param.name: (
+                                int(param.range[0]),
+                                int(param.range[1]),
+                            )  # cast to int for bayesian opt, see comment in class
+                            for param in self.experiment.parameters
+                        },
+                        **opt_info.opt_parameters,
+                    )
                 else:
                     raise ValueError(
                         f"Unknown blackbox optimization algorithm: {opt_info.name}"
                     )
             else:
-                self.blackbox_optimization = False
                 # whitebox optimization
+                self.blackbox_optimization = False
+
                 # if opt_info.name.lower() == "ga":
                 #     optimization_alg = GAOpt(
                 #         blackbox_optimization=False,
@@ -161,7 +174,7 @@ class Executor:
                 #         **opt_info.opt_parameters,
                 #     )
                 if opt_info.name.lower() == "scipy":
-                    optimization_alg = SciPyOptimization(**opt_info.opt_parameters)
+                    optimization_alg = SciPyOpt(**opt_info.opt_parameters)
                 elif opt_info.name.lower() == "test":
                     optimization_alg = None
                 else:

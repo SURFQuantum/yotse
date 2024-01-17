@@ -1,47 +1,119 @@
+"""
+Module: my_func_fit
+
+This module provides a class, `FuncFit`, for fitting polynomials to data and calculating errors and chi-square values.
+
+Classes:
+    - FuncFit: A class for polynomial fitting and error/chi-square calculation.
+
+Functions:
+    - add_noise: Static method to add noise to an array.
+    - chi_square: Static method to calculate chi-square.
+    - err: Static method to calculate error.
+    - find_poly_fit: Method to find the best-fitting polynomial for given data.
+
+"""
 import warnings
 from typing import Any
 from typing import List
+from typing import Tuple
 
 import numpy as np
 
 
 class FuncFit:
+    """FuncFit class for fitting polynomials, calculating errors, and chi-square values.
+
+    Methods:
+        - add_noise: Static method to add noise to an array.
+        - chi_square: Static method to calculate chi-square.
+        - err: Static method to calculate error.
+        - find_poly_fit: Method to find the best-fitting polynomial for given data.
+    """
+
     def __init__(self) -> None:
         pass
 
-    def add_noise(self, arr: np.ndarray, level: float = 0.2) -> np.ndarray:
-        """Add noise to the given array :param arr: Array of values (numpy array) :param
-        level: Noise level :return: Input array with added noise."""
+    @staticmethod
+    def add_noise(arr: np.ndarray, level: float = 0.2) -> np.ndarray:
+        """Add noise to the given array.
+
+        Parameters
+        ----------
+        arr : numpy.ndarray
+            Array of values.
+        level : float, optional
+            Noise level. Default is 0.2.
+
+        Returns
+        -------
+        numpy.ndarray
+            Input array with added noise.
+        """
         return np.random.normal(2 * arr + 2, level)
 
-    def chi_square(self, poly: np.poly1d, x: List[float], y: List[float]) -> Any:
-        """Calculate chi-square :param poly: Polynomial (numpy.poly1d object) :param x:
+    @staticmethod
+    def chi_square(
+        poly: np.polynomial.Polynomial, x: List[float], y: List[float]
+    ) -> Any:
+        """Calculate chi-square.
 
-        X-points of the original dataset
-        :param y: Y-points of the original dataset
-        :return: Chi-square.
+        Parameters
+        ----------
+        poly : numpy.polynomial.Polynomial
+            Polynomial (numpy.poly1d object).
+        x : list of float
+            X-points of the original dataset.
+        y : list of float
+            Y-points of the original dataset.
+
+        Returns
+        -------
+        Any
+            Chi-square.
         """
-        return np.sum((np.polyval(poly, x) - y) ** 2) / len(x)
+        x_values = np.asarray(x, dtype=float)
+        return np.sum((poly(x_values) - y) ** 2) / len(x)
 
-    def err(self, poly: np.poly1d, x: List[float], y: List[float]) -> Any:
-        """Calculate error :param poly: Polynomial (numpy.poly1d object) :param x:
+    @staticmethod
+    def err(poly: np.poly1d, x: List[float], y: List[float]) -> Any:
+        """Calculate error.
 
-        X-points of the original dataset
-        :param y: Y-points of the original dataset
-        :return: Error.
+        Parameters
+        ----------
+        poly : numpy.poly1d
+            Polynomial (numpy.poly1d object).
+        x : list of float
+            X-points of the original dataset.
+        y : list of float
+            Y-points of the original dataset.
+
+        Returns
+        -------
+        Any
+            Error.
         """
         return np.sqrt(np.sum(np.power(poly(x) - y, 2.0)))
 
     def find_poly_fit(
         self, x: List[float], y: List[float], max_order: int = 41
-    ) -> List[np.poly1d]:
+    ) -> List[Tuple[Any, Any]]:
         """Find a polynomial that fits the given data best.
 
-        :param x: X-points
-        :param y: Y-points
-        :param max_order: Maximum order of a polynomial
-        :return: A list of all polynomials and the corresponding errors. The list is
-            sorted in ascending order using the error values.
+        Parameters
+        ----------
+        x : list of float
+            X-points.
+        y : list of float
+            Y-points.
+        max_order : int, optional
+            Maximum order of a polynomial. Default is 41.
+
+        Returns
+        -------
+        list of tuple
+            A list of tuples containing polynomials and their corresponding errors.
+            The list is sorted in ascending order using the error values.
         """
         poly_fits = []
 
@@ -54,18 +126,16 @@ class FuncFit:
                     warnings.filterwarnings("ignore")
 
                     # Fit polynomial function
-                    poly, residuals, _, _, _ = np.polyfit(x, y, n, full=True)
-                    poly_1d = np.poly1d(poly)
+                    poly, residuals = np.polynomial.polynomial.Polynomial.fit(
+                        x, y, [n], full=True
+                    )
 
                     # Get error
-                    # error = self.err(poly, x, y)
                     error = self.chi_square(poly, x, y)
-                    print("Order: {}, Error: {} ".format(poly_1d.order, error))
-                    # print('Order: {}, Error: {}, Coeffs: {}, '.format(trend.order, error, trend.coeffs))
+                    print("Order: {}, Error: {} ".format(n, error))
 
-                    poly_fits.append((poly_1d, error))
+                    poly_fits.append((poly, error))
 
             except Exception:
                 pass
-
         return sorted(poly_fits, key=lambda err: err[1])
