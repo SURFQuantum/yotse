@@ -12,6 +12,14 @@ examples.wobbly\_function.analyse\_function\_output module
    :undoc-members:
    :show-inheritance:
 
+examples.wobbly\_function.example\_wobbly\_bayesian module
+------------------------------------------------------
+
+.. automodule:: examples.wobbly_function.example_wobbly_bayesian
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 examples.wobbly\_function.example\_wobbly\_main module
 ------------------------------------------------------
 
@@ -24,6 +32,14 @@ examples.wobbly\_function.example\_wobbly\_resume module
 --------------------------------------------------------
 
 .. automodule:: examples.wobbly_function.example_wobbly_resume
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+examples.wobbly\_function.example\_wobbly\_whitebox module
+------------------------------------------------------
+
+.. automodule:: examples.wobbly_function.example_wobbly_whitebox
    :members:
    :undoc-members:
    :show-inheritance:
