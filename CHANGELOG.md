@@ -6,6 +6,8 @@ CHANGELOG
 upcoming (1.0.0):
 ---
 * separated optimizations in blackbox and analytical (where the function is known).
+* added `SciPyOpt` and `BayesOpt` to available optimization algorithms
+* expanded unittest to cover missing functions
 
 2023-11-08 (0.3.1):
 ---

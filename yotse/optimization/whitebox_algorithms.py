@@ -14,7 +14,7 @@ from scipy.optimize import OptimizeResult
 from yotse.optimization.generic_optimization import GenericOptimization
 
 
-class SciPyOptimization(GenericOptimization):
+class SciPyOpt(GenericOptimization):
     def __init__(
         self,
         fun: Callable[..., float],
@@ -28,7 +28,7 @@ class SciPyOptimization(GenericOptimization):
         callback: Optional[Callable[..., Any]] = None,
         options: Optional[Dict[str, Any]] = None,
     ):
-        """Initialize the SciPyOptimization object.
+        """Initialize the SciPyOpt object.
 
         Parameters
         ----------

@@ -3,11 +3,13 @@ optimization algorithms."""
 import math
 from typing import Any
 from typing import Callable
+from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
 
 import numpy as np
+from bayes_opt import BayesianOptimization
 from pygad.pygad import GA
 
 from yotse.optimization.generic_optimization import GenericOptimization
@@ -210,6 +212,104 @@ class GAOpt(GenericOptimization):
             raise ValueError(
                 f"Solution {solution} was not found in internal dataframe row {solution_idx}."
             )
+
+
+class BayesOpt(GenericOptimization):
+    """Bayesian optimization."""
+
+    def __init__(
+        self,
+        pbounds: Dict[Any, Tuple[int, int]],
+        refinement_factors: Optional[List[float]] = None,
+        logging_level: int = 1,
+        **bayesopt_kwargs: Any,
+    ) -> None:
+        """Initialize Bayesian optimization."""
+
+        if "utility_function" not in bayesopt_kwargs:
+            raise ValueError(
+                "utility_function must be specified for Bayesian Optimization."
+            )
+        self.utility_function = bayesopt_kwargs["utility_function"]
+        bayesopt_kwargs.pop("utility_function")
+        if "n_iter" not in bayesopt_kwargs:
+            raise ValueError("n_iter must be specified for Bayesian Optimization.")
+        self.num_iterations = bayesopt_kwargs["n_iter"]
+        bayesopt_kwargs.pop("n_iter")
+
+        optimizer = BayesianOptimization(
+            f=None,
+            pbounds=pbounds,
+            verbose=2,
+            random_state=1,
+            **bayesopt_kwargs,
+        )
+
+        # set initial point to investigate
+        self.next_point_to_probe = optimizer.suggest(self.utility_function)
+        # warn about discrete values
+        print(
+            "WARNING: Bayesian Optimization does not currently implement discrete variables. See "
+            "https://github.com/bayesian-optimization/BayesianOptimization/blob/master/examples/advanced-tour.ipynb"
+        )
+        super().__init__(
+            function=self.utility_function,
+            opt_instance=optimizer,
+            refinement_factors=refinement_factors,
+            logging_level=logging_level,
+            extrema=self.MINIMUM,
+            evolutionary=True,
+        )
+
+    def execute(self) -> None:
+        """Execute single step in the bayesian optimization."""
+        # Note this should be run after the user script has been executed with input next_point_to_probe
+        last_target_point = self.input_param_cost_df.iloc[-1]["f(x,y)"]
+        # minimize = find max of negative cost
+        last_target_point *= -1
+        self.optimization_instance.register(
+            params=self.next_point_to_probe, target=last_target_point
+        )
+
+    def get_best_solution(self) -> Tuple[List[float], float, int]:
+        """Get the best solution. Should be implemented in every derived class.
+
+        Returns
+        -------
+        solution, solution_fitness, solution_idx
+            Solution its fitness and its index in the list of data points.
+        """
+        # todo: this does not output solution, solution_fitness, solution_idx yet but params, cost, 0
+        # todo: question is what solution_idx would even mean here
+        return (
+            list(self.optimization_instance.max["params"].values()),
+            -1
+            * self.optimization_instance.max[
+                "target"
+            ],  # maximized neg cost, converting to pos cost again
+            0,
+        )
+
+    def get_new_points(self) -> np.ndarray:
+        """Get new points from the BayesianOptimization instance.
+
+        Returns
+        -------
+        new_points : np.ndarray
+            New points for the next iteration of the optimization.
+        """
+        next_point = self.optimization_instance.suggest(self.utility_function)
+        self.next_point_to_probe = next_point
+        return np.array([list(next_point.values())])
+
+    def overwrite_internal_data_points(self, data_points: np.ndarray) -> None:
+        """Note: this is not needed because datapoints are registered in `execute`."""
+        pass
+
+    def input_params_to_cost_value(
+        self, ga_instance: GA, solution: List[float], solution_idx: int
+    ) -> Any:
+        pass
 
 
 # class CGOpt(GenericOptimization):

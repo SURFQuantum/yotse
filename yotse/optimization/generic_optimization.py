@@ -146,6 +146,16 @@ class GenericOptimization:
         self.input_param_cost_df = data
 
     def input_params_to_cost_value(self, *args: Any, **kwargs: Any) -> float:
+        """Return value of cost function for given set of input parameter values and
+        their index in the set of points.
+
+        Parameters
+        ----------
+        solution : list
+            Set of input parameter values of shape [param_1, param_2, .., param_n].
+        solution_idx : int
+            Index of the solution within the set of points.
+        """
         frame = inspect.currentframe()
         assert frame is not None, "Failed to get the current frame"
         raise NotImplementedError(
