@@ -67,6 +67,7 @@ class GAOpt(GenericOptimization):
         fitness_func: Optional[Callable[..., float]] = None,
         **pygad_kwargs: Any,
     ):
+        """Initialize the GAOpt object."""
         if blackbox_optimization:
             if fitness_func is not None:
                 raise ValueError(
@@ -187,6 +188,7 @@ class GAOpt(GenericOptimization):
         return np.array(new_points)
 
     def overwrite_internal_data_points(self, data_points: np.ndarray) -> None:
+        """Overwrite internal GA population with new datapoints from experiment."""
         self.optimization_instance.population = data_points
 
     def input_params_to_cost_value(
@@ -304,11 +306,6 @@ class BayesOpt(GenericOptimization):
 
     def overwrite_internal_data_points(self, data_points: np.ndarray) -> None:
         """Note: this is not needed because datapoints are registered in `execute`."""
-        pass
-
-    def input_params_to_cost_value(
-        self, ga_instance: GA, solution: List[float], solution_idx: int
-    ) -> Any:
         pass
 
 
