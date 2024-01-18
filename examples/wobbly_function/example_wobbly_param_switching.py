@@ -34,7 +34,7 @@ def main() -> None:
         name="GA",
         blackbox_optimization=True,
         opt_parameters={
-            "num_generations": 5,  # number of iterations of the algorithm
+            "num_generations": 4,  # number of iterations of the algorithm
             # "num_points": 10,            # number of points per param to re-create , now determined by initial
             "num_parents_mating": 5,
             "mutation_probability": 0.2,
