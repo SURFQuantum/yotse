@@ -134,10 +134,7 @@ def main() -> None:
     experiment = wobbly_pre()
     wobbly_example = Executor(experiment=experiment)
 
-    for i in range(
-        wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed,
-        experiment.opt_info_list[0].opt_parameters["num_generations"],
-    ):
+    for i in range(experiment.opt_info_list[0].opt_parameters["num_generations"]):
         assert (
             wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed
             == i
