@@ -668,10 +668,14 @@ class Experiment:
             )
         ]
         # add parameters
+        inactive_params_skipped = 0
         for p, param in enumerate(self.parameters):
             if param.is_active:
                 cmdline.append(f"--{param.name}")
-                cmdline.append(datapoint_item[p])
+                # datapoint item contains only entries of active parameters
+                cmdline.append(datapoint_item[p - inactive_params_skipped])
+            else:
+                inactive_params_skipped += 1
         # add fixed cmdline arguments
         for key, value in self.system_setup.cmdline_arguments.items():
             cmdline.append(key)
