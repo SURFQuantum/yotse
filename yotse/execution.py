@@ -24,7 +24,31 @@ from yotse.utils.utils import get_files_by_extension
 
 
 class Executor:
+    """A facilitator for running experiments and optimization algorithms.
+
+    The `Executor` class coordinates the execution of experiments, manages the optimization process,
+    and interfaces with the LocalManager for job submission. It supports both black-box and white-box
+    optimization strategies, allowing for the exploration of various optimization algorithms.
+
+    Attributes
+    ----------
+    experiment : Experiment
+        The experiment object associated with the executor.
+    blackbox_optimization : bool
+        Flag indicating whether the optimization process is black-box or white-box.
+    optimizer : Optimizer
+        The optimizer object responsible for managing the optimization algorithm.
+    aux_dir : str
+        The auxiliary directory used during the optimization process.
+
+    Parameters
+    ----------
+    experiment : Experiment
+        The experiment object associated with the executor.
+    """
+
     def __init__(self, experiment: Experiment):
+        """Initialize `Executor` object."""
         self.experiment: Experiment = experiment
         self.blackbox_optimization = True
         self.optimizer: Optimizer = self.generate_optimizer()
@@ -430,12 +454,40 @@ class Executor:
 
 
 class CustomExecutor(Executor):
+    """Custom Executor class for users to tailor to their specific experimental setups.
+
+    The `CustomExecutor` class is a user-defined extension of the base `Executor` class.
+    Users can customize this class to adapt the optimization and execution process to
+    their specific experimental requirements.
+
+    Parameters
+    ----------
+    experiment : Experiment
+        The experiment object associated with the custom executor.
+    """
+
     def __init__(self, experiment: Experiment):
+        """Initialize `CustomExecutor` object."""
         super().__init__(experiment)
 
     def run(
         self, step_number: int = 0, evolutionary_point_generation: Optional[bool] = None
     ) -> None:
+        """Run the custom execution process.
+
+        This method overrides the run method in the base `Executor` class to provide
+        custom logic for the execution process tailored to the user's specific needs.
+
+        Parameters
+        ----------
+        step_number : int, optional
+            Step number to submit to QCGPilot. Should be used for e.g. running different optimization steps.
+            Defaults to 0.
+        evolutionary_point_generation : bool, optional
+            Overwrite the type of construction to be used for the new points.
+            If None, the optimization algorithm determines whether the point creation is evolutionary or
+            based on the best solution. Defaults to None.
+        """
         super().run(
             step_number=step_number,
             evolutionary_point_generation=evolutionary_point_generation,
