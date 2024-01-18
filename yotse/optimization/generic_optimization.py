@@ -1,3 +1,12 @@
+"""generic_optimization.py.
+
+This module defines the GenericOptimization class, a base class for optimization algorithms.
+
+Classes
+-------
+GenericOptimization:
+    A base class for optimization algorithms.
+"""
 import inspect
 import math
 from abc import ABCMeta
@@ -49,6 +58,7 @@ class GenericOptimization:
         extrema: int = MINIMUM,
         evolutionary: bool = False,
     ):
+        """Initialize the GenericOptimization object."""
         self.logging_level = logging_level
         self.extrema = extrema
         self.function = function

@@ -1,4 +1,13 @@
 # type: ignore
+"""modded_pygad_ga.py.
+
+This module provides a modified version of the Genetic Algorithm (GA) class from the PyGAD library.
+
+Classes
+-------
+ModGA:
+    A modified Genetic Algorithm class that extends the functionality of the GA class in the PyGAD library.
+"""
 import time
 
 import numpy
@@ -6,7 +15,21 @@ from pygad import GA
 
 
 class ModGA(GA):
+    """A modified Genetic Algorithm class that extends the functionality of the GA class
+    in the PyGAD library.
+
+    Methods
+    -------
+    run_single_generation() -> None:
+        Run a single generation of the genetic algorithm.
+
+    run() -> None:
+        Runs the genetic algorithm. This is the main method in which the genetic algorithm is evolved through a
+        number of generations.
+    """
+
     def run_single_generation(self) -> None:
+        """Run a single generation of the genetic algorithm."""
         num_generations = self.num_generations
         self.num_generations = 1
         self.run()
