@@ -1,3 +1,5 @@
+"""This module demonstrates the process for a blackbox bayesian optimization using the
+Yotse framework."""
 from bayes_opt import UtilityFunction
 
 from examples.wobbly_function.example_wobbly_main import wobbly_pre
@@ -6,6 +8,12 @@ from yotse.pre import OptimizationInfo
 
 
 def main() -> None:
+    """Executes a blackbox optimization experiment for a 'wobbly function' of unknown
+    form (at least we pretend to not know for the purpose of this example)..
+
+    This function first adds the bayesian optimization information, sets it to active
+    and finally runs the optimization..
+    """
     print("\033[93m --- Executing Wobbly-Bayesian Example. --- \033[0m")
 
     bayesopt_experiment = wobbly_pre()

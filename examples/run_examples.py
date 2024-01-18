@@ -1,3 +1,10 @@
+"""Module to provide poetry with functions to run all examples.
+
+This file is used to run all the examples in this folder and subfolders
+Each file should be of the form example*.py and contain a `main`-method.
+If the `main`-method takes an argument `no_output` this will be passed as `True`
+to avoid creating plots etc.
+"""
 import importlib
 import inspect
 import os
@@ -5,11 +12,6 @@ import sys
 import time
 from typing import Any
 from typing import Callable
-
-# This file is used to run all the examples in this folder and subfolders
-# Each file should be of the form example*.py and contain a `main`-method.
-# If the `main`-method takes an argument `no_output` this will be passed as `True`
-# to avoid creating plots etc.
 
 
 def run_examples() -> None:

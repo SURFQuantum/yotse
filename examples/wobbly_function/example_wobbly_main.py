@@ -106,6 +106,7 @@ def ackley_function_2d(x: np.ndarray, *args: Any) -> float:
 
 
 def scipy_callback(intermediate_result: scipy.optimize.OptimizeResult) -> None:
+    """Callback function for scipy to print info during optimization."""
     print("Current x", intermediate_result.x)
     print("Current fun", intermediate_result.fun)
     return
@@ -121,8 +122,14 @@ def remove_files_after_run() -> None:
 
 
 def main() -> None:
-    """Main execution function that initializes the experiment and executes the
-    optimization steps."""
+    """Main execution function that initializes the experiment and executes multiple
+    different optimization steps consecutively.
+
+    First we perform a blackbox optimization using Genetic Algorithm that we then follow
+    up by a whitebox optimization using Scipy Optimization. This is meant to demonstrate
+    how to explore an unknown optimization problem and once an extrema has been found,
+    exploit this using knowledge about the shape of the function around this point.
+    """
     print("\033[93m --- Executing Wobbly-Main Example. --- \033[0m")
     experiment = wobbly_pre()
     wobbly_example = Executor(experiment=experiment)
