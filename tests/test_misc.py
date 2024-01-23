@@ -1,3 +1,4 @@
+"""Miscellaneous unit tests."""
 import os
 import unittest
 from typing import Any
@@ -12,7 +13,7 @@ import pandas as pd
 import pytest
 
 from yotse.execution import Executor
-from yotse.optimization.ga import ModGA  # type: ignore[attr-defined]
+from yotse.optimization.modded_pygad_ga import ModGA  # type: ignore[attr-defined]
 from yotse.pre import ConstraintDict
 from yotse.pre import Experiment
 from yotse.pre import OptimizationInfo
@@ -123,6 +124,7 @@ class TestNewOpt(unittest.TestCase):
             opt_info_list=[
                 OptimizationInfo(
                     name="GA",
+                    blackbox_optimization=True,
                     opt_parameters={
                         "num_generations": 10,
                         "num_parents_mating": 2,
@@ -172,6 +174,8 @@ class TestNewOpt(unittest.TestCase):
 
 
 class TestGA(unittest.TestCase):
+    """Test GA implementation."""
+
     @pytest.mark.xfail(
         reason="pygad can not guarantee uniqueness of genes even with allow_duplicate_genes=False."
     )

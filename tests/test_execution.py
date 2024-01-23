@@ -16,7 +16,7 @@ import pytest
 from pygad.pygad import GA
 
 from yotse.execution import Executor
-from yotse.optimization.algorithms import GAOpt
+from yotse.optimization.blackbox_algorithms import GAOpt
 from yotse.optimization.optimizer import Optimizer
 from yotse.pre import ConstraintDict
 from yotse.pre import Experiment
@@ -306,6 +306,7 @@ class TestExecutor(unittest.TestCase):
             )
             initial_num_points = len(test_executor.experiment.data_points)
             ga_opt = GAOpt(
+                blackbox_optimization=False,
                 initial_data_points=test_executor.experiment.data_points,
                 num_generations=100,
                 num_parents_mating=9,
@@ -389,6 +390,7 @@ class TestExecutor(unittest.TestCase):
             )
             initial_num_points = len(test_executor.experiment.data_points)
             ga_opt = GAOpt(
+                blackbox_optimization=False,
                 initial_data_points=test_executor.experiment.data_points,
                 num_generations=100,
                 num_parents_mating=9,
@@ -428,6 +430,93 @@ class TestExecutor(unittest.TestCase):
             new_points = test_executor.experiment.data_points
             s = set([tuple(x) for x in new_points])
             self.assertEqual(len(s), initial_num_points)  # all points are unique
+
+    def test_next_optimization(self) -> None:
+        """Test moving to next optimization in list."""
+        optimization_information_list = [
+            OptimizationInfo(
+                name="test",
+                blackbox_optimization=True,
+                opt_parameters={},
+                is_active=True,
+            ),
+            OptimizationInfo(
+                name="test",
+                blackbox_optimization=False,
+                opt_parameters={},
+                is_active=False,
+            ),
+            OptimizationInfo(
+                name="test",
+                blackbox_optimization=True,
+                opt_parameters={},
+                is_active=False,
+            ),
+        ]
+        test_experiment = create_default_experiment(
+            opt_info_list=optimization_information_list
+        )
+        test_executor = create_default_executor(test_experiment)
+
+        # First: assuming there are no active optimizations initially
+        test_executor.experiment.opt_info_list[0].is_active = False
+        # Call the method and expect a RuntimeError
+        with self.assertRaises(RuntimeError):
+            test_executor.next_optimization()
+
+        # Now: assuming there are two active optimizations initially
+        test_executor.experiment.opt_info_list[0].is_active = True
+        test_executor.experiment.opt_info_list[1].is_active = True
+
+        # Call the method and expect a RuntimeError
+        with self.assertRaises(RuntimeError):
+            test_executor.next_optimization()
+
+        # Now: check if stepping through works correctly
+        initial_active_index = 0
+        next_active_index = 1
+        next_next_active_index = 2
+
+        self.assertTrue(test_executor.blackbox_optimization)
+        # Set the initial active optimization
+        test_executor.experiment.opt_info_list[initial_active_index].is_active = True
+        test_executor.experiment.opt_info_list[next_active_index].is_active = False
+        test_executor.experiment.opt_info_list[next_next_active_index].is_active = False
+
+        # Call the method
+        test_executor.next_optimization()
+
+        # Check that the current active optimization is deactivated
+        self.assertFalse(
+            test_executor.experiment.opt_info_list[initial_active_index].is_active
+        )
+
+        # Check that the next optimization is activated
+        self.assertTrue(
+            test_executor.experiment.opt_info_list[next_active_index].is_active
+        )
+
+        # Check that a new optimizer was set and the blackbox_opt is now False
+        self.assertFalse(test_executor.blackbox_optimization)
+
+        # Call the method again
+        test_executor.next_optimization()
+
+        # Check that the current active optimization is deactivated
+        self.assertFalse(
+            test_executor.experiment.opt_info_list[initial_active_index].is_active
+        )
+        self.assertFalse(
+            test_executor.experiment.opt_info_list[next_active_index].is_active
+        )
+
+        # Check that the next optimization is activated
+        self.assertTrue(
+            test_executor.experiment.opt_info_list[next_next_active_index].is_active
+        )
+
+        # Check that a new optimizer was set and the blackbox_opt is now True again
+        self.assertTrue(test_executor.blackbox_optimization)
 
 
 if __name__ == "__main__":

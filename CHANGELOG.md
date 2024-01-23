@@ -3,6 +3,12 @@ CHANGELOG
 
 [//]: # (For more details refer to the [documentation]&#40;&#41;.)
 
+2024-01-17 (1.0.0):
+---
+* separated optimizations in blackbox and analytical (where the function is known).
+* added `SciPyOpt` and `BayesOpt` to available optimization algorithms
+* expanded unittest to cover missing functions
+
 2023-11-08 (0.3.1):
 ---
 * fixed SLURM workflow in `yotse.pre.SystemSetup`

@@ -32,6 +32,18 @@ class ParameterDependencyDict(TypedDict):
 
 
 class ConstraintDict(TypedDict, total=False):
+    """Data structure to define constraints on parameter values.
+
+    Parameters
+    ----------
+    low : float, optional
+        The lower bound for the parameter.
+    high : float, optional
+        The upper bound for the parameter.
+    step : float, optional
+        The step size for the parameter.
+    """
+
     low: float
     high: float
     step: Optional[float]
@@ -95,6 +107,7 @@ class Parameter:
         scale_factor: float = 1.0,
         depends_on: Optional[ParameterDependencyDict] = None,
     ):
+        """Initialize `Parameter` object."""
         self.name = name
         self.range = param_range
         self.range = [float(self.range[0]), float(self.range[1])]
@@ -121,6 +134,7 @@ class Parameter:
 
     @property
     def is_active(self) -> bool:
+        """Whether this parameter is active (=used for the current optimization)."""
         return self.parameter_active
 
     def generate_data_points(self, num_points: int) -> np.ndarray:
@@ -290,7 +304,7 @@ class Parameter:
                     f"{type(self.constraints)} and {type(target_parameter.constraints)}."
                 )
 
-        self.data_points = tuple(new_data_points)
+        self.data_points = np.array(new_data_points)
 
 
 class SystemSetup:
@@ -357,6 +371,7 @@ class SystemSetup:
         qcg_cfg: Optional[Dict[str, Union[str, int]]] = None,
         modules: Optional[List[str]] = None,
     ):
+        """Initialize `SystemSetup` object."""
         if not os.path.exists(source_directory):
             raise ValueError(f"Invalid source_directory path: {source_directory}")
         if not os.path.exists(os.path.join(source_directory, program_name)):
@@ -428,16 +443,28 @@ class OptimizationInfo:
     ----------
     name : str
         Name of the optimization algorithm to be used, e.g. "GA" (genetic algorithm), "GD" (gradient descent).
+    blackbox_optimization : bool
+        Whether the optimization should be a black-box optimization. (If False: a function must be supplied.)
     opt_parameters : dict
         Dictionary containing all necessary parameters for the optimization.
     is_active : bool
         Whether this is the currently active optimization algorithm. Can be used to perform sequential optimization with
         different optimization algorithms that can all be defined in a single Experiment.
+    function : callable, optional
+        The objective function to be optimized. Required if blackbox_optimization is False.
     """
 
-    def __init__(self, name: str, opt_parameters: Dict[str, Any], is_active: bool):
+    def __init__(
+        self,
+        name: str,
+        blackbox_optimization: bool,
+        opt_parameters: Dict[str, Any],
+        is_active: bool,
+    ):
+        """Initialize `OptimizationInfo` object."""
         self.name = name
-        self.parameters = opt_parameters
+        self.blackbox_optimization = blackbox_optimization
+        self.opt_parameters = opt_parameters if opt_parameters else {}
         self.is_active = is_active
 
 
@@ -476,27 +503,30 @@ class Experiment:
         parameters: Optional[List[Parameter]] = None,
         opt_info_list: Optional[List[OptimizationInfo]] = None,
     ):
+        """Initialize `Experiment` object."""
         self.name = experiment_name
         self.system_setup = system_setup
         self.parameters = parameters or []
-        self.optimization_information_list = []
+        self.opt_info_list = []
         if opt_info_list is not None:
             for item in opt_info_list:
                 if not isinstance(item, OptimizationInfo):
                     raise ValueError(
                         f"Items in opt_info_list should be of type OptimizationInfo not {type(item)}."
                     )
-            self.optimization_information_list = list(opt_info_list)
+            self.opt_info_list = list(opt_info_list)
         # todo: to avoid confusion maybe it is useful to call the datapoints of the exp different than those of params
         self.data_points: np.ndarray = self.create_datapoint_c_product()
         self._cost_function: Optional[Callable[..., float]] = None
 
     @property
     def cost_function(self) -> Union[Callable[..., float], None]:
+        """Cost function of the experiment."""
         return self._cost_function
 
     @cost_function.setter
     def cost_function(self, func: Callable[..., float]) -> None:
+        """Set cost function of the experiment."""
         if inspect.isfunction(func):
             if "<locals>" in func.__qualname__:
                 raise ValueError(
@@ -559,7 +589,7 @@ class Experiment:
         """
         if not isinstance(optimization_info, OptimizationInfo):
             raise TypeError("Can not add parameter that is not of type Parameter.")
-        self.optimization_information_list.append(optimization_info)
+        self.opt_info_list.append(optimization_info)
 
     def generate_slurm_script(self, filename: str) -> None:
         """Generate slurm script to execute the file through slurm.
@@ -569,7 +599,7 @@ class Experiment:
         Parameters
         ----------
         filename : str (optional)
-            Name of the file to be executed through SLURM
+            Name of the file to be executed through SLURM. Note this is not the filename of the SLURM script itself.
         """
         if self.system_setup.num_nodes is None:
             raise ValueError("Slurm script can not be generated without num_nodes.")
@@ -595,6 +625,14 @@ class Experiment:
             file.write(script)
 
     def parse_slurm_arg(self, filename: str) -> None:
+        """Parse command-line arguments to determine if a SLURM script should be
+        generated.
+
+        Parameters
+        ----------
+        filename : str
+            The filename of the script to be executed with SLURM.
+        """
         parser = argparse.ArgumentParser()
         parser.add_argument(
             "--slurm", action="store_true", help="Generate slurm.job file"
@@ -605,7 +643,7 @@ class Experiment:
             border = "=" * 80
             print("\n" + border)
             print(
-                f"\033[1;92mSLURM execution script {filename} successfully created. Execute with 'sbatch {filename}'.\033[0m"
+                f"\033[1;92mSLURM execution script for {filename} successfully created. Execute with 'sbatch slurm.job'.\033[0m"
             )
             print(border + "\n")
             exit()
@@ -630,10 +668,14 @@ class Experiment:
             )
         ]
         # add parameters
+        inactive_params_skipped = 0
         for p, param in enumerate(self.parameters):
             if param.is_active:
                 cmdline.append(f"--{param.name}")
-                cmdline.append(datapoint_item[p])
+                # datapoint item contains only entries of active parameters
+                cmdline.append(datapoint_item[p - inactive_params_skipped])
+            else:
+                inactive_params_skipped += 1
         # add fixed cmdline arguments
         for key, value in self.system_setup.cmdline_arguments.items():
             cmdline.append(key)

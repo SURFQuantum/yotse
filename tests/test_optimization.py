@@ -1,3 +1,4 @@
+"""Unit tests for all yotse.optimization modules except optimizer.py."""
 import unittest
 from typing import Any
 from typing import Callable
@@ -7,22 +8,37 @@ from typing import Tuple
 import numpy as np
 import pandas
 from pygad.pygad import GA
+from scipy.optimize import LinearConstraint
 
-from yotse.optimization.algorithms import GAOpt
+from yotse.optimization.blackbox_algorithms import GAOpt
 from yotse.optimization.optimizer import Optimizer
+from yotse.optimization.whitebox_algorithms import SciPyOpt
 from yotse.pre import Experiment
 
 
 class TestGAOpt(unittest.TestCase):
+    """Test case for yotse.optimization.blackbox_algorithms.GAOpt."""
+
     @staticmethod
     def _paraboloid(ga_instance: GA, solution: List[float], sol_index: int) -> float:
         """A simple paraboloid function.
 
         Has one global minimum:
-        f(x1,x2)=0.0; (x1,x2)=(0.0, 0.0)
-        :param solution: List of x and y variables
-        :param sol_index: index related to this solution
-        :return: Value of the function
+        f(x1, x2) = 0.0; (x1, x2) = (0.0, 0.0)
+
+        Parameters
+        ----------
+        ga_instance : Any
+            Instance of GA class (assumed type, adjust accordingly).
+        solution : List[float]
+            List of x and y variables.
+        sol_index : int
+            Index related to this solution.
+
+        Returns
+        -------
+        float
+            Value of the function.
         """
         x_loc = solution[0]
         y_loc = solution[1]
@@ -30,13 +46,24 @@ class TestGAOpt(unittest.TestCase):
 
     @staticmethod
     def _sixhump(ga_instance: GA, solution: List[float], sol_index: int) -> float:
-        """The six-hump camel back function.
+        """The six-hump camelback function.
 
         Has two global minimums:
-        f(x1,x2)=-1.0316; (x1,x2)=(-0.0898,0.7126), (0.0898,-0.7126)
-        :param solution: List of x and y variables
-        :param sol_index: index related to this solution
-        :return: Value of the function
+        f(x1, x2) = -1.0316; (x1, x2) = (-0.0898, 0.7126), (0.0898, -0.7126)
+
+        Parameters
+        ----------
+        ga_instance : Any
+            Instance of GA class (assumed type, adjust accordingly).
+        solution : List[float]
+            List of x and y variables.
+        sol_index : int
+            Index related to this solution.
+
+        Returns
+        -------
+        float
+            Value of the function.
         """
         x_loc = solution[0]
         y_loc = solution[1]
@@ -51,10 +78,21 @@ class TestGAOpt(unittest.TestCase):
         """The Rosenbrock function.
 
         Has one global minimum:
-        f(x1,x2)=0.0; (x1,x2)=(1.0, 1.0)
-        :param solution: List of x and y variables
-        :param sol_index: index related to this solution
-        :return: Value of the function
+        f(x1, x2) = 0.0; (x1, x2) = (1.0, 1.0)
+
+        Parameters
+        ----------
+        ga_instance : Any
+            Instance of GA class (assumed type, adjust accordingly).
+        solution : List[float]
+            List of x and y variables.
+        sol_index : int
+            Index related to this solution.
+
+        Returns
+        -------
+        float
+            Value of the function.
         """
         x_loc = solution[0]
         y_loc = solution[1]
@@ -65,10 +103,21 @@ class TestGAOpt(unittest.TestCase):
         """The Rastrigin function.
 
         Has one global minimum:
-        f(x1,x2)=0.0; (x1,x2)=(0.0, 0.0)
-        :param solution: List of x and y variables
-        :param sol_index: index related to this solution
-        :return: Value of the function
+        f(x1, x2) = 0.0; (x1, x2) = (0.0, 0.0)
+
+        Parameters
+        ----------
+        ga_instance : Any
+            Instance of GA class (assumed type, adjust accordingly).
+        solution : List[float]
+            List of x and y variables.
+        sol_index : int
+            Index related to this solution.
+
+        Returns
+        -------
+        float
+            Value of the function.
         """
         x_loc = solution[0]
         y_loc = solution[1]
@@ -84,6 +133,22 @@ class TestGAOpt(unittest.TestCase):
         var_range: Tuple[float, float] = (1.2, 1.2),
         var_step: float = 0.01,
     ) -> List[float]:
+        """Setup and execute the genetic algorithm optimization.
+
+        Parameters
+        ----------
+        function : Callable[..., float]
+            Fitness function to be optimized.
+        var_range : Tuple[float, float], optional
+            Range of variable values, by default (1.2, 1.2).
+        var_step : float, optional
+            Step size for variable values, by default 0.01.
+
+        Returns
+        -------
+        List[float]
+            Best solution found by the optimization.
+        """
         self.x = list(np.arange(-var_range[0], var_range[1], var_step))
         self.y = list(np.arange(-var_range[0], var_range[1], var_step))
         initial_pop = []
@@ -91,6 +156,7 @@ class TestGAOpt(unittest.TestCase):
             initial_pop.append((float(self.x[i]), float(self.y[i])))
 
         ga_opt = GAOpt(
+            blackbox_optimization=False,
             initial_data_points=np.array(initial_pop),
             num_generations=100,
             num_parents_mating=10,
@@ -111,6 +177,7 @@ class TestGAOpt(unittest.TestCase):
         return ga_opt.get_best_solution()[0]
 
     def test_optimize_paraboloid(self) -> None:
+        """Test optimization of the paraboloid function."""
         solution = self._setup_and_execute(self._paraboloid)
         x_true = 0.0
         y_true = 0.0
@@ -119,6 +186,7 @@ class TestGAOpt(unittest.TestCase):
         self.assertTrue(np.abs(solution[1] - y_true) <= 1e-12)
 
     def test_optimize_sixhump(self) -> None:
+        """Test optimization of the six-hump camelback function."""
         solution = self._setup_and_execute(
             self._sixhump, var_range=(0.8, 0.8), var_step=0.01
         )
@@ -133,6 +201,7 @@ class TestGAOpt(unittest.TestCase):
         self.assertTrue(np.abs(solution[1] - y_true) <= 1e-2)
 
     def test_optimize_rosenbrock(self) -> None:
+        """Test optimization of the Rosenbrock function."""
         solution = self._setup_and_execute(self._rosenbrock)
         x_true = 1.0
         y_true = 1.0
@@ -141,6 +210,7 @@ class TestGAOpt(unittest.TestCase):
         self.assertTrue(np.abs(solution[1] - y_true) <= 1e-12)
 
     def test_optimize_rastrigin(self) -> None:
+        """Test optimization of the Rastrigin function."""
         solution = self._setup_and_execute(self._rastrigin)
         x_true = 0.0
         y_true = 0.0
@@ -153,6 +223,8 @@ class TestGAOpt(unittest.TestCase):
 
 
 class TestGenericOptimization(unittest.TestCase):
+    """Test case for yotse.optimization.generic_optimization.GenericOptimization."""
+
     def test_generic_optimization_update_internal_cost_data(self) -> None:
         """Combined test for input_params_to_cost_value & update_internal_cost_data
         (because otherwise the dict is empty)."""
@@ -172,6 +244,7 @@ class TestGenericOptimization(unittest.TestCase):
 
         test_exp = Experiment(experiment_name="test", system_setup=None)  # type: ignore[arg-type]
         test_optimization = GAOpt(
+            blackbox_optimization=True,
             initial_data_points=np.array([[1], [1]]),
             num_generations=1,
             num_parents_mating=1,
@@ -220,6 +293,54 @@ class TestGenericOptimization(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             test_optimization.input_params_to_cost_value(ga_instance, [0.049, 0.079], 0)
+
+
+class TestWhiteboxOptimization(unittest.TestCase):
+    """Test case for yotse.optimization.whitebox_algorithms.WhiteboxOptimization."""
+
+    def test_scipy_quadratic_minimization(self) -> None:
+        """Test minimization of a simple quadratic function.
+
+        The quadratic function is f(x) = (x - 2)^2, and the test checks
+        if the optimization successfully finds the minimum value close to 2.0.
+        """
+
+        def objective_function(x: float) -> float:
+            """Simple shifted quadratic function."""
+            return (x - 2) ** 2
+
+        test_scipy = SciPyOpt(fun=objective_function, x0=0.0, method="BFGS")
+        test_scipy.execute()
+
+        self.assertTrue(test_scipy.result.success)
+        self.assertAlmostEqual(test_scipy.result.x[0], 2.0, places=6)
+        self.assertAlmostEqual(test_scipy.get_best_solution()[0][0], 2.0, places=6)
+
+    def test_constraint_minimization(self) -> None:
+        """Test minimization of a function with an inequality constraint.
+
+        The objective function is f(x) = x^2, subject to the constraint x >= 3. The test
+        checks if the optimization successfully satisfies the constraint and finds an
+        optimized value greater than or equal to 3.0.
+        """
+
+        def objective_function(x: float) -> float:
+            """Simple quadratic function around 0."""
+            return x**2
+
+        constraint = LinearConstraint([[1]], [3], [np.inf])
+
+        test_scipy = SciPyOpt(
+            fun=objective_function,
+            x0=[4.0],
+            constraints=[constraint],
+            method="trust-constr",
+        )
+        test_scipy.execute()
+
+        self.assertTrue(test_scipy.result.success)
+        self.assertGreaterEqual(test_scipy.result.x[0], 3.0)
+        self.assertGreaterEqual(test_scipy.get_best_solution()[0][0], 3.0)
 
 
 if __name__ == "__main__":

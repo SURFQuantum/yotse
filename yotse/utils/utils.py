@@ -1,3 +1,23 @@
+"""utils.py.
+
+This module provides functions for file processing, including searching for files with a specific extension
+in a directory, combining the content of multiple CSV, JSON, or pickle files into a single pandas DataFrame,
+and converting between NumPy arrays and Python lists.
+
+Functions
+---------
+get_files_by_extension(directory: str, extension: str) -> List[str]:
+    Returns a list of files in the given directory with the specified extension.
+
+file_list_to_single_df(files: List[str], extension: str) -> pandas.DataFrame:
+    Reads CSV, json, or pickle files from a list and combines their content in a single pandas DataFrame.
+
+ndarray_to_list(numpy_array: np.ndarray) -> List[Any]:
+    Convert a NumPy array to a Python list.
+
+list_to_numpy_array(list_data: List[Any]) -> np.ndarray:
+    Convert a Python list to a NumPy array.
+"""
 import os
 from typing import Any
 from typing import List
@@ -18,7 +38,7 @@ def get_files_by_extension(directory: str, extension: str) -> List[str]:
 
     Returns
     -------
-    list
+    List[str]
         A list of files (and their actual location) in the given directory with the specified extension.
     """
     return [
@@ -34,14 +54,14 @@ def file_list_to_single_df(files: List[str], extension: str) -> pandas.DataFrame
 
     Parameters
     ----------
-    files : list
+    files : List[str]
         A list of files to read.
     extension : str
         File extension of the files in the list.
 
     Returns
     -------
-    df : pandas.Dataframe
+    pandas.Dataframe
         Pandas dataframe containing the combined contents of all the files.
     """
     if extension == "csv":
@@ -59,8 +79,32 @@ def file_list_to_single_df(files: List[str], extension: str) -> pandas.DataFrame
 
 
 def ndarray_to_list(numpy_array: np.ndarray) -> List[Any]:
+    """Convert a NumPy array to a Python list.
+
+    Parameters
+    ----------
+    numpy_array : np.ndarray
+        The NumPy array to be converted.
+
+    Returns
+    -------
+    List[Any]
+        A Python list containing the elements of the input NumPy array.
+    """
     return numpy_array.tolist()  # type: ignore[no-any-return]
 
 
 def list_to_numpy_array(list_data: List[Any]) -> np.ndarray:
+    """Convert a Python list to a NumPy array.
+
+    Parameters
+    ----------
+    list_data : List[Any]
+        The Python list to be converted.
+
+    Returns
+    -------
+    np.ndarray
+        A NumPy array containing the elements of the input Python list.
+    """
     return np.array(list_data)

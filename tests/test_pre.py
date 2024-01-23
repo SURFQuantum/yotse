@@ -3,10 +3,12 @@ classes."""
 import itertools
 import os
 import unittest
+from io import StringIO
 from typing import Callable
 from typing import List
 from typing import Optional
 from typing import Union
+from unittest.mock import patch
 
 import numpy as np
 
@@ -167,6 +169,41 @@ class TestParameters(unittest.TestCase):
         param_list = [param1, param3]
         param3.update_parameter_through_dependency(param_list)
         assert np.array_equal(param3.data_points, np.array((2, 8, 54, 512)))
+
+    def test_update_parameter_through_dependency(self) -> None:
+        """Test the update of a `Parameter` that depends on another parameter."""
+        # Create a mock experiment with parameters
+        param_a = Parameter(
+            "A",
+            param_range=[1, 3],
+            number_points=3,
+            distribution="linear",
+            constraints={"low": 0, "high": 5},
+        )
+        param_b = Parameter(
+            "B",
+            param_range=[4, 6],
+            number_points=3,
+            distribution="linear",
+            constraints={"low": 0, "high": 10},
+        )
+
+        # Test when depends_on is not set
+        with self.assertRaises(ValueError):
+            param_a.update_parameter_through_dependency([param_a, param_b])
+
+        # Set up dependency
+        param_a.depends_on = {"name": "B", "function": lambda x, y: x + y}
+
+        # Test the update
+        param_a.update_parameter_through_dependency([param_a, param_b])
+
+        # Check if the data_points were updated correctly
+        self.assertTrue(isinstance(param_a.data_points, np.ndarray))
+        np.testing.assert_array_equal(param_a.data_points, np.array([5, 7, 9]))
+
+        # Check if the constraints were updated correctly
+        self.assertEqual(param_a.constraints, {"low": 0, "high": 15})
 
     def test_is_active_property(self) -> None:
         """Test to verify the `is_active` property of a `Parameter`."""
@@ -388,20 +425,61 @@ class TestExperiment(unittest.TestCase):
     def test_add_optimization_information(self) -> None:
         """Test the addition of `OptimizationInfo` to an `Experiment`."""
         test_exp = self.create_default_experiment()
-        self.assertEqual(len(test_exp.optimization_information_list), 0)
+        self.assertEqual(len(test_exp.opt_info_list), 0)
+
+        def linear_dep(x: float, y: float) -> float:
+            """Linear function for analytical optimization."""
+            return x * y
 
         test_opt = self.create_default_experiment(
             optimization_info=[
                 OptimizationInfo(
-                    name="GA", opt_parameters={"pop_size": 5}, is_active=True
+                    name="GA",
+                    blackbox_optimization=True,
+                    opt_parameters={"pop_size": 5},
+                    is_active=True,
                 )
             ]
         )
         test_opt.add_optimization_info(
-            OptimizationInfo(name="GD", opt_parameters={}, is_active=False)
+            OptimizationInfo(
+                name="GD",
+                blackbox_optimization=False,
+                opt_parameters={"fun": linear_dep},
+                is_active=False,
+            )
         )
-        self.assertEqual(len(test_opt.optimization_information_list), 2)
-        self.assertEqual(test_opt.optimization_information_list[-1].name, "GD")
+
+        self.assertEqual(len(test_opt.opt_info_list), 2)
+        self.assertEqual(test_opt.opt_info_list[-1].name, "GD")
+
+    def test_parse_slurm_arg(self) -> None:
+        """Test the argument parsing for the SLURM script for an `Experiment`."""
+        test_exp = self.create_default_experiment()
+
+        # Mock sys.argv to simulate command-line arguments
+        with patch("sys.argv", ["test_script.py", "--slurm"]):
+            # Capture the standard output to check printed messages
+            with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
+                # Use assertRaises to catch the SystemExit exception
+                with self.assertRaises(SystemExit) as _:
+                    test_exp.parse_slurm_arg("test_slurm.job")
+
+        # Check if the expected success message is printed
+        output = mock_stdout.getvalue()
+        expected_output = (
+            "\n"
+            + "=" * 80
+            + "\n"
+            + "\033[1;92mSLURM execution script for test_slurm.job successfully created. Execute with 'sbatch slurm.job'.\033[0m"
+            + "\n"
+            + "=" * 80
+            + "\n"
+        )
+        # Instead of using self.assertEqual(output, expected_output)
+        self.assertMultiLineEqual(output.strip(), expected_output.strip())
+
+        os.remove("slurm.job")
 
     def test_generate_slurm_script(self) -> None:
         """Test the generation of a default SLURM script for an `Experiment`."""

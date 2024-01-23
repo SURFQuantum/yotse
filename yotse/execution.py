@@ -11,17 +11,46 @@ import pandas
 from qcg.pilotjob.api.job import Jobs
 from qcg.pilotjob.api.manager import LocalManager
 
-from yotse.optimization.algorithms import GAOpt
+from yotse.optimization.blackbox_algorithms import BayesOpt
+from yotse.optimization.blackbox_algorithms import GAOpt
+from yotse.optimization.generic_optimization import GenericOptimization
 from yotse.optimization.optimizer import Optimizer
+from yotse.optimization.whitebox_algorithms import SciPyOpt
 from yotse.pre import Experiment
+from yotse.pre import OptimizationInfo
 from yotse.pre import set_basic_directory_structure_for_job
 from yotse.utils.utils import file_list_to_single_df
 from yotse.utils.utils import get_files_by_extension
 
 
 class Executor:
+    """A facilitator for running experiments and optimization algorithms.
+
+    The `Executor` class coordinates the execution of experiments, manages the optimization process,
+    and interfaces with the LocalManager for job submission. It supports both black-box and white-box
+    optimization strategies, allowing for the exploration of various optimization algorithms.
+
+    Attributes
+    ----------
+    experiment : Experiment
+        The experiment object associated with the executor.
+    blackbox_optimization : bool
+        Flag indicating whether the optimization process is black-box or white-box.
+    optimizer : Optimizer
+        The optimizer object responsible for managing the optimization algorithm.
+    aux_dir : str
+        The auxiliary directory used during the optimization process.
+
+    Parameters
+    ----------
+    experiment : Experiment
+        The experiment object associated with the executor.
+    """
+
     def __init__(self, experiment: Experiment):
+        """Initialize `Executor` object."""
         self.experiment: Experiment = experiment
+        self.blackbox_optimization = True
         self.optimizer: Optimizer = self.generate_optimizer()
         self.aux_dir: str = ""
 
@@ -34,61 +63,148 @@ class Executor:
                 aux_directory=self.experiment.system_setup.cmdline_arguments["--resume"]
             )
 
+    def next_optimization(self) -> None:
+        """Switch to the next active optimization in the list.
+
+        Deactivates the current active optimization and activates the next one in the list.
+
+        Raises:
+            RuntimeError: If there are multiple active optimizations or none at all.
+        """
+        active_optimizations: List[OptimizationInfo] = [
+            opt for opt in self.experiment.opt_info_list if opt.is_active
+        ]
+
+        if len(active_optimizations) == 1:
+            active_optimization = active_optimizations[0]
+            active_index = self.experiment.opt_info_list.index(active_optimization)
+            next_index = (active_index + 1) % len(self.experiment.opt_info_list)
+
+            # Deactivate the current optimization
+            active_optimization.is_active = False
+
+            # Activate the next optimization
+            self.experiment.opt_info_list[next_index].is_active = True
+        elif len(active_optimizations) > 1:
+            raise RuntimeError(
+                "Multiple active optimization steps. Please set all but one to active=False"
+            )
+        else:
+            raise RuntimeError("No active optimization steps found.")
+
+        self.optimizer = self.generate_optimizer()
+
+    def get_active_optimization(self) -> OptimizationInfo:
+        """Get the active optimization step.
+
+        Returns
+        -------
+        OptimizationInfo
+            The active optimization step.
+
+        Raises
+        ------
+        RuntimeError
+            If there are multiple active optimization steps.
+        RuntimeError
+            If no active optimization steps are found.
+        """
+
+        active_optimizations = [
+            opt for opt in self.experiment.opt_info_list if opt.is_active
+        ]
+
+        if len(active_optimizations) == 1:
+            return active_optimizations[0]
+        elif len(active_optimizations) > 1:
+            raise RuntimeError(
+                "Multiple active optimization steps. Please set all but one to active=False"
+            )
+        else:
+            raise RuntimeError("No active optimization steps found.")
+
     def generate_optimizer(self) -> Optimizer:
         """Sets the optimization algorithm for the run by translating information in the
-        optimization_info.
+        currently 'active' optimization_info.
 
         Returns
         -------
         optimization_alg : GenericOptimization
             Object of subclass of `:class:GenericOptimization`, the optimization algorithm to be used by this runner.
         """
-        if self.experiment.optimization_information_list:
-            if (
-                len(
-                    [
-                        opt
-                        for opt in self.experiment.optimization_information_list
-                        if opt.is_active
-                    ]
-                )
-                > 1
-            ):
-                raise RuntimeError(
-                    "Multiple active optimization steps. Please set all but one to active=False"
-                )
-            opt_info = self.experiment.optimization_information_list[0]
-            # todo: moving refinement factors to params is also an option
-            # ref_factors = [param.refinement_factor for param in experiment.parameters if param.is_active]
-            # if None in ref_factors or len(ref_factors) != len([p for p in experiment.parameters if p.is_active]):
-            #     raise ValueError("When using refinement factors they must be specified for all active parameters.")
+        optimization_alg: Optional[GenericOptimization] = None
 
-            # Note: param_type could be subsumed into this maybe by giving 'step'=1?
-            constraints = [
-                param.constraints
-                for param in self.experiment.parameters
-                if param.is_active
-            ]
-            # check if there are no constraints
-            if all(x is None for x in constraints):
-                constraints = None  # type: ignore
-            # todo: add more tests that check what happens if only some constraints are None etc.
-            # param_types = [int if param.param_type == "discrete" else float for param in experiment.parameters
-            #                if param.is_active]
-            # if len(set(param_types)) == 1:
-            #     param_types = param_types[0]
-            # todo: figure out what's nicer for user constraint or data_type? both seems redundant?
-            if opt_info.name == "GA":
-                optimization_alg = GAOpt(
-                    initial_data_points=self.experiment.data_points,
-                    # gene_type=param_types,
-                    gene_space=constraints,  # type: ignore
-                    **opt_info.parameters,
-                )
+        if self.experiment.opt_info_list:
+            opt_info = self.get_active_optimization()
+
+            if opt_info.blackbox_optimization:
+                self.blackbox_optimization = True
+                # todo: moving refinement factors to params is also an option
+                # ref_factors = [param.refinement_factor for param in experiment.parameters if param.is_active]
+                # if None in ref_factors or len(ref_factors) != len([p for p in experiment.parameters if p.is_active]):
+                #     raise ValueError("When using refinement factors they must be specified for all active parameters.")
+
+                # Note: param_type could be subsumed into this maybe by giving 'step'=1?
+                constraints = [
+                    param.constraints
+                    for param in self.experiment.parameters
+                    if param.is_active
+                ]
+                # check if there are no constraints
+                if all(x is None for x in constraints):
+                    constraints = None  # type: ignore
+                # todo: add more tests that check what happens if only some constraints are None etc.
+                # param_types = [int if param.param_type == "discrete" else float for param in experiment.parameters
+                #                if param.is_active]
+                # if len(set(param_types)) == 1:
+                #     param_types = param_types[0]
+                # todo: figure out what's nicer for user constraint or data_type? both seems redundant?
+                if opt_info.name.lower() == "ga":
+                    optimization_alg = GAOpt(
+                        blackbox_optimization=True,
+                        initial_data_points=self.experiment.data_points,
+                        # gene_type=param_types,
+                        gene_space=constraints,  # type: ignore
+                        **opt_info.opt_parameters,
+                    )
+                elif opt_info.name.lower() == "test":
+                    optimization_alg = None
+                elif opt_info.name.lower() == "bayesopt":
+                    optimization_alg = BayesOpt(
+                        pbounds={
+                            param.name: (
+                                int(param.range[0]),
+                                int(param.range[1]),
+                            )  # cast to int for bayesian opt, see comment in class
+                            for param in self.experiment.parameters
+                        },
+                        **opt_info.opt_parameters,
+                    )
+                else:
+                    raise ValueError(
+                        f"Unknown blackbox optimization algorithm: {opt_info.name}"
+                    )
             else:
-                raise ValueError("Unknown optimization algorithm.")
-        else:
-            optimization_alg = None
+                # whitebox optimization
+                self.blackbox_optimization = False
+
+                # if opt_info.name.lower() == "ga":
+                #     optimization_alg = GAOpt(
+                #         blackbox_optimization=False,
+                #         fitness_func=opt_info.function,
+                #         initial_data_points=self.experiment.data_points,
+                #         # gene_type=param_types,
+                #         gene_space=constraints,  # type: ignore
+                #         **opt_info.opt_parameters,
+                #     )
+                if opt_info.name.lower() == "scipy":
+                    optimization_alg = SciPyOpt(**opt_info.opt_parameters)
+                elif opt_info.name.lower() == "test":
+                    optimization_alg = None
+                else:
+                    raise ValueError(
+                        f"Unknown whitebox optimization algorithm: {opt_info.name}"
+                    )
 
         return Optimizer(optimization_algorithm=optimization_alg)  # type: ignore[arg-type]
 
@@ -108,16 +224,22 @@ class Executor:
             algorithm determines whether the point creation is evolutionary or based on the best solution.
             Defaults to None.
         """
-        print(
-            f"Starting default run of {self.experiment.name} (step{step_number}): submit, collect, create."
-        )
-        self.submit(step_number=step_number)
-        data = self.collect_data()
-        self.create_points_based_on_optimization(
-            data=data, evolutionary=evolutionary_point_generation
-        )
-        self.save_executor_state()
-        print(f"Finished run of {self.experiment.name} (step{step_number}).")
+        if self.blackbox_optimization:
+            print(
+                f"Starting default run of {self.experiment.name} (step{step_number}): submit, collect, create."
+            )
+            self.submit(step_number=step_number)
+            data = self.collect_data()
+            self.create_points_based_on_optimization(
+                data=data, evolutionary=evolutionary_point_generation
+            )
+            self.save_executor_state()
+            print(f"Finished run of {self.experiment.name} (step{step_number}).")
+        else:
+            print(
+                f"Starting run of {self.experiment.name} using whitebox optimization {self.get_active_optimization().name}."
+            )
+            self.whitebox_submit()
 
     def pre_submission_setup_per_job(
         self, datapoint_item: List[float], step_number: int, job_number: int
@@ -229,6 +351,15 @@ class Executor:
         manager.cleanup()
         return job_ids  # type: ignore[no-any-return]
 
+    def whitebox_submit(self) -> None:
+        """Run the white-box optimization process.
+
+        Currently, this does not use QCGPilotJob but runs locally.
+        """
+        # todo: change this to run using QCQPilotJob
+        self.optimizer.optimize()
+        return
+
     def collect_data(self) -> pandas.DataFrame:
         """Collects data from output.csv (or the output of the scripts) and combines it
         into a dataframe which has as first column the associated cost and as the other
@@ -323,12 +454,40 @@ class Executor:
 
 
 class CustomExecutor(Executor):
+    """Custom Executor class for users to tailor to their specific experimental setups.
+
+    The `CustomExecutor` class is a user-defined extension of the base `Executor` class.
+    Users can customize this class to adapt the optimization and execution process to
+    their specific experimental requirements.
+
+    Parameters
+    ----------
+    experiment : Experiment
+        The experiment object associated with the custom executor.
+    """
+
     def __init__(self, experiment: Experiment):
+        """Initialize `CustomExecutor` object."""
         super().__init__(experiment)
 
     def run(
         self, step_number: int = 0, evolutionary_point_generation: Optional[bool] = None
     ) -> None:
+        """Run the custom execution process.
+
+        This method overrides the run method in the base `Executor` class to provide
+        custom logic for the execution process tailored to the user's specific needs.
+
+        Parameters
+        ----------
+        step_number : int, optional
+            Step number to submit to QCGPilot. Should be used for e.g. running different optimization steps.
+            Defaults to 0.
+        evolutionary_point_generation : bool, optional
+            Overwrite the type of construction to be used for the new points.
+            If None, the optimization algorithm determines whether the point creation is evolutionary or
+            based on the best solution. Defaults to None.
+        """
         super().run(
             step_number=step_number,
             evolutionary_point_generation=evolutionary_point_generation,

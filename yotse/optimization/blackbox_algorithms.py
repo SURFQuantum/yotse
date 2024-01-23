@@ -3,15 +3,17 @@ optimization algorithms."""
 import math
 from typing import Any
 from typing import Callable
+from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
 
 import numpy as np
+from bayes_opt import BayesianOptimization
 from pygad.pygad import GA
 
-from yotse.optimization.ga import ModGA  # type: ignore[attr-defined]
 from yotse.optimization.generic_optimization import GenericOptimization
+from yotse.optimization.modded_pygad_ga import ModGA  # type: ignore[attr-defined]
 from yotse.pre import ConstraintDict
 from yotse.utils.utils import ndarray_to_list
 
@@ -21,14 +23,16 @@ class GAOpt(GenericOptimization):
 
     Parameters
     ----------
-    fitness_func : function
-        Fitness/objective/cost function.
+    blackbox_optimization: bool
+        Whether this is used as a blackbox optimization.
     initial_data_points: np.ndarray
         Initial population of data points to start the optimization with.
     num_generations : int
         Number of generations in the genetic algorithm.
     num_parents_mating : int
         Number of solutions to be selected as parents in the genetic algorithm.
+    fitness_func : function (optional)
+        Fitness/objective/cost function. Only needed if `blackbox_optimization=False`. Default is None.
     gene_space : dict or list (optional)
         Dictionary with constraints. Keys can be 'low', 'high' and 'step'. Alternatively list with acceptable values or
         list of dicts. If only single object is passed it will be applied for all input parameters, otherwise a
@@ -41,7 +45,7 @@ class GAOpt(GenericOptimization):
     logging_level : int (optional)
         Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything.
         Defaults to 1.
-    allow_duplicate_genes : Bool (optional)
+    allow_duplicate_genes : bool (optional)
         If True, then a solution/chromosome may have duplicate gene values.
         If False, then each gene will have a unique value in its solution.
         Defaults to False.
@@ -52,6 +56,7 @@ class GAOpt(GenericOptimization):
 
     def __init__(
         self,
+        blackbox_optimization: bool,
         initial_data_points: np.ndarray,
         num_generations: int,
         num_parents_mating: int,
@@ -62,7 +67,12 @@ class GAOpt(GenericOptimization):
         fitness_func: Optional[Callable[..., float]] = None,
         **pygad_kwargs: Any,
     ):
-        if fitness_func is None:
+        """Initialize the GAOpt object."""
+        if blackbox_optimization:
+            if fitness_func is not None:
+                raise ValueError(
+                    "blackbox_optimization set to True, but fitness_func is not None."
+                )
             fitness_func = self.input_params_to_cost_value
 
         # Note: number of new points is determined by initial population
@@ -83,7 +93,7 @@ class GAOpt(GenericOptimization):
         self.constraints = gene_space
         # todo : why if save_solutions=True the optimization doesn't converge anymore?
         super().__init__(
-            function=fitness_func,
+            function=fitness_func,  # type: ignore [arg-type]
             opt_instance=ga_instance,
             refinement_factors=refinement_factors,
             logging_level=logging_level,
@@ -178,6 +188,7 @@ class GAOpt(GenericOptimization):
         return np.array(new_points)
 
     def overwrite_internal_data_points(self, data_points: np.ndarray) -> None:
+        """Overwrite internal GA population with new datapoints from experiment."""
         self.optimization_instance.population = data_points
 
     def input_params_to_cost_value(
@@ -203,6 +214,99 @@ class GAOpt(GenericOptimization):
             raise ValueError(
                 f"Solution {solution} was not found in internal dataframe row {solution_idx}."
             )
+
+
+class BayesOpt(GenericOptimization):
+    """Bayesian optimization."""
+
+    def __init__(
+        self,
+        pbounds: Dict[Any, Tuple[int, int]],
+        refinement_factors: Optional[List[float]] = None,
+        logging_level: int = 1,
+        **bayesopt_kwargs: Any,
+    ) -> None:
+        """Initialize Bayesian optimization."""
+
+        if "utility_function" not in bayesopt_kwargs:
+            raise ValueError(
+                "utility_function must be specified for Bayesian Optimization."
+            )
+        self.utility_function = bayesopt_kwargs["utility_function"]
+        bayesopt_kwargs.pop("utility_function")
+        if "n_iter" not in bayesopt_kwargs:
+            raise ValueError("n_iter must be specified for Bayesian Optimization.")
+        self.num_iterations = bayesopt_kwargs["n_iter"]
+        bayesopt_kwargs.pop("n_iter")
+
+        optimizer = BayesianOptimization(
+            f=None,
+            pbounds=pbounds,
+            verbose=2,
+            random_state=1,
+            **bayesopt_kwargs,
+        )
+
+        # set initial point to investigate
+        self.next_point_to_probe = optimizer.suggest(self.utility_function)
+        # warn about discrete values
+        print(
+            "WARNING: Bayesian Optimization does not currently implement discrete variables. See "
+            "https://github.com/bayesian-optimization/BayesianOptimization/blob/master/examples/advanced-tour.ipynb"
+        )
+        super().__init__(
+            function=self.utility_function,
+            opt_instance=optimizer,
+            refinement_factors=refinement_factors,
+            logging_level=logging_level,
+            extrema=self.MINIMUM,
+            evolutionary=True,
+        )
+
+    def execute(self) -> None:
+        """Execute single step in the bayesian optimization."""
+        # Note this should be run after the user script has been executed with input next_point_to_probe
+        last_target_point = self.input_param_cost_df.iloc[-1]["f(x,y)"]
+        # minimize = find max of negative cost
+        last_target_point *= -1
+        self.optimization_instance.register(
+            params=self.next_point_to_probe, target=last_target_point
+        )
+
+    def get_best_solution(self) -> Tuple[List[float], float, int]:
+        """Get the best solution. Should be implemented in every derived class.
+
+        Returns
+        -------
+        solution, solution_fitness, solution_idx
+            Solution its fitness and its index in the list of data points.
+        """
+        # todo: this does not output solution, solution_fitness, solution_idx yet but params, cost, 0
+        # todo: question is what solution_idx would even mean here
+        return (
+            list(self.optimization_instance.max["params"].values()),
+            -1
+            * self.optimization_instance.max[
+                "target"
+            ],  # maximized neg cost, converting to pos cost again
+            0,
+        )
+
+    def get_new_points(self) -> np.ndarray:
+        """Get new points from the BayesianOptimization instance.
+
+        Returns
+        -------
+        new_points : np.ndarray
+            New points for the next iteration of the optimization.
+        """
+        next_point = self.optimization_instance.suggest(self.utility_function)
+        self.next_point_to_probe = next_point
+        return np.array([list(next_point.values())])
+
+    def overwrite_internal_data_points(self, data_points: np.ndarray) -> None:
+        """Note: this is not needed because datapoints are registered in `execute`."""
+        pass
 
 
 # class CGOpt(GenericOptimization):

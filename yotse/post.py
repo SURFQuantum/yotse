@@ -1,3 +1,4 @@
+"""Defines classes and functions for the post processing of your experiment."""
 import matplotlib.pyplot as plt
 import numpy as np
 
