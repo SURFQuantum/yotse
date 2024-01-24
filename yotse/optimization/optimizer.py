@@ -1,6 +1,9 @@
+import math
 from typing import List
 from typing import Optional
 from typing import Tuple
+
+import pandas
 
 from yotse.optimization.generic_optimization import GenericOptimization
 from yotse.pre import Experiment
@@ -215,3 +218,33 @@ class Optimizer:
             experiment.data_points
         )
         self._is_executed = False
+
+    def update_blackbox_cost_data(
+        self, experiment: Experiment, data: pandas.DataFrame
+    ) -> None:
+        """Update internal dataframe of the optimization algorihtm, mapping input
+        parameters to the associated cost from input data.
+
+        Note: This also checks that the ordering of the entries is the same as the data_points of the experiment.
+
+        Parameters
+        ----------
+        experiment : Experiment
+            The experiment object containing the parameters and current data points.
+        data : pandas.Dataframe
+            A pandas dataframe containing the collected data in the format cost_value init_param_1 ... init_param_n.
+        """
+        # check ordering of data versus initial datapoints to avoid mistakes when fetching corresponding cost by index
+        if len(data) != len(experiment.data_points):
+            raise ValueError(
+                "Data has a different number of rows than the list of datapoints."
+            )
+        for i, values in enumerate(experiment.data_points):
+            row = data.iloc[i]
+            if any(
+                not math.isclose(row.iloc[j + 1], values[j]) for j in range(len(values))
+            ):
+                raise ValueError(
+                    f"Position of {values} is different between data and original data_points"
+                )
+        self.optimization_algorithm.update_internal_cost_data(data=data)

@@ -6,178 +6,210 @@ from typing import Tuple
 
 import numpy as np
 import pandas
-from pygad.pygad import GA
+from bayes_opt import UtilityFunction
 from scipy.optimize import LinearConstraint
 
+from yotse.optimization.blackbox_algorithms import BayesOpt
 from yotse.optimization.blackbox_algorithms import GAOpt
+from yotse.optimization.generic_optimization import GenericOptimization
 from yotse.optimization.optimizer import Optimizer
 from yotse.optimization.whitebox_algorithms import SciPyOpt
 from yotse.pre import Experiment
 
 
-class TestGAOpt(unittest.TestCase):
-    """Test case for yotse.optimization.blackbox_algorithms.GAOpt."""
+def _paraboloid(params: List[float]) -> float:
+    """A simple paraboloid function.
+
+    Has one global minimum:
+    f(x1, x2) = 0.0; (x1, x2) = (0.0, 0.0)
+
+    Parameters
+    ----------
+    params : List[float]
+        List of x and y variables.
+
+    Returns
+    -------
+    float
+        Value of the function.
+    """
+    x_loc = params[0]
+    y_loc = params[1]
+    return x_loc**2 + y_loc**2
+
+
+def _sixhump(
+    params: List[float],
+) -> float:
+    """The six-hump camelback function.
+
+    Has two global minimums:
+    f(x1, x2) = -1.0316; (x1, x2) = (-0.0898, 0.7126), (0.0898, -0.7126)
+
+    Parameters
+    ----------
+    params : List[float]
+        List of x and y variables.
+
+    Returns
+    -------
+    float
+        Value of the function.
+    """
+    x_loc = params[0]
+    y_loc = params[1]
+    return (
+        (4 - 2.1 * x_loc**2 + (x_loc**4) / 3.0) * x_loc**2
+        + x_loc * y_loc
+        + (-4 + 4 * y_loc**2) * y_loc**2
+    )
+
+
+def _rosenbrock(params: List[float]) -> float:
+    """The Rosenbrock function.
+
+    Has one global minimum:
+    f(x1, x2) = 0.0; (x1, x2) = (1.0, 1.0)
+
+    Parameters
+    ----------
+    params : List[float]
+        List of x and y variables.
+
+    Returns
+    -------
+    float
+        Value of the function.
+    """
+    x_loc = params[0]
+    y_loc = params[1]
+    return (1 - x_loc) ** 2 + 100 * (y_loc - x_loc**2) ** 2
+
+
+def _rastrigin(params: List[float]) -> Any:
+    """The Rastrigin function.
+
+    Has one global minimum:
+    f(x1, x2) = 0.0; (x1, x2) = (0.0, 0.0)
+
+    Parameters
+    ----------
+    params : List[float]
+        List of x and y variables.
+
+    Returns
+    -------
+    float
+        Value of the function.
+    """
+    x_loc = params[0]
+    y_loc = params[1]
+    return (
+        (x_loc**2 - 10 * np.cos(2 * np.pi * x_loc))
+        + (y_loc**2 - 10 * np.cos(2 * np.pi * y_loc))
+        + 20
+    )
+
+
+def _execute_blackbox(
+    optimization_algorithm: GenericOptimization,
+    function: Callable[..., float],
+) -> List[float]:
+    """Execute blackbox optimization.
+
+    Parameters
+    ----------
+    optimization_algorithm : GenericOptimization
+        The optimizer to be executed.
+
+    Returns
+    -------
+    List[float]
+        Best solution found by the optimization.
+    """
+    optimizer = Optimizer(optimization_algorithm)
+    # execute multiple steps
+    for _ in range(optimizer.optimization_algorithm.num_iterations):  # type: ignore
+        # generate points of our "blackbox"-function
+        blackbox_solutions = [
+            function(value)
+            for value in optimizer.optimization_algorithm.current_datapoints
+        ]
+        x_values, y_values = zip(*optimizer.optimization_algorithm.current_datapoints)
+        data = {"f(x,y)": blackbox_solutions, "x": x_values, "y": y_values}
+        df = pandas.DataFrame(data)
+
+        # input results of our "blackbox"-function to optimization
+        optimizer.optimization_algorithm.update_internal_cost_data(data=df)
+        # optimize now we have our data on this data
+        optimizer.optimize()
+
+        # construct new points for next iteration
+        new_points = optimizer.optimization_algorithm.get_new_points()
+        optimizer.optimization_algorithm.overwrite_internal_data_points(new_points)
+        # repeat
+
+    # return solution to test against
+    return optimizer.suggest_best_solution()[0]
+
+
+class TestBlackBoxOptimization(unittest.TestCase):
+    """Test case for yotse.optimization.blackbox_algorithms."""
 
     @staticmethod
-    def _paraboloid(ga_instance: GA, solution: List[float], sol_index: int) -> float:
-        """A simple paraboloid function.
-
-        Has one global minimum:
-        f(x1, x2) = 0.0; (x1, x2) = (0.0, 0.0)
-
-        Parameters
-        ----------
-        ga_instance : Any
-            Instance of GA class (assumed type, adjust accordingly).
-        solution : List[float]
-            List of x and y variables.
-        sol_index : int
-            Index related to this solution.
-
-        Returns
-        -------
-        float
-            Value of the function.
-        """
-        x_loc = solution[0]
-        y_loc = solution[1]
-        return x_loc**2 + y_loc**2
-
-    @staticmethod
-    def _sixhump(ga_instance: GA, solution: List[float], sol_index: int) -> float:
-        """The six-hump camelback function.
-
-        Has two global minimums:
-        f(x1, x2) = -1.0316; (x1, x2) = (-0.0898, 0.7126), (0.0898, -0.7126)
-
-        Parameters
-        ----------
-        ga_instance : Any
-            Instance of GA class (assumed type, adjust accordingly).
-        solution : List[float]
-            List of x and y variables.
-        sol_index : int
-            Index related to this solution.
-
-        Returns
-        -------
-        float
-            Value of the function.
-        """
-        x_loc = solution[0]
-        y_loc = solution[1]
-        return (
-            (4 - 2.1 * x_loc**2 + (x_loc**4) / 3.0) * x_loc**2
-            + x_loc * y_loc
-            + (-4 + 4 * y_loc**2) * y_loc**2
-        )
-
-    @staticmethod
-    def _rosenbrock(ga_instance: GA, solution: List[float], sol_index: int) -> float:
-        """The Rosenbrock function.
-
-        Has one global minimum:
-        f(x1, x2) = 0.0; (x1, x2) = (1.0, 1.0)
-
-        Parameters
-        ----------
-        ga_instance : Any
-            Instance of GA class (assumed type, adjust accordingly).
-        solution : List[float]
-            List of x and y variables.
-        sol_index : int
-            Index related to this solution.
-
-        Returns
-        -------
-        float
-            Value of the function.
-        """
-        x_loc = solution[0]
-        y_loc = solution[1]
-        return (1 - x_loc) ** 2 + 100 * (y_loc - x_loc**2) ** 2
-
-    @staticmethod
-    def _rastrigin(ga_instance: GA, solution: List[float], sol_index: int) -> Any:
-        """The Rastrigin function.
-
-        Has one global minimum:
-        f(x1, x2) = 0.0; (x1, x2) = (0.0, 0.0)
-
-        Parameters
-        ----------
-        ga_instance : Any
-            Instance of GA class (assumed type, adjust accordingly).
-        solution : List[float]
-            List of x and y variables.
-        sol_index : int
-            Index related to this solution.
-
-        Returns
-        -------
-        float
-            Value of the function.
-        """
-        x_loc = solution[0]
-        y_loc = solution[1]
-        return (
-            (x_loc**2 - 10 * np.cos(2 * np.pi * x_loc))
-            + (y_loc**2 - 10 * np.cos(2 * np.pi * y_loc))
-            + 20
-        )
-
-    def _setup_and_execute(
-        self,
-        function: Callable[..., float],
-        var_range: Tuple[float, float] = (1.2, 1.2),
-        var_step: float = 0.01,
+    def _setup_and_execute_ga_optimization(
+        function: Callable[..., float], var_range: Tuple[float, float] = (1.2, 1.2)
     ) -> List[float]:
-        """Setup and execute the genetic algorithm optimization.
-
-        Parameters
-        ----------
-        function : Callable[..., float]
-            Fitness function to be optimized.
-        var_range : Tuple[float, float], optional
-            Range of variable values, by default (1.2, 1.2).
-        var_step : float, optional
-            Step size for variable values, by default 0.01.
-
-        Returns
-        -------
-        List[float]
-            Best solution found by the optimization.
-        """
-        self.x = list(np.arange(-var_range[0], var_range[1], var_step))
-        self.y = list(np.arange(-var_range[0], var_range[1], var_step))
+        """Setup and execute the genetic algorithm optimization."""
+        var_step: float = 0.01
+        # generate initial population
+        x_vals = list(np.arange(-var_range[0], var_range[1], var_step))
+        y_vals = list(np.arange(-var_range[0], var_range[1], var_step))
         initial_pop = []
-        for i in range(len(self.x)):
-            initial_pop.append((float(self.x[i]), float(self.y[i])))
-
+        for i in range(len(x_vals)):
+            initial_pop.append((float(x_vals[i]), float(y_vals[i])))
+        # set up optimizer
         ga_opt = GAOpt(
-            blackbox_optimization=False,
+            blackbox_optimization=True,
             initial_data_points=np.array(initial_pop),
             num_generations=100,
             num_parents_mating=10,
-            fitness_func=function,
             # gene_type=float,
             mutation_probability=0.1,
         )
-        opt = Optimizer(ga_opt)
 
-        for _ in range(ga_opt.optimization_instance.num_generations):
-            opt.optimize()
-            ga_opt.optimization_instance.initial_population = (
-                ga_opt.optimization_instance.population
-            )
+        return _execute_blackbox(ga_opt, function)
 
-        # matplotlib.use('Qt5Agg')
-        # ga_opt.ga_instance.plot_fitness()
-        return ga_opt.get_best_solution()[0]
+    @staticmethod
+    def _setup_and_execute_bayesian_optimization(
+        function: Callable[..., float], var_range: Tuple[float, float] = (1.2, 1.2)
+    ) -> List[float]:
+        """Setup and execute the bayesian optimization."""
+        opt_parameters = {
+            "utility_function": UtilityFunction(kind="ucb", kappa=2.5, xi=0.0),
+            "n_iter": 10,
+        }
+        # set up optimizer
+        bayes_opt = BayesOpt(
+            blackbox_optimization=True,
+            pbounds={
+                "x": (
+                    int(var_range[0]),
+                    int(-var_range[1]),
+                ),  # cast to int for bayesian opt, see comment in class
+                "y": (
+                    int(var_range[0]),
+                    int(-var_range[1]),
+                ),  # cast to int for bayesian opt, see comment in class
+            },
+            **opt_parameters,
+        )
+
+        return _execute_blackbox(bayes_opt, function)
 
     def test_optimize_paraboloid(self) -> None:
         """Test optimization of the paraboloid function."""
-        solution = self._setup_and_execute(self._paraboloid)
+        solution = self._setup_and_execute_ga_optimization(_paraboloid)
         x_true = 0.0
         y_true = 0.0
 
@@ -186,8 +218,8 @@ class TestGAOpt(unittest.TestCase):
 
     def test_optimize_sixhump(self) -> None:
         """Test optimization of the six-hump camelback function."""
-        solution = self._setup_and_execute(
-            self._sixhump, var_range=(0.8, 0.8), var_step=0.01
+        solution = self._setup_and_execute_ga_optimization(
+            _sixhump, var_range=(0.8, 0.8)
         )
         x_true = -0.0898
         y_true = 0.7126
@@ -201,7 +233,7 @@ class TestGAOpt(unittest.TestCase):
 
     def test_optimize_rosenbrock(self) -> None:
         """Test optimization of the Rosenbrock function."""
-        solution = self._setup_and_execute(self._rosenbrock)
+        solution = self._setup_and_execute_ga_optimization(_rosenbrock)
         x_true = 1.0
         y_true = 1.0
 
@@ -210,7 +242,7 @@ class TestGAOpt(unittest.TestCase):
 
     def test_optimize_rastrigin(self) -> None:
         """Test optimization of the Rastrigin function."""
-        solution = self._setup_and_execute(self._rastrigin)
+        solution = self._setup_and_execute_ga_optimization(_rastrigin)
         x_true = 0.0
         y_true = 0.0
 
@@ -223,6 +255,16 @@ class TestGAOpt(unittest.TestCase):
 
 class TestGenericOptimization(unittest.TestCase):
     """Test case for yotse.optimization.generic_optimization.GenericOptimization."""
+
+    def test_get_function(self) -> None:
+        """Test get_function."""
+
+        def mock_function(x: float) -> float:
+            """Mock function."""
+            return x
+
+        test_opt = GenericOptimization(function=mock_function)  # type: ignore[abstract]
+        self.assertEqual(test_opt.get_function(), mock_function)
 
     def test_generic_optimization_update_internal_cost_data(self) -> None:
         """Combined test for input_params_to_cost_value & update_internal_cost_data
@@ -242,56 +284,34 @@ class TestGenericOptimization(unittest.TestCase):
         )
 
         test_exp = Experiment(experiment_name="test", system_setup=None)  # type: ignore[arg-type]
-        test_optimization = GAOpt(
-            blackbox_optimization=True,
-            initial_data_points=np.array([[1], [1]]),
-            num_generations=1,
-            num_parents_mating=1,
-        )
-
-        # test update_internal_cost_data
-        self.assertTrue(test_optimization.input_param_cost_df.empty)
-        with self.assertRaises(ValueError):
-            # update data will disagree with data_points in experiment
-            test_optimization.update_internal_cost_data(
-                experiment=test_exp, data=test_df
-            )
-        with self.assertRaises(ValueError):
-            # length of update data will disagree
-            test_exp.data_points = test_points[:2]
-            test_optimization.update_internal_cost_data(
-                experiment=test_exp, data=test_df
-            )
+        test_optimization = GenericOptimization(function=None)  # type: ignore[abstract, arg-type]
 
         test_exp.data_points = test_points
-        test_optimization.update_internal_cost_data(experiment=test_exp, data=test_df)
+        test_optimization.update_internal_cost_data(data=test_df)
         self.assertTrue(test_optimization.input_param_cost_df.equals(test_df))
         test_exp.data_points = test_points2
-        test_optimization.update_internal_cost_data(experiment=test_exp, data=test_df2)
+        test_optimization.update_internal_cost_data(data=test_df2)
         self.assertTrue(test_optimization.input_param_cost_df.equals(test_df2))
         # test float representation errors
-        test_optimization.update_internal_cost_data(
-            experiment=test_exp, data=test_df2_unprecise
-        )
+        test_optimization.update_internal_cost_data(data=test_df2_unprecise)
         self.assertTrue(
             test_optimization.input_param_cost_df.equals(test_df2_unprecise)
         )
 
-        # Test update_internal_cost_data.
-        ga_instance = test_optimization.optimization_instance
+        # Test input_params_to_cost_value
         self.assertEqual(
-            test_optimization.input_params_to_cost_value(ga_instance, [0.05, 0.08], 1),
+            test_optimization.input_params_to_cost_value([0.05, 0.08], 1),
             0.02,
         )
         # test float representation error
         self.assertEqual(
             test_optimization.input_params_to_cost_value(
-                ga_instance, [0.04999999999, 0.07999999999], 1
+                [0.04999999999, 0.07999999999], 1
             ),
             0.02,
         )
         with self.assertRaises(ValueError):
-            test_optimization.input_params_to_cost_value(ga_instance, [0.049, 0.079], 0)
+            test_optimization.input_params_to_cost_value([0.049, 0.079], 0)
 
 
 class TestWhiteboxOptimization(unittest.TestCase):

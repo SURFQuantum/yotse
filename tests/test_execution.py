@@ -288,9 +288,7 @@ class TestExecutor(unittest.TestCase):
     def test_executor_create_points(self) -> None:
         """Test the point creation based on optimization results in the Executor."""
 
-        def mock_function(
-            ga_instance: GA, solution: List[float], solution_idx: int
-        ) -> float:
+        def mock_function(solution: List[float]) -> float:
             """Mock fitness function for GA optimization, computes the sum of squares of
             the solution."""
             return solution[0] ** 2 + solution[1] ** 2
@@ -328,9 +326,7 @@ class TestExecutor(unittest.TestCase):
             y_list = [y for x, y in ga_opt.optimization_instance.population]
             c_list = [
                 mock_function(
-                    ga_instance=test_executor.optimizer.optimization_algorithm.optimization_instance,
                     solution=sol,
-                    solution_idx=0,
                 )
                 for sol in ga_opt.optimization_instance.population
             ]

@@ -57,7 +57,6 @@ class SciPyOpt(GenericOptimization):
         -------
         None
         """
-        self.fun = fun
         self.x0 = x0
         self.args = args
         self.method = method
@@ -67,7 +66,18 @@ class SciPyOpt(GenericOptimization):
         self.tol = tol
         self.callback = callback
         self.options = options
-        self.result: OptimizeResult
+        self.result: OptimizeResult = None
+
+        super().__init__(function=fun)
+
+    @property
+    def current_datapoints(self) -> np.ndarray:
+        """Return the current datapoints that will be used if an optimization is started
+        now.
+
+        In this case it is the initial guess.
+        """
+        return self.x0
 
     def execute(self) -> None:
         """Execute the optimization using the specified parameters.
@@ -78,7 +88,7 @@ class SciPyOpt(GenericOptimization):
             The optimization result.
         """
         result = minimize(
-            self.fun,
+            self.function,
             self.x0,
             args=self.args,
             method=self.method,
@@ -97,8 +107,12 @@ class SciPyOpt(GenericOptimization):
         Returns
         -------
         solution, solution_fitness, solution_idx
-            Solution its fitness and its index in the list of data points.
+            Solution, its fitness and its index in the list of data points.
         """
+        if self.result is None:
+            raise RuntimeError(
+                "Trying to `get_best_solution` without result. Please make sure to call `execute` first."
+            )
         return self.result.x.tolist(), self.result.fun, 0
 
     def get_new_points(self) -> np.ndarray:
