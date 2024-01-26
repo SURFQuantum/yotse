@@ -8,6 +8,8 @@ from yotse.optimization.fitting import FuncFit
 
 
 class TestFitting(unittest.TestCase):
+    """Validate FuncFit class methods."""
+
     @staticmethod
     def dummy_func_quadratic(x: Any) -> Any:
         """Dummy function."""

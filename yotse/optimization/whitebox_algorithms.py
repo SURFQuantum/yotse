@@ -1,3 +1,12 @@
+"""whitebox_algorithms.py.
+
+This module provides classes for performing whitebox optimization, aka an optimization where the function is known.
+
+Classes
+-------
+SciPyOpt:
+    A class for optimization using the scipy.optimize.minimize function.
+"""
 from typing import Any
 from typing import Callable
 from typing import Dict
@@ -15,6 +24,32 @@ from yotse.optimization.generic_optimization import GenericOptimization
 
 
 class SciPyOpt(GenericOptimization):
+    """A class for optimization using the scipy.optimize.minimize function.
+
+    Parameters
+    ----------
+    fun : callable
+        The objective function to be minimized.
+    x0 : array_like
+        Initial guess.
+    args : tuple, optional
+        Extra arguments passed to the objective function and its derivatives (if any).
+    method : str, optional
+        Type of solver. Default is 'BFGS'.
+    jac : callable or None, optional
+        Jacobian (gradient) of the objective function. If None, it will be computed numerically.
+    bounds : sequence or None, optional
+        Bounds for variables (only for L-BFGS-B, TNC, COBYLA, and trust-constr methods).
+    constraints : dict or sequence of dict, optional
+        Constraints definition (only for COBYLA and trust-constr methods).
+    tol : float or None, optional
+        Tolerance for termination. For detailed control, use solver-specific options.
+    callback : callable, optional
+        Called after each iteration, as callback(xk), where xk is the current parameter vector.
+    options : dict, optional
+        A dictionary of solver options.
+    """
+
     def __init__(
         self,
         fun: Callable[..., float],
@@ -81,6 +116,7 @@ class SciPyOpt(GenericOptimization):
 
     @property
     def max_iterations(self) -> int:
+        """Return maximum number of iterations of SciPy optimization if specified."""
         if self.options is None:
             raise ValueError("Max iteration not specified for SciPy optimizer.")
         else:

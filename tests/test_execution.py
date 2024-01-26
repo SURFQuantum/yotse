@@ -428,6 +428,7 @@ class TestExecutor(unittest.TestCase):
             self.assertEqual(len(s), initial_num_points)  # all points are unique
 
     def test_next_optimization(self) -> None:
+        """Test moving to next optimization in list."""
         optimization_information_list = [
             OptimizationInfo(
                 name="test",

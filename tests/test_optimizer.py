@@ -1,3 +1,4 @@
+"""Unit tests for optimizer.py module."""
 import unittest
 from typing import List
 from typing import Tuple
@@ -12,6 +13,8 @@ from yotse.pre import Experiment
 
 
 class TestOptimizer(unittest.TestCase):
+    """Set of tests to validate `Optimizer` class."""
+
     def test_init(self) -> None:
         """Test that Optimizer is initialized correctly."""
         mock_optimization = Mock(spec=GenericOptimization)
@@ -25,7 +28,10 @@ class TestOptimizer(unittest.TestCase):
         """Test that Optimizer correctly suggests the best solution."""
 
         class MockOpt(GenericOptimization):
+            """Mock optimization class to test."""
+
             def get_best_solution(self) -> Tuple[List[float], float, int]:
+                """Get mock solution."""
                 return [1, 0.1, 0.01], 2.0, 3
 
         test_optimizer = Optimizer(
@@ -45,10 +51,14 @@ class TestOptimizer(unittest.TestCase):
         """Test that Optimizer correctly optimizes."""
 
         class MockOpt(GenericOptimization):
+            """Mock optimization class to test."""
+
             def __init__(self) -> None:
+                """Init mock object."""
                 self.was_executed = 0
 
             def execute(self) -> None:
+                """Execute mock object."""
                 self.was_executed += 1
 
         test_go = MockOpt()  # type: ignore

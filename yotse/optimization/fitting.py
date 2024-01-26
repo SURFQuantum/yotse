@@ -32,6 +32,7 @@ class FuncFit:
     """
 
     def __init__(self) -> None:
+        """Initialize FuncFit."""
         pass
 
     @staticmethod

@@ -1,3 +1,13 @@
+"""optimizer.py.
+
+This module defines the Optimizer class, which serves as a facilitator for running optimization algorithms.
+It ensures that the provided optimization algorithm is valid and manages the execution state of the optimization process.
+
+Classes
+-------
+Optimizer:
+    A class that wraps around a generic optimization algorithm.
+"""
 import math
 from typing import List
 from typing import Optional

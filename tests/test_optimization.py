@@ -1,3 +1,4 @@
+"""Unit tests for all yotse.optimization modules except optimizer.py."""
 import unittest
 from typing import Any
 from typing import Callable

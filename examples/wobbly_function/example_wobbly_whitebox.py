@@ -1,3 +1,5 @@
+"""This module demonstrates the process for a whitebox optimization using the Yotse
+framework."""
 import random
 from typing import Any
 
@@ -25,6 +27,12 @@ def ackley_function_2d(x: np.ndarray, *args: Any) -> float:
 
 
 def main() -> None:
+    """Executes a whitebox optimization experiment for a 'wobbly function' of known form
+    (the 2d ackley function).
+
+    This function first adds the whitebox optimization information, sets it to active
+    and finally runs the optimization..
+    """
     print("\033[93m --- Executing Wobbly-Whitebox Example. --- \033[0m")
 
     whitebox_experiment = wobbly_pre()

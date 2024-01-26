@@ -72,6 +72,7 @@ class GAOpt(GenericOptimization):
         fitness_func: Optional[Callable[..., float]] = None,
         **pygad_kwargs: Any,
     ):
+        """Initialize the GAOpt object."""
         if blackbox_optimization:
             if fitness_func is not None:
                 raise ValueError(
@@ -117,6 +118,7 @@ class GAOpt(GenericOptimization):
 
     @property
     def max_iterations(self) -> int:
+        """Return maximum number of iterations of GA = number of generation."""
         return int(self.optimization_instance.num_generations)
 
     def _objective_func(
@@ -217,6 +219,7 @@ class GAOpt(GenericOptimization):
         return np.array(new_points)
 
     def overwrite_internal_data_points(self, data_points: np.ndarray) -> None:
+        """Overwrite internal GA population with new datapoints from experiment."""
         self.optimization_instance.population = data_points
 
 
@@ -326,6 +329,7 @@ class BayesOpt(GenericOptimization):
 
     @property
     def max_iterations(self) -> int:
+        """Return maximum number of iterations of bayesian optimization."""
         return int(self._max_iterations)
 
     def execute(self) -> None:

@@ -66,7 +66,7 @@ def wobbly_pre() -> Experiment:
                 name="GA",
                 blackbox_optimization=True,
                 opt_parameters={
-                    "num_generations": 10,  # number of iterations of the algorithm
+                    "num_generations": 5,  # number of iterations of the algorithm
                     # "num_points": 10,            # number of points per param to re-create , now determined by initial
                     "num_parents_mating": 5,
                     "mutation_probability": 0.2,
@@ -122,16 +122,19 @@ def remove_files_after_run() -> None:
 
 
 def main() -> None:
-    """Main execution function that initializes the experiment and executes the
-    optimization steps."""
+    """Main execution function that initializes the experiment and executes multiple
+    different optimization steps consecutively.
+
+    First we perform a blackbox optimization using Genetic Algorithm that we then follow
+    up by a whitebox optimization using Scipy Optimization. This is meant to demonstrate
+    how to explore an unknown optimization problem and once an extrema has been found,
+    exploit this using knowledge about the shape of the function around this point.
+    """
     print("\033[93m --- Executing Wobbly-Main Example. --- \033[0m")
     experiment = wobbly_pre()
     wobbly_example = Executor(experiment=experiment)
 
-    for i in range(
-        wobbly_example.optimizer.num_executions,
-        wobbly_example.optimizer.optimization_algorithm.max_iterations,
-    ):
+    for i in range(wobbly_example.optimizer.optimization_algorithm.max_iterations):
         # todo : the grid based point generation is still somehow bugged
         # wobbly_example.run(step=i, evolutionary_point_generation=False)
         wobbly_example.run(step_number=i, evolutionary_point_generation=True)

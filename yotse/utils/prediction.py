@@ -1,3 +1,8 @@
+"""predict_module.py.
+
+This module provides a Predict class for learning and predicting using different
+regression models.
+"""
 from typing import List
 
 import matplotlib.pyplot as plt
@@ -9,6 +14,29 @@ from sklearn.preprocessing import PolynomialFeatures
 
 
 class Predict:
+    """A class for learning and predicting using Linear Regression (LR), Bayesian Ridge
+    (BR), or SGDRegressor (AR) models.
+
+    Parameters
+    ----------
+    model_name : str, optional
+        Regression model name ("LR" for Linear Regression, "BR" for Bayesian Ridge, "AR" for SGDRegressor),
+        by default "LR".
+
+    Attributes
+    ----------
+    model : sklearn.base.BaseEstimator
+        The regression model.
+
+    Methods
+    -------
+    learn(x: np.ndarray, y: np.ndarray) -> None:
+        Executes the learning process.
+
+    predict(x_new: np.ndarray) -> np.ndarray:
+        Predicts value(s) using the linear model.
+    """
+
     def __init__(self, model_name: str = "LR"):
         """Deafault constructor :param model_name:Regression model name."""
         if model_name == "LR":
@@ -59,6 +87,7 @@ if __name__ == "__main__":
     #     return x_loc**2 + y_loc**2
 
     def func(vars: List[int]) -> float:
+        """Example function."""
         x_loc = vars[0]
         return x_loc**2
 

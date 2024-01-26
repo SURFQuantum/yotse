@@ -1,3 +1,4 @@
+"""Miscellaneous unit tests."""
 import os
 import unittest
 from typing import Any
@@ -173,6 +174,8 @@ class TestNewOpt(unittest.TestCase):
 
 
 class TestGA(unittest.TestCase):
+    """Test GA implementation."""
+
     @pytest.mark.xfail(
         reason="pygad can not guarantee uniqueness of genes even with allow_duplicate_genes=False."
     )

@@ -32,6 +32,18 @@ class ParameterDependencyDict(TypedDict):
 
 
 class ConstraintDict(TypedDict, total=False):
+    """Data structure to define constraints on parameter values.
+
+    Parameters
+    ----------
+    low : float, optional
+        The lower bound for the parameter.
+    high : float, optional
+        The upper bound for the parameter.
+    step : float, optional
+        The step size for the parameter.
+    """
+
     low: float
     high: float
     step: Optional[float]
@@ -95,6 +107,7 @@ class Parameter:
         scale_factor: float = 1.0,
         depends_on: Optional[ParameterDependencyDict] = None,
     ):
+        """Initialize `Parameter` object."""
         self.name = name
         self.range = param_range
         self.range = [float(self.range[0]), float(self.range[1])]
@@ -121,6 +134,7 @@ class Parameter:
 
     @property
     def is_active(self) -> bool:
+        """Whether this parameter is active (=used for the current optimization)."""
         return self.parameter_active
 
     def generate_data_points(self, num_points: int) -> np.ndarray:
@@ -357,6 +371,7 @@ class SystemSetup:
         qcg_cfg: Optional[Dict[str, Union[str, int]]] = None,
         modules: Optional[List[str]] = None,
     ):
+        """Initialize `SystemSetup` object."""
         if not os.path.exists(source_directory):
             raise ValueError(f"Invalid source_directory path: {source_directory}")
         if not os.path.exists(os.path.join(source_directory, program_name)):
@@ -446,6 +461,7 @@ class OptimizationInfo:
         opt_parameters: Dict[str, Any],
         is_active: bool,
     ):
+        """Initialize `OptimizationInfo` object."""
         self.name = name
         self.blackbox_optimization = blackbox_optimization
         self.opt_parameters = opt_parameters if opt_parameters else {}
@@ -487,6 +503,7 @@ class Experiment:
         parameters: Optional[List[Parameter]] = None,
         opt_info_list: Optional[List[OptimizationInfo]] = None,
     ):
+        """Initialize `Experiment` object."""
         self.name = experiment_name
         self.system_setup = system_setup
         self.parameters = parameters or []
@@ -504,10 +521,12 @@ class Experiment:
 
     @property
     def cost_function(self) -> Union[Callable[..., float], None]:
+        """Cost function of the experiment."""
         return self._cost_function
 
     @cost_function.setter
     def cost_function(self, func: Callable[..., float]) -> None:
+        """Set cost function of the experiment."""
         if inspect.isfunction(func):
             if "<locals>" in func.__qualname__:
                 raise ValueError(
@@ -649,10 +668,14 @@ class Experiment:
             )
         ]
         # add parameters
+        inactive_params_skipped = 0
         for p, param in enumerate(self.parameters):
             if param.is_active:
                 cmdline.append(f"--{param.name}")
-                cmdline.append(datapoint_item[p])
+                # datapoint item contains only entries of active parameters
+                cmdline.append(datapoint_item[p - inactive_params_skipped])
+            else:
+                inactive_params_skipped += 1
         # add fixed cmdline arguments
         for key, value in self.system_setup.cmdline_arguments.items():
             cmdline.append(key)
