@@ -33,13 +33,9 @@ def main() -> None:
 
     resume_example = Executor(experiment=resume_experiment)
     for i in range(
-        resume_example.optimizer.optimization_algorithm.optimization_instance.generations_completed,
-        resume_experiment.opt_info_list[0].opt_parameters["num_generations"],
+        stop_resume_example.optimizer.num_executions,
+        stop_resume_example.optimizer.optimization_algorithm.max_iterations,
     ):
-        assert (
-            resume_example.optimizer.optimization_algorithm.optimization_instance.generations_completed
-            == i
-        )
         resume_example.run(step_number=i, evolutionary_point_generation=True)
 
     resumed_solution = resume_example.optimizer.suggest_best_solution()

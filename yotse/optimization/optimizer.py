@@ -52,6 +52,7 @@ class Optimizer:
                 )
         self.optimization_algorithm = optimization_algorithm
         self._is_executed = False
+        self.num_executions = 0
 
     def optimize(self) -> None:
         """Executes the optimization algorithm.
@@ -65,6 +66,7 @@ class Optimizer:
         None
         """
         self.optimization_algorithm.execute()
+        self.num_executions += 1
         self._is_executed = True
 
     def suggest_best_solution(self) -> Tuple[List[float], float, int]:

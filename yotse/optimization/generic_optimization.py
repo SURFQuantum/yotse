@@ -76,6 +76,16 @@ class GenericOptimization:
             f"The '{frame.f_code.co_name}' method is not implemented"
         )
 
+    @property
+    @abstractmethod
+    def max_iterations(self) -> int:
+        """Return the maximum number of iterations of the optimization if applicable."""
+        frame = inspect.currentframe()
+        assert frame is not None, "Failed to get the current frame"
+        raise NotImplementedError(
+            f"The '{frame.f_code.co_name}' method is not implemented"
+        )
+
     def get_function(self) -> Callable[..., float]:
         """Returns the cost function."""
         return self.function

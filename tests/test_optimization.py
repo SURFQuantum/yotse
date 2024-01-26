@@ -129,7 +129,7 @@ def _execute_blackbox(
     """
     optimizer = Optimizer(optimization_algorithm)
     # execute multiple steps
-    for _ in range(optimizer.optimization_algorithm.num_iterations):  # type: ignore
+    for _ in range(optimizer.optimization_algorithm.max_iterations):
         # generate points of our "blackbox"-function
         blackbox_solutions = [
             function(value)

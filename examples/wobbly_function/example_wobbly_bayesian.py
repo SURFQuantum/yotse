@@ -26,7 +26,7 @@ def main() -> None:
 
     wobbly_bayesopt = Executor(experiment=bayesopt_experiment)
 
-    for i in range(bayes_opt.opt_parameters["n_iter"]):
+    for i in range(wobbly_bayesopt.optimizer.optimization_algorithm.max_iterations):
         wobbly_bayesopt.run(step_number=i)
 
     solution = wobbly_bayesopt.optimizer.suggest_best_solution()

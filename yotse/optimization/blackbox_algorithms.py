@@ -55,8 +55,6 @@ class GAOpt(GenericOptimization):
 
     Attributes
     ----------
-    num_iterations : int
-        Number of generations in the genetic algorithm.
     constraints : dict or list
         Constraints to check for during generation of new points.
     """
@@ -98,7 +96,6 @@ class GAOpt(GenericOptimization):
         )
         self.blackbox_optimization = blackbox_optimization
         self.constraints = gene_space
-        self.num_iterations = num_generations
         # todo : why if save_solutions=True the optimization doesn't converge anymore?
         super().__init__(
             function=fitness_func,  # type: ignore [arg-type]
@@ -117,6 +114,10 @@ class GAOpt(GenericOptimization):
         In this case it is the population.
         """
         return self.optimization_instance.population
+
+    @property
+    def max_iterations(self) -> int:
+        return int(self.optimization_instance.num_generations)
 
     def _objective_func(
         self, ga_instance: GA, solution: List[float], solution_idx: int
@@ -238,11 +239,6 @@ class BayesOpt(GenericOptimization):
     bayesopt_kwargs : (optional)
         Optional arguments to be passed to `bayes_opt.BayesianOptimization`.
         See the documentation of that class for more info.
-
-    Attributes
-    ----------
-    num_iterations : int
-        Number of generations in the bayesian optimization.
     """
 
     def __init__(
@@ -275,7 +271,7 @@ class BayesOpt(GenericOptimization):
         bayesopt_kwargs.pop("utility_function")
         if "n_iter" not in bayesopt_kwargs:
             raise ValueError("n_iter must be specified for Bayesian Optimization.")
-        self.num_iterations = bayesopt_kwargs["n_iter"]
+        self._max_iterations = bayesopt_kwargs["n_iter"]
         bayesopt_kwargs.pop("n_iter")
         self.naive_parallelization = naive_parallelization
         self.grid_size = grid_size
@@ -328,6 +324,10 @@ class BayesOpt(GenericOptimization):
 
         return next_point
 
+    @property
+    def max_iterations(self) -> int:
+        return int(self._max_iterations)
+
     def execute(self) -> None:
         """Execute single step in the bayesian optimization."""
         # Note this should be run after the user script has been executed with input next_point_to_probe
@@ -335,7 +335,7 @@ class BayesOpt(GenericOptimization):
 
         if not self.naive_parallelization and len(self.input_param_cost_df) != 1:
             raise ValueError(
-                "When naive_parallelization is False, the DataFrame should have exactly one row (the single suggested point)."
+                f"When naive_parallelization is False, the DataFrame should have exactly one row (the single suggested point). But dataframe is: {self.input_param_cost_df}"
             )
 
         for index, row in self.input_param_cost_df.iterrows():

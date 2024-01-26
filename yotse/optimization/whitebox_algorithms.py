@@ -79,6 +79,18 @@ class SciPyOpt(GenericOptimization):
         """
         return self.x0
 
+    @property
+    def max_iterations(self) -> int:
+        if self.options is None:
+            raise ValueError("Max iteration not specified for SciPy optimizer.")
+        else:
+            if "maxiter" in self.options:
+                return int(self.options["maxiter"])
+            elif "maxfun" in self.options:
+                return int(self.options["maxfun"])
+            else:
+                raise ValueError("Max iteration not specified for SciPy optimizer.")
+
     def execute(self) -> None:
         """Execute the optimization using the specified parameters.
 

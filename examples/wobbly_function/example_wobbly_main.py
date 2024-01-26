@@ -106,8 +106,9 @@ def ackley_function_2d(x: np.ndarray, *args: Any) -> float:
 
 
 def scipy_callback(intermediate_result: scipy.optimize.OptimizeResult) -> None:
-    print("Current x", intermediate_result.x)
-    print("Current fun", intermediate_result.fun)
+    """SciPy callback for printing intermediate result."""
+    print(f"Current x: {intermediate_result.x}")
+    print(f"Current fun value : {intermediate_result.fun}")
     return
 
 
@@ -128,13 +129,9 @@ def main() -> None:
     wobbly_example = Executor(experiment=experiment)
 
     for i in range(
-        wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed,
-        experiment.opt_info_list[0].opt_parameters["num_generations"],
+        wobbly_example.optimizer.num_executions,
+        wobbly_example.optimizer.optimization_algorithm.max_iterations,
     ):
-        assert (
-            wobbly_example.optimizer.optimization_algorithm.optimization_instance.generations_completed
-            == i
-        )
         # todo : the grid based point generation is still somehow bugged
         # wobbly_example.run(step=i, evolutionary_point_generation=False)
         wobbly_example.run(step_number=i, evolutionary_point_generation=True)
