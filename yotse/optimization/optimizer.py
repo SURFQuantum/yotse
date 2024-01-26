@@ -189,16 +189,14 @@ class Optimizer:
         # todo make absolutely sure the index of the solution corresponds with the job number
         # opt_input_datapoint = experiment.data_points[solution_index]  # (x, y, z)
         opt_input_datapoint = solution
-        i = 0
         for p, param in enumerate(experiment.parameters):
             if param.is_active:
                 # calculate new ranges for each active param
                 delta_param = ref_factors[p] * (param.range[1] - param.range[0]) * 0.5
                 opt_range = [
-                    opt_input_datapoint[i] - delta_param,
-                    opt_input_datapoint[i] + delta_param,
+                    opt_input_datapoint[p] - delta_param,
+                    opt_input_datapoint[p] + delta_param,
                 ]
-                i += 1
                 # write updated parameter range to each active param
                 param.range = opt_range
                 # create new points on each active param

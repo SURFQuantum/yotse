@@ -182,26 +182,31 @@ class TestBlackBoxOptimization(unittest.TestCase):
 
     @staticmethod
     def _setup_and_execute_bayesian_optimization(
-        function: Callable[..., float], var_range: Tuple[float, float] = (1.2, 1.2)
+        function: Callable[..., float],
+        var_range: Tuple[float, float] = (1.2, 1.2),
+        num_iter: int = 8,  # arbitrary value that (heuristically) gives good results in short time with current params
     ) -> List[float]:
         """Setup and execute the bayesian optimization."""
         opt_parameters = {
             "utility_function": UtilityFunction(kind="ucb", kappa=2.5, xi=0.0),
-            "n_iter": 10,
+            "n_iter": num_iter,
         }
         # set up optimizer
         bayes_opt = BayesOpt(
             blackbox_optimization=True,
             pbounds={
                 "x": (
-                    int(var_range[0]),
-                    int(-var_range[1]),
+                    int(-var_range[0]),
+                    int(var_range[1]),
                 ),  # cast to int for bayesian opt, see comment in class
                 "y": (
-                    int(var_range[0]),
-                    int(-var_range[1]),
+                    int(-var_range[0]),
+                    int(var_range[1]),
                 ),  # cast to int for bayesian opt, see comment in class
             },
+            naive_parallelization=True,
+            refinement_factors=[0.1, 0.1],
+            grid_size=5,
             **opt_parameters,
         )
 
@@ -212,9 +217,13 @@ class TestBlackBoxOptimization(unittest.TestCase):
         solution = self._setup_and_execute_ga_optimization(_paraboloid)
         x_true = 0.0
         y_true = 0.0
-
         self.assertTrue(np.abs(solution[0] - x_true) <= 1e-12)
         self.assertTrue(np.abs(solution[1] - y_true) <= 1e-12)
+
+        solution = self._setup_and_execute_bayesian_optimization(_paraboloid)
+
+        self.assertTrue(np.abs(solution[0] - x_true) <= 1e-4)
+        self.assertTrue(np.abs(solution[1] - y_true) <= 1e-4)
 
     def test_optimize_sixhump(self) -> None:
         """Test optimization of the six-hump camelback function."""
@@ -231,6 +240,15 @@ class TestBlackBoxOptimization(unittest.TestCase):
         self.assertTrue(np.abs(solution[0] - x_true) <= 1e-2)
         self.assertTrue(np.abs(solution[1] - y_true) <= 1e-2)
 
+        solution = self._setup_and_execute_bayesian_optimization(_sixhump)
+
+        if solution[0] > 0:
+            x_true *= -1
+            y_true *= -1
+
+        self.assertTrue(np.abs(solution[0] - x_true) <= 1e-2)
+        self.assertTrue(np.abs(solution[1] - y_true) <= 1e-2)
+
     def test_optimize_rosenbrock(self) -> None:
         """Test optimization of the Rosenbrock function."""
         solution = self._setup_and_execute_ga_optimization(_rosenbrock)
@@ -240,6 +258,13 @@ class TestBlackBoxOptimization(unittest.TestCase):
         self.assertTrue(np.abs(solution[0] - x_true) <= 1e-12)
         self.assertTrue(np.abs(solution[1] - y_true) <= 1e-12)
 
+        solution = self._setup_and_execute_bayesian_optimization(
+            _rosenbrock, num_iter=11
+        )
+
+        self.assertTrue(np.abs(solution[0] - x_true) <= 1e-4)
+        self.assertTrue(np.abs(solution[1] - y_true) <= 1e-4)
+
     def test_optimize_rastrigin(self) -> None:
         """Test optimization of the Rastrigin function."""
         solution = self._setup_and_execute_ga_optimization(_rastrigin)
@@ -248,6 +273,11 @@ class TestBlackBoxOptimization(unittest.TestCase):
 
         self.assertTrue(np.abs(solution[0] - x_true) <= 1e-12)
         self.assertTrue(np.abs(solution[1] - y_true) <= 1e-12)
+
+        solution = self._setup_and_execute_bayesian_optimization(_rastrigin)
+
+        self.assertTrue(np.abs(solution[0] - x_true) <= 1e-2)
+        self.assertTrue(np.abs(solution[1] - y_true) <= 1e-2)
 
     # todo : write test for constraint: check that in different cases (e.g. multiple params, single param /
     #  starting params within/outside constraints) all points created are always inside constrains (multiple iterations)

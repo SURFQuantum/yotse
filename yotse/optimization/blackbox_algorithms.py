@@ -249,6 +249,9 @@ class BayesOpt(GenericOptimization):
         self,
         blackbox_optimization: bool,
         pbounds: Dict[Any, Tuple[int, int]],
+        naive_parallelization: bool = False,
+        grid_size: int = 1,
+        refinement_factors: Optional[List[float]] = None,
         fitness_func: Optional[Callable[..., float]] = None,
         logging_level: int = 1,
         **bayesopt_kwargs: Any,
@@ -274,6 +277,9 @@ class BayesOpt(GenericOptimization):
             raise ValueError("n_iter must be specified for Bayesian Optimization.")
         self.num_iterations = bayesopt_kwargs["n_iter"]
         bayesopt_kwargs.pop("n_iter")
+        self.naive_parallelization = naive_parallelization
+        self.grid_size = grid_size
+        self.pbounds = pbounds
 
         optimizer = BayesianOptimization(
             f=fitness_func,
@@ -282,9 +288,6 @@ class BayesOpt(GenericOptimization):
             random_state=1,
             **bayesopt_kwargs,
         )
-
-        # set initial point to investigate
-        self.next_point_to_probe = optimizer.suggest(self.utility_function)
         # warn about discrete values
         print(
             "WARNING: Bayesian Optimization does not currently implement discrete variables. See "
@@ -292,11 +295,19 @@ class BayesOpt(GenericOptimization):
         )
         super().__init__(
             function=self.utility_function,
+            refinement_factors=refinement_factors,
             opt_instance=optimizer,
             logging_level=logging_level,
             extrema=self.MINIMUM,
             evolutionary=True,
         )
+
+        # set initial point to investigate
+        self.next_point_to_probe = optimizer.suggest(self.utility_function)
+        if self.naive_parallelization:
+            self.overwrite_internal_data_points(
+                self.create_points_around_suggestion(self.next_point_to_probe)
+            )
 
     @property
     def current_datapoints(self) -> np.ndarray:
@@ -305,17 +316,38 @@ class BayesOpt(GenericOptimization):
 
         In this case it is the currently suggested point.
         """
-        # todo: check if this really returns array
-        return self.next_point_to_probe
+        input_data = self.next_point_to_probe
+        # handle single or multiple points
+        input_data = {
+            key: [value] if not isinstance(value, list) else value
+            for key, value in input_data.items()
+        }
+        next_point = np.array(list(input_data.values()))
+        # transpose to get desired shape (num_data_points, num_params)
+        next_point = next_point.T
+
+        return next_point
 
     def execute(self) -> None:
         """Execute single step in the bayesian optimization."""
         # Note this should be run after the user script has been executed with input next_point_to_probe
-        last_target_point = self.input_param_cost_df.iloc[-1]["f(x,y)"]
-        if self.extrema == self.MINIMUM:
-            # minimize = find max of negative cost
-            last_target_point *= -1
-        self.overwrite_internal_data_points(data_points=np.array([last_target_point]))
+        target_column = self.input_param_cost_df.columns[0]
+
+        if not self.naive_parallelization and len(self.input_param_cost_df) != 1:
+            raise ValueError(
+                "When naive_parallelization is False, the DataFrame should have exactly one row (the single suggested point)."
+            )
+
+        for index, row in self.input_param_cost_df.iterrows():
+            target_point = row[target_column]
+
+            if self.extrema == self.MINIMUM:
+                # minimize = find max of negative cost
+                target_point *= -1
+
+            params = row.drop(target_column).tolist()
+            # print("registering ", target_point, "and ", params)
+            self.optimization_instance.register(params=params, target=target_point)
 
     def get_best_solution(self) -> Tuple[List[float], float, int]:
         """Get the best solution. Should be implemented in every derived class.
@@ -338,7 +370,8 @@ class BayesOpt(GenericOptimization):
         )
 
     def get_new_points(self) -> np.ndarray:
-        """Get new points from the BayesianOptimization instance.
+        """Get new points from the BayesianOptimization instance. This is done via the
+        `suggest` function.
 
         Returns
         -------
@@ -346,16 +379,69 @@ class BayesOpt(GenericOptimization):
             New points for the next iteration of the optimization.
         """
         next_point = self.optimization_instance.suggest(self.utility_function)
-        self.next_point_to_probe = next_point
-        return np.array([list(next_point.values())])
+        if self.naive_parallelization:
+            new_points = self.create_points_around_suggestion(next_point)
+        else:
+            new_points = np.array([list(next_point.values())])
+        return new_points
+
+    def create_points_around_suggestion(
+        self, suggested_point: Dict[str, float]
+    ) -> np.ndarray:
+        """BayesOpt only suggest a single point per iteration. In order to parallelize
+        the optimization we use this function to create multiple data points to evaluate
+        per iteration.
+
+        Note: This current implementation is by now way optimal! This is the most naive and simple way to create
+        multiple points to evaluate and should be improved in the future.
+        """
+        param_names = list(suggested_point.keys())
+        param_values = list(suggested_point.values())
+        param_bounds = list(self.pbounds.values())
+        grid_points = []
+        for p, param in enumerate(param_names):
+            # calculate new ranges for each param
+            if self.refinement_factors is None:
+                raise ValueError(
+                    "refinement_factors can not be None when creating points based on them."
+                )
+            delta_param = (
+                self.refinement_factors[p]
+                * (param_bounds[p][1] - param_bounds[p][0])
+                * 0.5
+            )
+            grid_range = [
+                param_values[p] - delta_param,
+                param_values[p] + delta_param,
+            ]
+            new_points_in_grid = np.linspace(
+                grid_range[0], grid_range[1], self.grid_size
+            )
+
+            grid_points.append(new_points_in_grid)
+
+        # Create a meshgrid from the grid points
+        grid_mesh = np.array(np.meshgrid(*grid_points)).T.reshape(-1, len(param_names))
+
+        return grid_mesh
 
     def overwrite_internal_data_points(self, data_points: np.ndarray) -> None:
-        # Check if data_points contains exactly one element
-        if len(data_points) != 1:
-            raise ValueError(
-                f"data_points must contain exactly one element in bayesian optimization, not {len(data_points)}."
-            )
-        last_target_point = data_points[0]
-        self.optimization_instance.register(
-            params=self.next_point_to_probe, target=last_target_point
-        )
+        """After we generated a new point with get_new_points this function can be used
+        to write that data point (or another point to investigate next) to the class."""
+        param_keys = self.optimization_instance._space._keys
+
+        if self.naive_parallelization:
+            new_point_from_array = {}
+
+            for i, param_name in enumerate(param_keys):
+                new_point_from_array[param_name] = data_points[:, i].tolist()
+        else:
+            # Check if data_points contains exactly one element
+            if len(data_points) != 1:
+                raise ValueError(
+                    f"data_points must contain exactly one element in bayesian optimization, not {len(data_points)}."
+                )
+            param_values = data_points[0]
+            new_point_from_array = dict(zip(param_keys, param_values))
+
+        self.next_point_to_probe = new_point_from_array
