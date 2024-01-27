@@ -16,6 +16,8 @@ YOTSE is a powerful tool designed to enable computational experiments using any 
 
 Documentation can be found [here](https://surfquantum.github.io/yotse/).
 
+Note: If you use this package for research purposes, consider checking out the underlying optimization libraries and citing them.
+
 ## Table of Contents
 1. [Installation](#installation)
 2. [Usage](#usage)

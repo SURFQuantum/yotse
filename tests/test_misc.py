@@ -140,7 +140,7 @@ class TestNewOpt(unittest.TestCase):
         test_exp.data_points = self.initial_pop
         test_exec = self.create_default_executor(experiment=test_exp)
         test_exec.optimizer.optimization_algorithm.update_internal_cost_data(
-            experiment=test_exp, data=self.data
+            data=self.data
         )
 
         self.assertEqual(

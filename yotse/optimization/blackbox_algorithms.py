@@ -1,6 +1,5 @@
 """Collection of Subclasses of :class:GenericOptimization implementing different
 optimization algorithms."""
-import math
 from typing import Any
 from typing import Callable
 from typing import Dict
@@ -32,7 +31,8 @@ class GAOpt(GenericOptimization):
     num_parents_mating : int
         Number of solutions to be selected as parents in the genetic algorithm.
     fitness_func : function (optional)
-        Fitness/objective/cost function. Only needed if `blackbox_optimization=False`. Default is None.
+        Fitness/objective/cost function/function to optimize. Only needed if `blackbox_optimization=False`.
+        Default is None.
     gene_space : dict or list (optional)
         Dictionary with constraints. Keys can be 'low', 'high' and 'step'. Alternatively list with acceptable values or
         list of dicts. If only single object is passed it will be applied for all input parameters, otherwise a
@@ -52,6 +52,11 @@ class GAOpt(GenericOptimization):
     pygad_kwargs : (optional)
         Optional pygad arguments to be passed to `pygad.GA`.
         See https://pygad.readthedocs.io/en/latest/README_pygad_ReadTheDocs.html#pygad-ga-class for documentation.
+
+    Attributes
+    ----------
+    constraints : dict or list
+        Constraints to check for during generation of new points.
     """
 
     def __init__(
@@ -90,6 +95,7 @@ class GAOpt(GenericOptimization):
             mutation_by_replacement=True,
             **pygad_kwargs,
         )
+        self.blackbox_optimization = blackbox_optimization
         self.constraints = gene_space
         # todo : why if save_solutions=True the optimization doesn't converge anymore?
         super().__init__(
@@ -101,16 +107,35 @@ class GAOpt(GenericOptimization):
             evolutionary=True,
         )
 
+    @property
+    def current_datapoints(self) -> np.ndarray:
+        """Return the current datapoints that will be used if an optimization is started
+        now.
+
+        In this case it is the population.
+        """
+        return self.optimization_instance.population
+
+    @property
+    def max_iterations(self) -> int:
+        """Return maximum number of iterations of GA = number of generation."""
+        return int(self.optimization_instance.num_generations)
+
     def _objective_func(
         self, ga_instance: GA, solution: List[float], solution_idx: int
     ) -> float:
         """Fitness function to be called from PyGAD.
 
+        Wrapper around the actual function to give pygad some more functionality.
+        First, it adds the possibility to choose whether to max-/minimize the fitness.
+        Second, it removes the necessity to pass the ga_instance to the function, thus making the implementation
+        more general.
+
         Parameters
         ----------
         ga_instance
-            # todo : add docstring
-        solution : list
+            Instance of pygad.GA.
+        solution : List[float]
             List of solutions.
         solution_idx : int
             Index of solution.
@@ -123,8 +148,12 @@ class GAOpt(GenericOptimization):
         factor = 1.0
         if self.extrema == self.MINIMUM:
             factor = -1.0
-
-        fitness = factor * self.function(ga_instance, solution, solution_idx)
+        if self.blackbox_optimization:
+            # passing params to self.input_params_to_cost_value
+            fitness = factor * self.function(solution, solution_idx)
+        else:
+            # passing params to the function of type Callable[...,float]
+            fitness = factor * self.function(solution)
 
         if self.logging_level >= 3:
             print(solution, solution_idx, fitness)
@@ -150,7 +179,9 @@ class GAOpt(GenericOptimization):
             Solution its fitness and its index in the list of cost function solutions.
         """
         if self.optimization_instance is None:
-            raise ValueError("GA instance not initialized.")
+            raise ValueError(
+                "Trying to `get_best_solution`, but GA instance not initialized."
+            )
         best_solution = self.optimization_instance.best_solutions.tolist()[-1]
         # solution_idx = self.ga_instance.population.tolist().index(best_solution)
         return best_solution, None, None
@@ -191,42 +222,53 @@ class GAOpt(GenericOptimization):
         """Overwrite internal GA population with new datapoints from experiment."""
         self.optimization_instance.population = data_points
 
-    def input_params_to_cost_value(
-        self, ga_instance: GA, solution: List[float], solution_idx: int
-    ) -> Any:
-        """Return value of cost function for given set of input parameter values and
-        their index in the set of points.
-
-        Parameters
-        ----------
-        solution : list
-            Set of input parameter values of shape [param_1, param_2, .., param_n].
-        solution_idx : int
-            Index of the solution within the set of points.
-        """
-        # todo: input parameters of this are highly GA specific and should be made general
-        row = self.input_param_cost_df.iloc[solution_idx]
-        if all(
-            math.isclose(row.iloc[i + 1], solution[i]) for i in range(len(solution))
-        ):
-            return row.iloc[0]
-        else:
-            raise ValueError(
-                f"Solution {solution} was not found in internal dataframe row {solution_idx}."
-            )
-
 
 class BayesOpt(GenericOptimization):
-    """Bayesian optimization."""
+    """Bayesian optimization.
+
+    Parameters
+    ----------
+    blackbox_optimization: bool
+        Whether this is used as a blackbox optimization.
+    pbounds: dict
+        Dictionary with parameters names as keys and a tuple with minimum
+        and maximum values.
+    initial_data_points: np.ndarray (optional)
+        Initial population of data points to start the optimization with.
+        If none are specified lets the algorithm suggest a point. Defaults to None.
+    fitness_func : function (optional)
+        Fitness/objective/cost function/function to optimize. Only needed if `blackbox_optimization=False`.
+        Default is None.
+    logging_level : int (optional)
+        Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything.
+        Defaults to 1.
+    bayesopt_kwargs : (optional)
+        Optional arguments to be passed to `bayes_opt.BayesianOptimization`.
+        See the documentation of that class for more info.
+    """
 
     def __init__(
         self,
+        blackbox_optimization: bool,
         pbounds: Dict[Any, Tuple[int, int]],
+        initial_data_points: Optional[np.ndarray] = None,
+        naive_parallelization: bool = False,
+        grid_size: int = 1,
         refinement_factors: Optional[List[float]] = None,
+        fitness_func: Optional[Callable[..., float]] = None,
         logging_level: int = 1,
         **bayesopt_kwargs: Any,
     ) -> None:
         """Initialize Bayesian optimization."""
+        if blackbox_optimization:
+            if fitness_func is not None:
+                raise ValueError(
+                    "blackbox_optimization set to True, but fitness_func is not None."
+                )
+        else:
+            raise NotImplementedError(
+                "Whitebox optimization with BayesOpt not implemented...yet."
+            )
 
         if "utility_function" not in bayesopt_kwargs:
             raise ValueError(
@@ -236,19 +278,19 @@ class BayesOpt(GenericOptimization):
         bayesopt_kwargs.pop("utility_function")
         if "n_iter" not in bayesopt_kwargs:
             raise ValueError("n_iter must be specified for Bayesian Optimization.")
-        self.num_iterations = bayesopt_kwargs["n_iter"]
+        self._max_iterations = bayesopt_kwargs["n_iter"]
         bayesopt_kwargs.pop("n_iter")
+        self.naive_parallelization = naive_parallelization
+        self.grid_size = grid_size
+        self.pbounds = pbounds
 
         optimizer = BayesianOptimization(
-            f=None,
+            f=fitness_func,
             pbounds=pbounds,
             verbose=2,
             random_state=1,
             **bayesopt_kwargs,
         )
-
-        # set initial point to investigate
-        self.next_point_to_probe = optimizer.suggest(self.utility_function)
         # warn about discrete values
         print(
             "WARNING: Bayesian Optimization does not currently implement discrete variables. See "
@@ -256,22 +298,61 @@ class BayesOpt(GenericOptimization):
         )
         super().__init__(
             function=self.utility_function,
-            opt_instance=optimizer,
             refinement_factors=refinement_factors,
+            opt_instance=optimizer,
             logging_level=logging_level,
             extrema=self.MINIMUM,
             evolutionary=True,
         )
 
+        # set initial point to investigate
+        if initial_data_points is None:
+            self.next_point_to_probe = optimizer.suggest(self.utility_function)
+            if self.naive_parallelization:
+                self.overwrite_internal_data_points(
+                    self.create_points_around_suggestion(self.next_point_to_probe)
+                )
+        else:
+            self.overwrite_internal_data_points(initial_data_points)
+
+    @property
+    def current_datapoints(self) -> np.ndarray:
+        """Return the current datapoints that will be used if an optimization is started
+        now.
+
+        In this case it is the currently suggested point.
+        """
+        input_data = self.next_point_to_probe
+        # handle single or multiple points
+        input_data = {
+            key: [value] if not isinstance(value, list) else value
+            for key, value in input_data.items()
+        }
+        next_point = np.array(list(input_data.values()))
+        # transpose to get desired shape (num_data_points, num_params)
+        next_point = next_point.T
+
+        return next_point
+
+    @property
+    def max_iterations(self) -> int:
+        """Return maximum number of iterations of bayesian optimization."""
+        return int(self._max_iterations)
+
     def execute(self) -> None:
         """Execute single step in the bayesian optimization."""
         # Note this should be run after the user script has been executed with input next_point_to_probe
-        last_target_point = self.input_param_cost_df.iloc[-1]["f(x,y)"]
-        # minimize = find max of negative cost
-        last_target_point *= -1
-        self.optimization_instance.register(
-            params=self.next_point_to_probe, target=last_target_point
-        )
+        target_column = self.input_param_cost_df.columns[0]
+
+        for index, row in self.input_param_cost_df.iterrows():
+            target_point = row[target_column]
+
+            if self.extrema == self.MINIMUM:
+                # minimize = find max of negative cost
+                target_point *= -1
+
+            params = row.drop(target_column).tolist()
+            self.optimization_instance.register(params=params, target=target_point)
 
     def get_best_solution(self) -> Tuple[List[float], float, int]:
         """Get the best solution. Should be implemented in every derived class.
@@ -283,17 +364,19 @@ class BayesOpt(GenericOptimization):
         """
         # todo: this does not output solution, solution_fitness, solution_idx yet but params, cost, 0
         # todo: question is what solution_idx would even mean here
+        solution = self.optimization_instance.max["target"]
+        if self.extrema == self.MINIMUM:
+            # maximized neg cost, converting to pos cost again
+            solution *= -1
         return (
             list(self.optimization_instance.max["params"].values()),
-            -1
-            * self.optimization_instance.max[
-                "target"
-            ],  # maximized neg cost, converting to pos cost again
+            solution,
             0,
         )
 
     def get_new_points(self) -> np.ndarray:
-        """Get new points from the BayesianOptimization instance.
+        """Get new points from the BayesianOptimization instance. This is done via the
+        `suggest` function.
 
         Returns
         -------
@@ -301,145 +384,60 @@ class BayesOpt(GenericOptimization):
             New points for the next iteration of the optimization.
         """
         next_point = self.optimization_instance.suggest(self.utility_function)
-        self.next_point_to_probe = next_point
-        return np.array([list(next_point.values())])
+        if self.naive_parallelization:
+            new_points = self.create_points_around_suggestion(next_point)
+        else:
+            new_points = np.array([list(next_point.values())])
+        return new_points
+
+    def create_points_around_suggestion(
+        self, suggested_point: Dict[str, float]
+    ) -> np.ndarray:
+        """BayesOpt only suggest a single point per iteration. In order to parallelize
+        the optimization we use this function to create multiple data points to evaluate
+        per iteration.
+
+        Note: This current implementation is by now way optimal! This is the most naive and simple way to create
+        multiple points to evaluate and should be improved in the future.
+        """
+        param_names = list(suggested_point.keys())
+        param_values = list(suggested_point.values())
+        param_bounds = list(self.pbounds.values())
+        grid_points = []
+        for p, param in enumerate(param_names):
+            # calculate new ranges for each param
+            if self.refinement_factors is None:
+                raise ValueError(
+                    "refinement_factors can not be None when creating points based on them."
+                )
+            delta_param = (
+                self.refinement_factors[p]
+                * (param_bounds[p][1] - param_bounds[p][0])
+                * 0.5
+            )
+            grid_range = [
+                param_values[p] - delta_param,
+                param_values[p] + delta_param,
+            ]
+            new_points_in_grid = np.linspace(
+                grid_range[0], grid_range[1], self.grid_size
+            )
+
+            grid_points.append(new_points_in_grid)
+
+        # Create a meshgrid from the grid points
+        grid_mesh = np.array(np.meshgrid(*grid_points)).T.reshape(-1, len(param_names))
+
+        return grid_mesh
 
     def overwrite_internal_data_points(self, data_points: np.ndarray) -> None:
-        """Note: this is not needed because datapoints are registered in `execute`."""
-        pass
+        """After we generated a new point with get_new_points this function can be used
+        to write that data point (or another point to investigate next) to the class."""
+        param_keys = self.optimization_instance._space._keys
 
+        new_point_from_array = {}
 
-# class CGOpt(GenericOptimization):
-#     """
-#     CG algorithm
-#     #todo: fill this with more info
-#     """
-#     def __init__(self, function, num_iterations=100, logging_level=1):
-#         """
-#         Default constructor
-#
-#         Parameters
-#         ----------
-#         function : function
-#             Fitness/objective/cost function.
-#         num_iterations : int (optional)
-#             Number of iterations.
-#             Defaults to 100.
-#         logging_level : int (optional)
-#             Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything.
-#             Defaults to 1.
-#         """
-#         super().__init__(function, logging_level, self.MINIMUM)
-#         self.num_iterations = num_iterations
-#
-#     def _objective_func(self, solution):
-#         """
-#         Fitness function to be called from PyGAD
-#         Parameters
-#         ----------
-#         solution : list
-#             List of solutions.
-#
-#         Returns
-#         -------
-#             Fitness value.
-#         """
-#         x, y = solution
-#         # x_fixed, y_fixed = args
-#
-#         # Invert function to find the minimum, if needed
-#         factor = 1.
-#         if self.extrema == self.MAXIMUM:
-#             factor = -1.
-#
-#         obj = factor * self.function([x, y])
-#
-#         # err = []
-#         # for n in range(0, len(x_fixed)):
-#         #     err.append(np.abs(obj - self.function([x_fixed[n], y_fixed[n]])))
-#         #
-#         # error = np.sum(err)
-#         # print(x, y, error)
-#
-#         return obj
-#
-#         # # Invert function to find the minimum, if needed
-#         # factor = 1.
-#         # if self.extrema == self.MINIMUM:
-#         #     factor = -1.
-#         #
-#         # fitness = factor * self.function([x, y])
-#         #
-#         # if self.logging_level >= 3:
-#         #     print(solution, solution_idx, fitness)
-#         #
-#         # return obj
-#
-#     def execute(self):
-#         """
-#         Execute optimization.
-#
-#         Returns
-#         -------
-#         solution, solution_fitness, solution_idx
-#             Solution its fitness and its index in the list of cost function solutions.
-#         """
-#         x = self.data[0]
-#         y = self.data[1]
-#
-#         # function_inputs = np.array([x, y]).T
-#
-#         # gene_space_min_x = np.min(x)
-#         # gene_space_max_x = np.max(x)
-#         # gene_space_min_y = np.min(y)
-#         # gene_space_max_y = np.max(y)
-#         #
-#         # ga_instance = pygad.GA(num_generations=self.num_generations,
-#         #                        num_parents_mating=5,
-#         #                        initial_data_points=function_inputs,
-#         #                        sol_per_pop=10,
-#         #                        num_genes=len(function_inputs),
-#         #                        gene_type=float,
-#         #                        parent_selection_type='sss',
-#         #                        gene_space=[
-#         #                            {"low": gene_space_min_x, "high": gene_space_max_x},
-#         #                            {"low": gene_space_min_y, "high": gene_space_max_y}
-#         #                        ],
-#         #                        keep_parents=-1,
-#         #                        mutation_by_replacement=True,
-#         #                        mutation_num_genes=1,
-#         #                        # mutation_type=None,
-#         #                        fitness_func=self._objective_func)
-#         #
-#         # ga_instance.run()
-#
-#         # print(function_inputs)
-#
-#         min_x = np.min(x)
-#         max_x = np.max(x)
-#         min_y = np.min(y)
-#         max_y = np.max(y)
-#         x0 = [min_x, min_y]
-#
-#         res = scipy.optimize.minimize(self._objective_func, x0,
-#                                       # args=[x, y],
-#                                       bounds=[(min_x, max_x), (min_y, max_y)],
-#                                       method='trust-constr',
-#                                       options={'maxiter': self.num_iterations})
-#         # res = scipy.optimize.minimize(self.function, x0, method='L-BFGS-B',
-#         #                               # bounds=bnds,
-#         #                               options={'maxiter': self.num_iterations})
-#         # res = scipy.optimize.fminbound(self.function, x, y)
-#
-#         # # Report convergence
-#         # if self.logging_level >= 2:
-#         #     ga_instance.plot_fitness()
-#         #
-#         if self.logging_level >= 1:
-#             print('\n')
-#             print('Solution:     ', res.x)
-#             print('Fitness value: {fun}'.format(fun=res.fun))
-#
-#         return None, None, None
-#
-#         # return solution, solution_fitness
+        for i, param_name in enumerate(param_keys):
+            new_point_from_array[param_name] = data_points[:, i].tolist()
+
+        self.next_point_to_probe = new_point_from_array

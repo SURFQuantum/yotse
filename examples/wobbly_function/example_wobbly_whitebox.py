@@ -31,7 +31,7 @@ def main() -> None:
     (the 2d ackley function).
 
     This function first adds the whitebox optimization information, sets it to active
-    and finally runs the optimization..
+    and finally runs the optimization.
     """
     print("\033[93m --- Executing Wobbly-Whitebox Example. --- \033[0m")
 
@@ -46,9 +46,9 @@ def main() -> None:
     )
 
     def scipy_callback(intermediate_result: scipy.optimize.OptimizeResult) -> None:
-        """Callback function for scipy to print info during optimization."""
-        print("Current x", intermediate_result.x)
-        print("Current fun", intermediate_result.fun)
+        """SciPy callback for printing intermediate result."""
+        print(f"Current x: {intermediate_result.x}")
+        print(f"Current fun value : {intermediate_result.fun}")
         return
 
     whitebox_opt = OptimizationInfo(

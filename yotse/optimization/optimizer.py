@@ -8,9 +8,12 @@ Classes
 Optimizer:
     A class that wraps around a generic optimization algorithm.
 """
+import math
 from typing import List
 from typing import Optional
 from typing import Tuple
+
+import pandas
 
 from yotse.optimization.generic_optimization import GenericOptimization
 from yotse.pre import Experiment
@@ -59,6 +62,7 @@ class Optimizer:
                 )
         self.optimization_algorithm = optimization_algorithm
         self._is_executed = False
+        self.num_executions = 0
 
     def optimize(self) -> None:
         """Executes the optimization algorithm.
@@ -72,6 +76,7 @@ class Optimizer:
         None
         """
         self.optimization_algorithm.execute()
+        self.num_executions += 1
         self._is_executed = True
 
     def suggest_best_solution(self) -> Tuple[List[float], float, int]:
@@ -196,16 +201,14 @@ class Optimizer:
         # todo make absolutely sure the index of the solution corresponds with the job number
         # opt_input_datapoint = experiment.data_points[solution_index]  # (x, y, z)
         opt_input_datapoint = solution
-        i = 0
         for p, param in enumerate(experiment.parameters):
             if param.is_active:
                 # calculate new ranges for each active param
                 delta_param = ref_factors[p] * (param.range[1] - param.range[0]) * 0.5
                 opt_range = [
-                    opt_input_datapoint[i] - delta_param,
-                    opt_input_datapoint[i] + delta_param,
+                    opt_input_datapoint[p] - delta_param,
+                    opt_input_datapoint[p] + delta_param,
                 ]
-                i += 1
                 # write updated parameter range to each active param
                 param.range = opt_range
                 # create new points on each active param
@@ -225,3 +228,33 @@ class Optimizer:
             experiment.data_points
         )
         self._is_executed = False
+
+    def update_blackbox_cost_data(
+        self, experiment: Experiment, data: pandas.DataFrame
+    ) -> None:
+        """Update internal dataframe of the optimization algorihtm, mapping input
+        parameters to the associated cost from input data.
+
+        Note: This also checks that the ordering of the entries is the same as the data_points of the experiment.
+
+        Parameters
+        ----------
+        experiment : Experiment
+            The experiment object containing the parameters and current data points.
+        data : pandas.Dataframe
+            A pandas dataframe containing the collected data in the format cost_value init_param_1 ... init_param_n.
+        """
+        # check ordering of data versus initial datapoints to avoid mistakes when fetching corresponding cost by index
+        if len(data) != len(experiment.data_points):
+            raise ValueError(
+                "Data has a different number of rows than the list of datapoints."
+            )
+        for i, values in enumerate(experiment.data_points):
+            row = data.iloc[i]
+            if any(
+                not math.isclose(row.iloc[j + 1], values[j]) for j in range(len(values))
+            ):
+                raise ValueError(
+                    f"Position of {values} is different between data and original data_points"
+                )
+        self.optimization_algorithm.update_internal_cost_data(data=data)

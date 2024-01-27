@@ -171,6 +171,8 @@ class Executor:
                     optimization_alg = None
                 elif opt_info.name.lower() == "bayesopt":
                     optimization_alg = BayesOpt(
+                        blackbox_optimization=True,
+                        initial_data_points=self.experiment.data_points,
                         pbounds={
                             param.name: (
                                 int(param.range[0]),
@@ -418,7 +420,7 @@ class Executor:
                     self.optimizer.optimization_algorithm.can_create_points_evolutionary
                 )
 
-            self.optimizer.optimization_algorithm.update_internal_cost_data(
+            self.optimizer.update_blackbox_cost_data(
                 experiment=self.experiment, data=data
             )
 

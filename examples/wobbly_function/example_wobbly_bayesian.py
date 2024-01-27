@@ -2,6 +2,7 @@
 Yotse framework."""
 from bayes_opt import UtilityFunction
 
+from examples.wobbly_function.example_wobbly_main import remove_files_after_run
 from examples.wobbly_function.example_wobbly_main import wobbly_pre
 from yotse.execution import Executor
 from yotse.pre import OptimizationInfo
@@ -9,10 +10,14 @@ from yotse.pre import OptimizationInfo
 
 def main() -> None:
     """Executes a blackbox optimization experiment for a 'wobbly function' of unknown
-    form (at least we pretend to not know for the purpose of this example)..
+    form (at least we pretend to not know for the purpose of this example).
 
     This function first adds the bayesian optimization information, sets it to active
-    and finally runs the optimization..
+    and finally runs the optimization.
+
+    Note: in the current setting we are by default giving the initial datapoints of the experiment to the optimization.
+    So the first step will execute multiple instances of the optimization while subsequent steps will execute a single
+    point suggested by the optimization algorithm.
     """
     print("\033[93m --- Executing Wobbly-Bayesian Example. --- \033[0m")
 
@@ -34,7 +39,7 @@ def main() -> None:
 
     wobbly_bayesopt = Executor(experiment=bayesopt_experiment)
 
-    for i in range(bayes_opt.opt_parameters["n_iter"]):
+    for i in range(wobbly_bayesopt.optimizer.optimization_algorithm.max_iterations):
         wobbly_bayesopt.run(step_number=i)
 
     solution = wobbly_bayesopt.optimizer.suggest_best_solution()
@@ -42,7 +47,7 @@ def main() -> None:
     # matplotlib.use('Qt5Agg')
     # wobbly_example.optimization_alg.ga_instance.plot_new_solution_rate()
     # wobbly_example.optimization_alg.ga_instance.plot_fitness()
-    # remove_files_after_run()
+    remove_files_after_run()
 
 
 if __name__ == "__main__":
