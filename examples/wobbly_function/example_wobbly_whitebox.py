@@ -31,7 +31,7 @@ def main() -> None:
     (the 2d ackley function).
 
     This function first adds the whitebox optimization information, sets it to active
-    and finally runs the optimization..
+    and finally runs the optimization.
     """
     print("\033[93m --- Executing Wobbly-Whitebox Example. --- \033[0m")
 

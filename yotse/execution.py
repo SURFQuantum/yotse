@@ -172,6 +172,7 @@ class Executor:
                 elif opt_info.name.lower() == "bayesopt":
                     optimization_alg = BayesOpt(
                         blackbox_optimization=True,
+                        initial_data_points=self.experiment.data_points,
                         pbounds={
                             param.name: (
                                 int(param.range[0]),

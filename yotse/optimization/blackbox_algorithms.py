@@ -233,6 +233,9 @@ class BayesOpt(GenericOptimization):
     pbounds: dict
         Dictionary with parameters names as keys and a tuple with minimum
         and maximum values.
+    initial_data_points: np.ndarray (optional)
+        Initial population of data points to start the optimization with.
+        If none are specified lets the algorithm suggest a point. Defaults to None.
     fitness_func : function (optional)
         Fitness/objective/cost function/function to optimize. Only needed if `blackbox_optimization=False`.
         Default is None.
@@ -248,6 +251,7 @@ class BayesOpt(GenericOptimization):
         self,
         blackbox_optimization: bool,
         pbounds: Dict[Any, Tuple[int, int]],
+        initial_data_points: Optional[np.ndarray] = None,
         naive_parallelization: bool = False,
         grid_size: int = 1,
         refinement_factors: Optional[List[float]] = None,
@@ -302,11 +306,14 @@ class BayesOpt(GenericOptimization):
         )
 
         # set initial point to investigate
-        self.next_point_to_probe = optimizer.suggest(self.utility_function)
-        if self.naive_parallelization:
-            self.overwrite_internal_data_points(
-                self.create_points_around_suggestion(self.next_point_to_probe)
-            )
+        if initial_data_points is None:
+            self.next_point_to_probe = optimizer.suggest(self.utility_function)
+            if self.naive_parallelization:
+                self.overwrite_internal_data_points(
+                    self.create_points_around_suggestion(self.next_point_to_probe)
+                )
+        else:
+            self.overwrite_internal_data_points(initial_data_points)
 
     @property
     def current_datapoints(self) -> np.ndarray:
@@ -337,11 +344,6 @@ class BayesOpt(GenericOptimization):
         # Note this should be run after the user script has been executed with input next_point_to_probe
         target_column = self.input_param_cost_df.columns[0]
 
-        if not self.naive_parallelization and len(self.input_param_cost_df) != 1:
-            raise ValueError(
-                f"When naive_parallelization is False, the DataFrame should have exactly one row (the single suggested point). But dataframe is: {self.input_param_cost_df}"
-            )
-
         for index, row in self.input_param_cost_df.iterrows():
             target_point = row[target_column]
 
@@ -350,7 +352,6 @@ class BayesOpt(GenericOptimization):
                 target_point *= -1
 
             params = row.drop(target_column).tolist()
-            # print("registering ", target_point, "and ", params)
             self.optimization_instance.register(params=params, target=target_point)
 
     def get_best_solution(self) -> Tuple[List[float], float, int]:
@@ -434,18 +435,9 @@ class BayesOpt(GenericOptimization):
         to write that data point (or another point to investigate next) to the class."""
         param_keys = self.optimization_instance._space._keys
 
-        if self.naive_parallelization:
-            new_point_from_array = {}
+        new_point_from_array = {}
 
-            for i, param_name in enumerate(param_keys):
-                new_point_from_array[param_name] = data_points[:, i].tolist()
-        else:
-            # Check if data_points contains exactly one element
-            if len(data_points) != 1:
-                raise ValueError(
-                    f"data_points must contain exactly one element in bayesian optimization, not {len(data_points)}."
-                )
-            param_values = data_points[0]
-            new_point_from_array = dict(zip(param_keys, param_values))
+        for i, param_name in enumerate(param_keys):
+            new_point_from_array[param_name] = data_points[:, i].tolist()
 
         self.next_point_to_probe = new_point_from_array

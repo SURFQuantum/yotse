@@ -228,27 +228,20 @@ class TestBlackBoxOptimization(unittest.TestCase):
 
     def test_optimize_sixhump(self) -> None:
         """Test optimization of the six-hump camelback function."""
-        solution = self._setup_and_execute_ga_optimization(
-            _sixhump, var_range=(0.8, 0.8)
-        )
-        x_true = -0.0898
-        y_true = 0.7126
+        for fun in [
+            self._setup_and_execute_ga_optimization,
+            self._setup_and_execute_bayesian_optimization,
+        ]:
+            solution = fun(_sixhump)  # type: ignore[operator]
+            x_true = -0.0898
+            y_true = 0.7126
 
-        # Check one of the possible solutions
-        if solution[0] > 0:
-            x_true *= -1
-            y_true *= -1
-        self.assertTrue(np.abs(solution[0] - x_true) <= 1e-2)
-        self.assertTrue(np.abs(solution[1] - y_true) <= 1e-2)
-
-        solution = self._setup_and_execute_bayesian_optimization(_sixhump)
-
-        if solution[0] > 0:
-            x_true *= -1
-            y_true *= -1
-
-        self.assertTrue(np.abs(solution[0] - x_true) <= 1e-2)
-        self.assertTrue(np.abs(solution[1] - y_true) <= 1e-2)
+            # Check one of the possible solutions
+            if solution[0] > 0:
+                x_true *= -1
+                y_true *= -1
+            self.assertTrue(np.abs(solution[0] - x_true) <= 1e-2)
+            self.assertTrue(np.abs(solution[1] - y_true) <= 1e-2)
 
     def test_optimize_rosenbrock(self) -> None:
         """Test optimization of the Rosenbrock function."""
