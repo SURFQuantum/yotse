@@ -72,7 +72,12 @@
            <div itemprop="articleBody">
              
   <h1>Source code for yotse.utils.prediction</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span></span><span class="sd">&quot;&quot;&quot;predict_module.py.</span>
+
+<span class="sd">This module provides a Predict class for learning and predicting using different</span>
+<span class="sd">regression models.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -85,6 +90,29 @@
 <div class="viewcode-block" id="Predict">
 <a class="viewcode-back" href="../../../yotse.utils.html#yotse.utils.prediction.Predict">[docs]</a>
 <span class="k">class</span> <span class="nc">Predict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A class for learning and predicting using Linear Regression (LR), Bayesian Ridge</span>
+<span class="sd">    (BR), or SGDRegressor (AR) models.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model_name : str, optional</span>
+<span class="sd">        Regression model name (&quot;LR&quot; for Linear Regression, &quot;BR&quot; for Bayesian Ridge, &quot;AR&quot; for SGDRegressor),</span>
+<span class="sd">        by default &quot;LR&quot;.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : sklearn.base.BaseEstimator</span>
+<span class="sd">        The regression model.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    learn(x: np.ndarray, y: np.ndarray) -&gt; None:</span>
+<span class="sd">        Executes the learning process.</span>
+
+<span class="sd">    predict(x_new: np.ndarray) -&gt; np.ndarray:</span>
+<span class="sd">        Predicts value(s) using the linear model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="Predict.__init__">
 <a class="viewcode-back" href="../../../yotse.utils.html#yotse.utils.prediction.Predict.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;LR&quot;</span><span class="p">):</span>
@@ -145,6 +173,7 @@
     <span class="c1">#     return x_loc**2 + y_loc**2</span>
 
     <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="nb">vars</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Example function.&quot;&quot;&quot;</span>
         <span class="n">x_loc</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">x_loc</span><span class="o">**</span><span class="mi">2</span>
 

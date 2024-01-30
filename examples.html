@@ -138,6 +138,11 @@
 </section>
 <section id="module-examples.run_examples">
 <span id="examples-run-examples-module"></span><h2>examples.run_examples module<a class="headerlink" href="#module-examples.run_examples" title="Link to this heading"></a></h2>
+<p>Module to provide poetry with functions to run all examples.</p>
+<p>This file is used to run all the examples in this folder and subfolders
+Each file should be of the form example*.py and contain a <cite>main</cite>-method.
+If the <cite>main</cite>-method takes an argument <cite>no_output</cite> this will be passed as <cite>True</cite>
+to avoid creating plots etc.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="examples.run_examples._has_no_output_arg">
 <span class="sig-prename descclassname"><span class="pre">examples.run_examples.</span></span><span class="sig-name descname"><span class="pre">_has_no_output_arg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/examples/run_examples.html#_has_no_output_arg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#examples.run_examples._has_no_output_arg" title="Link to this definition"></a></dt>

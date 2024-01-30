@@ -74,7 +74,6 @@
   <h1>Source code for yotse.optimization.blackbox_algorithms</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Collection of Subclasses of :class:GenericOptimization implementing different</span>
 <span class="sd">optimization algorithms.&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
@@ -108,7 +107,8 @@
 <span class="sd">    num_parents_mating : int</span>
 <span class="sd">        Number of solutions to be selected as parents in the genetic algorithm.</span>
 <span class="sd">    fitness_func : function (optional)</span>
-<span class="sd">        Fitness/objective/cost function. Only needed if `blackbox_optimization=False`. Default is None.</span>
+<span class="sd">        Fitness/objective/cost function/function to optimize. Only needed if `blackbox_optimization=False`.</span>
+<span class="sd">        Default is None.</span>
 <span class="sd">    gene_space : dict or list (optional)</span>
 <span class="sd">        Dictionary with constraints. Keys can be &#39;low&#39;, &#39;high&#39; and &#39;step&#39;. Alternatively list with acceptable values or</span>
 <span class="sd">        list of dicts. If only single object is passed it will be applied for all input parameters, otherwise a</span>
@@ -128,6 +128,11 @@
 <span class="sd">    pygad_kwargs : (optional)</span>
 <span class="sd">        Optional pygad arguments to be passed to `pygad.GA`.</span>
 <span class="sd">        See https://pygad.readthedocs.io/en/latest/README_pygad_ReadTheDocs.html#pygad-ga-class for documentation.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    constraints : dict or list</span>
+<span class="sd">        Constraints to check for during generation of new points.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="GAOpt.__init__">
@@ -145,6 +150,7 @@
         <span class="n">fitness_func</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">pygad_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the GAOpt object.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">blackbox_optimization</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">fitness_func</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -167,6 +173,7 @@
             <span class="n">mutation_by_replacement</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="o">**</span><span class="n">pygad_kwargs</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blackbox_optimization</span> <span class="o">=</span> <span class="n">blackbox_optimization</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">=</span> <span class="n">gene_space</span>
         <span class="c1"># todo : why if save_solutions=True the optimization doesn&#39;t converge anymore?</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -179,6 +186,20 @@
         <span class="p">)</span></div>
 
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">current_datapoints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the current datapoints that will be used if an optimization is started</span>
+<span class="sd">        now.</span>
+
+<span class="sd">        In this case it is the population.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">population</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max_iterations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return maximum number of iterations of GA = number of generation.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">num_generations</span><span class="p">)</span>
+
 <div class="viewcode-block" id="GAOpt._objective_func">
 <a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.GAOpt._objective_func">[docs]</a>
     <span class="k">def</span> <span class="nf">_objective_func</span><span class="p">(</span>
@@ -186,11 +207,16 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Fitness function to be called from PyGAD.</span>
 
+<span class="sd">        Wrapper around the actual function to give pygad some more functionality.</span>
+<span class="sd">        First, it adds the possibility to choose whether to max-/minimize the fitness.</span>
+<span class="sd">        Second, it removes the necessity to pass the ga_instance to the function, thus making the implementation</span>
+<span class="sd">        more general.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ga_instance</span>
-<span class="sd">            # todo : add docstring</span>
-<span class="sd">        solution : list</span>
+<span class="sd">            Instance of pygad.GA.</span>
+<span class="sd">        solution : List[float]</span>
 <span class="sd">            List of solutions.</span>
 <span class="sd">        solution_idx : int</span>
 <span class="sd">            Index of solution.</span>
@@ -203,8 +229,12 @@
         <span class="n">factor</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrema</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">MINIMUM</span><span class="p">:</span>
             <span class="n">factor</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
-
-        <span class="n">fitness</span> <span class="o">=</span> <span class="n">factor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">ga_instance</span><span class="p">,</span> <span class="n">solution</span><span class="p">,</span> <span class="n">solution_idx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">blackbox_optimization</span><span class="p">:</span>
+            <span class="c1"># passing params to self.input_params_to_cost_value</span>
+            <span class="n">fitness</span> <span class="o">=</span> <span class="n">factor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">solution</span><span class="p">,</span> <span class="n">solution_idx</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># passing params to the function of type Callable[...,float]</span>
+            <span class="n">fitness</span> <span class="o">=</span> <span class="n">factor</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logging_level</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">solution</span><span class="p">,</span> <span class="n">solution_idx</span><span class="p">,</span> <span class="n">fitness</span><span class="p">)</span>
@@ -236,7 +266,9 @@
 <span class="sd">            Solution its fitness and its index in the list of cost function solutions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;GA instance not initialized.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Trying to `get_best_solution`, but GA instance not initialized.&quot;</span>
+            <span class="p">)</span>
         <span class="n">best_solution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">best_solutions</span><span class="o">.</span><span class="n">tolist</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="c1"># solution_idx = self.ga_instance.population.tolist().index(best_solution)</span>
         <span class="k">return</span> <span class="n">best_solution</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span></div>
@@ -280,34 +312,8 @@
 <div class="viewcode-block" id="GAOpt.overwrite_internal_data_points">
 <a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.GAOpt.overwrite_internal_data_points">[docs]</a>
     <span class="k">def</span> <span class="nf">overwrite_internal_data_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Overwrite internal GA population with new datapoints from experiment.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">population</span> <span class="o">=</span> <span class="n">data_points</span></div>
-
-
-<div class="viewcode-block" id="GAOpt.input_params_to_cost_value">
-<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.GAOpt.input_params_to_cost_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">input_params_to_cost_value</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">ga_instance</span><span class="p">:</span> <span class="n">GA</span><span class="p">,</span> <span class="n">solution</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">solution_idx</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return value of cost function for given set of input parameter values and</span>
-<span class="sd">        their index in the set of points.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        solution : list</span>
-<span class="sd">            Set of input parameter values of shape [param_1, param_2, .., param_n].</span>
-<span class="sd">        solution_idx : int</span>
-<span class="sd">            Index of the solution within the set of points.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># todo: input parameters of this are highly GA specific and should be made general</span>
-        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_param_cost_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">solution_idx</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span>
-            <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">solution</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">solution</span><span class="p">))</span>
-        <span class="p">):</span>
-            <span class="k">return</span> <span class="n">row</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Solution </span><span class="si">{</span><span class="n">solution</span><span class="si">}</span><span class="s2"> was not found in internal dataframe row </span><span class="si">{</span><span class="n">solution_idx</span><span class="si">}</span><span class="s2">.&quot;</span>
-            <span class="p">)</span></div>
 </div>
 
 
@@ -315,18 +321,53 @@
 <div class="viewcode-block" id="BayesOpt">
 <a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.BayesOpt">[docs]</a>
 <span class="k">class</span> <span class="nc">BayesOpt</span><span class="p">(</span><span class="n">GenericOptimization</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bayesian optimization.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bayesian optimization.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    blackbox_optimization: bool</span>
+<span class="sd">        Whether this is used as a blackbox optimization.</span>
+<span class="sd">    pbounds: dict</span>
+<span class="sd">        Dictionary with parameters names as keys and a tuple with minimum</span>
+<span class="sd">        and maximum values.</span>
+<span class="sd">    initial_data_points: np.ndarray (optional)</span>
+<span class="sd">        Initial population of data points to start the optimization with.</span>
+<span class="sd">        If none are specified lets the algorithm suggest a point. Defaults to None.</span>
+<span class="sd">    fitness_func : function (optional)</span>
+<span class="sd">        Fitness/objective/cost function/function to optimize. Only needed if `blackbox_optimization=False`.</span>
+<span class="sd">        Default is None.</span>
+<span class="sd">    logging_level : int (optional)</span>
+<span class="sd">        Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything.</span>
+<span class="sd">        Defaults to 1.</span>
+<span class="sd">    bayesopt_kwargs : (optional)</span>
+<span class="sd">        Optional arguments to be passed to `bayes_opt.BayesianOptimization`.</span>
+<span class="sd">        See the documentation of that class for more info.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="BayesOpt.__init__">
 <a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.BayesOpt.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
+        <span class="n">blackbox_optimization</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">pbounds</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+        <span class="n">initial_data_points</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">naive_parallelization</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">grid_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">refinement_factors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fitness_func</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">logging_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="o">**</span><span class="n">bayesopt_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize Bayesian optimization.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">blackbox_optimization</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fitness_func</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;blackbox_optimization set to True, but fitness_func is not None.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s2">&quot;Whitebox optimization with BayesOpt not implemented...yet.&quot;</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="s2">&quot;utility_function&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bayesopt_kwargs</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -336,19 +377,19 @@
         <span class="n">bayesopt_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;utility_function&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="s2">&quot;n_iter&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bayesopt_kwargs</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n_iter must be specified for Bayesian Optimization.&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">num_iterations</span> <span class="o">=</span> <span class="n">bayesopt_kwargs</span><span class="p">[</span><span class="s2">&quot;n_iter&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max_iterations</span> <span class="o">=</span> <span class="n">bayesopt_kwargs</span><span class="p">[</span><span class="s2">&quot;n_iter&quot;</span><span class="p">]</span>
         <span class="n">bayesopt_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;n_iter&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">naive_parallelization</span> <span class="o">=</span> <span class="n">naive_parallelization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid_size</span> <span class="o">=</span> <span class="n">grid_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pbounds</span> <span class="o">=</span> <span class="n">pbounds</span>
 
         <span class="n">optimizer</span> <span class="o">=</span> <span class="n">BayesianOptimization</span><span class="p">(</span>
-            <span class="n">f</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">f</span><span class="o">=</span><span class="n">fitness_func</span><span class="p">,</span>
             <span class="n">pbounds</span><span class="o">=</span><span class="n">pbounds</span><span class="p">,</span>
             <span class="n">verbose</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
             <span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="o">**</span><span class="n">bayesopt_kwargs</span><span class="p">,</span>
         <span class="p">)</span>
-
-        <span class="c1"># set initial point to investigate</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">next_point_to_probe</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">suggest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">utility_function</span><span class="p">)</span>
         <span class="c1"># warn about discrete values</span>
         <span class="nb">print</span><span class="p">(</span>
             <span class="s2">&quot;WARNING: Bayesian Optimization does not currently implement discrete variables. See &quot;</span>
@@ -356,25 +397,64 @@
         <span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">utility_function</span><span class="p">,</span>
-            <span class="n">opt_instance</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
             <span class="n">refinement_factors</span><span class="o">=</span><span class="n">refinement_factors</span><span class="p">,</span>
+            <span class="n">opt_instance</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
             <span class="n">logging_level</span><span class="o">=</span><span class="n">logging_level</span><span class="p">,</span>
             <span class="n">extrema</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MINIMUM</span><span class="p">,</span>
             <span class="n">evolutionary</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
+        <span class="c1"># set initial point to investigate</span>
+        <span class="k">if</span> <span class="n">initial_data_points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">next_point_to_probe</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">suggest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">utility_function</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">naive_parallelization</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">overwrite_internal_data_points</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">create_points_around_suggestion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">next_point_to_probe</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">overwrite_internal_data_points</span><span class="p">(</span><span class="n">initial_data_points</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">current_datapoints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the current datapoints that will be used if an optimization is started</span>
+<span class="sd">        now.</span>
+
+<span class="sd">        In this case it is the currently suggested point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_point_to_probe</span>
+        <span class="c1"># handle single or multiple points</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">key</span><span class="p">:</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">input_data</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="n">next_point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">input_data</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="c1"># transpose to get desired shape (num_data_points, num_params)</span>
+        <span class="n">next_point</span> <span class="o">=</span> <span class="n">next_point</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="k">return</span> <span class="n">next_point</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max_iterations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return maximum number of iterations of bayesian optimization.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_max_iterations</span><span class="p">)</span>
 
 <div class="viewcode-block" id="BayesOpt.execute">
 <a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.BayesOpt.execute">[docs]</a>
     <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute single step in the bayesian optimization.&quot;&quot;&quot;</span>
         <span class="c1"># Note this should be run after the user script has been executed with input next_point_to_probe</span>
-        <span class="n">last_target_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_param_cost_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;f(x,y)&quot;</span><span class="p">]</span>
-        <span class="c1"># minimize = find max of negative cost</span>
-        <span class="n">last_target_point</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
-            <span class="n">params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">next_point_to_probe</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">last_target_point</span>
-        <span class="p">)</span></div>
+        <span class="n">target_column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_param_cost_df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_param_cost_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">target_point</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">target_column</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrema</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">MINIMUM</span><span class="p">:</span>
+                <span class="c1"># minimize = find max of negative cost</span>
+                <span class="n">target_point</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+
+            <span class="n">params</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">target_column</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target_point</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BayesOpt.get_best_solution">
@@ -389,12 +469,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># todo: this does not output solution, solution_fitness, solution_idx yet but params, cost, 0</span>
         <span class="c1"># todo: question is what solution_idx would even mean here</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">max</span><span class="p">[</span><span class="s2">&quot;target&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrema</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">MINIMUM</span><span class="p">:</span>
+            <span class="c1"># maximized neg cost, converting to pos cost again</span>
+            <span class="n">solution</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">max</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
-            <span class="o">-</span><span class="mi">1</span>
-            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">max</span><span class="p">[</span>
-                <span class="s2">&quot;target&quot;</span>
-            <span class="p">],</span>  <span class="c1"># maximized neg cost, converting to pos cost again</span>
+            <span class="n">solution</span><span class="p">,</span>
             <span class="mi">0</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -402,7 +483,8 @@
 <div class="viewcode-block" id="BayesOpt.get_new_points">
 <a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.BayesOpt.get_new_points">[docs]</a>
     <span class="k">def</span> <span class="nf">get_new_points</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get new points from the BayesianOptimization instance.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get new points from the BayesianOptimization instance. This is done via the</span>
+<span class="sd">        `suggest` function.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -410,161 +492,71 @@
 <span class="sd">            New points for the next iteration of the optimization.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">next_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">suggest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">utility_function</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">next_point_to_probe</span> <span class="o">=</span> <span class="n">next_point</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">next_point</span><span class="o">.</span><span class="n">values</span><span class="p">())])</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">naive_parallelization</span><span class="p">:</span>
+            <span class="n">new_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_points_around_suggestion</span><span class="p">(</span><span class="n">next_point</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">next_point</span><span class="o">.</span><span class="n">values</span><span class="p">())])</span>
+        <span class="k">return</span> <span class="n">new_points</span></div>
+
+
+<div class="viewcode-block" id="BayesOpt.create_points_around_suggestion">
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.BayesOpt.create_points_around_suggestion">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_points_around_suggestion</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">suggested_point</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;BayesOpt only suggest a single point per iteration. In order to parallelize</span>
+<span class="sd">        the optimization we use this function to create multiple data points to evaluate</span>
+<span class="sd">        per iteration.</span>
+
+<span class="sd">        Note: This current implementation is by now way optimal! This is the most naive and simple way to create</span>
+<span class="sd">        multiple points to evaluate and should be improved in the future.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">param_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">suggested_point</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">param_values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">suggested_point</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">param_bounds</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pbounds</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">grid_points</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">param_names</span><span class="p">):</span>
+            <span class="c1"># calculate new ranges for each param</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">refinement_factors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;refinement_factors can not be None when creating points based on them.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">delta_param</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">refinement_factors</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+                <span class="o">*</span> <span class="p">(</span><span class="n">param_bounds</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">param_bounds</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                <span class="o">*</span> <span class="mf">0.5</span>
+            <span class="p">)</span>
+            <span class="n">grid_range</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">param_values</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">-</span> <span class="n">delta_param</span><span class="p">,</span>
+                <span class="n">param_values</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">+</span> <span class="n">delta_param</span><span class="p">,</span>
+            <span class="p">]</span>
+            <span class="n">new_points_in_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+                <span class="n">grid_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_size</span>
+            <span class="p">)</span>
+
+            <span class="n">grid_points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_points_in_grid</span><span class="p">)</span>
+
+        <span class="c1"># Create a meshgrid from the grid points</span>
+        <span class="n">grid_mesh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="n">grid_points</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_names</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">grid_mesh</span></div>
 
 
 <div class="viewcode-block" id="BayesOpt.overwrite_internal_data_points">
 <a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.BayesOpt.overwrite_internal_data_points">[docs]</a>
     <span class="k">def</span> <span class="nf">overwrite_internal_data_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Note: this is not needed because datapoints are registered in `execute`.&quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;After we generated a new point with get_new_points this function can be used</span>
+<span class="sd">        to write that data point (or another point to investigate next) to the class.&quot;&quot;&quot;</span>
+        <span class="n">param_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">_space</span><span class="o">.</span><span class="n">_keys</span>
 
+        <span class="n">new_point_from_array</span> <span class="o">=</span> <span class="p">{}</span>
 
-<div class="viewcode-block" id="BayesOpt.input_params_to_cost_value">
-<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.BayesOpt.input_params_to_cost_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">input_params_to_cost_value</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">ga_instance</span><span class="p">:</span> <span class="n">GA</span><span class="p">,</span> <span class="n">solution</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">solution_idx</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-        <span class="k">pass</span></div>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">param_keys</span><span class="p">):</span>
+            <span class="n">new_point_from_array</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_points</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_point_to_probe</span> <span class="o">=</span> <span class="n">new_point_from_array</span></div>
 </div>
 
-
-
-<span class="c1"># class CGOpt(GenericOptimization):</span>
-<span class="c1">#     &quot;&quot;&quot;</span>
-<span class="c1">#     CG algorithm</span>
-<span class="c1">#     #todo: fill this with more info</span>
-<span class="c1">#     &quot;&quot;&quot;</span>
-<span class="c1">#     def __init__(self, function, num_iterations=100, logging_level=1):</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-<span class="c1">#         Default constructor</span>
-<span class="c1">#</span>
-<span class="c1">#         Parameters</span>
-<span class="c1">#         ----------</span>
-<span class="c1">#         function : function</span>
-<span class="c1">#             Fitness/objective/cost function.</span>
-<span class="c1">#         num_iterations : int (optional)</span>
-<span class="c1">#             Number of iterations.</span>
-<span class="c1">#             Defaults to 100.</span>
-<span class="c1">#         logging_level : int (optional)</span>
-<span class="c1">#             Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything.</span>
-<span class="c1">#             Defaults to 1.</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-<span class="c1">#         super().__init__(function, logging_level, self.MINIMUM)</span>
-<span class="c1">#         self.num_iterations = num_iterations</span>
-<span class="c1">#</span>
-<span class="c1">#     def _objective_func(self, solution):</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-<span class="c1">#         Fitness function to be called from PyGAD</span>
-<span class="c1">#         Parameters</span>
-<span class="c1">#         ----------</span>
-<span class="c1">#         solution : list</span>
-<span class="c1">#             List of solutions.</span>
-<span class="c1">#</span>
-<span class="c1">#         Returns</span>
-<span class="c1">#         -------</span>
-<span class="c1">#             Fitness value.</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-<span class="c1">#         x, y = solution</span>
-<span class="c1">#         # x_fixed, y_fixed = args</span>
-<span class="c1">#</span>
-<span class="c1">#         # Invert function to find the minimum, if needed</span>
-<span class="c1">#         factor = 1.</span>
-<span class="c1">#         if self.extrema == self.MAXIMUM:</span>
-<span class="c1">#             factor = -1.</span>
-<span class="c1">#</span>
-<span class="c1">#         obj = factor * self.function([x, y])</span>
-<span class="c1">#</span>
-<span class="c1">#         # err = []</span>
-<span class="c1">#         # for n in range(0, len(x_fixed)):</span>
-<span class="c1">#         #     err.append(np.abs(obj - self.function([x_fixed[n], y_fixed[n]])))</span>
-<span class="c1">#         #</span>
-<span class="c1">#         # error = np.sum(err)</span>
-<span class="c1">#         # print(x, y, error)</span>
-<span class="c1">#</span>
-<span class="c1">#         return obj</span>
-<span class="c1">#</span>
-<span class="c1">#         # # Invert function to find the minimum, if needed</span>
-<span class="c1">#         # factor = 1.</span>
-<span class="c1">#         # if self.extrema == self.MINIMUM:</span>
-<span class="c1">#         #     factor = -1.</span>
-<span class="c1">#         #</span>
-<span class="c1">#         # fitness = factor * self.function([x, y])</span>
-<span class="c1">#         #</span>
-<span class="c1">#         # if self.logging_level &gt;= 3:</span>
-<span class="c1">#         #     print(solution, solution_idx, fitness)</span>
-<span class="c1">#         #</span>
-<span class="c1">#         # return obj</span>
-<span class="c1">#</span>
-<span class="c1">#     def execute(self):</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-<span class="c1">#         Execute optimization.</span>
-<span class="c1">#</span>
-<span class="c1">#         Returns</span>
-<span class="c1">#         -------</span>
-<span class="c1">#         solution, solution_fitness, solution_idx</span>
-<span class="c1">#             Solution its fitness and its index in the list of cost function solutions.</span>
-<span class="c1">#         &quot;&quot;&quot;</span>
-<span class="c1">#         x = self.data[0]</span>
-<span class="c1">#         y = self.data[1]</span>
-<span class="c1">#</span>
-<span class="c1">#         # function_inputs = np.array([x, y]).T</span>
-<span class="c1">#</span>
-<span class="c1">#         # gene_space_min_x = np.min(x)</span>
-<span class="c1">#         # gene_space_max_x = np.max(x)</span>
-<span class="c1">#         # gene_space_min_y = np.min(y)</span>
-<span class="c1">#         # gene_space_max_y = np.max(y)</span>
-<span class="c1">#         #</span>
-<span class="c1">#         # ga_instance = pygad.GA(num_generations=self.num_generations,</span>
-<span class="c1">#         #                        num_parents_mating=5,</span>
-<span class="c1">#         #                        initial_data_points=function_inputs,</span>
-<span class="c1">#         #                        sol_per_pop=10,</span>
-<span class="c1">#         #                        num_genes=len(function_inputs),</span>
-<span class="c1">#         #                        gene_type=float,</span>
-<span class="c1">#         #                        parent_selection_type=&#39;sss&#39;,</span>
-<span class="c1">#         #                        gene_space=[</span>
-<span class="c1">#         #                            {&quot;low&quot;: gene_space_min_x, &quot;high&quot;: gene_space_max_x},</span>
-<span class="c1">#         #                            {&quot;low&quot;: gene_space_min_y, &quot;high&quot;: gene_space_max_y}</span>
-<span class="c1">#         #                        ],</span>
-<span class="c1">#         #                        keep_parents=-1,</span>
-<span class="c1">#         #                        mutation_by_replacement=True,</span>
-<span class="c1">#         #                        mutation_num_genes=1,</span>
-<span class="c1">#         #                        # mutation_type=None,</span>
-<span class="c1">#         #                        fitness_func=self._objective_func)</span>
-<span class="c1">#         #</span>
-<span class="c1">#         # ga_instance.run()</span>
-<span class="c1">#</span>
-<span class="c1">#         # print(function_inputs)</span>
-<span class="c1">#</span>
-<span class="c1">#         min_x = np.min(x)</span>
-<span class="c1">#         max_x = np.max(x)</span>
-<span class="c1">#         min_y = np.min(y)</span>
-<span class="c1">#         max_y = np.max(y)</span>
-<span class="c1">#         x0 = [min_x, min_y]</span>
-<span class="c1">#</span>
-<span class="c1">#         res = scipy.optimize.minimize(self._objective_func, x0,</span>
-<span class="c1">#                                       # args=[x, y],</span>
-<span class="c1">#                                       bounds=[(min_x, max_x), (min_y, max_y)],</span>
-<span class="c1">#                                       method=&#39;trust-constr&#39;,</span>
-<span class="c1">#                                       options={&#39;maxiter&#39;: self.num_iterations})</span>
-<span class="c1">#         # res = scipy.optimize.minimize(self.function, x0, method=&#39;L-BFGS-B&#39;,</span>
-<span class="c1">#         #                               # bounds=bnds,</span>
-<span class="c1">#         #                               options={&#39;maxiter&#39;: self.num_iterations})</span>
-<span class="c1">#         # res = scipy.optimize.fminbound(self.function, x, y)</span>
-<span class="c1">#</span>
-<span class="c1">#         # # Report convergence</span>
-<span class="c1">#         # if self.logging_level &gt;= 2:</span>
-<span class="c1">#         #     ga_instance.plot_fitness()</span>
-<span class="c1">#         #</span>
-<span class="c1">#         if self.logging_level &gt;= 1:</span>
-<span class="c1">#             print(&#39;\n&#39;)</span>
-<span class="c1">#             print(&#39;Solution:     &#39;, res.x)</span>
-<span class="c1">#             print(&#39;Fitness value: {fun}&#39;.format(fun=res.fun))</span>
-<span class="c1">#</span>
-<span class="c1">#         return None, None, None</span>
-<span class="c1">#</span>
-<span class="c1">#         # return solution, solution_fitness</span>
 </pre></div>
 
            </div>

@@ -73,6 +73,15 @@
              
   <h1>Source code for yotse.optimization.modded_pygad_ga</h1><div class="highlight"><pre>
 <span></span><span class="c1"># type: ignore</span>
+<span class="sd">&quot;&quot;&quot;modded_pygad_ga.py.</span>
+
+<span class="sd">This module provides a modified version of the Genetic Algorithm (GA) class from the PyGAD library.</span>
+
+<span class="sd">Classes</span>
+<span class="sd">-------</span>
+<span class="sd">ModGA:</span>
+<span class="sd">    A modified Genetic Algorithm class that extends the functionality of the GA class in the PyGAD library.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span>
@@ -82,9 +91,23 @@
 <div class="viewcode-block" id="ModGA">
 <a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.modded_pygad_ga.ModGA">[docs]</a>
 <span class="k">class</span> <span class="nc">ModGA</span><span class="p">(</span><span class="n">GA</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A modified Genetic Algorithm class that extends the functionality of the GA class</span>
+<span class="sd">    in the PyGAD library.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    run_single_generation() -&gt; None:</span>
+<span class="sd">        Run a single generation of the genetic algorithm.</span>
+
+<span class="sd">    run() -&gt; None:</span>
+<span class="sd">        Runs the genetic algorithm. This is the main method in which the genetic algorithm is evolved through a</span>
+<span class="sd">        number of generations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="ModGA.run_single_generation">
 <a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.modded_pygad_ga.ModGA.run_single_generation">[docs]</a>
     <span class="k">def</span> <span class="nf">run_single_generation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run a single generation of the genetic algorithm.&quot;&quot;&quot;</span>
         <span class="n">num_generations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_generations</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_generations</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>

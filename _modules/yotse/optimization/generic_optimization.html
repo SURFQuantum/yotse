@@ -72,7 +72,16 @@
            <div itemprop="articleBody">
              
   <h1>Source code for yotse.optimization.generic_optimization</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">inspect</span>
+<span></span><span class="sd">&quot;&quot;&quot;generic_optimization.py.</span>
+
+<span class="sd">This module defines the GenericOptimization class, a base class for optimization algorithms.</span>
+
+<span class="sd">Classes</span>
+<span class="sd">-------</span>
+<span class="sd">GenericOptimization:</span>
+<span class="sd">    A base class for optimization algorithms.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
@@ -81,11 +90,13 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">from</span> <span class="nn">bayes_opt</span> <span class="kn">import</span> <span class="n">BayesianOptimization</span>
 
-<span class="kn">from</span> <span class="nn">yotse.pre</span> <span class="kn">import</span> <span class="n">Experiment</span>
+<span class="kn">from</span> <span class="nn">yotse.optimization.modded_pygad_ga</span> <span class="kn">import</span> <span class="n">ModGA</span>  <span class="c1"># type: ignore[attr-defined]</span>
 
 
 <div class="viewcode-block" id="GenericOptimization">
@@ -95,10 +106,13 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    function : function</span>
-<span class="sd">        Cost function used for optimization.</span>
-<span class="sd">    opt_instance: Any</span>
-<span class="sd">        Instance of the optimization engine</span>
+<span class="sd">    function : Callable[..., float]</span>
+<span class="sd">        Fitness function to be used for optimization. This can either be a discrete mapping between input parameters</span>
+<span class="sd">         and associated cost (in the case of blackbox optimization) or a known analytical function (in the case of</span>
+<span class="sd">         whitebox optimization).</span>
+<span class="sd">    opt_instance: Union[ModGA, BayesianOptimization, None] (optional)</span>
+<span class="sd">        Instance of the optimization engine.</span>
+<span class="sd">        Defaults to None.</span>
 <span class="sd">    refinement_factors : list (optional)</span>
 <span class="sd">        Refinement factors for all parameters. If specified must be list of length = #params.</span>
 <span class="sd">        Defaults to None.</span>
@@ -109,6 +123,8 @@
 <span class="sd">        Define what type of problem to solve. &#39;extrema&#39; can be equal to either MINIMUM or MAXIMUM. The</span>
 <span class="sd">        optimization algorithm will look for minimum and maximum values respectively.</span>
 <span class="sd">        Defaults to MINIMUM.</span>
+<span class="sd">    evolutionary : bool (optional)</span>
+<span class="sd">        Whether the optimization algorithm allows for evolutionary optimization. Defaults to False.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
@@ -121,12 +137,13 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
-        <span class="n">opt_instance</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="n">opt_instance</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ModGA</span><span class="p">,</span> <span class="n">BayesianOptimization</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">refinement_factors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">logging_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">extrema</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">MINIMUM</span><span class="p">,</span>
         <span class="n">evolutionary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the GenericOptimization object.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logging_level</span> <span class="o">=</span> <span class="n">logging_level</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">extrema</span> <span class="o">=</span> <span class="n">extrema</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">=</span> <span class="n">function</span>
@@ -136,6 +153,27 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">optimization_instance</span> <span class="o">=</span> <span class="n">opt_instance</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input_param_cost_df</span><span class="p">:</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span></div>
 
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">current_datapoints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the current datapoints that will be used if an optimization is started</span>
+<span class="sd">        now.&quot;&quot;&quot;</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">frame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Failed to get the current frame&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;The &#39;</span><span class="si">{</span><span class="n">frame</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_name</span><span class="si">}</span><span class="s2">&#39; method is not implemented&quot;</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">max_iterations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the maximum number of iterations of the optimization if applicable.&quot;&quot;&quot;</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">frame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Failed to get the current frame&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;The &#39;</span><span class="si">{</span><span class="n">frame</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_name</span><span class="si">}</span><span class="s2">&#39; method is not implemented&quot;</span>
+        <span class="p">)</span>
 
 <div class="viewcode-block" id="GenericOptimization.get_function">
 <a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.GenericOptimization.get_function">[docs]</a>
@@ -159,12 +197,14 @@
 <div class="viewcode-block" id="GenericOptimization.get_best_solution">
 <a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.GenericOptimization.get_best_solution">[docs]</a>
     <span class="k">def</span> <span class="nf">get_best_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the best solution. Should be implemented in every derived class.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the best solution (aka the best set of input parameters). Should be</span>
+<span class="sd">        implemented in every derived class.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        solution, solution_fitness, solution_idx</span>
-<span class="sd">            Solution its fitness and its index in the list of data points.</span>
+<span class="sd">            Solution (set of params), its fitness (associated cost) and its index in the list of data points.</span>
+<span class="sd">            # todo: why do we care about the index?</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span>
         <span class="k">assert</span> <span class="n">frame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Failed to get the current frame&quot;</span>
@@ -204,6 +244,7 @@
 <span class="sd">        data_points : np.ndarray</span>
 <span class="sd">            Array containing all new data points that should be passed to the optimization.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># todo: is this generic or should this be in a specific implementation?</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span>
         <span class="k">assert</span> <span class="n">frame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Failed to get the current frame&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
@@ -213,38 +254,24 @@
 
 <div class="viewcode-block" id="GenericOptimization.update_internal_cost_data">
 <a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.GenericOptimization.update_internal_cost_data">[docs]</a>
-    <span class="k">def</span> <span class="nf">update_internal_cost_data</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">:</span> <span class="n">Experiment</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">update_internal_cost_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Update internal dataframe mapping input parameters to the associated cost</span>
-<span class="sd">        from input data. It also checks that the ordering of the entries is the same as</span>
-<span class="sd">        the data_points of the experiment.</span>
+<span class="sd">        from input data.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        data : pandas.Dataframe</span>
 <span class="sd">            A pandas dataframe containing the collected data in the format cost_value init_param_1 ... init_param_n.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># check ordering of data versus initial datapoints to avoid mistakes when fetching corresponding cost by index</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">data_points</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Data has a different number of rows than the list of datapoints.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">data_points</span><span class="p">):</span>
-            <span class="n">row</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
-                <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">values</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
-            <span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Position of </span><span class="si">{</span><span class="n">values</span><span class="si">}</span><span class="s2"> is different between data and original data_points&quot;</span>
-                <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">input_param_cost_df</span> <span class="o">=</span> <span class="n">data</span></div>
 
 
 <div class="viewcode-block" id="GenericOptimization.input_params_to_cost_value">
 <a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.blackbox_algorithms.GenericOptimization.input_params_to_cost_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">input_params_to_cost_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">input_params_to_cost_value</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">solution</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">solution_idx</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return value of cost function for given set of input parameter values and</span>
 <span class="sd">        their index in the set of points.</span>
 
@@ -255,11 +282,19 @@
 <span class="sd">        solution_idx : int</span>
 <span class="sd">            Index of the solution within the set of points.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span>
-        <span class="k">assert</span> <span class="n">frame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Failed to get the current frame&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;The &#39;</span><span class="si">{</span><span class="n">frame</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_name</span><span class="si">}</span><span class="s2">&#39; method is not implemented&quot;</span>
-        <span class="p">)</span></div>
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_param_cost_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">solution_idx</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">solution</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">solution</span><span class="p">))</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="n">row</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_param_cost_df</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Solution </span><span class="si">{</span><span class="n">solution</span><span class="si">}</span><span class="s2"> was not found in internal dataframe row </span><span class="si">{</span><span class="n">solution_idx</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Solution </span><span class="si">{</span><span class="n">solution</span><span class="si">}</span><span class="s2"> was not found in internal dataframe row </span><span class="si">{</span><span class="n">solution_idx</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span></div>
 </div>
 
 </pre></div>

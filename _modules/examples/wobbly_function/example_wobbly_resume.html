@@ -109,13 +109,9 @@
 
     <span class="n">resume_example</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">(</span><span class="n">experiment</span><span class="o">=</span><span class="n">resume_experiment</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
-        <span class="n">resume_example</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">generations_completed</span><span class="p">,</span>
-        <span class="n">resume_experiment</span><span class="o">.</span><span class="n">opt_info_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">opt_parameters</span><span class="p">[</span><span class="s2">&quot;num_generations&quot;</span><span class="p">],</span>
+        <span class="n">stop_resume_example</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">num_executions</span><span class="p">,</span>
+        <span class="n">stop_resume_example</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">max_iterations</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="n">resume_example</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">generations_completed</span>
-            <span class="o">==</span> <span class="n">i</span>
-        <span class="p">)</span>
         <span class="n">resume_example</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">step_number</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">evolutionary_point_generation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">resumed_solution</span> <span class="o">=</span> <span class="n">resume_example</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">suggest_best_solution</span><span class="p">()</span>

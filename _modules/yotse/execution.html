@@ -100,9 +100,33 @@
 <div class="viewcode-block" id="Executor">
 <a class="viewcode-back" href="../../yotse.html#yotse.execution.Executor">[docs]</a>
 <span class="k">class</span> <span class="nc">Executor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A facilitator for running experiments and optimization algorithms.</span>
+
+<span class="sd">    The `Executor` class coordinates the execution of experiments, manages the optimization process,</span>
+<span class="sd">    and interfaces with the LocalManager for job submission. It supports both black-box and white-box</span>
+<span class="sd">    optimization strategies, allowing for the exploration of various optimization algorithms.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    experiment : Experiment</span>
+<span class="sd">        The experiment object associated with the executor.</span>
+<span class="sd">    blackbox_optimization : bool</span>
+<span class="sd">        Flag indicating whether the optimization process is black-box or white-box.</span>
+<span class="sd">    optimizer : Optimizer</span>
+<span class="sd">        The optimizer object responsible for managing the optimization algorithm.</span>
+<span class="sd">    aux_dir : str</span>
+<span class="sd">        The auxiliary directory used during the optimization process.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    experiment : Experiment</span>
+<span class="sd">        The experiment object associated with the executor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="Executor.__init__">
 <a class="viewcode-back" href="../../yotse.html#yotse.execution.Executor.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">:</span> <span class="n">Experiment</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize `Executor` object.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="p">:</span> <span class="n">Experiment</span> <span class="o">=</span> <span class="n">experiment</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">blackbox_optimization</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="p">:</span> <span class="n">Optimizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_optimizer</span><span class="p">()</span>
@@ -234,6 +258,8 @@
                     <span class="n">optimization_alg</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">elif</span> <span class="n">opt_info</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;bayesopt&quot;</span><span class="p">:</span>
                     <span class="n">optimization_alg</span> <span class="o">=</span> <span class="n">BayesOpt</span><span class="p">(</span>
+                        <span class="n">blackbox_optimization</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">initial_data_points</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">data_points</span><span class="p">,</span>
                         <span class="n">pbounds</span><span class="o">=</span><span class="p">{</span>
                             <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">(</span>
                                 <span class="nb">int</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
@@ -502,7 +528,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">can_create_points_evolutionary</span>
                 <span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">update_internal_cost_data</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">update_blackbox_cost_data</span><span class="p">(</span>
                 <span class="n">experiment</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span>
             <span class="p">)</span>
 
@@ -548,9 +574,22 @@
 <div class="viewcode-block" id="CustomExecutor">
 <a class="viewcode-back" href="../../yotse.html#yotse.execution.CustomExecutor">[docs]</a>
 <span class="k">class</span> <span class="nc">CustomExecutor</span><span class="p">(</span><span class="n">Executor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom Executor class for users to tailor to their specific experimental setups.</span>
+
+<span class="sd">    The `CustomExecutor` class is a user-defined extension of the base `Executor` class.</span>
+<span class="sd">    Users can customize this class to adapt the optimization and execution process to</span>
+<span class="sd">    their specific experimental requirements.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    experiment : Experiment</span>
+<span class="sd">        The experiment object associated with the custom executor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="CustomExecutor.__init__">
 <a class="viewcode-back" href="../../yotse.html#yotse.execution.CustomExecutor.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">:</span> <span class="n">Experiment</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize `CustomExecutor` object.&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span></div>
 
 
@@ -559,6 +598,21 @@
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">step_number</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">evolutionary_point_generation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the custom execution process.</span>
+
+<span class="sd">        This method overrides the run method in the base `Executor` class to provide</span>
+<span class="sd">        custom logic for the execution process tailored to the user&#39;s specific needs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        step_number : int, optional</span>
+<span class="sd">            Step number to submit to QCGPilot. Should be used for e.g. running different optimization steps.</span>
+<span class="sd">            Defaults to 0.</span>
+<span class="sd">        evolutionary_point_generation : bool, optional</span>
+<span class="sd">            Overwrite the type of construction to be used for the new points.</span>
+<span class="sd">            If None, the optimization algorithm determines whether the point creation is evolutionary or</span>
+<span class="sd">            based on the best solution. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
             <span class="n">step_number</span><span class="o">=</span><span class="n">step_number</span><span class="p">,</span>
             <span class="n">evolutionary_point_generation</span><span class="o">=</span><span class="n">evolutionary_point_generation</span><span class="p">,</span>

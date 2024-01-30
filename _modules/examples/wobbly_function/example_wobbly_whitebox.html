@@ -72,7 +72,9 @@
            <div itemprop="articleBody">
              
   <h1>Source code for examples.wobbly_function.example_wobbly_whitebox</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">random</span>
+<span></span><span class="sd">&quot;&quot;&quot;This module demonstrates the process for a whitebox optimization using the Yotse</span>
+<span class="sd">framework.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -104,6 +106,12 @@
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../examples.wobbly_function.html#examples.wobbly_function.example_wobbly_whitebox.main">[docs]</a>
 <span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Executes a whitebox optimization experiment for a &#39;wobbly function&#39; of known form</span>
+<span class="sd">    (the 2d ackley function).</span>
+
+<span class="sd">    This function first adds the whitebox optimization information, sets it to active</span>
+<span class="sd">    and finally runs the optimization.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[93m --- Executing Wobbly-Whitebox Example. --- </span><span class="se">\033</span><span class="s2">[0m&quot;</span><span class="p">)</span>
 
     <span class="n">whitebox_experiment</span> <span class="o">=</span> <span class="n">wobbly_pre</span><span class="p">()</span>
@@ -117,8 +125,9 @@
     <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">scipy_callback</span><span class="p">(</span><span class="n">intermediate_result</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">OptimizeResult</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Current x&quot;</span><span class="p">,</span> <span class="n">intermediate_result</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Current fun&quot;</span><span class="p">,</span> <span class="n">intermediate_result</span><span class="o">.</span><span class="n">fun</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;SciPy callback for printing intermediate result.&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current x: </span><span class="si">{</span><span class="n">intermediate_result</span><span class="o">.</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current fun value : </span><span class="si">{</span><span class="n">intermediate_result</span><span class="o">.</span><span class="n">fun</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span>
 
     <span class="n">whitebox_opt</span> <span class="o">=</span> <span class="n">OptimizationInfo</span><span class="p">(</span>

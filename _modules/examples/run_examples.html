@@ -72,18 +72,20 @@
            <div itemprop="articleBody">
              
   <h1>Source code for examples.run_examples</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">importlib</span>
+<span></span><span class="sd">&quot;&quot;&quot;Module to provide poetry with functions to run all examples.</span>
+
+<span class="sd">This file is used to run all the examples in this folder and subfolders</span>
+<span class="sd">Each file should be of the form example*.py and contain a `main`-method.</span>
+<span class="sd">If the `main`-method takes an argument `no_output` this will be passed as `True`</span>
+<span class="sd">to avoid creating plots etc.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
-
-<span class="c1"># This file is used to run all the examples in this folder and subfolders</span>
-<span class="c1"># Each file should be of the form example*.py and contain a `main`-method.</span>
-<span class="c1"># If the `main`-method takes an argument `no_output` this will be passed as `True`</span>
-<span class="c1"># to avoid creating plots etc.</span>
 
 
 <div class="viewcode-block" id="run_examples">

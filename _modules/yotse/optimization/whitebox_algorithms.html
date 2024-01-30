@@ -72,7 +72,16 @@
            <div itemprop="articleBody">
              
   <h1>Source code for yotse.optimization.whitebox_algorithms</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+<span></span><span class="sd">&quot;&quot;&quot;whitebox_algorithms.py.</span>
+
+<span class="sd">This module provides classes for performing whitebox optimization, aka an optimization where the function is known.</span>
+
+<span class="sd">Classes</span>
+<span class="sd">-------</span>
+<span class="sd">SciPyOpt:</span>
+<span class="sd">    A class for optimization using the scipy.optimize.minimize function.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
@@ -91,6 +100,32 @@
 <div class="viewcode-block" id="SciPyOpt">
 <a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.whitebox_algorithms.SciPyOpt">[docs]</a>
 <span class="k">class</span> <span class="nc">SciPyOpt</span><span class="p">(</span><span class="n">GenericOptimization</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A class for optimization using the scipy.optimize.minimize function.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fun : callable</span>
+<span class="sd">        The objective function to be minimized.</span>
+<span class="sd">    x0 : array_like</span>
+<span class="sd">        Initial guess.</span>
+<span class="sd">    args : tuple, optional</span>
+<span class="sd">        Extra arguments passed to the objective function and its derivatives (if any).</span>
+<span class="sd">    method : str, optional</span>
+<span class="sd">        Type of solver. Default is &#39;BFGS&#39;.</span>
+<span class="sd">    jac : callable or None, optional</span>
+<span class="sd">        Jacobian (gradient) of the objective function. If None, it will be computed numerically.</span>
+<span class="sd">    bounds : sequence or None, optional</span>
+<span class="sd">        Bounds for variables (only for L-BFGS-B, TNC, COBYLA, and trust-constr methods).</span>
+<span class="sd">    constraints : dict or sequence of dict, optional</span>
+<span class="sd">        Constraints definition (only for COBYLA and trust-constr methods).</span>
+<span class="sd">    tol : float or None, optional</span>
+<span class="sd">        Tolerance for termination. For detailed control, use solver-specific options.</span>
+<span class="sd">    callback : callable, optional</span>
+<span class="sd">        Called after each iteration, as callback(xk), where xk is the current parameter vector.</span>
+<span class="sd">    options : dict, optional</span>
+<span class="sd">        A dictionary of solver options.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="SciPyOpt.__init__">
 <a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.whitebox_algorithms.SciPyOpt.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -135,7 +170,6 @@
 <span class="sd">        -------</span>
 <span class="sd">        None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fun</span> <span class="o">=</span> <span class="n">fun</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">x0</span> <span class="o">=</span> <span class="n">x0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
@@ -145,8 +179,32 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">:</span> <span class="n">OptimizeResult</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">:</span> <span class="n">OptimizeResult</span> <span class="o">=</span> <span class="kc">None</span>
 
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="n">fun</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">current_datapoints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the current datapoints that will be used if an optimization is started</span>
+<span class="sd">        now.</span>
+
+<span class="sd">        In this case it is the initial guess.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max_iterations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return maximum number of iterations of SciPy optimization if specified.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Max iteration not specified for SciPy optimizer.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;maxiter&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;maxiter&quot;</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="s2">&quot;maxfun&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;maxfun&quot;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Max iteration not specified for SciPy optimizer.&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SciPyOpt.execute">
 <a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.whitebox_algorithms.SciPyOpt.execute">[docs]</a>
@@ -159,7 +217,7 @@
 <span class="sd">            The optimization result.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fun</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span>
             <span class="n">args</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
             <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
@@ -181,8 +239,12 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        solution, solution_fitness, solution_idx</span>
-<span class="sd">            Solution its fitness and its index in the list of data points.</span>
+<span class="sd">            Solution, its fitness and its index in the list of data points.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;Trying to `get_best_solution` without result. Please make sure to call `execute` first.&quot;</span>
+            <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">fun</span><span class="p">,</span> <span class="mi">0</span></div>
 
 

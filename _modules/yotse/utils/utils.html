@@ -72,7 +72,27 @@
            <div itemprop="articleBody">
              
   <h1>Source code for yotse.utils.utils</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span></span><span class="sd">&quot;&quot;&quot;utils.py.</span>
+
+<span class="sd">This module provides functions for file processing, including searching for files with a specific extension</span>
+<span class="sd">in a directory, combining the content of multiple CSV, JSON, or pickle files into a single pandas DataFrame,</span>
+<span class="sd">and converting between NumPy arrays and Python lists.</span>
+
+<span class="sd">Functions</span>
+<span class="sd">---------</span>
+<span class="sd">get_files_by_extension(directory: str, extension: str) -&gt; List[str]:</span>
+<span class="sd">    Returns a list of files in the given directory with the specified extension.</span>
+
+<span class="sd">file_list_to_single_df(files: List[str], extension: str) -&gt; pandas.DataFrame:</span>
+<span class="sd">    Reads CSV, json, or pickle files from a list and combines their content in a single pandas DataFrame.</span>
+
+<span class="sd">ndarray_to_list(numpy_array: np.ndarray) -&gt; List[Any]:</span>
+<span class="sd">    Convert a NumPy array to a Python list.</span>
+
+<span class="sd">list_to_numpy_array(list_data: List[Any]) -&gt; np.ndarray:</span>
+<span class="sd">    Convert a Python list to a NumPy array.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 
@@ -94,7 +114,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    list</span>
+<span class="sd">    List[str]</span>
 <span class="sd">        A list of files (and their actual location) in the given directory with the specified extension.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span>
@@ -113,14 +133,14 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    files : list</span>
+<span class="sd">    files : List[str]</span>
 <span class="sd">        A list of files to read.</span>
 <span class="sd">    extension : str</span>
 <span class="sd">        File extension of the files in the list.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    df : pandas.Dataframe</span>
+<span class="sd">    pandas.Dataframe</span>
 <span class="sd">        Pandas dataframe containing the combined contents of all the files.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">extension</span> <span class="o">==</span> <span class="s2">&quot;csv&quot;</span><span class="p">:</span>
@@ -141,6 +161,18 @@
 <div class="viewcode-block" id="ndarray_to_list">
 <a class="viewcode-back" href="../../../yotse.utils.html#yotse.utils.utils.ndarray_to_list">[docs]</a>
 <span class="k">def</span> <span class="nf">ndarray_to_list</span><span class="p">(</span><span class="n">numpy_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a NumPy array to a Python list.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    numpy_array : np.ndarray</span>
+<span class="sd">        The NumPy array to be converted.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    List[Any]</span>
+<span class="sd">        A Python list containing the elements of the input NumPy array.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">numpy_array</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>  <span class="c1"># type: ignore[no-any-return]</span></div>
 
 
@@ -148,6 +180,18 @@
 <div class="viewcode-block" id="list_to_numpy_array">
 <a class="viewcode-back" href="../../../yotse.utils.html#yotse.utils.utils.list_to_numpy_array">[docs]</a>
 <span class="k">def</span> <span class="nf">list_to_numpy_array</span><span class="p">(</span><span class="n">list_data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a Python list to a NumPy array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    list_data : List[Any]</span>
+<span class="sd">        The Python list to be converted.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        A NumPy array containing the elements of the input Python list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">list_data</span><span class="p">)</span></div>
 
 </pre></div>

@@ -106,9 +106,26 @@
 optimization algorithms.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="yotse.optimization.blackbox_algorithms.BayesOpt">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yotse.optimization.blackbox_algorithms.</span></span><span class="sig-name descname"><span class="pre">BayesOpt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pbounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refinement_factors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">bayesopt_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/optimization/blackbox_algorithms.html#BayesOpt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.BayesOpt" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yotse.optimization.blackbox_algorithms.</span></span><span class="sig-name descname"><span class="pre">BayesOpt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blackbox_optimization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pbounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_data_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">naive_parallelization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refinement_factors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitness_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">bayesopt_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/optimization/blackbox_algorithms.html#BayesOpt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.BayesOpt" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#yotse.optimization.generic_optimization.GenericOptimization" title="yotse.optimization.generic_optimization.GenericOptimization"><code class="xref py py-class docutils literal notranslate"><span class="pre">GenericOptimization</span></code></a></p>
 <p>Bayesian optimization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>blackbox_optimization</strong> (<em>bool</em>) – Whether this is used as a blackbox optimization.</p></li>
+<li><p><strong>pbounds</strong> (<em>dict</em>) – Dictionary with parameters names as keys and a tuple with minimum
+and maximum values.</p></li>
+<li><p><strong>initial_data_points</strong> (<em>np.ndarray</em><em> (</em><em>optional</em><em>)</em>) – Initial population of data points to start the optimization with.
+If none are specified lets the algorithm suggest a point. Defaults to None.</p></li>
+<li><p><strong>fitness_func</strong> (<em>function</em><em> (</em><em>optional</em><em>)</em>) – Fitness/objective/cost function/function to optimize. Only needed if <cite>blackbox_optimization=False</cite>.
+Default is None.</p></li>
+<li><p><strong>logging_level</strong> (<em>int</em><em> (</em><em>optional</em><em>)</em>) – Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything.
+Defaults to 1.</p></li>
+<li><p><strong>bayesopt_kwargs</strong> (<em>(</em><em>optional</em><em>)</em>) – Optional arguments to be passed to <cite>bayes_opt.BayesianOptimization</cite>.
+See the documentation of that class for more info.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="yotse.optimization.blackbox_algorithms.BayesOpt.MAXIMUM">
 <span class="sig-name descname"><span class="pre">MAXIMUM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.BayesOpt.MAXIMUM" title="Link to this definition"></a></dt>
@@ -121,8 +138,26 @@ optimization algorithms.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.blackbox_algorithms.BayesOpt.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pbounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refinement_factors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">bayesopt_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/optimization/blackbox_algorithms.html#BayesOpt.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.BayesOpt.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blackbox_optimization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pbounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_data_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">naive_parallelization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refinement_factors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitness_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">bayesopt_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/optimization/blackbox_algorithms.html#BayesOpt.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.BayesOpt.__init__" title="Link to this definition"></a></dt>
 <dd><p>Initialize Bayesian optimization.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.optimization.blackbox_algorithms.BayesOpt.create_points_around_suggestion">
+<span class="sig-name descname"><span class="pre">create_points_around_suggestion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">suggested_point</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/yotse/optimization/blackbox_algorithms.html#BayesOpt.create_points_around_suggestion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.BayesOpt.create_points_around_suggestion" title="Link to this definition"></a></dt>
+<dd><p>BayesOpt only suggest a single point per iteration. In order to parallelize
+the optimization we use this function to create multiple data points to evaluate
+per iteration.</p>
+<p>Note: This current implementation is by now way optimal! This is the most naive and simple way to create
+multiple points to evaluate and should be improved in the future.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="yotse.optimization.blackbox_algorithms.BayesOpt.current_datapoints">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">current_datapoints</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.BayesOpt.current_datapoints" title="Link to this definition"></a></dt>
+<dd><p>Return the current datapoints that will be used if an optimization is started
+now.</p>
+<p>In this case it is the currently suggested point.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -154,7 +189,8 @@ optimization algorithms.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.blackbox_algorithms.BayesOpt.get_new_points">
 <span class="sig-name descname"><span class="pre">get_new_points</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/yotse/optimization/blackbox_algorithms.html#BayesOpt.get_new_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.BayesOpt.get_new_points" title="Link to this definition"></a></dt>
-<dd><p>Get new points from the BayesianOptimization instance.</p>
+<dd><p>Get new points from the BayesianOptimization instance. This is done via the
+<cite>suggest</cite> function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>new_points</strong> – New points for the next iteration of the optimization.</p>
@@ -167,7 +203,7 @@ optimization algorithms.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.blackbox_algorithms.BayesOpt.input_params_to_cost_value">
-<span class="sig-name descname"><span class="pre">input_params_to_cost_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ga_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pygad.pygad.GA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solution_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="_modules/yotse/optimization/blackbox_algorithms.html#BayesOpt.input_params_to_cost_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.BayesOpt.input_params_to_cost_value" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">input_params_to_cost_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solution_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.BayesOpt.input_params_to_cost_value" title="Link to this definition"></a></dt>
 <dd><p>Return value of cost function for given set of input parameter values and
 their index in the set of points.</p>
 <dl class="field-list simple">
@@ -180,18 +216,24 @@ their index in the set of points.</p>
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="yotse.optimization.blackbox_algorithms.BayesOpt.max_iterations">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.BayesOpt.max_iterations" title="Link to this definition"></a></dt>
+<dd><p>Return maximum number of iterations of bayesian optimization.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.blackbox_algorithms.BayesOpt.overwrite_internal_data_points">
 <span class="sig-name descname"><span class="pre">overwrite_internal_data_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/optimization/blackbox_algorithms.html#BayesOpt.overwrite_internal_data_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.BayesOpt.overwrite_internal_data_points" title="Link to this definition"></a></dt>
-<dd><p>Note: this is not needed because datapoints are registered in <cite>execute</cite>.</p>
+<dd><p>After we generated a new point with get_new_points this function can be used
+to write that data point (or another point to investigate next) to the class.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.blackbox_algorithms.BayesOpt.update_internal_cost_data">
-<span class="sig-name descname"><span class="pre">update_internal_cost_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="yotse.html#yotse.pre.Experiment" title="yotse.pre.Experiment"><span class="pre">Experiment</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.BayesOpt.update_internal_cost_data" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">update_internal_cost_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.BayesOpt.update_internal_cost_data" title="Link to this definition"></a></dt>
 <dd><p>Update internal dataframe mapping input parameters to the associated cost
-from input data. It also checks that the ordering of the entries is the same as
-the data_points of the experiment.</p>
+from input data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>pandas.Dataframe</em>) – A pandas dataframe containing the collected data in the format cost_value init_param_1 … init_param_n.</p>
@@ -213,7 +255,8 @@ the data_points of the experiment.</p>
 <li><p><strong>initial_data_points</strong> (<em>np.ndarray</em>) – Initial population of data points to start the optimization with.</p></li>
 <li><p><strong>num_generations</strong> (<em>int</em>) – Number of generations in the genetic algorithm.</p></li>
 <li><p><strong>num_parents_mating</strong> (<em>int</em>) – Number of solutions to be selected as parents in the genetic algorithm.</p></li>
-<li><p><strong>fitness_func</strong> (<em>function</em><em> (</em><em>optional</em><em>)</em>) – Fitness/objective/cost function. Only needed if <cite>blackbox_optimization=False</cite>. Default is None.</p></li>
+<li><p><strong>fitness_func</strong> (<em>function</em><em> (</em><em>optional</em><em>)</em>) – Fitness/objective/cost function/function to optimize. Only needed if <cite>blackbox_optimization=False</cite>.
+Default is None.</p></li>
 <li><p><strong>gene_space</strong> (<em>dict</em><em> or </em><em>list</em><em> (</em><em>optional</em><em>)</em>) – Dictionary with constraints. Keys can be ‘low’, ‘high’ and ‘step’. Alternatively list with acceptable values or
 list of dicts. If only single object is passed it will be applied for all input parameters, otherwise a
 separate list or dict has to be supplied for each parameter.
@@ -232,6 +275,17 @@ See <a class="reference external" href="https://pygad.readthedocs.io/en/latest/R
 </dd>
 </dl>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="yotse.optimization.blackbox_algorithms.GAOpt.constraints">
+<span class="sig-name descname"><span class="pre">constraints</span></span><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.GAOpt.constraints" title="Link to this definition"></a></dt>
+<dd><p>Constraints to check for during generation of new points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict or list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="yotse.optimization.blackbox_algorithms.GAOpt.MAXIMUM">
 <span class="sig-name descname"><span class="pre">MAXIMUM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.GAOpt.MAXIMUM" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -244,17 +298,22 @@ See <a class="reference external" href="https://pygad.readthedocs.io/en/latest/R
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.blackbox_algorithms.GAOpt.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blackbox_optimization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_data_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_generations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_parents_mating</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="yotse.html#yotse.pre.ConstraintDict" title="yotse.pre.ConstraintDict"><span class="pre">ConstraintDict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refinement_factors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_duplicate_genes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitness_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">pygad_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/optimization/blackbox_algorithms.html#GAOpt.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.GAOpt.__init__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Initialize the GAOpt object.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.blackbox_algorithms.GAOpt._objective_func">
 <span class="sig-name descname"><span class="pre">_objective_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ga_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pygad.pygad.GA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solution_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/yotse/optimization/blackbox_algorithms.html#GAOpt._objective_func"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.GAOpt._objective_func" title="Link to this definition"></a></dt>
 <dd><p>Fitness function to be called from PyGAD.</p>
+<p>Wrapper around the actual function to give pygad some more functionality.
+First, it adds the possibility to choose whether to max-/minimize the fitness.
+Second, it removes the necessity to pass the ga_instance to the function, thus making the implementation
+more general.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ga_instance</strong> – # todo : add docstring</p></li>
-<li><p><strong>solution</strong> (<em>list</em>) – List of solutions.</p></li>
+<li><p><strong>ga_instance</strong> – Instance of pygad.GA.</p></li>
+<li><p><strong>solution</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – List of solutions.</p></li>
 <li><p><strong>solution_idx</strong> (<em>int</em>) – Index of solution.</p></li>
 </ul>
 </dd>
@@ -262,6 +321,14 @@ See <a class="reference external" href="https://pygad.readthedocs.io/en/latest/R
 <dd class="field-even"><p>Fitness value.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="yotse.optimization.blackbox_algorithms.GAOpt.current_datapoints">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">current_datapoints</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.GAOpt.current_datapoints" title="Link to this definition"></a></dt>
+<dd><p>Return the current datapoints that will be used if an optimization is started
+now.</p>
+<p>In this case it is the population.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -308,7 +375,7 @@ the point.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.blackbox_algorithms.GAOpt.input_params_to_cost_value">
-<span class="sig-name descname"><span class="pre">input_params_to_cost_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ga_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pygad.pygad.GA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solution_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="_modules/yotse/optimization/blackbox_algorithms.html#GAOpt.input_params_to_cost_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.GAOpt.input_params_to_cost_value" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">input_params_to_cost_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solution_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.GAOpt.input_params_to_cost_value" title="Link to this definition"></a></dt>
 <dd><p>Return value of cost function for given set of input parameter values and
 their index in the set of points.</p>
 <dl class="field-list simple">
@@ -321,24 +388,23 @@ their index in the set of points.</p>
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="yotse.optimization.blackbox_algorithms.GAOpt.max_iterations">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.GAOpt.max_iterations" title="Link to this definition"></a></dt>
+<dd><p>Return maximum number of iterations of GA = number of generation.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.blackbox_algorithms.GAOpt.overwrite_internal_data_points">
 <span class="sig-name descname"><span class="pre">overwrite_internal_data_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/optimization/blackbox_algorithms.html#GAOpt.overwrite_internal_data_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.GAOpt.overwrite_internal_data_points" title="Link to this definition"></a></dt>
-<dd><p>Overwrite the internal set of data points with one externally generated. E.g.
-when manually passing new points to an evolutionary optimization algorithm.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data_points</strong> (<em>np.ndarray</em>) – Array containing all new data points that should be passed to the optimization.</p>
-</dd>
-</dl>
+<dd><p>Overwrite internal GA population with new datapoints from experiment.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.blackbox_algorithms.GAOpt.update_internal_cost_data">
-<span class="sig-name descname"><span class="pre">update_internal_cost_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="yotse.html#yotse.pre.Experiment" title="yotse.pre.Experiment"><span class="pre">Experiment</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.GAOpt.update_internal_cost_data" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">update_internal_cost_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#yotse.optimization.blackbox_algorithms.GAOpt.update_internal_cost_data" title="Link to this definition"></a></dt>
 <dd><p>Update internal dataframe mapping input parameters to the associated cost
-from input data. It also checks that the ordering of the entries is the same as
-the data_points of the experiment.</p>
+from input data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>pandas.Dataframe</em>) – A pandas dataframe containing the collected data in the format cost_value init_param_1 … init_param_n.</p>
@@ -398,7 +464,8 @@ the data_points of the experiment.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.fitting.FuncFit.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/optimization/fitting.html#FuncFit.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.fitting.FuncFit.__init__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Initialize FuncFit.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.fitting.FuncFit.add_noise">
@@ -489,16 +556,31 @@ The list is sorted in ascending order using the error values.</p>
 </section>
 <section id="module-yotse.optimization.generic_optimization">
 <span id="yotse-optimization-generic-optimization-module"></span><h2>yotse.optimization.generic_optimization module<a class="headerlink" href="#module-yotse.optimization.generic_optimization" title="Link to this heading"></a></h2>
+<p>generic_optimization.py.</p>
+<p>This module defines the GenericOptimization class, a base class for optimization algorithms.</p>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>GenericOptimization:</dt><dd><p>A base class for optimization algorithms.</p>
+</dd>
+</dl>
+</section>
 <dl class="py class">
 <dt class="sig sig-object py" id="yotse.optimization.generic_optimization.GenericOptimization">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yotse.optimization.generic_optimization.</span></span><span class="sig-name descname"><span class="pre">GenericOptimization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refinement_factors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extrema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evolutionary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/optimization/generic_optimization.html#GenericOptimization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.generic_optimization.GenericOptimization" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yotse.optimization.generic_optimization.</span></span><span class="sig-name descname"><span class="pre">GenericOptimization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#yotse.optimization.modded_pygad_ga.ModGA" title="yotse.optimization.modded_pygad_ga.ModGA"><span class="pre">ModGA</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BayesianOptimization</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refinement_factors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extrema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evolutionary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/optimization/generic_optimization.html#GenericOptimization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.generic_optimization.GenericOptimization" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base class for optimization algorithms.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>function</strong> (<em>function</em>) – Cost function used for optimization.</p></li>
-<li><p><strong>opt_instance</strong> (<em>Any</em>) – Instance of the optimization engine</p></li>
+<li><p><strong>function</strong> (<em>Callable</em><em>[</em><em>...</em><em>, </em><em>float</em><em>]</em>) – <dl class="simple">
+<dt>Fitness function to be used for optimization. This can either be a discrete mapping between input parameters</dt><dd><p>and associated cost (in the case of blackbox optimization) or a known analytical function (in the case of
+whitebox optimization).</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>opt_instance</strong> (<em>Union</em><em>[</em><a class="reference internal" href="#yotse.optimization.modded_pygad_ga.ModGA" title="yotse.optimization.modded_pygad_ga.ModGA"><em>ModGA</em></a><em>, </em><em>BayesianOptimization</em><em>, </em><em>None</em><em>] </em><em>(</em><em>optional</em><em>)</em>) – Instance of the optimization engine.
+Defaults to None.</p></li>
 <li><p><strong>refinement_factors</strong> (<em>list</em><em> (</em><em>optional</em><em>)</em>) – Refinement factors for all parameters. If specified must be list of length = #params.
 Defaults to None.</p></li>
 <li><p><strong>logging_level</strong> (<em>int</em><em> (</em><em>optional</em><em>)</em>) – Level of logging: 1 - only essential data; 2 - include plots; 3 - dump everything.
@@ -506,6 +588,7 @@ Defaults to 1.</p></li>
 <li><p><strong>extrema</strong> (<em>int</em><em> (</em><em>optional</em><em>)</em>) – Define what type of problem to solve. ‘extrema’ can be equal to either MINIMUM or MAXIMUM. The
 optimization algorithm will look for minimum and maximum values respectively.
 Defaults to MINIMUM.</p></li>
+<li><p><strong>evolutionary</strong> (<em>bool</em><em> (</em><em>optional</em><em>)</em>) – Whether the optimization algorithm allows for evolutionary optimization. Defaults to False.</p></li>
 </ul>
 </dd>
 </dl>
@@ -521,8 +604,16 @@ Defaults to MINIMUM.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.generic_optimization.GenericOptimization.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refinement_factors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extrema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evolutionary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/optimization/generic_optimization.html#GenericOptimization.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.generic_optimization.GenericOptimization.__init__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#yotse.optimization.modded_pygad_ga.ModGA" title="yotse.optimization.modded_pygad_ga.ModGA"><span class="pre">ModGA</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">BayesianOptimization</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refinement_factors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logging_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extrema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evolutionary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/optimization/generic_optimization.html#GenericOptimization.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.generic_optimization.GenericOptimization.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the GenericOptimization object.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="yotse.optimization.generic_optimization.GenericOptimization.current_datapoints">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">current_datapoints</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#yotse.optimization.generic_optimization.GenericOptimization.current_datapoints" title="Link to this definition"></a></dt>
+<dd><p>Return the current datapoints that will be used if an optimization is started
+now.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.generic_optimization.GenericOptimization.execute">
@@ -533,10 +624,12 @@ Defaults to MINIMUM.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.generic_optimization.GenericOptimization.get_best_solution">
 <span class="sig-name descname"><span class="pre">get_best_solution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/yotse/optimization/generic_optimization.html#GenericOptimization.get_best_solution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.generic_optimization.GenericOptimization.get_best_solution" title="Link to this definition"></a></dt>
-<dd><p>Get the best solution. Should be implemented in every derived class.</p>
+<dd><p>Get the best solution (aka the best set of input parameters). Should be
+implemented in every derived class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Solution its fitness and its index in the list of data points.</p>
+<dd class="field-odd"><p>Solution (set of params), its fitness (associated cost) and its index in the list of data points.
+# todo: why do we care about the index?</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>solution, solution_fitness, solution_idx</p>
@@ -566,7 +659,7 @@ Defaults to MINIMUM.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.generic_optimization.GenericOptimization.input_params_to_cost_value">
-<span class="sig-name descname"><span class="pre">input_params_to_cost_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/yotse/optimization/generic_optimization.html#GenericOptimization.input_params_to_cost_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.generic_optimization.GenericOptimization.input_params_to_cost_value" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">input_params_to_cost_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solution_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="_modules/yotse/optimization/generic_optimization.html#GenericOptimization.input_params_to_cost_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.generic_optimization.GenericOptimization.input_params_to_cost_value" title="Link to this definition"></a></dt>
 <dd><p>Return value of cost function for given set of input parameter values and
 their index in the set of points.</p>
 <dl class="field-list simple">
@@ -577,6 +670,12 @@ their index in the set of points.</p>
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="yotse.optimization.generic_optimization.GenericOptimization.max_iterations">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#yotse.optimization.generic_optimization.GenericOptimization.max_iterations" title="Link to this definition"></a></dt>
+<dd><p>Return the maximum number of iterations of the optimization if applicable.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -593,10 +692,9 @@ when manually passing new points to an evolutionary optimization algorithm.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.generic_optimization.GenericOptimization.update_internal_cost_data">
-<span class="sig-name descname"><span class="pre">update_internal_cost_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="yotse.html#yotse.pre.Experiment" title="yotse.pre.Experiment"><span class="pre">Experiment</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/optimization/generic_optimization.html#GenericOptimization.update_internal_cost_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.generic_optimization.GenericOptimization.update_internal_cost_data" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">update_internal_cost_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/optimization/generic_optimization.html#GenericOptimization.update_internal_cost_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.generic_optimization.GenericOptimization.update_internal_cost_data" title="Link to this definition"></a></dt>
 <dd><p>Update internal dataframe mapping input parameters to the associated cost
-from input data. It also checks that the ordering of the entries is the same as
-the data_points of the experiment.</p>
+from input data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>pandas.Dataframe</em>) – A pandas dataframe containing the collected data in the format cost_value init_param_1 … init_param_n.</p>
@@ -609,33 +707,68 @@ the data_points of the experiment.</p>
 </section>
 <section id="yotse-optimization-modded-pygad-ga-module">
 <h2>yotse.optimization.modded_pygad_ga module<a class="headerlink" href="#yotse-optimization-modded-pygad-ga-module" title="Link to this heading"></a></h2>
-<dl class="py class" id="module-yotse.optimization.modded_pygad_ga">
+<p id="module-yotse.optimization.modded_pygad_ga">modded_pygad_ga.py.</p>
+<p>This module provides a modified version of the Genetic Algorithm (GA) class from the PyGAD library.</p>
+<section id="id1">
+<h3>Classes<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>ModGA:</dt><dd><p>A modified Genetic Algorithm class that extends the functionality of the GA class in the PyGAD library.</p>
+</dd>
+</dl>
+</section>
+<dl class="py class">
 <dt class="sig sig-object py" id="yotse.optimization.modded_pygad_ga.ModGA">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yotse.optimization.modded_pygad_ga.</span></span><span class="sig-name descname"><span class="pre">ModGA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/optimization/modded_pygad_ga.html#ModGA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.modded_pygad_ga.ModGA" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">GA</span></code></p>
+<p>A modified Genetic Algorithm class that extends the functionality of the GA class
+in the PyGAD library.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.optimization.modded_pygad_ga.ModGA.run_single_generation">
+<span class="sig-name descname"><span class="pre">run_single_generation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None:</span></span></span><a class="reference internal" href="_modules/yotse/optimization/modded_pygad_ga.html#ModGA.run_single_generation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.modded_pygad_ga.ModGA.run_single_generation" title="Link to this definition"></a></dt>
+<dd><p>Run a single generation of the genetic algorithm.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.optimization.modded_pygad_ga.ModGA.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None:</span></span></span><a class="reference internal" href="_modules/yotse/optimization/modded_pygad_ga.html#ModGA.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.modded_pygad_ga.ModGA.run" title="Link to this definition"></a></dt>
+<dd><p>Runs the genetic algorithm. This is the main method in which the genetic algorithm is evolved through a
+number of generations.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.modded_pygad_ga.ModGA.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#yotse.optimization.modded_pygad_ga.ModGA.__init__" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="yotse.optimization.modded_pygad_ga.ModGA.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/optimization/modded_pygad_ga.html#ModGA.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.modded_pygad_ga.ModGA.run" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/optimization/modded_pygad_ga.html#ModGA.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
 <dd><p>Runs the genetic algorithm.</p>
 <p>This is the main method in which the genetic algorithm is evolved through a
 number of generations.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="yotse.optimization.modded_pygad_ga.ModGA.run_single_generation">
-<span class="sig-name descname"><span class="pre">run_single_generation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/optimization/modded_pygad_ga.html#ModGA.run_single_generation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.modded_pygad_ga.ModGA.run_single_generation" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">run_single_generation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/optimization/modded_pygad_ga.html#ModGA.run_single_generation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
+<dd><p>Run a single generation of the genetic algorithm.</p>
+</dd></dl>
 
 </dd></dl>
 
 </section>
 <section id="module-yotse.optimization.optimizer">
 <span id="yotse-optimization-optimizer-module"></span><h2>yotse.optimization.optimizer module<a class="headerlink" href="#module-yotse.optimization.optimizer" title="Link to this heading"></a></h2>
+<p>optimizer.py.</p>
+<p>This module defines the Optimizer class, which serves as a facilitator for running optimization algorithms.
+It ensures that the provided optimization algorithm is valid and manages the execution state of the optimization process.</p>
+<section id="id3">
+<h3>Classes<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>Optimizer:</dt><dd><p>A class that wraps around a generic optimization algorithm.</p>
+</dd>
+</dl>
+</section>
 <dl class="py class">
 <dt class="sig sig-object py" id="yotse.optimization.optimizer.Optimizer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yotse.optimization.optimizer.</span></span><span class="sig-name descname"><span class="pre">Optimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimization_algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#yotse.optimization.generic_optimization.GenericOptimization" title="yotse.optimization.generic_optimization.GenericOptimization"><span class="pre">GenericOptimization</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/optimization/optimizer.html#Optimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.optimizer.Optimizer" title="Link to this definition"></a></dt>
@@ -783,15 +916,57 @@ better depending on the problem. The ‘solution_index’ indicates the
 position of the best solution in the population if applicable.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="yotse.optimization.optimizer.Optimizer.update_blackbox_cost_data">
+<span class="sig-name descname"><span class="pre">update_blackbox_cost_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="yotse.html#yotse.pre.Experiment" title="yotse.pre.Experiment"><span class="pre">Experiment</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/optimization/optimizer.html#Optimizer.update_blackbox_cost_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.optimizer.Optimizer.update_blackbox_cost_data" title="Link to this definition"></a></dt>
+<dd><p>Update internal dataframe of the optimization algorihtm, mapping input
+parameters to the associated cost from input data.</p>
+<p>Note: This also checks that the ordering of the entries is the same as the data_points of the experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment</strong> (<a class="reference internal" href="yotse.html#yotse.pre.Experiment" title="yotse.pre.Experiment"><em>Experiment</em></a>) – The experiment object containing the parameters and current data points.</p></li>
+<li><p><strong>data</strong> (<em>pandas.Dataframe</em>) – A pandas dataframe containing the collected data in the format cost_value init_param_1 … init_param_n.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
 <section id="yotse-optimization-whitebox-algorithms-module">
 <h2>yotse.optimization.whitebox_algorithms module<a class="headerlink" href="#yotse-optimization-whitebox-algorithms-module" title="Link to this heading"></a></h2>
-<dl class="py class" id="module-yotse.optimization.whitebox_algorithms">
+<p id="module-yotse.optimization.whitebox_algorithms">whitebox_algorithms.py.</p>
+<p>This module provides classes for performing whitebox optimization, aka an optimization where the function is known.</p>
+<section id="id4">
+<h3>Classes<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>SciPyOpt:</dt><dd><p>A class for optimization using the scipy.optimize.minimize function.</p>
+</dd>
+</dl>
+</section>
+<dl class="py class">
 <dt class="sig sig-object py" id="yotse.optimization.whitebox_algorithms.SciPyOpt">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yotse.optimization.whitebox_algorithms.</span></span><span class="sig-name descname"><span class="pre">SciPyOpt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'BFGS'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jac</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/yotse/optimization/whitebox_algorithms.html#SciPyOpt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.whitebox_algorithms.SciPyOpt" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#yotse.optimization.generic_optimization.GenericOptimization" title="yotse.optimization.generic_optimization.GenericOptimization"><code class="xref py py-class docutils literal notranslate"><span class="pre">GenericOptimization</span></code></a></p>
+<p>A class for optimization using the scipy.optimize.minimize function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fun</strong> (<em>callable</em>) – The objective function to be minimized.</p></li>
+<li><p><strong>x0</strong> (<em>array_like</em>) – Initial guess.</p></li>
+<li><p><strong>args</strong> (<em>tuple</em><em>, </em><em>optional</em>) – Extra arguments passed to the objective function and its derivatives (if any).</p></li>
+<li><p><strong>method</strong> (<em>str</em><em>, </em><em>optional</em>) – Type of solver. Default is ‘BFGS’.</p></li>
+<li><p><strong>jac</strong> (<em>callable</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Jacobian (gradient) of the objective function. If None, it will be computed numerically.</p></li>
+<li><p><strong>bounds</strong> (<em>sequence</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Bounds for variables (only for L-BFGS-B, TNC, COBYLA, and trust-constr methods).</p></li>
+<li><p><strong>constraints</strong> (<em>dict</em><em> or </em><em>sequence</em><em> of </em><em>dict</em><em>, </em><em>optional</em>) – Constraints definition (only for COBYLA and trust-constr methods).</p></li>
+<li><p><strong>tol</strong> (<em>float</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Tolerance for termination. For detailed control, use solver-specific options.</p></li>
+<li><p><strong>callback</strong> (<em>callable</em><em>, </em><em>optional</em>) – Called after each iteration, as callback(xk), where xk is the current parameter vector.</p></li>
+<li><p><strong>options</strong> (<em>dict</em><em>, </em><em>optional</em>) – A dictionary of solver options.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="yotse.optimization.whitebox_algorithms.SciPyOpt.MAXIMUM">
 <span class="sig-name descname"><span class="pre">MAXIMUM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#yotse.optimization.whitebox_algorithms.SciPyOpt.MAXIMUM" title="Link to this definition"></a></dt>
@@ -827,6 +1002,14 @@ position of the best solution in the population if applicable.</p>
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="yotse.optimization.whitebox_algorithms.SciPyOpt.current_datapoints">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">current_datapoints</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#yotse.optimization.whitebox_algorithms.SciPyOpt.current_datapoints" title="Link to this definition"></a></dt>
+<dd><p>Return the current datapoints that will be used if an optimization is started
+now.</p>
+<p>In this case it is the initial guess.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.whitebox_algorithms.SciPyOpt.execute">
 <span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/optimization/whitebox_algorithms.html#SciPyOpt.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.whitebox_algorithms.SciPyOpt.execute" title="Link to this definition"></a></dt>
@@ -847,7 +1030,7 @@ position of the best solution in the population if applicable.</p>
 <dd><p>Get the best solution. Should be implemented in every derived class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Solution its fitness and its index in the list of data points.</p>
+<dd class="field-odd"><p>Solution, its fitness and its index in the list of data points.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>solution, solution_fitness, solution_idx</p>
@@ -874,7 +1057,7 @@ position of the best solution in the population if applicable.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.whitebox_algorithms.SciPyOpt.input_params_to_cost_value">
-<span class="sig-name descname"><span class="pre">input_params_to_cost_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#yotse.optimization.whitebox_algorithms.SciPyOpt.input_params_to_cost_value" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">input_params_to_cost_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solution_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#yotse.optimization.whitebox_algorithms.SciPyOpt.input_params_to_cost_value" title="Link to this definition"></a></dt>
 <dd><p>Return value of cost function for given set of input parameter values and
 their index in the set of points.</p>
 <dl class="field-list simple">
@@ -887,6 +1070,12 @@ their index in the set of points.</p>
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="yotse.optimization.whitebox_algorithms.SciPyOpt.max_iterations">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#yotse.optimization.whitebox_algorithms.SciPyOpt.max_iterations" title="Link to this definition"></a></dt>
+<dd><p>Return maximum number of iterations of SciPy optimization if specified.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.whitebox_algorithms.SciPyOpt.overwrite_internal_data_points">
 <span class="sig-name descname"><span class="pre">overwrite_internal_data_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/yotse/optimization/whitebox_algorithms.html#SciPyOpt.overwrite_internal_data_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#yotse.optimization.whitebox_algorithms.SciPyOpt.overwrite_internal_data_points" title="Link to this definition"></a></dt>
@@ -895,10 +1084,9 @@ their index in the set of points.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="yotse.optimization.whitebox_algorithms.SciPyOpt.update_internal_cost_data">
-<span class="sig-name descname"><span class="pre">update_internal_cost_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="yotse.html#yotse.pre.Experiment" title="yotse.pre.Experiment"><span class="pre">Experiment</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#yotse.optimization.whitebox_algorithms.SciPyOpt.update_internal_cost_data" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">update_internal_cost_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#yotse.optimization.whitebox_algorithms.SciPyOpt.update_internal_cost_data" title="Link to this definition"></a></dt>
 <dd><p>Update internal dataframe mapping input parameters to the associated cost
-from input data. It also checks that the ordering of the entries is the same as
-the data_points of the experiment.</p>
+from input data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>pandas.Dataframe</em>) – A pandas dataframe containing the collected data in the format cost_value init_param_1 … init_param_n.</p>

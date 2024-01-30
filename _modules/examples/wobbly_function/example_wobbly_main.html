@@ -142,7 +142,7 @@
                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;GA&quot;</span><span class="p">,</span>
                 <span class="n">blackbox_optimization</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">opt_parameters</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s2">&quot;num_generations&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>  <span class="c1"># number of iterations of the algorithm</span>
+                    <span class="s2">&quot;num_generations&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>  <span class="c1"># number of iterations of the algorithm</span>
                     <span class="c1"># &quot;num_points&quot;: 10,            # number of points per param to re-create , now determined by initial</span>
                     <span class="s2">&quot;num_parents_mating&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
                     <span class="s2">&quot;mutation_probability&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
@@ -188,8 +188,9 @@
 <div class="viewcode-block" id="scipy_callback">
 <a class="viewcode-back" href="../../../examples.wobbly_function.html#examples.wobbly_function.example_wobbly_main.scipy_callback">[docs]</a>
 <span class="k">def</span> <span class="nf">scipy_callback</span><span class="p">(</span><span class="n">intermediate_result</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">OptimizeResult</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Current x&quot;</span><span class="p">,</span> <span class="n">intermediate_result</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Current fun&quot;</span><span class="p">,</span> <span class="n">intermediate_result</span><span class="o">.</span><span class="n">fun</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;SciPy callback for printing intermediate result.&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current x: </span><span class="si">{</span><span class="n">intermediate_result</span><span class="o">.</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current fun value : </span><span class="si">{</span><span class="n">intermediate_result</span><span class="o">.</span><span class="n">fun</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">return</span></div>
 
 
@@ -209,20 +210,19 @@
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../examples.wobbly_function.html#examples.wobbly_function.example_wobbly_main.main">[docs]</a>
 <span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main execution function that initializes the experiment and executes the</span>
-<span class="sd">    optimization steps.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main execution function that initializes the experiment and executes multiple</span>
+<span class="sd">    different optimization steps consecutively.</span>
+
+<span class="sd">    First we perform a blackbox optimization using Genetic Algorithm that we then follow</span>
+<span class="sd">    up by a whitebox optimization using Scipy Optimization. This is meant to demonstrate</span>
+<span class="sd">    how to explore an unknown optimization problem and once an extrema has been found,</span>
+<span class="sd">    exploit this using knowledge about the shape of the function around this point.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[93m --- Executing Wobbly-Main Example. --- </span><span class="se">\033</span><span class="s2">[0m&quot;</span><span class="p">)</span>
     <span class="n">experiment</span> <span class="o">=</span> <span class="n">wobbly_pre</span><span class="p">()</span>
     <span class="n">wobbly_example</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">(</span><span class="n">experiment</span><span class="o">=</span><span class="n">experiment</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
-        <span class="n">wobbly_example</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">generations_completed</span><span class="p">,</span>
-        <span class="n">experiment</span><span class="o">.</span><span class="n">opt_info_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">opt_parameters</span><span class="p">[</span><span class="s2">&quot;num_generations&quot;</span><span class="p">],</span>
-    <span class="p">):</span>
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="n">wobbly_example</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">optimization_instance</span><span class="o">.</span><span class="n">generations_completed</span>
-            <span class="o">==</span> <span class="n">i</span>
-        <span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">wobbly_example</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">max_iterations</span><span class="p">):</span>
         <span class="c1"># todo : the grid based point generation is still somehow bugged</span>
         <span class="c1"># wobbly_example.run(step=i, evolutionary_point_generation=False)</span>
         <span class="n">wobbly_example</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">step_number</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">evolutionary_point_generation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>

@@ -72,9 +72,22 @@
            <div itemprop="articleBody">
              
   <h1>Source code for yotse.optimization.optimizer</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span></span><span class="sd">&quot;&quot;&quot;optimizer.py.</span>
+
+<span class="sd">This module defines the Optimizer class, which serves as a facilitator for running optimization algorithms.</span>
+<span class="sd">It ensures that the provided optimization algorithm is valid and manages the execution state of the optimization process.</span>
+
+<span class="sd">Classes</span>
+<span class="sd">-------</span>
+<span class="sd">Optimizer:</span>
+<span class="sd">    A class that wraps around a generic optimization algorithm.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span>
 
 <span class="kn">from</span> <span class="nn">yotse.optimization.generic_optimization</span> <span class="kn">import</span> <span class="n">GenericOptimization</span>
 <span class="kn">from</span> <span class="nn">yotse.pre</span> <span class="kn">import</span> <span class="n">Experiment</span>
@@ -126,7 +139,8 @@
                     <span class="s2">&quot;Optimization algorithm must be a subclass of GenericOptimization.&quot;</span>
                 <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">optimization_algorithm</span> <span class="o">=</span> <span class="n">optimization_algorithm</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_is_executed</span> <span class="o">=</span> <span class="kc">False</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_executed</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_executions</span> <span class="o">=</span> <span class="mi">0</span></div>
 
 
 <div class="viewcode-block" id="Optimizer.optimize">
@@ -143,6 +157,7 @@
 <span class="sd">        None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_executions</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_executed</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 
@@ -276,16 +291,14 @@
         <span class="c1"># todo make absolutely sure the index of the solution corresponds with the job number</span>
         <span class="c1"># opt_input_datapoint = experiment.data_points[solution_index]  # (x, y, z)</span>
         <span class="n">opt_input_datapoint</span> <span class="o">=</span> <span class="n">solution</span>
-        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">parameters</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">is_active</span><span class="p">:</span>
                 <span class="c1"># calculate new ranges for each active param</span>
                 <span class="n">delta_param</span> <span class="o">=</span> <span class="n">ref_factors</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">param</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.5</span>
                 <span class="n">opt_range</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="n">opt_input_datapoint</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">delta_param</span><span class="p">,</span>
-                    <span class="n">opt_input_datapoint</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">delta_param</span><span class="p">,</span>
+                    <span class="n">opt_input_datapoint</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">-</span> <span class="n">delta_param</span><span class="p">,</span>
+                    <span class="n">opt_input_datapoint</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">+</span> <span class="n">delta_param</span><span class="p">,</span>
                 <span class="p">]</span>
-                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="c1"># write updated parameter range to each active param</span>
                 <span class="n">param</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="n">opt_range</span>
                 <span class="c1"># create new points on each active param</span>
@@ -305,6 +318,39 @@
             <span class="n">experiment</span><span class="o">.</span><span class="n">data_points</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_executed</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="Optimizer.update_blackbox_cost_data">
+<a class="viewcode-back" href="../../../yotse.optimization.html#yotse.optimization.optimizer.Optimizer.update_blackbox_cost_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_blackbox_cost_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">:</span> <span class="n">Experiment</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update internal dataframe of the optimization algorihtm, mapping input</span>
+<span class="sd">        parameters to the associated cost from input data.</span>
+
+<span class="sd">        Note: This also checks that the ordering of the entries is the same as the data_points of the experiment.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        experiment : Experiment</span>
+<span class="sd">            The experiment object containing the parameters and current data points.</span>
+<span class="sd">        data : pandas.Dataframe</span>
+<span class="sd">            A pandas dataframe containing the collected data in the format cost_value init_param_1 ... init_param_n.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check ordering of data versus initial datapoints to avoid mistakes when fetching corresponding cost by index</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">data_points</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Data has a different number of rows than the list of datapoints.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">data_points</span><span class="p">):</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+                <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">values</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Position of </span><span class="si">{</span><span class="n">values</span><span class="si">}</span><span class="s2"> is different between data and original data_points&quot;</span>
+                <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">update_internal_cost_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

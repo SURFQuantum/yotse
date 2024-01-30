@@ -72,8 +72,11 @@
            <div itemprop="articleBody">
              
   <h1>Source code for examples.wobbly_function.example_wobbly_bayesian</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">bayes_opt</span> <span class="kn">import</span> <span class="n">UtilityFunction</span>
+<span></span><span class="sd">&quot;&quot;&quot;This module demonstrates the process for a blackbox bayesian optimization using the</span>
+<span class="sd">Yotse framework.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">bayes_opt</span> <span class="kn">import</span> <span class="n">UtilityFunction</span>
 
+<span class="kn">from</span> <span class="nn">examples.wobbly_function.example_wobbly_main</span> <span class="kn">import</span> <span class="n">remove_files_after_run</span>
 <span class="kn">from</span> <span class="nn">examples.wobbly_function.example_wobbly_main</span> <span class="kn">import</span> <span class="n">wobbly_pre</span>
 <span class="kn">from</span> <span class="nn">yotse.execution</span> <span class="kn">import</span> <span class="n">Executor</span>
 <span class="kn">from</span> <span class="nn">yotse.pre</span> <span class="kn">import</span> <span class="n">OptimizationInfo</span>
@@ -82,6 +85,16 @@
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../examples.wobbly_function.html#examples.wobbly_function.example_wobbly_bayesian.main">[docs]</a>
 <span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Executes a blackbox optimization experiment for a &#39;wobbly function&#39; of unknown</span>
+<span class="sd">    form (at least we pretend to not know for the purpose of this example).</span>
+
+<span class="sd">    This function first adds the bayesian optimization information, sets it to active</span>
+<span class="sd">    and finally runs the optimization.</span>
+
+<span class="sd">    Note: in the current setting we are by default giving the initial datapoints of the experiment to the optimization.</span>
+<span class="sd">    So the first step will execute multiple instances of the optimization while subsequent steps will execute a single</span>
+<span class="sd">    point suggested by the optimization algorithm.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[93m --- Executing Wobbly-Bayesian Example. --- </span><span class="se">\033</span><span class="s2">[0m&quot;</span><span class="p">)</span>
 
     <span class="n">bayesopt_experiment</span> <span class="o">=</span> <span class="n">wobbly_pre</span><span class="p">()</span>
@@ -102,16 +115,16 @@
 
     <span class="n">wobbly_bayesopt</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">(</span><span class="n">experiment</span><span class="o">=</span><span class="n">bayesopt_experiment</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">bayes_opt</span><span class="o">.</span><span class="n">opt_parameters</span><span class="p">[</span><span class="s2">&quot;n_iter&quot;</span><span class="p">]):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">wobbly_bayesopt</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">optimization_algorithm</span><span class="o">.</span><span class="n">max_iterations</span><span class="p">):</span>
         <span class="n">wobbly_bayesopt</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">step_number</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
 
     <span class="n">solution</span> <span class="o">=</span> <span class="n">wobbly_bayesopt</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">suggest_best_solution</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Solution: &quot;</span><span class="p">,</span> <span class="n">solution</span><span class="p">)</span></div>
-
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Solution: &quot;</span><span class="p">,</span> <span class="n">solution</span><span class="p">)</span>
     <span class="c1"># matplotlib.use(&#39;Qt5Agg&#39;)</span>
     <span class="c1"># wobbly_example.optimization_alg.ga_instance.plot_new_solution_rate()</span>
     <span class="c1"># wobbly_example.optimization_alg.ga_instance.plot_fitness()</span>
-    <span class="c1"># remove_files_after_run()</span>
+    <span class="n">remove_files_after_run</span><span class="p">()</span></div>
+
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
