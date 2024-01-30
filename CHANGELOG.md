@@ -2,6 +2,9 @@ CHANGELOG
 =========
 
 [//]: # (For more details refer to the [documentation]&#40;&#41;.)
+(upcoming)
+---
+* added `dependabot` to update `github-actions`
 
 2024-01-31 (1.0.0):
 ---
