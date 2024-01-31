@@ -12,7 +12,11 @@
 </div>
 
 
-YOTSE is a powerful tool designed to enable computational experiments using any software, with a particular emphasis on NetSquid in the context of the Quantum Internet Alliance. This library offers a set of predefined functions for performing parameter explorations and optimizations in a scalable and efficient manner.
+YOTSE is a powerful tool designed to enable computational experiments using any software, with a particular emphasis on running optimization algorithm on HPC clusters with optimal resource allocation.
+
+Originally it was developed for use with [NetSquid](https://netsquid.org/) in the context of the [Quantum Internet Alliance](https://quantuminternetalliance.org/).
+However, the tools in this library are aimed at being as generally applicable as possible and should fit simulation scripts written in any language with minimal requirements on output format.
+YOTSE offers a set of predefined functions for performing parameter explorations and optimizations in a scalable and efficient manner.
 
 Documentation can be found [here](https://surfquantum.github.io/yotse/).
 
@@ -20,10 +24,15 @@ Note: If you use this package for research purposes, consider checking out the u
 
 ## Table of Contents
 1. [Installation](#installation)
+   1. [Python Package](#python-package)
+   2. [Manual](#manual)
 2. [Usage](#usage)
-3. [Contributing](#contributing)
-4. [Testing](#testing)
-5. [License](#license)
+   1. [General](#general)
+   2. [Usage With SLURM](#usage-with-slurm)
+3. [Class Structure](#class-structure)
+4. [Contributing](#contributing)
+5. [Testing](#testing)
+6. [License](#license)
 
 ## Installation
 ### Python Package
@@ -108,7 +117,7 @@ In order to keep dependencies as clean as possible, we suggest using two virtual
 1. A virtual environment that has all dependencies of your own script installed and can execute your owns script without errors. Pass this as `SystemSetup.venv`.
 2. A virtual environment that has `yotse` installed. Pass this as `SystemSetup.slurm_venv` such that it is activated before SLURM executes the yotse commands.
 
-## Class structure
+## Class Structure
 
 ```mermaid
 ---
