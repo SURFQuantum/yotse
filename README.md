@@ -5,6 +5,7 @@
 ![Integration](https://github.com/SURFQuantum/yotse/actions/workflows/integration.yml/badge.svg)
 [![Coverage](https://coveralls.io/repos/github/SURFQuantum/yotse/badge.svg?branch=main)](https://coveralls.io/github/SURFQuantum/yotse?branch=main)
 ![docs: numpy](https://img.shields.io/badge/docstyle-numpy-green)
+[![DOI](https://zenodo.org/badge/607662019.svg)](https://zenodo.org/doi/10.5281/zenodo.10600332)
 
 # YOTSE - Your Optimization Tool for Scientific Experiments
 <div style="text-align:center;">
