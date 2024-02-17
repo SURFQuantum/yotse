@@ -11,9 +11,9 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up python 3.11 until pycln fix
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: 3.11
     - uses: pre-commit/action@v3.0.0
@@ -26,25 +26,25 @@ jobs:
         poetry-version: ["1.7.0"]
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
         ref: ${{ github.head_ref }}
     - name: Install Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
       # see details (matrix, python-version, python-version-file, etc.)
       # https://github.com/actions/setup-python
     - name: Install poetry
-      uses: abatilo/actions-poetry@v2
+      uses: abatilo/actions-poetry@v3
       with:
         poetry-version: ${{ matrix.poetry-version }}
     - name: Setup a local virtual environment (if no poetry.toml file)
       run: |
         poetry config virtualenvs.create true --local
         poetry config virtualenvs.in-project true --local
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       name: Define a cache for the virtual environment based on the dependencies lock file
       with:
         path: ./.venv
