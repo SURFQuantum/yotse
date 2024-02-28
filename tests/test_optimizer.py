@@ -17,6 +17,27 @@ from yotse.pre import Experiment
 class TestOptimizer(unittest.TestCase):
     """Set of tests to validate `Optimizer` class."""
 
+    def setup_mock_for_grid_test(
+        self, refinement_factors: List[float]
+    ) -> GenericOptimization:
+        """Set up a Mock optimization algorithm object for testing
+        grid_based_point_creation."""
+
+        class GridTestMockOpt(GenericOptimization):
+            """Mock optimization class to test."""
+
+            def __init__(self, refinement_factors: List[float]) -> None:
+                """Set refinement factors and logging level for mock optimization
+                algorithm."""
+                self.refinement_factors = refinement_factors
+                self.logging_level = 0
+
+            def get_best_solution(self) -> Tuple[List[float], float, int]:
+                """Get mock solution."""
+                return [0.1, 0.2, 0.3], 0.5, 3
+
+        return GridTestMockOpt(refinement_factors)  # type: ignore
+
     def test_init(self) -> None:
         """Test that Optimizer is initialized correctly."""
         mock_optimization = Mock(spec=GenericOptimization)
@@ -115,22 +136,10 @@ class TestOptimizer(unittest.TestCase):
 
     def test_grid_based_point_creation(self) -> None:
         """Test grid based point creation works as expected."""
-
-        class MockOpt(GenericOptimization):
-            """Mock optimization class to test."""
-
-            def __init__(self) -> None:
-                """Set refinement factors and logging level for mock optimization
-                algorithm."""
-                self.refinement_factors = [0.1, 0.2, 0.3]
-                self.logging_level = 0
-
-            def get_best_solution(self) -> Tuple[List[float], float, int]:
-                """Get mock solution."""
-                return [0.1, 0.2, 0.3], 0.5, 3
-
         test_optimizer = Optimizer(
-            optimization_algorithm=MockOpt(function=None, opt_instance=None)  # type: ignore
+            optimization_algorithm=self.setup_mock_for_grid_test(
+                refinement_factors=[0.1, 0.2, 0.3]
+            )
         )
 
         # Set up mock parameters and refinement factors
@@ -159,3 +168,36 @@ class TestOptimizer(unittest.TestCase):
             mock_params[1].range[0], 0.12, delta=1e-5
         )  # +/= 0.08 around sol[1]=0.2
         self.assertAlmostEqual(mock_params[1].range[1], 0.28, delta=1e-5)
+
+    def test_missing_refinement_factors(self) -> None:
+        """Test missing refinement factors are caught."""
+        test_optimizer = Optimizer(
+            optimization_algorithm=self.setup_mock_for_grid_test(
+                refinement_factors=None  # type: ignore[arg-type]
+            )
+        )
+
+        # Call the function and expect an AssertionError
+        with self.assertRaises(AssertionError):
+            test_optimizer.grid_based_point_creation(create_default_experiment())
+
+    def test_invalid_refinement_factors_length(self) -> None:
+        """Test invalid length of refinement factors is caught."""
+        # Set up mock parameters and incorrect refinement factors length
+        mock_params = [
+            create_default_param(parameter_active=True),
+            create_default_param(parameter_active=True),
+            create_default_param(parameter_active=False),
+        ]
+
+        test_optimizer = Optimizer(
+            optimization_algorithm=self.setup_mock_for_grid_test(
+                refinement_factors=[0.1, 0.2]
+            )
+        )
+
+        # Call the function and expect a ValueError
+        with self.assertRaises(ValueError):
+            test_optimizer.grid_based_point_creation(
+                create_default_experiment(parameters=mock_params)
+            )
