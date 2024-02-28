@@ -246,6 +246,8 @@ class Parameter:
         Notes
         -----
         # todo : this will only be applied once before the start of the experiment. Is that useful?
+
+        # todo: applying this in every different optimization step requires a deep level of control that might currently not be possible.
         """
         if self.depends_on is None:
             raise ValueError(

@@ -13,6 +13,7 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 
+import numpy as np
 import pandas
 
 from yotse.optimization.generic_optimization import GenericOptimization
@@ -138,13 +139,19 @@ class Optimizer:
             print(
                 "Warning: Grid based point generation currently not supporting constraints!"
             )
-            self.grid_based_point_creation(
+
+            # update data points points on the experiment
+            experiment.data_points = self.grid_based_point_creation(
                 experiment=experiment, points_per_param=points_per_param
             )
+            self.optimization_algorithm.overwrite_internal_data_points(
+                experiment.data_points
+            )
+            self._is_executed = False
 
     def grid_based_point_creation(
         self, experiment: Experiment, points_per_param: Optional[int] = None
-    ) -> None:
+    ) -> np.ndarray:
         """Refines the parameter search space based on the best solution and creates new
         data points for the next round of optimization.
 
@@ -161,6 +168,11 @@ class Optimizer:
             The number of points to generate for each parameter. If None, the
             number specified in each parameter object is used, by default None.
 
+        Returns
+        -------
+        np.ndarray : np.ndarray
+            The generated datapoints for the next round of optimization in the same format as `experiment.data_points`.
+
         Raises
         ------
         AssertionError
@@ -175,12 +187,9 @@ class Optimizer:
         and uses the associated fitness value to guide the creation of a refined
         parameter space. It then updates the ranges of each active parameter based
         on the refinement factors and generates a new set of data points accordingly.
-        The new data points are then used to overwrite the internal data points
-        of the optimization algorithm.
 
         This method must be called after the optimization algorithm has found an
-        initial best solution. It modifies the `experiment` object's parameters
-        in-place, adjusting their ranges and data points without returning any value.
+        initial best solution.
         """
         solution, solution_fitness, _ = self.optimization_algorithm.get_best_solution()
 
@@ -198,8 +207,6 @@ class Optimizer:
                 f"should be the same as number of parameters {len(experiment.parameters)}."
             )
 
-        # todo make absolutely sure the index of the solution corresponds with the job number
-        # opt_input_datapoint = experiment.data_points[solution_index]  # (x, y, z)
         opt_input_datapoint = solution
         for p, param in enumerate(experiment.parameters):
             if param.is_active:
@@ -222,17 +229,12 @@ class Optimizer:
                     param.data_points = param.generate_data_points(
                         num_points=param.number_points
                     )
-        # update data points points on the experiment
-        experiment.data_points = experiment.create_datapoint_c_product()
-        self.optimization_algorithm.overwrite_internal_data_points(
-            experiment.data_points
-        )
-        self._is_executed = False
+        return experiment.create_datapoint_c_product()
 
     def update_blackbox_cost_data(
         self, experiment: Experiment, data: pandas.DataFrame
     ) -> None:
-        """Update internal dataframe of the optimization algorihtm, mapping input
+        """Update internal dataframe of the optimization algorithm, mapping input
         parameters to the associated cost from input data.
 
         Note: This also checks that the ordering of the entries is the same as the data_points of the experiment.

@@ -6,6 +6,8 @@ from unittest.mock import Mock
 
 import numpy as np
 import pandas
+from utils import create_default_experiment
+from utils import create_default_param
 
 from yotse.optimization.generic_optimization import GenericOptimization
 from yotse.optimization.optimizer import Optimizer
@@ -110,3 +112,50 @@ class TestOptimizer(unittest.TestCase):
         self.assertTrue(
             test_optimization.input_param_cost_df.equals(test_df2_unprecise)
         )
+
+    def test_grid_based_point_creation(self) -> None:
+        """Test grid based point creation works as expected."""
+
+        class MockOpt(GenericOptimization):
+            """Mock optimization class to test."""
+
+            def __init__(self) -> None:
+                """Set refinement factors and logging level for mock optimization
+                algorithm."""
+                self.refinement_factors = [0.1, 0.2, 0.3]
+                self.logging_level = 0
+
+            def get_best_solution(self) -> Tuple[List[float], float, int]:
+                """Get mock solution."""
+                return [0.1, 0.2, 0.3], 0.5, 3
+
+        test_optimizer = Optimizer(
+            optimization_algorithm=MockOpt(function=None, opt_instance=None)  # type: ignore
+        )
+
+        # Set up mock parameters and refinement factors
+        mock_params = [
+            create_default_param(parameter_active=True, parameter_range=[0.0, 1.0]),
+            create_default_param(parameter_active=True),
+            create_default_param(parameter_active=False),
+        ]
+        test_exp = create_default_experiment(parameters=mock_params)
+
+        # Call the function
+        result = test_optimizer.grid_based_point_creation(test_exp, points_per_param=5)
+
+        # Assertions
+        self.assertIsInstance(result, np.ndarray)
+        self.assertEqual(
+            result.shape[0], 5 * 5
+        )  # Check if the number of generated data points is correct
+
+        # Check if parameters have been updated based on the best solution and refinement factors
+        self.assertAlmostEqual(
+            mock_params[0].range[0], 0.05, delta=1e-5
+        )  # +/- 0.05 around sol[0]=0.1
+        self.assertAlmostEqual(mock_params[0].range[1], 0.15, delta=1e-5)
+        self.assertAlmostEqual(
+            mock_params[1].range[0], 0.12, delta=1e-5
+        )  # +/= 0.08 around sol[1]=0.2
+        self.assertAlmostEqual(mock_params[1].range[1], 0.28, delta=1e-5)
