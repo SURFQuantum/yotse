@@ -1,5 +1,6 @@
 """This module demonstrates the process for a whitebox optimization using the Yotse
 framework."""
+
 import random
 from typing import Any
 

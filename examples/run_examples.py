@@ -5,6 +5,7 @@ Each file should be of the form example*.py and contain a `main`-method.
 If the `main`-method takes an argument `no_output` this will be passed as `True`
 to avoid creating plots etc.
 """
+
 import importlib
 import inspect
 import os

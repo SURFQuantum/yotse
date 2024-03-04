@@ -1,5 +1,6 @@
 """This module demonstrates the process for a blackbox bayesian optimization using the
 Yotse framework."""
+
 from bayes_opt import UtilityFunction
 
 from examples.wobbly_function.example_wobbly_main import remove_files_after_run

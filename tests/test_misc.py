@@ -1,76 +1,24 @@
 """Miscellaneous unit tests."""
-import os
+
 import unittest
 from typing import Any
 from typing import Callable
 from typing import List
-from typing import Optional
 from typing import Tuple
-from typing import Union
 
 import numpy as np
 import pandas as pd
 import pytest
+from utils import create_default_executor
+from utils import create_default_experiment
+from utils import create_default_param
 
-from yotse.execution import Executor
 from yotse.optimization.modded_pygad_ga import ModGA  # type: ignore[attr-defined]
-from yotse.pre import ConstraintDict
-from yotse.pre import Experiment
 from yotse.pre import OptimizationInfo
-from yotse.pre import Parameter
-from yotse.pre import SystemSetup
-
-
-if os.getcwd().endswith("tests"):
-    DUMMY_FILE = "myfunction.py"
-else:
-    DUMMY_FILE = "tests/myfunction.py"
 
 
 class TestNewOpt(unittest.TestCase):
     """Test the new Optimization Class."""
-
-    @staticmethod
-    def create_default_param(
-        name: str = "bright_state_parameter",
-        parameter_range: List[Union[float, int]] = [0.1, 0.9],
-        number_points: int = 9,
-        distribution: str = "linear",
-        constraints: Union[ConstraintDict, np.ndarray, None] = None,
-        custom_distribution: Optional[Callable[[float, float, int], np.ndarray]] = None,
-    ) -> Parameter:
-        """Return a default Parameter instance with optional custom settings."""
-        return Parameter(
-            name=name,
-            param_range=parameter_range,
-            number_points=number_points,
-            distribution=distribution,
-            constraints=constraints,
-            custom_distribution=custom_distribution,
-        )
-
-    @staticmethod
-    def create_default_experiment(
-        parameters: Optional[List[Parameter]] = None,
-        opt_info_list: Optional[List[OptimizationInfo]] = None,
-    ) -> Experiment:
-        """Return a default Experiment instance with optional parameters and
-        optimization info."""
-        return Experiment(
-            experiment_name="default_exp",
-            system_setup=SystemSetup(
-                source_directory=os.getcwd(),
-                program_name=DUMMY_FILE,
-                command_line_arguments={"arg1": 1.0},
-            ),
-            parameters=parameters,
-            opt_info_list=opt_info_list,
-        )
-
-    @staticmethod
-    def create_default_executor(experiment: Experiment) -> Executor:
-        """Instantiate and return an Executor with the given experiment."""
-        return Executor(experiment=experiment)
 
     def setUp(self) -> None:
         """Prepare resources before each test."""
@@ -118,8 +66,8 @@ class TestNewOpt(unittest.TestCase):
         """Test population lookup."""
         # todo : this test seems to still test something that no other test picks up (aka the input_to_cost_value func)
         print("Initial pop has size", len(self.initial_pop))
-        test_param = [TestNewOpt.create_default_param() for _ in range(3)]
-        test_exp = self.create_default_experiment(
+        test_param = [create_default_param() for _ in range(3)]
+        test_exp = create_default_experiment(
             parameters=test_param,
             opt_info_list=[
                 OptimizationInfo(
@@ -138,7 +86,7 @@ class TestNewOpt(unittest.TestCase):
             ],
         )
         test_exp.data_points = self.initial_pop
-        test_exec = self.create_default_executor(experiment=test_exp)
+        test_exec = create_default_executor(experiment=test_exp)
         test_exec.optimizer.optimization_algorithm.update_internal_cost_data(
             data=self.data
         )

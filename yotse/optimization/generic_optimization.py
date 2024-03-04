@@ -7,6 +7,7 @@ Classes
 GenericOptimization:
     A base class for optimization algorithms.
 """
+
 import inspect
 import math
 from abc import ABCMeta

@@ -1,4 +1,5 @@
 """Defines classes and functions for the setup of your experiment."""
+
 from __future__ import annotations
 
 import argparse
@@ -283,21 +284,6 @@ class Parameter:
                         )
                 except KeyError:
                     pass
-            elif isinstance(self.constraints, tuple) and isinstance(
-                target_parameter.constraints, tuple
-            ):
-                updated_constraints: List[float] = []
-                if len(self.constraints) != len(target_parameter.constraints):
-                    raise ValueError(
-                        "Can not compute dependency for parameter with different number of allowed values."
-                    )
-                for i, value in enumerate(self.constraints):
-                    updated_constraints.append(
-                        self.depends_on["function"](
-                            value, target_parameter.constraints[i]
-                        )
-                    )
-                self.constraints = tuple(updated_constraints)
             else:
                 raise ValueError(
                     f"For parameters that depend on each other the constraints must be of the same type and not "
