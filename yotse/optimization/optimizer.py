@@ -140,7 +140,7 @@ class Optimizer:
                 "Warning: Grid based point generation currently not supporting constraints!"
             )
 
-            # update data points points on the experiment
+            # update data_points of the experiment
             experiment.data_points = self.grid_based_point_creation(
                 experiment=experiment, points_per_param=points_per_param
             )

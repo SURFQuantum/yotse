@@ -246,8 +246,6 @@ class Parameter:
         Notes
         -----
         # todo : this will only be applied once before the start of the experiment. Is that useful?
-
-        # todo: applying this in every different optimization step requires a deep level of control that might currently not be possible.
         """
         if self.depends_on is None:
             raise ValueError(
@@ -285,21 +283,6 @@ class Parameter:
                         )
                 except KeyError:
                     pass
-            elif isinstance(self.constraints, tuple) and isinstance(
-                target_parameter.constraints, tuple
-            ):
-                updated_constraints: List[float] = []
-                if len(self.constraints) != len(target_parameter.constraints):
-                    raise ValueError(
-                        "Can not compute dependency for parameter with different number of allowed values."
-                    )
-                for i, value in enumerate(self.constraints):
-                    updated_constraints.append(
-                        self.depends_on["function"](
-                            value, target_parameter.constraints[i]
-                        )
-                    )
-                self.constraints = tuple(updated_constraints)
             else:
                 raise ValueError(
                     f"For parameters that depend on each other the constraints must be of the same type and not "
