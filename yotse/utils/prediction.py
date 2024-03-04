@@ -3,6 +3,7 @@
 This module provides a Predict class for learning and predicting using different
 regression models.
 """
+
 from typing import List
 
 import matplotlib.pyplot as plt

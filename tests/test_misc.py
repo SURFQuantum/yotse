@@ -1,4 +1,5 @@
 """Miscellaneous unit tests."""
+
 import unittest
 from typing import Any
 from typing import Callable

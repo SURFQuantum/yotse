@@ -7,6 +7,7 @@ Classes
 SciPyOpt:
     A class for optimization using the scipy.optimize.minimize function.
 """
+
 from typing import Any
 from typing import Callable
 from typing import Dict

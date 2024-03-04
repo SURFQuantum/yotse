@@ -10,6 +10,7 @@ Through optional input arguments one can define the path where the results shoul
 saved, how many runs per data point to simulate, the name of the saved file and whether
 the simulation results should be plotted.
 """
+
 import copy
 import os
 import pickle

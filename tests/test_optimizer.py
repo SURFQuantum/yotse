@@ -1,4 +1,5 @@
 """Unit tests for optimizer.py module."""
+
 import unittest
 from typing import List
 from typing import Tuple

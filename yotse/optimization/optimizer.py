@@ -8,6 +8,7 @@ Classes
 Optimizer:
     A class that wraps around a generic optimization algorithm.
 """
+
 import math
 from typing import List
 from typing import Optional

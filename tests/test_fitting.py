@@ -1,4 +1,5 @@
 """Unit tests for the `yotse.optimization.fitting` package's `FuncFit` class."""
+
 import unittest
 from typing import Any
 
