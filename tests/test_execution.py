@@ -60,7 +60,7 @@ class TestExecutor(unittest.TestCase):
         test_exp = create_default_experiment()
         test_exec = create_default_executor(experiment=test_exp)
         test_points = self.test_points
-        test_exec.experiment.data_points = test_points
+        test_exec.experiment._data_points = test_points
         job_ids = test_exec.submit()
 
         self.assertEqual(len(test_points), len(job_ids))
@@ -143,7 +143,7 @@ class TestExecutor(unittest.TestCase):
         """Test the run method of Executor for proper execution flow."""
         test_exec = create_default_executor(experiment=create_default_experiment())
         test_points = self.test_points
-        test_exec.experiment.data_points = test_points
+        test_exec.experiment._data_points = test_points
         test_exec.run()
         # todo: this tests nothing! add test
         self.path = (

@@ -93,12 +93,101 @@ class TestParameters(unittest.TestCase):
                 )
                 self.assertLessEqual(min(dist_param.data_points), dist_param.range[1])
 
+    def test_cartesian_product(self) -> None:
+        """Test the generation of the cartesian product of data points."""
+        param_a = Parameter(
+            "A",
+            param_range=[1, 3],
+            number_points=3,
+            distribution="linear",
+            constraints={"low": 0, "high": 5},
+            parameter_active=True,
+        )
+        param_b = Parameter(
+            "B",
+            param_range=[4, 6],
+            number_points=3,
+            distribution="linear",
+            constraints={"low": 0, "high": 10},
+            parameter_active=False,
+        )
+        param_c = Parameter(
+            "C",
+            param_range=[7, 10],
+            number_points=4,
+            distribution="linear",
+            constraints={"low": 0, "high": 10},
+            parameter_active=True,
+        )
+
+        test_exp = create_default_experiment(parameters=[param_a, param_b, param_c])
+        assert isinstance(test_exp.data_points, np.ndarray)
+        assert test_exp.data_points.shape == (3 * 3 * 4, 3)
+        # check if initial data_points are correct
+        exp_list = [tuple(i) for i in test_exp.data_points.tolist()]
+        test_list = list(
+            itertools.product([1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0, 10.0])
+        )
+        assert sorted(exp_list) == sorted(test_list)
+
+        # check if we can produce a correct cprod from new data
+        new_data = np.array(
+            list(itertools.product([11.0, 22.0, 33.0], [77.0, 88.0, 99.0, 1010.0]))
+        )
+        new_cprod = test_exp.cprod_active_inactive_data_points(
+            active_data_points=new_data
+        )
+        new_cprod = [tuple(i) for i in new_cprod.tolist()]
+        test_cprod = list(
+            itertools.product(
+                [11.0, 22.0, 33.0], [4.0, 5.0, 6.0], [77.0, 88.0, 99.0, 1010.0]
+            )
+        )
+        assert sorted(new_cprod) == sorted(test_cprod)
+
     def test_generate_data_points(self) -> None:
         """Test the generation of data points for a `Parameter`."""
         test_parameter = create_default_param(number_points=5)
         test_parameter.data_points = test_parameter.generate_data_points(num_points=3)
         self.assertEqual(len(test_parameter.data_points), 3)
         np.testing.assert_almost_equal(test_parameter.data_points, [0.1, 0.5, 0.9])
+
+    def test_param_dependency_errors(self) -> None:
+        """Test whether errors in the param_dependency are correctly thrown."""
+        # test active param can not be dependent
+        with self.assertRaises(ValueError):
+            Parameter(
+                name="broken_param",
+                param_range=[0, 1],
+                number_points=2,
+                distribution="linear",
+                constraints={"low": 0, "high": 1},
+                parameter_active=True,
+                depends_on={"name": "B", "function": lambda x, y: x + y},
+            )
+
+        # check mismatching constraint type
+
+        param_a = Parameter(
+            "A",
+            param_range=[1, 3],
+            number_points=3,
+            distribution="linear",
+            constraints={"low": 0, "high": 5},
+            depends_on={"name": "B", "function": lambda x, y: x + y},
+            parameter_active=False,
+        )
+        param_b = Parameter(
+            "B",
+            param_range=[4, 6],
+            number_points=3,
+            distribution="linear",
+            constraints=np.array([0, 10]),
+            # constraints={"low": 0, "high": 10},
+        )
+
+        with self.assertRaises(ValueError):
+            create_default_experiment(parameters=[param_a, param_b])
 
     def test_generate_dependent_data_points(self) -> None:
         """Test the generation of data points for a `Parameter` that depends on another
@@ -120,9 +209,10 @@ class TestParameters(unittest.TestCase):
             distribution="linear",
             parameter_range=[1, 4],
             depends_on={"name": "param1", "function": linear_dep},
+            parameter_active=False,
         )
         param_list = [param1, param2]
-        param2.update_parameter_through_dependency(param_list)
+        create_default_experiment(param_list)
         assert np.array_equal(param2.data_points, np.array((1, 4, 9, 16)))
 
         def fancy_dep(x: float, y: float) -> float:
@@ -135,38 +225,57 @@ class TestParameters(unittest.TestCase):
             distribution="linear",
             parameter_range=[1, 4],
             depends_on={"name": "param1", "function": fancy_dep},
+            parameter_active=False,
         )
         param_list = [param1, param3]
-        param3.update_parameter_through_dependency(param_list)
+        test_exp = create_default_experiment(param_list)
         assert np.array_equal(param3.data_points, np.array((2, 8, 54, 512)))
+        assert np.array_equal(
+            test_exp.parameters[1].data_points, np.array((2, 8, 54, 512))
+        )
 
     def test_update_parameter_through_dependency(self) -> None:
         """Test the update of a `Parameter` that depends on another parameter."""
         # Create a mock experiment with parameters
+        # todo: should we require param and dependency to have the same num of points? (what would it mean if they don't??)
+        # A: yes! implement check and test
+        # todo also test what happens if there are multiple params
         param_a = Parameter(
             "A",
             param_range=[1, 3],
             number_points=3,
             distribution="linear",
             constraints={"low": 0, "high": 5},
+            depends_on={"name": "B", "function": lambda x, y: x + y},
+            parameter_active=False,
         )
         param_b = Parameter(
             "B",
             param_range=[4, 6],
             number_points=3,
             distribution="linear",
-            constraints={"low": 0, "high": 10},
+            constraints={"low": 0, "high": 10, "step": 1},
+        )
+        param_c = Parameter(
+            "C",
+            param_range=[7, 10],
+            number_points=4,
+            distribution="linear",
+            constraints={"low": 0, "high": 20},
         )
 
-        # Test when depends_on is not set
-        with self.assertRaises(ValueError):
-            param_a.update_parameter_through_dependency([param_a, param_b])
-
-        # Set up dependency
-        param_a.depends_on = {"name": "B", "function": lambda x, y: x + y}
+        # test initial datapoints
+        test_exp = create_default_experiment(parameters=[param_a, param_b, param_c])
+        self.assertEqual(test_exp.data_points.shape, (3 * 3 * 4, 3))
+        print("testing", param_a.data_points)
+        assert (param_a.data_points == np.array([1.0 + 4, 2.0 + 5, 3.0 + 6])).all()
 
         # Test the update
-        param_a.update_parameter_through_dependency([param_a, param_b])
+        print("current datapoints", test_exp.data_points, test_exp.data_points.shape)
+        print(param_a.data_points)
+        new_data = np.array(list(itertools.product([1, 2, 3], [11, 22, 33])))
+        print("new", new_data)
+        test_exp.update_parameters_through_dependency(new_active_data_points=new_data)
 
         # Check if the data_points were updated correctly
         self.assertTrue(isinstance(param_a.data_points, np.ndarray))
@@ -331,7 +440,7 @@ class TestExperiment(unittest.TestCase):
                 parameter_active=True,
             )
         )
-        test_exp.data_points = test_exp.create_datapoint_c_product()
+        test_exp._data_points = test_exp.create_datapoint_c_product()
 
         assert np.array_equal(
             test_exp.data_points,
@@ -344,9 +453,9 @@ class TestExperiment(unittest.TestCase):
             ),
         )
         # now activate 'inactive_param' and regenerate points
-        test_exp.parameters[1].parameter_active = True
+        test_exp.set_parameter_activity("inactive_param", True)
         assert test_exp.parameters[1].is_active
-        test_exp.data_points = test_exp.create_datapoint_c_product()
+        test_exp._data_points = test_exp.create_datapoint_c_product()
         assert np.array_equal(
             test_exp.data_points,
             np.array(
@@ -360,9 +469,9 @@ class TestExperiment(unittest.TestCase):
             ),
         )
         # now deactivate 'active_param1' and 'active_param2' and regenerate points
-        test_exp.parameters[0].parameter_active = False
-        test_exp.parameters[2].parameter_active = False
-        test_exp.data_points = test_exp.create_datapoint_c_product()
+        test_exp.set_parameter_activity("active_param1", False)
+        test_exp.set_parameter_activity("active_param2", False)
+        test_exp._data_points = test_exp.create_datapoint_c_product()
         assert test_exp.parameters[0].is_active is False
         assert test_exp.parameters[2].is_active is False
         assert np.array_equal(test_exp.data_points, np.array([[11.0], [12.0], [13.0]]))
@@ -374,6 +483,61 @@ class TestExperiment(unittest.TestCase):
         test_param = create_default_param()
         test_exp.add_parameter(test_param)
         self.assertEqual(len(test_exp.parameters), 1)
+
+    def test_set_param_activity(self) -> None:
+        """Test whether parameters can be correctly activated and deactivated thorugh
+        `pre.Experiment`."""
+        test_exp = create_default_experiment()
+        test_exp.add_parameter(
+            Parameter(
+                name="active_param1",
+                param_range=[1, 3],
+                number_points=3,
+                distribution="linear",
+                parameter_active=True,
+            )
+        )
+        test_exp.add_parameter(
+            Parameter(
+                name="active_param2",
+                param_range=[11, 13],
+                number_points=3,
+                distribution="linear",
+                parameter_active=True,
+            )
+        )
+
+        np.testing.assert_array_equal(
+            test_exp.parameters[0].data_points, np.array([1.0, 2.0, 3.0])
+        )
+        np.testing.assert_array_equal(
+            test_exp.parameters[1].data_points, np.array([11, 12, 13])
+        )
+        self.assertTrue(test_exp.parameters[0].is_active)
+        self.assertTrue(test_exp.parameters[1].is_active)
+        # set new data_points
+        new_datapoints = itertools.product([4, 5, 6], [14, 15, 16])
+        test_exp.update_data_points(new_datapoints)
+        # set first param inactive
+        test_exp.set_parameter_activity("active_param1", False)
+        np.testing.assert_array_equal(
+            test_exp.parameters[0].data_points, np.array([4, 5, 6])
+        )
+        self.assertTrue(isinstance(test_exp.parameters[0].data_points, np.ndarray))
+        self.assertFalse(test_exp.parameters[0].is_active)
+        self.assertTrue(test_exp.parameters[1].is_active)
+        # set second param inactive
+        test_exp.set_parameter_activity("active_param2", False)
+        np.testing.assert_array_equal(
+            test_exp.parameters[1].data_points, np.array([14, 15, 16])
+        )
+        self.assertFalse(test_exp.parameters[0].is_active)
+        self.assertFalse(test_exp.parameters[1].is_active)
+        # reactivate both params
+        test_exp.set_parameter_activity("active_param1", True)
+        test_exp.set_parameter_activity("active_param2", True)
+        self.assertTrue(test_exp.parameters[0].is_active)
+        self.assertTrue(test_exp.parameters[1].is_active)
 
     def test_add_optimization_information(self) -> None:
         """Test the addition of `OptimizationInfo` to an `Experiment`."""

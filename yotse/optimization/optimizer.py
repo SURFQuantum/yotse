@@ -135,20 +135,23 @@ class Optimizer:
                 raise RuntimeError(
                     "trying to construct_points evolutionary for an algorithm that does not support it."
                 )
-            experiment.data_points = self.optimization_algorithm.get_new_points()
+            # get new data_points for active_params
+            new_active_points = self.optimization_algorithm.get_new_points()
+            # no need to write them to opt_alg since they are already there
         else:
             print(
                 "Warning: Grid based point generation currently not supporting constraints!"
             )
-
-            # update data_points of the experiment
-            experiment.data_points = self.grid_based_point_creation(
+            # create new data_points for active_params
+            new_active_points = self.grid_based_point_creation(
                 experiment=experiment, points_per_param=points_per_param
             )
+            # write new active_params to opt_algo
             self.optimization_algorithm.overwrite_internal_data_points(
-                experiment.data_points
+                new_active_points
             )
             self._is_executed = False
+        experiment.update_data_points(new_active_points)
 
     def grid_based_point_creation(
         self, experiment: Experiment, points_per_param: Optional[int] = None

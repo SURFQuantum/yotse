@@ -311,10 +311,10 @@ class TestGenericOptimization(unittest.TestCase):
         test_exp = Experiment(experiment_name="test", system_setup=None)  # type: ignore[arg-type]
         test_optimization = GenericOptimization(function=None)  # type: ignore[abstract, arg-type]
 
-        test_exp.data_points = test_points
+        test_exp._data_points = test_points
         test_optimization.update_internal_cost_data(data=test_df)
         self.assertTrue(test_optimization.input_param_cost_df.equals(test_df))
-        test_exp.data_points = test_points2
+        test_exp._data_points = test_points2
         test_optimization.update_internal_cost_data(data=test_df2)
         self.assertTrue(test_optimization.input_param_cost_df.equals(test_df2))
         # test float representation errors
