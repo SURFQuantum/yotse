@@ -5,16 +5,16 @@ from typing import Any
 from typing import Callable
 from typing import List
 from typing import Tuple
+import os
 
 import numpy as np
 import pandas as pd
 import pytest
 from utils import create_default_executor
-from utils import create_default_experiment
-from utils import create_default_param
+from utils import create_default_param, DUMMY_FILE
 
 from yotse.optimization.modded_pygad_ga import ModGA  # type: ignore[attr-defined]
-from yotse.pre import OptimizationInfo
+from yotse.pre import OptimizationInfo, Experiment, SystemSetup
 
 
 class TestNewOpt(unittest.TestCase):
@@ -64,10 +64,26 @@ class TestNewOpt(unittest.TestCase):
 
     def test_population_lookup(self) -> None:
         """Test population lookup."""
+
+        class MockExperiment(Experiment):
+            """MockExperiment that allows for passing initial populations directly to
+            the optimizer."""
+
+            @staticmethod
+            def create_initial_active_param_cprod() -> np.ndarray:
+                """Instead of cprod just pass self.initial_pop."""
+                return self.initial_pop
+
         # todo : this test seems to still test something that no other test picks up (aka the input_to_cost_value func)
         print("Initial pop has size", len(self.initial_pop))
         test_param = [create_default_param() for _ in range(3)]
-        test_exp = create_default_experiment(
+        test_exp = MockExperiment(
+            experiment_name="test_exp",
+            system_setup=SystemSetup(
+                source_directory=os.getcwd(),
+                program_name=DUMMY_FILE,
+                command_line_arguments={"arg1": 0.1, "arg2": "value2"},
+            ),
             parameters=test_param,
             opt_info_list=[
                 OptimizationInfo(

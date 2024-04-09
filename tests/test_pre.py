@@ -237,9 +237,6 @@ class TestParameters(unittest.TestCase):
     def test_update_parameter_through_dependency(self) -> None:
         """Test the update of a `Parameter` that depends on another parameter."""
         # Create a mock experiment with parameters
-        # todo: should we require param and dependency to have the same num of points? (what would it mean if they don't??)
-        # A: yes! implement check and test
-        # todo also test what happens if there are multiple params
         param_a = Parameter(
             "A",
             param_range=[1, 3],
@@ -267,22 +264,22 @@ class TestParameters(unittest.TestCase):
         # test initial datapoints
         test_exp = create_default_experiment(parameters=[param_a, param_b, param_c])
         self.assertEqual(test_exp.data_points.shape, (3 * 3 * 4, 3))
-        print("testing", param_a.data_points)
-        assert (param_a.data_points == np.array([1.0 + 4, 2.0 + 5, 3.0 + 6])).all()
+        np.testing.assert_array_equal(
+            param_a.data_points, np.array([1.0 + 4, 2.0 + 5, 3.0 + 6])
+        )
 
         # Test the update
-        print("current datapoints", test_exp.data_points, test_exp.data_points.shape)
-        print(param_a.data_points)
         new_data = np.array(list(itertools.product([1, 2, 3], [11, 22, 33])))
-        print("new", new_data)
         test_exp.update_parameters_through_dependency(new_active_data_points=new_data)
 
         # Check if the data_points were updated correctly
         self.assertTrue(isinstance(param_a.data_points, np.ndarray))
-        np.testing.assert_array_equal(param_a.data_points, np.array([5, 7, 9]))
+        np.testing.assert_array_equal(
+            param_a.data_points, np.array([5.0 + 1, 7.0 + 2, 9.0 + 3])
+        )
 
-        # Check if the constraints were updated correctly
-        self.assertEqual(param_a.constraints, {"low": 0, "high": 15})
+        # Check if the constraints were updated correctly (constr_a + constr_b + constr_b, once at init + once at upd)
+        self.assertEqual(param_a.constraints, {"low": 0, "high": 5 + 10 + 10})
 
     def test_is_active_property(self) -> None:
         """Test to verify the `is_active` property of a `Parameter`."""
@@ -440,9 +437,9 @@ class TestExperiment(unittest.TestCase):
                 parameter_active=True,
             )
         )
-        test_exp._data_points = test_exp.create_datapoint_c_product()
+        test_exp._data_points = test_exp.create_initial_active_param_cprod()
 
-        assert np.array_equal(
+        np.testing.assert_array_equal(
             test_exp.data_points,
             np.array(
                 list(
@@ -455,7 +452,7 @@ class TestExperiment(unittest.TestCase):
         # now activate 'inactive_param' and regenerate points
         test_exp.set_parameter_activity("inactive_param", True)
         assert test_exp.parameters[1].is_active
-        test_exp._data_points = test_exp.create_datapoint_c_product()
+        test_exp._data_points = test_exp.create_initial_active_param_cprod()
         assert np.array_equal(
             test_exp.data_points,
             np.array(
@@ -471,7 +468,7 @@ class TestExperiment(unittest.TestCase):
         # now deactivate 'active_param1' and 'active_param2' and regenerate points
         test_exp.set_parameter_activity("active_param1", False)
         test_exp.set_parameter_activity("active_param2", False)
-        test_exp._data_points = test_exp.create_datapoint_c_product()
+        test_exp._data_points = test_exp.create_initial_active_param_cprod()
         assert test_exp.parameters[0].is_active is False
         assert test_exp.parameters[2].is_active is False
         assert np.array_equal(test_exp.data_points, np.array([[11.0], [12.0], [13.0]]))

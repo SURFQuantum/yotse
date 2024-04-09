@@ -68,7 +68,7 @@ def main() -> None:
     param_switch_example.experiment.set_parameter_activity("z", True)
     # create new datapoints with new active params and write them to experiment
     param_switch_example.experiment.data_points = (
-        param_switch_example.experiment.create_datapoint_c_product()
+        param_switch_example.experiment.create_initial_active_param_cprod()
     )
     # todo: maybe nice additional functionality could be that this is done automatically when params have changed.
 

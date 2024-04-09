@@ -140,6 +140,9 @@ class Executor:
 
             if opt_info.blackbox_optimization:
                 self.blackbox_optimization = True
+                initial_active_data_points = (
+                    self.experiment.create_initial_active_param_cprod()
+                )
                 # todo: moving refinement factors to params is also an option
                 # ref_factors = [param.refinement_factor for param in experiment.parameters if param.is_active]
                 # if None in ref_factors or len(ref_factors) != len([p for p in experiment.parameters if p.is_active]):
@@ -163,7 +166,7 @@ class Executor:
                 if opt_info.name.lower() == "ga":
                     optimization_alg = GAOpt(
                         blackbox_optimization=True,
-                        initial_data_points=self.experiment.data_points,
+                        initial_data_points=initial_active_data_points,
                         # gene_type=param_types,
                         gene_space=constraints,  # type: ignore
                         **opt_info.opt_parameters,
@@ -173,7 +176,7 @@ class Executor:
                 elif opt_info.name.lower() == "bayesopt":
                     optimization_alg = BayesOpt(
                         blackbox_optimization=True,
-                        initial_data_points=self.experiment.data_points,
+                        initial_data_points=initial_active_data_points,
                         pbounds={
                             param.name: (
                                 int(param.range[0]),

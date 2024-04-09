@@ -129,6 +129,11 @@ class Parameter:
             raise NotImplementedError("scale_factor not implemented yet.")
         self.scale_factor = scale_factor
         self.depends_on = depends_on
+        if parameter_active and depends_on is not None:
+            raise ValueError(
+                f"Cannot set both parameter_active and depends_on at the same time for {self.name}. "
+                f"Only non active parameters can have dependencies."
+            )
         self._is_active = parameter_active
 
         self.data_points = self.generate_initial_data_points()
@@ -141,16 +146,6 @@ class Parameter:
         `Experiment` class.
         """
         return self._is_active
-
-    # @is_active.setter
-    # def is_active(self, parameter_active: bool) -> None:
-    #     """Set active status of parameter."""
-    #     if parameter_active and self.depends_on is not None:
-    #         raise ValueError(
-    #             f"Cannot set both parameter_active and depends_on at the same time for {self.name}. "
-    #             f"Only non active parameters can have dependencies."
-    #         )
-    #     self._is_active = parameter_active
 
     def generate_data_points(self, num_points: int) -> np.ndarray:
         """Generate set of n=num_points data points based on the specified distribution,
@@ -455,8 +450,10 @@ class Experiment:
                         f"Items in opt_info_list should be of type OptimizationInfo not {type(item)}."
                     )
             self.opt_info_list = list(opt_info_list)
-        # todo: to avoid confusion maybe it is useful to call the datapoints of the exp different than those of params
-        self._data_points: np.ndarray = self.create_datapoint_c_product()
+
+        self._data_points: np.ndarray = self.cprod_active_inactive_data_points(
+            self.create_initial_active_param_cprod()
+        )
         self._cost_function: Optional[Callable[..., float]] = None
 
     @property
@@ -558,6 +555,11 @@ class Experiment:
             param.data_points = np.array(sorted(set(param_values)))
             param._is_active = False
         else:
+            if param.depends_on is not None:
+                raise ValueError(
+                    f"Cannot set both parameter_active and depends_on at the same time for {self.name}. "
+                    f"Only non active parameters can have dependencies."
+                )
             param._is_active = True
 
     @property
@@ -596,13 +598,22 @@ class Experiment:
                 if param.name == dep_param.depends_on["name"]  # type: ignore[index]
             ][0]
             target_index = active_params.index(target_parameter)
-
             # update data points for this param
             new_data_points = [
                 dep_param.depends_on["function"](a, b)  # type: ignore[index]
                 for a, b in zip(
                     dep_param.data_points,
-                    [data_point[target_index] for data_point in new_active_data_points],
+                    # sorted list of unique datapoints of param b
+                    sorted(
+                        list(
+                            set(
+                                [
+                                    data_point[target_index]
+                                    for data_point in new_active_data_points
+                                ]
+                            )
+                        )
+                    ),
                 )
             ]
             dep_param.data_points = np.array(new_data_points)
@@ -640,8 +651,9 @@ class Experiment:
                         f"{type(dep_param.constraints)} and {type(target_parameter.constraints)}."
                     )
 
-    def create_datapoint_c_product(self) -> np.ndarray:
-        """Create initial set of points as Cartesian product of all active parameters.
+    def create_initial_active_param_cprod(self) -> np.ndarray:
+        """Create initial set of points as Cartesian product of all active parameters
+        and makes sure inactive params that depend on active params are updated.
 
         Overwrite if other combination is needed.
         """
@@ -668,7 +680,8 @@ class Experiment:
                 new_active_data_points=data_points
             )
 
-            return self.cprod_active_inactive_data_points(data_points)
+            return data_points
+
         else:
             return np.array(())
 

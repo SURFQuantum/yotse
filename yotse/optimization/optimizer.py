@@ -233,7 +233,7 @@ class Optimizer:
                     param.data_points = param.generate_data_points(
                         num_points=param.number_points
                     )
-        return experiment.create_datapoint_c_product()
+        return experiment.create_initial_active_param_cprod()
 
     def update_blackbox_cost_data(
         self, experiment: Experiment, data: pandas.DataFrame

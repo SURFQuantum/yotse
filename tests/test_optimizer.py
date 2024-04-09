@@ -123,10 +123,10 @@ class TestOptimizer(unittest.TestCase):
             test_exp.data_points = test_points[:2]
             test_opt.update_blackbox_cost_data(experiment=test_exp, data=test_df)
 
-        test_exp.data_points = test_points
+        test_exp._data_points = test_points
         test_opt.update_blackbox_cost_data(experiment=test_exp, data=test_df)
         self.assertTrue(test_optimization.input_param_cost_df.equals(test_df))
-        test_exp.data_points = test_points2
+        test_exp._data_points = test_points2
         test_opt.update_blackbox_cost_data(experiment=test_exp, data=test_df2)
         self.assertTrue(test_optimization.input_param_cost_df.equals(test_df2))
         # test float representation errors
