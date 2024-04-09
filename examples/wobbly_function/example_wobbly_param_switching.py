@@ -1,5 +1,6 @@
 """This module demonstrates the process for parameter switching during optimization
 using the Yotse framework."""
+
 from examples.wobbly_function.example_wobbly_main import remove_files_after_run
 from examples.wobbly_function.example_wobbly_main import wobbly_pre
 from yotse.execution import Executor
@@ -63,11 +64,11 @@ def main() -> None:
     print("Solution after first GA: ", solution)
 
     # Switching active params from param 1 & 2 to param 2 & 3
-    param_switch_example.experiment.parameters[0].parameter_active = False
-    param_switch_example.experiment.parameters[2].parameter_active = True
+    param_switch_example.experiment.set_parameter_activity("x", False)
+    param_switch_example.experiment.set_parameter_activity("z", True)
     # create new datapoints with new active params and write them to experiment
     param_switch_example.experiment.data_points = (
-        param_switch_example.experiment.create_datapoint_c_product()
+        param_switch_example.experiment.create_initial_active_param_cprod()
     )
     # todo: maybe nice additional functionality could be that this is done automatically when params have changed.
 

@@ -1,4 +1,5 @@
 """Defines classes and functions for the setup of your experiment."""
+
 from __future__ import annotations
 
 import argparse
@@ -116,7 +117,6 @@ class Parameter:
         if weights is not None:
             raise NotImplementedError("weights not implemented...yet.")
         self.constraints = constraints
-        self.parameter_active = parameter_active
         self.data_points: np.array = np.array(())
         if custom_distribution is not None and distribution != "custom":
             raise ValueError(
@@ -129,13 +129,23 @@ class Parameter:
             raise NotImplementedError("scale_factor not implemented yet.")
         self.scale_factor = scale_factor
         self.depends_on = depends_on
+        if parameter_active and depends_on is not None:
+            raise ValueError(
+                f"Cannot set both parameter_active and depends_on at the same time for {self.name}. "
+                f"Only non active parameters can have dependencies."
+            )
+        self._is_active = parameter_active
 
         self.data_points = self.generate_initial_data_points()
 
     @property
     def is_active(self) -> bool:
-        """Whether this parameter is active (=used for the current optimization)."""
-        return self.parameter_active
+        """Whether this parameter is active (=used for the current optimization).
+
+        Activity should be changed via the
+        `Experiment` class.
+        """
+        return self._is_active
 
     def generate_data_points(self, num_points: int) -> np.ndarray:
         """Generate set of n=num_points data points based on the specified distribution,
@@ -230,81 +240,6 @@ class Parameter:
         """Generate initial data points based on the specified distribution and
         range."""
         return self.generate_data_points(num_points=self.number_points)
-
-    def update_parameter_through_dependency(
-        self, parameter_list: List[Parameter]
-    ) -> None:
-        """Update data points and constraints for this parameter based on another
-        parameter's data points and constraints.
-
-        Parameters
-        ----------
-        parameter_list : list
-            List of (all) Parameter objects in the experiment. Should at least contain the parameter that this
-            parameter depends on.
-
-        Notes
-        -----
-        # todo : this will only be applied once before the start of the experiment. Is that useful?
-        """
-        if self.depends_on is None:
-            raise ValueError(
-                "self.depends_on is None, but it needs to be a dict to proceed."
-            )
-
-        target_parameter = [
-            param for param in parameter_list if param.name == self.depends_on["name"]
-        ][0]
-        # update data points
-        new_data_points = [
-            self.depends_on["function"](a, b)
-            for a, b in zip(self.data_points, target_parameter.data_points)
-        ]
-        # update constraints
-        if self.constraints is not None:
-            if isinstance(self.constraints, dict) and isinstance(
-                target_parameter.constraints, dict
-            ):
-                self.constraints["low"] = self.depends_on["function"](
-                    self.constraints["low"], target_parameter.constraints["low"]
-                )
-                self.constraints["high"] = self.depends_on["function"](
-                    self.constraints["high"], target_parameter.constraints["high"]
-                )
-                try:
-                    if (
-                        self.constraints["step"] is not None
-                        and target_parameter.constraints["step"] is not None
-                    ):
-                        # step is not necessary to specify
-                        self.constraints["step"] = self.depends_on["function"](
-                            self.constraints["step"],
-                            target_parameter.constraints["step"],
-                        )
-                except KeyError:
-                    pass
-            elif isinstance(self.constraints, tuple) and isinstance(
-                target_parameter.constraints, tuple
-            ):
-                updated_constraints: List[float] = []
-                if len(self.constraints) != len(target_parameter.constraints):
-                    raise ValueError(
-                        "Can not compute dependency for parameter with different number of allowed values."
-                    )
-                for i, value in enumerate(self.constraints):
-                    updated_constraints.append(
-                        self.depends_on["function"](
-                            value, target_parameter.constraints[i]
-                        )
-                    )
-                self.constraints = tuple(updated_constraints)
-            else:
-                raise ValueError(
-                    f"For parameters that depend on each other the constraints must be of the same type and not "
-                    f"{type(self.constraints)} and {type(target_parameter.constraints)}."
-                )
-
-        self.data_points = np.array(new_data_points)
 
 
 class SystemSetup:
@@ -515,9 +450,117 @@ class Experiment:
                         f"Items in opt_info_list should be of type OptimizationInfo not {type(item)}."
                     )
             self.opt_info_list = list(opt_info_list)
-        # todo: to avoid confusion maybe it is useful to call the datapoints of the exp different than those of params
-        self.data_points: np.ndarray = self.create_datapoint_c_product()
+
+        self._data_points: np.ndarray = self.cprod_active_inactive_data_points(
+            self.create_initial_active_param_cprod()
+        )
         self._cost_function: Optional[Callable[..., float]] = None
+
+    @property
+    def data_points(self) -> np.ndarray:
+        """Return data_points."""
+        return self._data_points
+
+    @data_points.setter
+    def data_points(self, data_points: np.ndarray) -> None:
+        """Set data_points of the experiment and check if they are valid."""
+        assert isinstance(data_points, np.ndarray)
+        if data_points.shape[1] == len(self.parameters):
+            self._data_points = data_points
+        else:
+            raise ValueError(
+                f"data_points must have the same length as number of parameters in the experiment, here: shape={data_points.shape} while num_params={len(self.parameters)}."
+            )
+
+    def update_data_points(self, new_active_data_points: np.ndarray) -> None:
+        """Update the data points of the experiment with new data points from active
+        parameters.
+
+        Parameters
+        ----------
+        new_active_data_points : np.ndarray
+            Array of shape (num_points, num_active_params) containing all new data_points for the active params.
+            Note: Ordering should be the same as in `self.parameters` (excluding inactive params)
+        """
+        # update dependent_params
+        self.update_parameters_through_dependency(
+            new_active_data_points=new_active_data_points
+        )
+        # cross active with inactive params
+        self._data_points = self.cprod_active_inactive_data_points(
+            new_active_data_points
+        )
+
+    def cprod_active_inactive_data_points(
+        self, active_data_points: np.ndarray
+    ) -> np.ndarray:
+        """Takes the cartesian product of all datapoints of active parameters and then
+        calculates the cartesian product of that with all datapoints of inactive
+        parameters to create an array with all possible combinations of datapoints.
+
+        Example:
+            We have 5 parameters with a,b,c,d,e datapoints respectively. a,b,c are active, and d,e are inactive.
+            active_data_points will be an array of shape (a*b*c, 3) while d, e have datapoints of size (d,) and (e,)
+            respectively.
+
+            This function will output the cartesian product of all datapoints of shape (a*b*c*d*e, 5)
+        """
+        # Collect data points of inactive parameters
+        inactive_data_points = [
+            param.data_points for param in self.parameters if not param.is_active
+        ]
+        # Calculate the Cartesian product of active and inactive data points
+        combined_data_points = list(
+            itertools.product(active_data_points, *inactive_data_points)
+        )
+
+        # map new order of parameters to original ordering
+        original_ordered_param_names = [param.name for param in self.parameters]
+        current_ordering_param_name = [
+            param.name for param in self.parameters if param.is_active
+        ] + [param.name for param in self.parameters if not param.is_active]
+        index_mapping = {
+            i: current_ordering_param_name.index(original_ordered_param_names[i])
+            for i in range(len(original_ordered_param_names))
+        }
+        # manipulate individual datapoints after product
+        expanded_points = []
+        for point in combined_data_points:
+            # simply expand each object from ((a,b,c),d,e) to (a,b,c,d,e)
+            new_point = list(point[0])
+            new_point.extend(point[1:])
+            # reorder each point according to param.names
+            reordered_point = [
+                new_point[index_mapping[i]] for i in range(len(new_point))
+            ]
+            expanded_points.append(tuple(reordered_point))
+
+        return np.array(expanded_points)
+
+    def set_parameter_activity(self, param_name: str, active: bool) -> None:
+        """Set Parameter to active or inactive.
+
+        Parameters
+        ----------
+        param_name : str
+            Name of the parameter.
+        active : bool
+            Activity to set. True -> param.is_active = True and vice versa.
+        """
+        param = [param for param in self.parameters if param.name == param_name][0]
+        param_index = self.parameters.index(param)
+        if not active:
+            # deactivating parameter, write latest parameter values from experiment.data_points
+            param_values = [dp[param_index] for dp in self.data_points.tolist()]
+            param.data_points = np.array(sorted(set(param_values)))
+            param._is_active = False
+        else:
+            if param.depends_on is not None:
+                raise ValueError(
+                    f"Cannot set both parameter_active and depends_on at the same time for {self.name}. "
+                    f"Only non active parameters can have dependencies."
+                )
+            param._is_active = True
 
     @property
     def cost_function(self) -> Union[Callable[..., float], None]:
@@ -539,8 +582,78 @@ class Experiment:
             raise ValueError("Input cost_function is not a function.")
         self._cost_function = func
 
-    def create_datapoint_c_product(self) -> np.ndarray:
-        """Create initial set of points as Cartesian product of all active parameters.
+    def update_parameters_through_dependency(
+        self, new_active_data_points: np.ndarray
+    ) -> None:
+        """Update data points and constraints for all parameters that depend on other
+        parameters based on that other parameter's data points and constraints."""
+        dependent_params = [
+            param for param in self.parameters if param.depends_on is not None
+        ]
+        for dep_param in dependent_params:
+            active_params = [param for param in self.parameters if param.is_active]
+            target_parameter = [
+                param
+                for param in active_params
+                if param.name == dep_param.depends_on["name"]  # type: ignore[index]
+            ][0]
+            target_index = active_params.index(target_parameter)
+            # update data points for this param
+            new_data_points = [
+                dep_param.depends_on["function"](a, b)  # type: ignore[index]
+                for a, b in zip(
+                    dep_param.data_points,
+                    # sorted list of unique datapoints of param b
+                    sorted(
+                        list(
+                            set(
+                                [
+                                    data_point[target_index]
+                                    for data_point in new_active_data_points
+                                ]
+                            )
+                        )
+                    ),
+                )
+            ]
+            dep_param.data_points = np.array(new_data_points)
+
+            # update constraints
+            if dep_param.constraints is not None:
+                if isinstance(dep_param.constraints, dict) and isinstance(
+                    target_parameter.constraints, dict
+                ):
+                    dep_param.constraints["low"] = dep_param.depends_on["function"](  # type: ignore[index]
+                        dep_param.constraints["low"],
+                        target_parameter.constraints["low"],
+                    )
+                    dep_param.constraints["high"] = dep_param.depends_on["function"](  # type: ignore[index]
+                        dep_param.constraints["high"],
+                        target_parameter.constraints["high"],
+                    )
+                    try:
+                        if (
+                            dep_param.constraints["step"] is not None
+                            and target_parameter.constraints["step"] is not None
+                        ):
+                            # step is not necessary to specify
+                            dep_param.constraints["step"] = dep_param.depends_on[  # type: ignore[index]
+                                "function"
+                            ](
+                                dep_param.constraints["step"],
+                                target_parameter.constraints["step"],
+                            )
+                    except KeyError:
+                        pass
+                else:
+                    raise ValueError(
+                        f"For parameters that depend on each other the constraints must be of the same type and not "
+                        f"{type(dep_param.constraints)} and {type(target_parameter.constraints)}."
+                    )
+
+    def create_initial_active_param_cprod(self) -> np.ndarray:
+        """Create initial set of points as Cartesian product of all active parameters
+        and makes sure inactive params that depend on active params are updated.
 
         Overwrite if other combination is needed.
         """
@@ -551,8 +664,7 @@ class Experiment:
                     raise TypeError(
                         f"One of the parameters is not of correct type 'Parameter', but is {type(param)}"
                     )
-                if param.depends_on is not None:
-                    param.update_parameter_through_dependency(self.parameters)
+
             active_params = [param for param in self.parameters if param.is_active]
             if len(active_params) == 1:
                 # single param -> reshape to 2D array where each row is a single data point
@@ -563,7 +675,13 @@ class Experiment:
                     itertools.product(*[param.data_points for param in active_params])
                 )
                 data_points = np.array(data_points_list)
+
+            self.update_parameters_through_dependency(
+                new_active_data_points=data_points
+            )
+
             return data_points
+
         else:
             return np.array(())
 

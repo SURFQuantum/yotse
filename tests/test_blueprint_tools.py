@@ -1,4 +1,5 @@
 """Unit tests for the `blueprint_tools.py module."""
+
 import os
 import shutil
 import tempfile
