@@ -2,9 +2,10 @@
 
 For more details, refer to the [documentation](https://surfquantum.github.io/yotse/).
 
-## (upcoming)
+## [1.0.1] - 2025-01-16
 * added `dependabot` to update `github-actions`
 * added [zenodo](https://zenodo.org/) DOI
+* updated dependencies
 
 ## [1.0.0] - 2024-01-31
 * separated optimizations in blackbox and analytical (where the function is known).
