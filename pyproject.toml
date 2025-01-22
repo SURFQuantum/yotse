@@ -26,7 +26,7 @@ pandas = "^2.0.0"
 pygad = ">=3.0.0, <3.1.0"
 ruamel-yaml = "^0.17.40"
 scipy = "^1.11.4"
-bayesian-optimization = "^1.4.3"
+bayesian-optimization = "^2.0.0"
 qcg-pilotjob = "^0.14.1"
 
 [tool.poetry.group.dev.dependencies]
