@@ -8,6 +8,7 @@ Classes
 ModGA:
     A modified Genetic Algorithm class that extends the functionality of the GA class in the PyGAD library.
 """
+
 import time
 
 import numpy
@@ -550,20 +551,20 @@ class ModGA(GA):
                     self.population = self.last_generation_offspring_mutation
                 elif self.keep_parents == -1:
                     # Creating the new population based on the parents and offspring.
-                    self.population[
-                        0 : self.last_generation_parents.shape[0], :
-                    ] = self.last_generation_parents
-                    self.population[
-                        self.last_generation_parents.shape[0] :, :
-                    ] = self.last_generation_offspring_mutation
+                    self.population[0 : self.last_generation_parents.shape[0], :] = (
+                        self.last_generation_parents
+                    )
+                    self.population[self.last_generation_parents.shape[0] :, :] = (
+                        self.last_generation_offspring_mutation
+                    )
                 elif self.keep_parents > 0:
                     parents_to_keep, _ = self.steady_state_selection(
                         self.last_generation_fitness, num_parents=self.keep_parents
                     )
                     self.population[0 : parents_to_keep.shape[0], :] = parents_to_keep
-                    self.population[
-                        parents_to_keep.shape[0] :, :
-                    ] = self.last_generation_offspring_mutation
+                    self.population[parents_to_keep.shape[0] :, :] = (
+                        self.last_generation_offspring_mutation
+                    )
             else:
                 (
                     self.last_generation_elitism,
@@ -571,12 +572,12 @@ class ModGA(GA):
                 ) = self.steady_state_selection(
                     self.last_generation_fitness, num_parents=self.keep_elitism
                 )
-                self.population[
-                    0 : self.last_generation_elitism.shape[0], :
-                ] = self.last_generation_elitism
-                self.population[
-                    self.last_generation_elitism.shape[0] :, :
-                ] = self.last_generation_offspring_mutation
+                self.population[0 : self.last_generation_elitism.shape[0], :] = (
+                    self.last_generation_elitism
+                )
+                self.population[self.last_generation_elitism.shape[0] :, :] = (
+                    self.last_generation_offspring_mutation
+                )
 
             self.generations_completed = (
                 generation + 1

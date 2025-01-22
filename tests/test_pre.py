@@ -1,5 +1,6 @@
 """Unit tests for the `yotse.pre` package's `Parameter`, `SystemSetup`, and `Experiment`
 classes."""
+
 import itertools
 import os
 import unittest
@@ -517,14 +518,14 @@ class TestExperiment(unittest.TestCase):
         for line_num, (generated_line, expected_line) in enumerate(
             zip(script_contents, expected_output), start=1
         ):
-            assert (
-                generated_line == expected_line
-            ), f"Line {line_num} of the generated slurm.job file does not match the expected output."
+            assert generated_line == expected_line, (
+                f"Line {line_num} of the generated slurm.job file does not match the expected output."
+            )
 
         # Ensure that the number of lines in the generated file matches the expected number of lines
-        assert (
-            len(script_contents) == len(expected_output)
-        ), "The generated slurm.job file has a different number of lines than the expected output."
+        assert len(script_contents) == len(expected_output), (
+            "The generated slurm.job file has a different number of lines than the expected output."
+        )
 
         os.remove("slurm.job")
 

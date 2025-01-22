@@ -1,4 +1,5 @@
 """Defines classes and functions for the execution of your experiment."""
+
 import os
 import pickle
 from typing import Any
@@ -57,7 +58,9 @@ class Executor:
         if "--resume" in self.experiment.system_setup.cmdline_arguments:
             assert isinstance(
                 self.experiment.system_setup.cmdline_arguments["--resume"], str
-            ), "--resume keyword must be passed a string describing the path to the aux directory."
+            ), (
+                "--resume keyword must be passed a string describing the path to the aux directory."
+            )
             # if resuming the simulation, load state from file
             self.load_executor_state(
                 aux_directory=self.experiment.system_setup.cmdline_arguments["--resume"]

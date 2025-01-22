@@ -1,4 +1,5 @@
 """Miscellaneous unit tests."""
+
 import os
 import unittest
 from typing import Any

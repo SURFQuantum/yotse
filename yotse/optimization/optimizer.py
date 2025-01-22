@@ -8,6 +8,7 @@ Classes
 Optimizer:
     A class that wraps around a generic optimization algorithm.
 """
+
 import math
 from typing import List
 from typing import Optional
@@ -189,9 +190,9 @@ class Optimizer:
             print("Solution:     ", solution)
             print(f"Fitness value: {solution_fitness}")
         ref_factors = self.optimization_algorithm.refinement_factors
-        assert (
-            ref_factors is not None
-        ), "refinement factors can not be None for grid_bases_point_creation."
+        assert ref_factors is not None, (
+            "refinement factors can not be None for grid_bases_point_creation."
+        )
         if len(ref_factors) != len(experiment.parameters):
             raise ValueError(
                 f"Length of refinement factors {len(ref_factors)} "

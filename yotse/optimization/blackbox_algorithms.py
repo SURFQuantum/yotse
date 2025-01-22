@@ -1,5 +1,6 @@
 """Collection of Subclasses of :class:GenericOptimization implementing different
 optimization algorithms."""
+
 from typing import Any
 from typing import Callable
 from typing import Dict

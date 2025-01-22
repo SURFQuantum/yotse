@@ -1,4 +1,5 @@
 """Defines classes and functions for the setup of your experiment."""
+
 from __future__ import annotations
 
 import argparse
@@ -616,7 +617,7 @@ class Experiment:
             for module in self.system_setup.modules:
                 script += f"module load {module}\n"
         if self.system_setup.slurm_venv is not None:
-            script += f"source {os.path.join(self.system_setup.slurm_venv,'bin/activate')}\n\n"
+            script += f"source {os.path.join(self.system_setup.slurm_venv, 'bin/activate')}\n\n"
         script += f"python {filename}\n"
 
         with open(

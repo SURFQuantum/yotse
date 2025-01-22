@@ -13,6 +13,7 @@ Functions:
     - find_poly_fit: Method to find the best-fitting polynomial for given data.
 
 """
+
 import warnings
 from typing import Any
 from typing import List

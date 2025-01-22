@@ -1,4 +1,5 @@
 """Module to provide poetry with functions to run all tests."""
+
 import os
 import subprocess
 import webbrowser

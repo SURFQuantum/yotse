@@ -1,4 +1,5 @@
 """Mock function for Testing."""
+
 import csv
 import sys
 from datetime import datetime
@@ -10,7 +11,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         # used as run script with params as input
         var = float(sys.argv[2])
-        filename = f'myoutput_{datetime.now().strftime("%Y-%m-%d_%H:%M:%S")}.csv'
+        filename = f"myoutput_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}.csv"
         print("f x y")
         with open(filename, "w") as file:
             writer = csv.writer(file, delimiter=" ")
