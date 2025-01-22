@@ -397,7 +397,7 @@ class Executor:
                 os.path.join(
                     self.experiment.system_setup.current_step_directory, "output.csv"
                 ),
-                delim_whitespace=True,
+                sep="\s+",
             )
         return data
 
