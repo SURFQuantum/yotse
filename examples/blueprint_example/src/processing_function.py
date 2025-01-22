@@ -3,6 +3,7 @@ file, processes the simulation data generated with them, computes the cost accor
 the cost function defined in total_cost and writes it, together with the optimization
 parameters to a csv file in a format that can be read by smart-stopos and use to
 generate new sets of parameters."""
+
 import os
 import pickle
 from argparse import ArgumentParser

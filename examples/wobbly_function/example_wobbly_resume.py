@@ -4,6 +4,7 @@ using the Yotse framework.
 It initializes the optimization process, runs for a few generations, and then showcases
 how to resume the process from where it left off.
 """
+
 from examples.wobbly_function.example_wobbly_main import remove_files_after_run
 from examples.wobbly_function.example_wobbly_main import wobbly_pre
 from yotse.execution import Executor
@@ -27,9 +28,9 @@ def main() -> None:
 
     # write resume parameter to experiment
     resume_experiment = wobbly_pre()
-    resume_experiment.system_setup.cmdline_arguments[
-        "--resume"
-    ] = stop_resume_example.aux_dir
+    resume_experiment.system_setup.cmdline_arguments["--resume"] = (
+        stop_resume_example.aux_dir
+    )
 
     resume_example = Executor(experiment=resume_experiment)
     for i in range(

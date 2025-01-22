@@ -1,11 +1,13 @@
 """Collection of Subclasses of :class:GenericOptimization implementing different
 optimization algorithms."""
+
 from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
+from typing import Mapping
 
 import numpy as np
 from bayes_opt import BayesianOptimization
@@ -230,7 +232,7 @@ class BayesOpt(GenericOptimization):
     ----------
     blackbox_optimization: bool
         Whether this is used as a blackbox optimization.
-    pbounds: dict
+    pbounds: Mapping[str, tuple[float, float]]
         Dictionary with parameters names as keys and a tuple with minimum
         and maximum values.
     initial_data_points: np.ndarray (optional)
@@ -250,7 +252,7 @@ class BayesOpt(GenericOptimization):
     def __init__(
         self,
         blackbox_optimization: bool,
-        pbounds: Dict[Any, Tuple[int, int]],
+        pbounds: Mapping[str, tuple[float, float]],
         initial_data_points: Optional[np.ndarray] = None,
         naive_parallelization: bool = False,
         grid_size: int = 1,
@@ -307,7 +309,7 @@ class BayesOpt(GenericOptimization):
 
         # set initial point to investigate
         if initial_data_points is None:
-            self.next_point_to_probe = optimizer.suggest(self.utility_function)
+            self.next_point_to_probe = optimizer.suggest()
             if self.naive_parallelization:
                 self.overwrite_internal_data_points(
                     self.create_points_around_suggestion(self.next_point_to_probe)
@@ -383,7 +385,7 @@ class BayesOpt(GenericOptimization):
         new_points : np.ndarray
             New points for the next iteration of the optimization.
         """
-        next_point = self.optimization_instance.suggest(self.utility_function)
+        next_point = self.optimization_instance.suggest()
         if self.naive_parallelization:
             new_points = self.create_points_around_suggestion(next_point)
         else:
@@ -415,9 +417,10 @@ class BayesOpt(GenericOptimization):
                 * (param_bounds[p][1] - param_bounds[p][0])
                 * 0.5
             )
+            # make sure no points outside the bounds are suggested
             grid_range = [
-                param_values[p] - delta_param,
-                param_values[p] + delta_param,
+                max(param_values[p] - delta_param, param_bounds[p][0]),
+                min(param_values[p] + delta_param, param_bounds[p][1]),
             ]
             new_points_in_grid = np.linspace(
                 grid_range[0], grid_range[1], self.grid_size

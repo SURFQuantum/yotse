@@ -1,6 +1,7 @@
 """This module demonstrates the process for a blackbox bayesian optimization using the
 Yotse framework."""
-from bayes_opt import UtilityFunction
+
+from bayes_opt.acquisition import UpperConfidenceBound
 
 from examples.wobbly_function.example_wobbly_main import remove_files_after_run
 from examples.wobbly_function.example_wobbly_main import wobbly_pre
@@ -27,7 +28,7 @@ def main() -> None:
         name="bayesopt",
         blackbox_optimization=True,
         opt_parameters={
-            "utility_function": UtilityFunction(kind="ucb", kappa=2.5, xi=0.0),
+            "utility_function": UpperConfidenceBound(kappa=2.5),
             "n_iter": 10,
         },
         is_active=True,

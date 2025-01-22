@@ -4,6 +4,7 @@ framework, specifically designed to optimize a 'wobbly function'.
 It leverages genetic algorithms for the optimization process, handles file management,
 and cleans up after execution, showcasing a very basic use-case.
 """
+
 import os
 import shutil
 from typing import Any
